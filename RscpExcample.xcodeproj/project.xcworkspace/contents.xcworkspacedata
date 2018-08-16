@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:../AES.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:../AES.h">
+   </FileRef>
+   <FileRef
+      location = "group:../Makefile">
+   </FileRef>
+   <FileRef
+      location = "group:../RscpExampleMain.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:../RscpProtocol.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:../RscpProtocol.h">
+   </FileRef>
+   <FileRef
+      location = "group:../RscpTags.h">
+   </FileRef>
+   <FileRef
+      location = "group:../RscpTypes.h">
+   </FileRef>
+   <FileRef
+      location = "group:../SocketConnection.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:../SocketConnection.h">
+   </FileRef>
+   <FileRef
+      location = "self:">
+   </FileRef>
+</Workspace>
