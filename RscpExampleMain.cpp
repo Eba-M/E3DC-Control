@@ -24,11 +24,6 @@ static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
 
-const int cLadeschwelle = 50; // Bis zu dieser Schwelle wird bevorzugt der E3DC-Speicher geladen
-const int cLadeende = 90;
-
-
-
 
 static AES aesEncrypter;
 static AES aesDecrypter;
@@ -54,6 +49,10 @@ static time_t tE3DC;
 static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
+
+e3dc_config_t e3dc_config;
+
+
 int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power) {
     RscpProtocol protocol;
     SRscpValue rootValue;
@@ -159,21 +158,20 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
-    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
+//    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
+
+    int cLadezeitende1 = (WINTERMINIMUM+(SOMMERMAXIMUM-WINTERMINIMUM)/2)*3600;
+
     time_t tLadezeitende;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     time_t t;
     int32_t tZeitgleichung;
-//    float_t test1;
     tm *ts;
     ts = localtime(&tE3DC);
-    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-2*3600;
-//    test1 = cos((ts->tm_yday+9)*2*3.14/365);
-    t = tE3DC % (24*3600);
-//    tLadezeitende = test1;
+    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((SOMMERMAXIMUM-WINTERMINIMUM)/2)*3600;
 
-//  ts = localtime(&t);
+    t = tE3DC % (24*3600);
     
-// Berechnung freie Ladekapazität bis 90% bzw. Ladeende
+    // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
@@ -182,16 +180,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(iFc == 0))
       {
         fBatt_SOC_alt=fBatt_SOC;
-        iFc = (cLadeende - fBatt_SOC)*138*3600;
+        iFc = (cLadeende - fBatt_SOC)*SPEICHERGROESSE*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
-        iFc = (iFc-900)*5;
-        if (iFc > 3000) iFc = 3000;
-        if (iFc < 500) iFc = 0;
+//        iFc = (iFc-900)*5;
+          iFc = (iFc-UNTERERLADEKORREDOR)*MAXIMUMLADELEISTUNG/(OBERERLADEKORREDOR-UNTERERLADEKORREDOR);
+          if (iFc > MAXIMUMLADELEISTUNG) iFc = MAXIMUMLADELEISTUNG;
+        if (iFc < MINIMUMLADELEISTUNG) iFc = 0;
       }
         printf("MinLoad: %u %u ",iMinLade, iFc);
     } else
-        if (t > tLadezeitende) iFc = 3000;
+        if (t > tLadezeitende) iFc = MAXIMUMLADELEISTUNG;
            else iFc = 0;
 //  Laden auf 100% nach 15:30
     
@@ -397,8 +396,8 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         // authentication request
         SRscpValue authenContainer;
         protocol.createContainerValue(&authenContainer, TAG_RSCP_REQ_AUTHENTICATION);
-        protocol.appendValue(&authenContainer, TAG_RSCP_AUTHENTICATION_USER, E3DC_USER);
-        protocol.appendValue(&authenContainer, TAG_RSCP_AUTHENTICATION_PASSWORD, E3DC_PASSWORD);
+        protocol.appendValue(&authenContainer, TAG_RSCP_AUTHENTICATION_USER, e3dc_config.e3dc_user);
+        protocol.appendValue(&authenContainer, TAG_RSCP_AUTHENTICATION_PASSWORD, e3dc_config.e3dc_password);
         // append sub-container to root container
         protocol.appendValue(&rootValue, authenContainer);
         // free memory of sub-container as it is now copied to rootValue
@@ -449,7 +448,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         // request Wallbox information
         SRscpValue WBContainer;
   
-
+/*
          protocol.createContainerValue(&WBContainer, TAG_WB_REQ_AVAILABLE_SOLAR_POWER);
          protocol.appendValue(&WBContainer, TAG_WB_INDEX, (uint8_t)0);
 
@@ -457,7 +456,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
          protocol.appendValue(&rootValue, WBContainer);
          // free memory of sub-container as it is now copied to rootValue
          protocol.destroyValueData(WBContainer);
- 
+*/
         
         protocol.createContainerValue(&WBContainer, TAG_WB_REQ_DATA);
         protocol.appendValue(&WBContainer, TAG_WB_INDEX, (uint8_t)0);
@@ -1144,12 +1143,40 @@ static void mainLoop(void)
 
 int main(int argc, char *argv[])
 {
+    // get conf parameters
+    FILE *fp;
+    fp = fopen(CONF_PATH CONF_FILE, "r");
+    if(!fp) {
+        fp = fopen(CONF_FILE, "r");
+    }
+    char var[128], value[128], line[256];
+    if(fp) {
+        while (fgets(line, sizeof(line), fp)) {
+            memset(var, 0, sizeof(var));
+            memset(value, 0, sizeof(value));
+            if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
+                if(strcmp(var, "server_ip") == 0)
+                    strcpy(e3dc_config.server_ip, value);
+                else if(strcmp(var, "server_port") == 0)
+                    e3dc_config.server_port = atoi(value);
+                else if(strcmp(var, "e3dc_user") == 0)
+                    strcpy(e3dc_config.e3dc_user, value);
+                else if(strcmp(var, "e3dc_password") == 0)
+                    strcpy(e3dc_config.e3dc_password, value);
+                else if(strcmp(var, "aes_password") == 0)
+                    strcpy(e3dc_config.aes_password, value);
+            }
+        }
+        fclose(fp);
+    }
+
     // endless application which re-connections to server on connection lost
+    if (fp)
     while(true)
     {
         // connect to server
-        printf("Connecting to server %s:%i\n", SERVER_IP, SERVER_PORT);
-        iSocket = SocketConnect(SERVER_IP, SERVER_PORT);
+        printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
+        iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
             printf("Connection failed\n");
             sleep(1);
@@ -1167,14 +1194,14 @@ int main(int argc, char *argv[])
             memset(ucEncryptionIV, 0xff, AES_BLOCK_SIZE);
 
             // limit password length to AES_KEY_SIZE
-            int iPasswordLength = strlen(AES_PASSWORD);
+            int iPasswordLength = strlen(e3dc_config.aes_password);
             if(iPasswordLength > AES_KEY_SIZE)
                 iPasswordLength = AES_KEY_SIZE;
 
             // copy up to 32 bytes of AES key password
             uint8_t ucAesKey[AES_KEY_SIZE];
             memset(ucAesKey, 0xff, AES_KEY_SIZE);
-            memcpy(ucAesKey, AES_PASSWORD, iPasswordLength);
+            memcpy(ucAesKey, e3dc_config.aes_password, iPasswordLength);
 
             // set encryptor and decryptor parameters
             aesDecrypter.SetParameters(AES_KEY_SIZE * 8, AES_BLOCK_SIZE * 8);

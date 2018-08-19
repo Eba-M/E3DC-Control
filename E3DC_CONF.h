@@ -11,9 +11,28 @@
 
 
 #endif /* E3DC_CONF_h */
-#define SERVER_IP           "192.168.178.34"
-#define SERVER_PORT         5033
+// Konfigurationsdatei
+#define CONF_FILE "e3dc.config.txt"
+#define CONF_PATH "/Users/eberhardmayer/Documents/E3DC/"
 
-#define E3DC_USER           "eberhard.mayer@gmx.net"
-#define E3DC_PASSWORD       "Wenki100"
-#define AES_PASSWORD        "WENKI1"
+#define LADESCHWELLE 50;     // bis zur dieser Schwelle wird geladen bevor die Regelung beginnt
+#define LADEENDE 90;         // Zielwert bis Ende Regelung, dannach wird Ladung auf 100% freigegeben
+#define UNTERERLADEKORREDOR 900 // die Ladeleistung soll zwischen dem unteren und
+#define OBERERLADEKORREDOR  1500 // oberere Ladeleistung liegen, jedoch
+#define MINIMUMLADELEISTUNG 500  // immer > MINIMUMLADELEISTUNG
+#define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
+
+#define SPEICHERGROESSE 13.8 // nutzbare Kapazität des S10 Speichers
+#define WINTERMINIMUM   10.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht
+#define SOMMERMAXIMUM   14.5 // alle Zeiten in GMT = MEZ Winterzeit - 1
+#define EINSPEISELEISTUNG 18 // maximal erlaubte Einspeiseleistung
+
+const int cLadeschwelle = LADESCHWELLE; // Minimum Lade-Schwelle wird bevorzugt der E3DC-Speicher geladen
+const int cLadeende = LADEENDE;     // Lade-Schwelle des überwachten Ladens
+typedef struct {
+    char server_ip[20];
+    int  server_port;
+    char e3dc_user[128];
+    char e3dc_password[128];
+    char aes_password[128];
+}e3dc_config_t;
