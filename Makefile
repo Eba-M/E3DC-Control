@@ -1,5 +1,5 @@
 CXX=g++
-ROOT_VALUE=RscpExample
+ROOT_VALUE=E3DC_StorageControl
 
 all: $(ROOT_VALUE)
 
