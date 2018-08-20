@@ -1,5 +1,5 @@
 CXX=g++
-ROOT_VALUE=E3DC_StorageControl
+ROOT_VALUE=E3DC-Control
 
 all: $(ROOT_VALUE)
 

@@ -332,7 +332,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -3800) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 6;   // Länger warten bei hohen Stömen
+                if (WBchar6[1]>16) iWBStatus = 7; else iWBStatus = 6;   // Länger warten bei hohen Stömen
 
              }
             if (
@@ -756,7 +756,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
                         printf(" %0.1f W", fPower);
                         fPower_WB = fPower_WB + fPower;
-                        printf(" Total %0.1f W", fPower_WB);
+                        printf(" Total %0.1f W\n", fPower_WB);
                         break;
                     }
 /*                    case TAG_WB_AVAILABLE_SOLAR_POWER: {              // response for TAG_PM_REQ_L3
