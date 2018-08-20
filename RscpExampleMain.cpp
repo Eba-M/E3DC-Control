@@ -259,7 +259,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 /*   Steuerung der Wallbox
 */
     const int cMinimumladestand = 15;
-    const int iMaxcurrent=32;
+    const int iMaxcurrent=31;
     static int iDyLadeende;
     
 
