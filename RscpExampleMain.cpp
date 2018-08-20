@@ -1169,7 +1169,7 @@ int main(int argc, char *argv[])
         }
         fclose(fp);
     }
-
+    if (!fp) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
     // endless application which re-connections to server on connection lost
     if (fp)
     while(true)
