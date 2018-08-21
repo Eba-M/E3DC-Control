@@ -431,9 +431,10 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.destroyValueData(batteryContainer);
         
         // request Power Meter information
+        uint8_t uindex = WURZELZAEHLER;
         SRscpValue PMContainer;
         protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
-        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)6);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX,uindex);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
@@ -444,7 +445,34 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, PMContainer);
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PMContainer);
+// EXTERNER ZÄHLER 1
+        protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)1);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, PMContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PMContainer);
+        // EXTERNER ZÄHLER 2
+        protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)2);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, PMContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PMContainer);
 
+        
         // request Power Inverter information
         SRscpValue PVIContainer;
         protocol.createContainerValue(&PVIContainer, TAG_PVI_REQ_DATA);
@@ -649,7 +677,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("Grid is %0.1f W", fPower);
+                        printf("#%u is %0.1f W", ucPMIndex,fPower);
                         fPower_Grid = fPower;
                         break;
                     }
@@ -663,9 +691,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
                         printf(" %0.1f W ", fPower);
                         fPower_Grid = fPower_Grid + fPower;
-                        fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
                         printf(" # %0.1f W", fPower_Grid);
+
+                        if ((ucPMIndex==0)||(ucPMIndex==6)) {
+                        fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
                         printf(" & %0.01f W\n", fAvPower_Grid);
+                        }
                         break;
                     }
                     case TAG_PM_VOLTAGE_L1: {              // response for TAG_PM_REQ_L1
@@ -723,7 +754,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf(" DC%u %0.0f W", index, fPower);
+                                printf("\nDC%u %0.0f W", index, fPower);
 
                             }
                         }
@@ -763,7 +794,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf(" %0.2f A\n", fPower);
+                                printf(" %0.2f A", fPower);
                                 
                             }
                         }
@@ -909,6 +940,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    printf(" WB EXTERN_DATA\n");
                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
                                     bWBLademodus = (WBchar[0]&1);
+                                    printf("\n");
                                     if (bWBLademodus) printf("Sonnenmodus:");
                                     printf(" MODUS ist %u",WBchar[0]);
                                     printf(" Ladestromstärke ist %uA\n",WBchar[2]);
