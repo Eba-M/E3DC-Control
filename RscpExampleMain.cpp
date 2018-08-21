@@ -445,6 +445,23 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PMContainer);
 
+        // request Power Inverter information
+        SRscpValue PVIContainer;
+        protocol.createContainerValue(&PVIContainer, TAG_PVI_REQ_DATA);
+        protocol.appendValue(&PVIContainer, TAG_PVI_INDEX, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_POWER, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_VOLTAGE, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_CURRENT, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_POWER, (uint8_t)1);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_VOLTAGE, (uint8_t)1);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_CURRENT, (uint8_t)1);
+
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, PVIContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PVIContainer);
+
+        
         // request Wallbox information
         SRscpValue WBContainer;
   
@@ -677,7 +694,95 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             protocol->destroyValueData(PMData);
             break;
         }
+        case TAG_PVI_DATA: {        // resposne for TAG_PVI_REQ_DATA
+            uint8_t ucPVIIndex = 0;
+            std::vector<SRscpValue> PVIData = protocol->getValueAsContainer(response);
+            for(size_t i = 0; i < PVIData.size(); ++i) {
+                if(PVIData[i].dataType == RSCP::eTypeError) {
+                    // handle error for example access denied errors
+                    uint32_t uiErrorCode = protocol->getValueAsUInt32(&PVIData[i]);
+                    printf("Tag 0x%08X received error code %u.\n", PVIData[i].tag, uiErrorCode);
+                    return -1;
+                }
+                // check each PVI sub tag
+                switch(PVIData[i].tag) {
+                    case TAG_PVI_INDEX: {
+                        ucPVIIndex = protocol->getValueAsUChar8(&PVIData[i]);
+                        break;
+                    }
+                    case TAG_PVI_DC_POWER:
+                    {
+                        int index = -1;
+                        std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                        for (size_t n = 0; n < container.size(); n++)
+                        {
+                            if (container[n].tag == TAG_PVI_INDEX)
+                            {
+                                index = protocol->getValueAsUInt16(&container[n]);
+                            }
+                            else if (container[n].tag == TAG_PVI_VALUE)
+                            {
+                                float fPower = protocol->getValueAsFloat32(&container[n]);
+                                printf(" DC%u %0.0f W", index, fPower);
 
+                            }
+                        }
+                        protocol->destroyValueData(container);
+                        break;
+                    }
+                    case TAG_PVI_DC_VOLTAGE:
+                    {
+                        int index = -1;
+                        std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                        for (size_t n = 0; n < container.size(); n++)
+                        {
+                            if (container[n].tag == TAG_PVI_INDEX)
+                            {
+                                index = protocol->getValueAsUInt16(&container[n]);
+                            }
+                            else if (container[n].tag == TAG_PVI_VALUE)
+                            {
+                                float fPower = protocol->getValueAsFloat32(&container[n]);
+                                printf(" %0.0f V", fPower);
+                                
+                            }
+                        }
+                        protocol->destroyValueData(container);
+                        break;
+                    }
+                    case TAG_PVI_DC_CURRENT:
+                    {
+                        int index = -1;
+                        std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                        for (size_t n = 0; n < container.size(); n++)
+                        {
+                            if (container[n].tag == TAG_PVI_INDEX)
+                            {
+                                index = protocol->getValueAsUInt16(&container[n]);
+                            }
+                            else if (container[n].tag == TAG_PVI_VALUE)
+                            {
+                                float fPower = protocol->getValueAsFloat32(&container[n]);
+                                printf(" %0.2f A\n", fPower);
+                                
+                            }
+                        }
+                        protocol->destroyValueData(container);
+                        break;
+                    }
+                        // ...
+                    default:
+                        // default behaviour
+                        printf("Unknown PVI tag %08X\n", response->tag);
+                        printf("Unknown PVI datatype %08X\n", response->dataType);
+                        break;
+                }
+            }
+            protocol->destroyValueData(PVIData);
+            break;
+        }
+
+            
         case TAG_WB_AVAILABLE_SOLAR_POWER: {              // response for TAG_WB_AVAILABLE_SOLAR_POWER
             uint8_t ucPMIndex = 0;
             std::vector<SRscpValue> PMData = protocol->getValueAsContainer(response);
@@ -1139,6 +1244,7 @@ static void mainLoop(void)
 
         // main loop sleep / cycle time before next request
     }
+    printf("mainloop beendet");
 }
 
 int main(int argc, char *argv[])
@@ -1218,6 +1324,7 @@ int main(int argc, char *argv[])
         iSocket = -1;
         sleep(10);
     }
+    printf("mainloop beendet");
     return 0;
 }
 
