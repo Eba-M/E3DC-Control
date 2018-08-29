@@ -451,9 +451,9 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
-        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
-        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
-        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+//        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
         // append sub-container to root container
 if (e3dc_config.ext1)
         protocol.appendValue(&rootValue, PMContainer);
@@ -665,6 +665,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     }
         case TAG_PM_DATA: {        // resposne for TAG_PM_REQ_DATA
             uint8_t ucPMIndex = 0;
+            float fPower2 = 0;
             std::vector<SRscpValue> PMData = protocol->getValueAsContainer(response);
             for(size_t i = 0; i < PMData.size(); ++i) {
                 if(PMData[i].dataType == RSCP::eTypeError) {
@@ -686,17 +687,18 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         break;
                     }
                     case TAG_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
-                        float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("%0.1f W ", fPower);
-                        fPower_Grid = fPower_Grid + fPower;
+                        fPower2 = protocol->getValueAsDouble64(&PMData[i]);
+//                        printf("%0.1f W ", fPower);
+                        fPower_Grid = fPower_Grid + fPower2;
                         break;
                     }
                     case TAG_PM_POWER_L3: {              // response for TAG_PM_REQ_L3
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("%0.1f W ", fPower);
+                        if ((fPower2+fPower)||0){
+                        printf("%0.1f W %0.1f W ", fPower2, fPower);
                         fPower_Grid = fPower_Grid + fPower;
                         printf(" # %0.1f W", fPower_Grid);
-
+                        }
                         if ((ucPMIndex==0)||(ucPMIndex==6)) {
                         fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
                         printf(" & %0.01f W\n", fAvPower_Grid);
