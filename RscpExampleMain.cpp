@@ -166,7 +166,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     time_t t;
     int32_t tZeitgleichung;
     tm *ts;
-    ts = localtime(&tE3DC);
+    ts = gmtime(&tE3DC);
     tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
     t = tE3DC % (24*3600);
