@@ -209,9 +209,14 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 0){
         iLMStatus = 5;
         iBattLoad = 3000;
+        fAvBatterie = 0;
+
+        
 //        ControlLoadData2(frameBuffer,iBattLoad);
     }
-    
+    fAvBatterie = fAvBatterie*119/120;
+    fAvBatterie = fAvBatterie + (float(iPower_Bat)/120);
+
     if (iLMStatus == 1) {
         
         iLMStatus = 5;
@@ -251,6 +256,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           }
     }
     iLMStatus--;
+    printf("AVBatt   %0.1f ",fAvBatterie);
     printf("BattLoad %i\n",iBattLoad);
     
     return 0;
@@ -269,7 +275,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if (iWBStatus == 0)  {
 
         iDyLadeende = cLadeschwelle;
-        fAvBatterie = 0;
         iFc = 0;
         iBattLoad = 100;
         
@@ -287,8 +292,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iWBStatus++;
 //         createRequestWBData(frameBuffer);
     }
-    fAvBatterie = fAvBatterie*119/120;
-    fAvBatterie = fAvBatterie + (float(iPower_Bat)/120);
     
     if (iWBStatus == 1) {
         if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
@@ -374,7 +377,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }
     printf("DyLadeende %i ",iDyLadeende);
-    printf("AVBatt   %0.1f iWBStatus %i\n",fAvBatterie,iWBStatus);
+    printf(" iWBStatus %i\n",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
