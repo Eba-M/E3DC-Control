@@ -188,7 +188,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
         if (iFc < e3dc_config.minimumLadeleistung) iFc = 0;
       }
-        printf("MinLoad: %u %u ",iMinLade, iFc);
+        printf("\nMinLoad: %u %u ",iMinLade, iFc);
     } else
         if (t > tLadezeitende) iFc = e3dc_config.maximumLadeleistung;
            else iFc = 0;
