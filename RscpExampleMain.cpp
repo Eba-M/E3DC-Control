@@ -184,7 +184,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
-          iFc = (iFc-e3dc_config.untererLadekorridor)*e3dc_config.maximumLadeleistung/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor);
+          iFc = (iFc-e3dc_config.untererLadekorridor);
+          iFc = iFc*(e3dc_config.maximumLadeleistung/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
         if (iFc < e3dc_config.minimumLadeleistung) iFc = 0;
       }
