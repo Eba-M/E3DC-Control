@@ -1235,7 +1235,8 @@ static void mainLoop(void)
         memset(&frameBuffer, 0, sizeof(frameBuffer));
 
         // create an RSCP frame with requests to some example data
-        if((iAuthenticated == 1)&&(e3dc_config.wallbox)) {
+        if(iAuthenticated == 1) {
+            if (e3dc_config.wallbox)
             WBProcess(&frameBuffer);
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);

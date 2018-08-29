@@ -27,7 +27,7 @@
 #define SPEICHERGROESSE 13.8 // nutzbare Kapazität des S10 Speichers
 #define WINTERMINIMUM   10.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht
 #define SOMMERMAXIMUM   14.5 // alle Zeiten in GMT = MEZ Winterzeit - 1
-#define EINSPEISELIMIT 18 // maximal erlaubte Einspeiseleistung
+#define EINSPEISELIMIT 7 // maximal erlaubte Einspeiseleistung
 
 const int cLadeschwelle = LADESCHWELLE; // Minimum Lade-Schwelle wird bevorzugt der E3DC-Speicher geladen
 const int cLadeende = LADEENDE;     // Lade-Schwelle des überwachten Ladens
