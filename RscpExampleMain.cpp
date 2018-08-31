@@ -209,7 +209,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     int maxGrid = -1;
     if (iLMStatus == 0){
         iLMStatus = 5;
-        iBattLoad = 3000;
+        iBattLoad = e3dc_config.maximumLadeleistung;
         fAvBatterie = 0;
 
         
@@ -230,19 +230,19 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
           if (iPower < 100) {iPower = 0;}
           else
-            if (iPower > 3000) {iPower = 3000;}
+              if (iPower > e3dc_config.maximumLadeleistung) {iPower = e3dc_config.maximumLadeleistung;}
         
 //          if (iPower+200 > fAvBatterie) fAvBatterie = iPower+200; // Überschussladen ohne Überhöhung wg. durchschnittl. Ladeleistung;
             if (iFc > iPower)
             {   iPower = iFc;
                 if (iPower > fAvBatterie) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
-                if (iPower > 3000) iPower = 3000;
+                if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
                 
             }
             } else
 //            if (fBatt_SOC < cLadeende) iPower = 3000;
 //            else iPower = 0;
-              iPower = 3000;
+              iPower = e3dc_config.maximumLadeleistung;
         
  
         if (abs( int(iPower - iBattLoad)) > 20)
@@ -1142,7 +1142,7 @@ static void receiveLoop(bool & bStopExecution)
             // check maximum size
             if(vecDynamicBuffer.size() > RSCP_MAX_FRAME_LENGTH) {
                 // something went wrong and the size is more than possible by the RSCP protocol
-                printf("Maximum buffer size exceeded %i\n", vecDynamicBuffer.size());
+                printf("Maximum buffer size exceeded %lu\n", vecDynamicBuffer.size());
                 bStopExecution = true;
                 break;
             }
@@ -1279,7 +1279,9 @@ static void mainLoop(void)
             }
             else {
                 // go into receive loop and wait for response
+                if (e3dc_config.test) printf ("start receiveLoop");
                 receiveLoop(bStopExecution);
+                if (e3dc_config.test) printf ("end receiveLoop");
             }
         }
         // free frame buffer memory
@@ -1303,6 +1305,7 @@ int main(int argc, char *argv[])
     e3dc_config.ext1 = false;
     e3dc_config.ext2 = false;
     e3dc_config.ext3 = false;
+    e3dc_config.test = false;
     e3dc_config.wurzelzaehler = 0;
     e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
     e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
@@ -1342,6 +1345,9 @@ int main(int argc, char *argv[])
                 else if((strcmp(var, "ext3") == 0)&&
                         (strcmp(value, "true") == 0))
                     e3dc_config.ext3 = true;
+                else if((strcmp(var, "test") == 0)&&
+                        (strcmp(value, "true") == 0))
+                    e3dc_config.test = true;
                 else if(strcmp(var, "untererLadekorridor") == 0)
                     e3dc_config.untererLadekorridor = atoi(value);
                 else if(strcmp(var, "obererLadekorridor") == 0)

@@ -81,7 +81,7 @@ int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength)
     int iSentBytes = 0;
     while(iLength)
     {
-        int result = send(iSocket, ucBuffer, iLength, 0);
+        long result = send(iSocket, ucBuffer, iLength, 0);
         if(result <= 0) {
             return -1;
         }
@@ -92,7 +92,7 @@ int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength)
     return iSentBytes;
 }
 
-int SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength)
+long SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength)
 {
     // sanity check
     if(iSocket < 0) {
