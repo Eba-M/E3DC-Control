@@ -1279,9 +1279,9 @@ static void mainLoop(void)
             }
             else {
                 // go into receive loop and wait for response
-                if (e3dc_config.test) printf ("start receiveLoop");
+                if (e3dc_config.debug) printf ("start receiveLoop");
                 receiveLoop(bStopExecution);
-                if (e3dc_config.test) printf ("end receiveLoop");
+                if (e3dc_config.debug) printf ("end receiveLoop");
             }
         }
         // free frame buffer memory
@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
     e3dc_config.ext1 = false;
     e3dc_config.ext2 = false;
     e3dc_config.ext3 = false;
-    e3dc_config.test = false;
+    e3dc_config.debug = false;
     e3dc_config.wurzelzaehler = 0;
     e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
     e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
@@ -1345,9 +1345,9 @@ int main(int argc, char *argv[])
                 else if((strcmp(var, "ext3") == 0)&&
                         (strcmp(value, "true") == 0))
                     e3dc_config.ext3 = true;
-                else if((strcmp(var, "test") == 0)&&
+                else if((strcmp(var, "debug") == 0)&&
                         (strcmp(value, "true") == 0))
-                    e3dc_config.test = true;
+                    e3dc_config.debug = true;
                 else if(strcmp(var, "untererLadekorridor") == 0)
                     e3dc_config.untererLadekorridor = atoi(value);
                 else if(strcmp(var, "obererLadekorridor") == 0)
