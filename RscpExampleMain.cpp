@@ -208,7 +208,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 0){
         iLMStatus = 5;
         iBattLoad = e3dc_config.maximumLadeleistung;
-        fAvBatterie = e3dc_config.untererLadekorridor;
+//        fAvBatterie = e3dc_config.untererLadekorridor;
+        fAvBatterie = 0;
 
         
 //        ControlLoadData2(frameBuffer,iBattLoad);
