@@ -698,11 +698,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
                         if ((fPower2+fPower3)||0){
                         printf("%0.1f W %0.1f W ", fPower2, fPower3);
-                        fPower1 = fPower1+fPower2+fPower3;
-                        printf(" # %0.1f W", fPower1);
+                        printf(" # %0.1f W", fPower1+fPower2+fPower3);
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
-                            fPower_Grid = fPower1;
+                            fPower_Grid = fPower1+fPower2+fPower3;
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
                             printf(" & %0.01f W\n", fAvPower_Grid);
                         }
