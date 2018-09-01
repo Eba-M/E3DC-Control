@@ -204,13 +204,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
 
     
-    int cEinspeiseLimit = e3dc_config.einspeiselimit*-1000;
     int iPower = 0;
-    int maxGrid = -1;
     if (iLMStatus == 0){
         iLMStatus = 5;
         iBattLoad = e3dc_config.maximumLadeleistung;
-        fAvBatterie = 0;
+        fAvBatterie = e3dc_config.untererLadekorridor;
 
         
 //        ControlLoadData2(frameBuffer,iBattLoad);
@@ -220,13 +218,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iLMStatus == 1) {
         
-        iLMStatus = 5;
+       
         if (((fBatt_SOC > cLadeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > cLadeende))
   // Überschussleistung=iPower ermitteln
         {
             
-        maxGrid = cEinspeiseLimit;
-          iPower = (-iPower_Bat + fPower_Grid - maxGrid)*-1;
+        
+          iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
 
           if (iPower < 100) {iPower = 0;}
           else
@@ -251,12 +249,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             {
             iBattLoad = iPower;
             ControlLoadData2(frameBuffer,iBattLoad);
-//            printf("new BattLoad %i\n ",iBattLoad);
+            iLMStatus = 5;
             }
 
           }
     }
-    iLMStatus--;
+    if (iLMStatus>1) iLMStatus--;
     printf("AVBatt   %0.1f ",fAvBatterie);
     printf("BattLoad %i\n",iBattLoad);
     
@@ -669,7 +667,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     }
         case TAG_PM_DATA: {        // resposne for TAG_PM_REQ_DATA
             uint8_t ucPMIndex = 0;
+            float fPower1 = 0;
             float fPower2 = 0;
+            float fPower3 = 0;
             std::vector<SRscpValue> PMData = protocol->getValueAsContainer(response);
             for(size_t i = 0; i < PMData.size(); ++i) {
                 if(PMData[i].dataType == RSCP::eTypeError) {
@@ -685,27 +685,25 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         break;
                     }
                     case TAG_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
-                        float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("#%u is %0.1f W ", ucPMIndex,fPower);
-                        fPower_Grid = fPower;
+                        fPower1 = protocol->getValueAsDouble64(&PMData[i]);
+                        printf("#%u is %0.1f W ", ucPMIndex,fPower1);
                         break;
                     }
                     case TAG_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
                         fPower2 = protocol->getValueAsDouble64(&PMData[i]);
-//                        printf("%0.1f W ", fPower);
-                        fPower_Grid = fPower_Grid + fPower2;
                         break;
                     }
                     case TAG_PM_POWER_L3: {              // response for TAG_PM_REQ_L3
-                        float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        if ((fPower2+fPower)||0){
-                        printf("%0.1f W %0.1f W ", fPower2, fPower);
-                        fPower_Grid = fPower_Grid + fPower;
-                        printf(" # %0.1f W", fPower_Grid);
+                        fPower3 = protocol->getValueAsDouble64(&PMData[i]);
+                        if ((fPower2+fPower3)||0){
+                        printf("%0.1f W %0.1f W ", fPower2, fPower3);
+                        fPower1 = fPower1+fPower2+fPower3;
+                        printf(" # %0.1f W", fPower1);
                         }
-                        if ((ucPMIndex==0)||(ucPMIndex==6)) {
-                        fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                        printf(" & %0.01f W\n", fAvPower_Grid);
+                        if (ucPMIndex==e3dc_config.wurzelzaehler) {
+                            fPower_Grid = fPower1;
+                            fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
+                            printf(" & %0.01f W\n", fAvPower_Grid);
                         }
                         break;
                     }
