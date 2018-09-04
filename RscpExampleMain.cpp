@@ -41,7 +41,6 @@ static int32_t iPower_PV;
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
-static float fBatt_SOC, fBatt_SOC_alt;
 static uint32_t iBattLoad;
 static int iPowerBalance;
 
@@ -156,7 +155,8 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 
-
+static float fBatt_SOC, fBatt_SOC_alt;
+static time_t tLadezeit_alt;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
 
@@ -177,9 +177,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende = tLadezeitende - tZeitgleichung;
     if ((t < (tLadezeitende))&&(fBatt_SOC<cLadeende))
     {
-      if ((fBatt_SOC!=fBatt_SOC_alt)||(iFc == 0))
+      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
       {
-        fBatt_SOC_alt=fBatt_SOC;
+        fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
+        tLadezeit_alt=t; // alle 300sec Berechnen
         iFc = (cLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
@@ -207,6 +208,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     int iPower = 0;
     if (iLMStatus == 0){
         iLMStatus = 5;
+        tLadezeit_alt = 0;
         iBattLoad = e3dc_config.maximumLadeleistung;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
         fAvBatterie = 0;
@@ -343,7 +345,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                  ((iPower_Bat < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
                  ((fBatt_SOC < cLadeende)&&(iPower_Bat<2000)&&(iPower_Bat+800<iBattLoad)&&
-                  ((iPower_Bat+400)<iFc)&&((iPower_Bat+400)<iMinLade)&&((fAvBatterie+200)<iFc)&&((fAvBatterie+200)<iMinLade)&&
+                  ((iPower_Bat+400)<iFc)&&
+                   ((iPower_Bat)<iMinLade)&&((fAvBatterie+200)<iFc)&&((fAvBatterie)<iMinLade)&&
                   (WBchar6[1]>6))
                  ) { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
