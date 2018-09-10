@@ -20,6 +20,7 @@ static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
 static int iWBStatus = 0; // Status, WB schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
 static int iLMStatus = 0; // Status, Load Management  schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
 static float fAvBatterie;
+static int iAvBatt_Count = 0;
 static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
@@ -34,8 +35,8 @@ static uint8_t ucDecryptionIV[AES_BLOCK_SIZE];
 static uint8_t iCurrent_WB;
 static uint8_t iCurrent_Set_WB;
 static float fPower_Grid;
-static float fAvPower_Grid; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
-
+static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
+static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static int32_t iPower_PV;
 static int32_t iPower_Bat;
@@ -211,13 +212,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         tLadezeit_alt = 0;
         iBattLoad = e3dc_config.maximumLadeleistung;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
-        fAvBatterie = 0;
 
         
 //        ControlLoadData2(frameBuffer,iBattLoad);
     }
-    fAvBatterie = fAvBatterie*119/120;
-    fAvBatterie = fAvBatterie + (float(iPower_Bat)/120);
+    if (iAvBatt_Count < 120) iAvBatt_Count++;
+    fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
+    fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
     if (iLMStatus == 1) {
         
@@ -324,7 +325,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (not bWBmaxLadestrom)
                 { WBchar6[1] = 6;
                 createRequestWBData(frameBuffer);
-                iWBStatus = 6;
+                iWBStatus = 7;
                 }
                     else WBchar6[1] = 32;
         }
@@ -374,7 +375,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1]--;
                     createRequestWBData(frameBuffer);
                     if (WBchar6[1] > 6)
-                        iWBStatus = 6; else // Warten bis Neustart
+                        iWBStatus = 7; else // Warten bis Neustart
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
@@ -705,9 +706,20 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
                             fPower_Grid = fPower1+fPower2+fPower3;
+                            if (iAvPower_GridCount<3600)
+                                iAvPower_GridCount++;
+                            fAvPower_Grid3600 = fAvPower_Grid3600*(iAvPower_GridCount-1)/iAvPower_GridCount + fPower_Grid/iAvPower_GridCount;
+                            if (iAvPower_GridCount<600)
+                                fAvPower_Grid600 = fAvPower_Grid3600; else
+                            fAvPower_Grid600 = fAvPower_Grid600*599/600 + fPower_Grid/600;
+                            if (iAvPower_GridCount<60)
+                                fAvPower_Grid60 = fAvPower_Grid3600; else
+                                    fAvPower_Grid60 = fAvPower_Grid60*59/60 + fPower_Grid/60;
+                            if (iAvPower_GridCount<20)
+                                fAvPower_Grid = fAvPower_Grid3600; else
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                            printf(" & %0.01f W\n", fAvPower_Grid);
-                        }
+                            printf("\n & %0.01f %0.01f %0.01f %0.01f W\n", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
+                    }
                         break;
                     }
                     case TAG_PM_VOLTAGE_L1: {              // response for TAG_PM_REQ_L1
