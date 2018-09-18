@@ -176,13 +176,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
-    if ((t < (tLadezeitende))&&(fBatt_SOC<cLadeende))
+    if ((t < (tLadezeitende))&&(fBatt_SOC<e3dc_config.ladeende))
     {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
         tLadezeit_alt=t; // alle 300sec Berechnen
-        iFc = (cLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
+        iFc = (e3dc_config.ladeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
@@ -223,7 +223,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1) {
         
        
-        if (((fBatt_SOC > cLadeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > cLadeende))
+        if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
   // Überschussleistung=iPower ermitteln
         {
             
@@ -277,7 +277,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iWBStatus == 0)  {
 
-        iDyLadeende = cLadeschwelle;
+        iDyLadeende = e3dc_config.ladeschwelle;
         iFc = 0;
         iBattLoad = 100;
         
@@ -338,14 +338,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -3800) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 7; else iWBStatus = 6;   // Länger warten bei hohen Stömen
+                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 7;   // Länger warten bei hohen Stömen
 
              }
             if (
                  ((iPower_Bat < -2600)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-                 ((fBatt_SOC < cLadeende)&&(iPower_Bat<2000)&&(iPower_Bat+800<iBattLoad)&&
+                 ((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<2000)&&(iPower_Bat+800<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
                    ((iPower_Bat)<iMinLade)&&((fAvBatterie+200)<iFc)&&((fAvBatterie)<iMinLade)&&
                   (WBchar6[1]>6))
@@ -1328,6 +1328,8 @@ int main(int argc, char *argv[])
     e3dc_config.winterminimum = WINTERMINIMUM;
     e3dc_config.sommermaximum = SOMMERMAXIMUM;
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
+    e3dc_config.ladeschwelle = LADESCHWELLE;
+    e3dc_config.ladeende = LADEENDE;
 
     if(fp) {
         while (fgets(line, sizeof(line), fp)) {
@@ -1377,6 +1379,10 @@ int main(int argc, char *argv[])
                     e3dc_config.sommermaximum = atof(value);
                 else if(strcmp(var, "einspeiselimit") == 0)
                     e3dc_config.einspeiselimit = atof(value);
+                else if(strcmp(var, "ladeschwelle") == 0)
+                    e3dc_config.ladeschwelle = atoi(value);
+                else if(strcmp(var, "ladeende") == 0)
+                    e3dc_config.ladeende = atoi(value);
 
             }
         }
