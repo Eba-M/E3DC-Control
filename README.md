@@ -8,8 +8,11 @@ Ich kann natürlich keinerlei Haftung für Funktion der Software, Wartung etc. �
 
 Hier findet Ihr meine erste Version.
 
+git clone https://github.com/Eba-M/E3DC-Control.git
+
 Ich bin auch gerade erst dabei mich in Github einzuarbeiten, erwartet bitte keine perfekte Dokumentation und Anleitung.
 Diese wird sicherlich im Lauf des Projektes noch verbessert und erweitern werden müssen.
+
 
 
 viel Spass beim Ausprobieren
