@@ -34,6 +34,7 @@ static uint8_t ucDecryptionIV[AES_BLOCK_SIZE];
 // static int32_t iPower_Grid;
 static uint8_t iCurrent_WB;
 static uint8_t iCurrent_Set_WB;
+static int iMaxPower = 3000;
 static float fPower_Grid;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
@@ -44,7 +45,7 @@ static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
 static uint32_t iBattLoad;
 static int iPowerBalance;
-
+static uint8_t iNotstrom = 0;
 static time_t tE3DC;
 static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
@@ -84,7 +85,7 @@ int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>3000) uPower = 3000; else uPower = iPower;
+    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
     
@@ -110,6 +111,35 @@ int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     
     return 0;
 }
+int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
+    RscpProtocol protocol;
+    SRscpValue rootValue;
+    uint32_t uPower;
+    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
+    // The root container is create with the TAG ID 0 which is not used by any device.
+    protocol.createContainerValue(&rootValue, 0);
+    
+    // request Power Meter information
+    SRscpValue PMContainer;
+    protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER_SETTINGS);
+    protocol.appendValue(&PMContainer, TAG_EMS_POWER_LIMITS_USED,true);
+    protocol.appendValue(&PMContainer, TAG_EMS_MAX_DISCHARGE_POWER,uPower);
+    // append sub-container to root container
+    protocol.appendValue(&rootValue, PMContainer);
+    // free memory of sub-container as it is now copied to rootValue
+    protocol.destroyValueData(PMContainer);
+    
+    
+    
+    
+    // create buffer frame to send data to the S10
+    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
+    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
+    protocol.destroyValueData(rootValue);
+    
+    return 0;
+}
+
 
 int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
@@ -158,6 +188,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 static float fBatt_SOC, fBatt_SOC_alt;
 static time_t tLadezeit_alt;
+static int iDischarge = iMaxPower;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
 
@@ -171,6 +202,32 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
     t = tE3DC % (24*3600);
+
+    // HT Endeladeleistung freigeben
+    if (((ts->tm_wday>0&&ts->tm_wday<6) &&
+            (e3dc_config.hton < t && e3dc_config.htoff > t ))
+        ||(e3dc_config.ht<fBatt_SOC)
+        ||(iNotstrom==1)  //Notstrom
+        ||(iNotstrom==4)  //Inselbetrieb
+        ){
+            // ENdladen einschalten)
+        if (iDischarge < iMaxPower) {
+        Control_MAX_DISCHARGE(frameBuffer,iMaxPower);
+        iDischarge = iMaxPower;
+        }
+
+    } else {
+            // Endladen ausschalten
+        if ((iDischarge != 0)&&(iNotstrom!=1)&&(iNotstrom!=4)) {
+            // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
+            Control_MAX_DISCHARGE(frameBuffer,0);
+            iDischarge = 0;
+        }
+        }
+    
+    // HT Endeladeleistung freigeben  ENDE
+    
+    
     
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     
@@ -260,8 +317,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     }
     if (iLMStatus>1) iLMStatus--;
     printf("AVBatt   %0.1f ",fAvBatterie);
+    printf("Discharge %i ",iDischarge);
     printf("BattLoad %i\n",iBattLoad);
-    
+
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
@@ -419,6 +477,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_BAT);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_HOME);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_GRID);
+        protocol.appendValue(&rootValue, TAG_EMS_REQ_EMERGENCY_POWER_STATUS);
         if(iBattPowerStatus == 0)
         {
             protocol.appendValue(&rootValue, TAG_EMS_REQ_GET_POWER_SETTINGS);
@@ -608,10 +667,17 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         printf(" # %i", iPower_PV);
         break;
     }
-    case TAG_EMS_SET_POWER: {    // response for TAG_EMS_REQ_POWER_ADD
+        case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
             int32_t iPower = protocol->getValueAsInt32(response);
             
             printf(" SET %i\n", iPower);
+            break;
+        }
+        case TAG_EMS_EMERGENCY_POWER_STATUS: {    // response for TAG_EMS_EMERGENCY_POWER_STATUS
+            int8_t iPower = protocol->getValueAsUChar8(response);
+            
+//            printf(" EMERGENCY_POWER_STATUS: %i\n", iPower);
+            iNotstrom = iPower;
             break;
         }
     case TAG_PM_POWER_L1: {    // response for TAG_EMS_REQ_POWER_ADD
@@ -1330,6 +1396,9 @@ int main(int argc, char *argv[])
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
+    e3dc_config.ht = 0;
+    e3dc_config.hton = 0;
+    e3dc_config.htoff = 24;
 
     if(fp) {
         while (fgets(line, sizeof(line), fp)) {
@@ -1383,6 +1452,12 @@ int main(int argc, char *argv[])
                     e3dc_config.ladeschwelle = atoi(value);
                 else if(strcmp(var, "ladeende") == 0)
                     e3dc_config.ladeende = atoi(value);
+                else if(strcmp(var, "htmin") == 0)
+                    e3dc_config.ht = atoi(value);
+                else if(strcmp(var, "hton") == 0)
+                    e3dc_config.hton = atof(value);
+                else if(strcmp(var, "htoff") == 0)
+                    e3dc_config.htoff = atof(value);
 
             }
         }
