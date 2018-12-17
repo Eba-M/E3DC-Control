@@ -220,8 +220,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             // Endladen ausschalten
         if ((iDischarge != 0)&&(iNotstrom!=1)&&(iNotstrom!=4)) {
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
-            Control_MAX_DISCHARGE(frameBuffer,0);
-            iDischarge = 0;
+            { Control_MAX_DISCHARGE(frameBuffer,0);
+                iDischarge = 0;}
         }
         }
     
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
     e3dc_config.ladeende = LADEENDE;
     e3dc_config.ht = 0;
     e3dc_config.hton = 0;
-    e3dc_config.htoff = 24;
+    e3dc_config.htoff = 24*3600; // in Sekunden
 
     if(fp) {
         while (fgets(line, sizeof(line), fp)) {
@@ -1455,9 +1455,9 @@ int main(int argc, char *argv[])
                 else if(strcmp(var, "htmin") == 0)
                     e3dc_config.ht = atoi(value);
                 else if(strcmp(var, "hton") == 0)
-                    e3dc_config.hton = atof(value);
+                    e3dc_config.hton = atof(value)*3600; // in Sekunden
                 else if(strcmp(var, "htoff") == 0)
-                    e3dc_config.htoff = atof(value);
+                    e3dc_config.htoff = atof(value)*3600; // in Sekunden
 
             }
         }
