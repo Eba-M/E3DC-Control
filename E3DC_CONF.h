@@ -37,7 +37,7 @@ typedef struct {
     char e3dc_user[128];
     char e3dc_password[128];
     char aes_password[128];
-    bool wallbox,ext1,ext2,ext3,debug;
+    bool wallbox,ext1,ext2,ext3,debug,htsat,htsun;
     uint8_t wurzelzaehler,ladeschwelle, ladeende, ht;
     int32_t untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung;
     float_t speichergroesse,winterminimum, sommermaximum, einspeiselimit,

@@ -202,11 +202,23 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
     t = tE3DC % (24*3600);
+    
+    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
 
     // HT Endeladeleistung freigeben
-    if (((ts->tm_wday>0&&ts->tm_wday<6) &&
+    // Mo-Fr wird während der Hochtarif der Speicher zwischen hton und htoff endladen
+    // Samstag und Sonntag nur wenn htsat und htsun auf true gesetzt sind.
+    // Damit kann gleich eine intelligente Notstromreserve realisiert werden.
+    // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
+    // Die Notstromreserve im System ist davon unberührt
+    
+    
+    if ((((ts->tm_wday>0&&ts->tm_wday<6) ||
+          ((ts->tm_wday==0)&&e3dc_config.htsun)
+          ||
+          ((ts->tm_wday==6)&&e3dc_config.htsat)          )&&
             (e3dc_config.hton < t && e3dc_config.htoff > t ))
-        ||(e3dc_config.ht<fBatt_SOC)
+        ||(fht<fBatt_SOC)
         ||(iNotstrom==1)  //Notstrom
         ||(iNotstrom==4)  //Inselbetrieb
         ){
@@ -218,11 +230,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     } else {
             // Endladen ausschalten
-        if ((iDischarge != 0)&&(iNotstrom!=1)&&(iNotstrom!=4)) {
+        if (iDischarge != 0)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
             { Control_MAX_DISCHARGE(frameBuffer,0);
                 iDischarge = 0;}
-        }
         }
     
     // HT Endeladeleistung freigeben  ENDE
@@ -1397,6 +1408,8 @@ int main(int argc, char *argv[])
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
     e3dc_config.ht = 0;
+    e3dc_config.htsat = false;
+    e3dc_config.htsun = false;
     e3dc_config.hton = 0;
     e3dc_config.htoff = 24*3600; // in Sekunden
 
@@ -1458,6 +1471,13 @@ int main(int argc, char *argv[])
                     e3dc_config.hton = atof(value)*3600; // in Sekunden
                 else if(strcmp(var, "htoff") == 0)
                     e3dc_config.htoff = atof(value)*3600; // in Sekunden
+                else if((strcmp(var, "htsat") == 0)&&
+                        (strcmp(value, "true") == 0))
+                    e3dc_config.htsat = true;
+                else if((strcmp(var, "htsun") == 0)&&
+                        (strcmp(value, "true") == 0))
+                    e3dc_config.htsun = true;
+
 
             }
         }
