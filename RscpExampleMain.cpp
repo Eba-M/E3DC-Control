@@ -340,6 +340,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int iMaxcurrent=31;
     static int iDyLadeende;
     
+    static int iLadeleistung[27][4]; //27*4 Zellen
+    
 
     if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
     return 0;
@@ -361,7 +363,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
 
-            iWBStatus++;
+            iWBStatus = 5;
 //         createRequestWBData(frameBuffer);
     }
     
@@ -393,6 +395,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             ) { // Wallbox lädt nicht
             if (not bWBmaxLadestrom)
                 { WBchar6[1] = 6;
+                    int x1,x2;
+                    for (x1=1;x1<=33;x1++) {};
                 createRequestWBData(frameBuffer);
                 iWBStatus = 7;
                 }
@@ -407,28 +411,32 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -3800) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 7;   // Länger warten bei hohen Stömen
+                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 9;   // Länger warten bei hohen Stömen
 
              }
             if (
                  ((iPower_Bat < -2600)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-                 ((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<2000)&&(iPower_Bat+800<iBattLoad)&&
+                 ((fBatt_SOC < e3dc_config.ladeende)&&
+                  (iPower_Bat<2000)&&
+                  (iPower_Bat+800<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
-                   ((iPower_Bat)<iMinLade)&&((fAvBatterie+200)<iFc)&&((fAvBatterie)<iMinLade)&&
+                   ((iPower_Bat)<iMinLade)&&
+                  ((fAvBatterie+200)<iFc)&&
+                  ((fAvBatterie)<iMinLade)&&
                   (WBchar6[1]>6))
                  ) { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
-//                if ((iPower_Bat < -1100)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat < -1100)&& (WBchar6[1]>6)) WBchar6[1]--;
                 if ((iPower_Bat < -1800)&& (WBchar6[1]>6)) WBchar6[1]--;
                 if ((iPower_Bat < -2500)&& (WBchar6[1]>6)) WBchar6[1]--;
 
                 
                 if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 7; else // Länger warten bei hohen Stömen
-                iWBStatus = 6;  // Länger warten bei hohen Stömen
+                if (WBchar6[1]>16) iWBStatus = 10; else // Länger warten bei hohen Stömen
+                iWBStatus = 9;  // Länger warten bei hohen Stömen
 
             } else
             if (((iPower_Bat < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))
@@ -437,8 +445,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3))
                 || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4))
                 || (fAvPower_Grid>400)
-                || ((iPower_Bat < -500)&&(fAvBatterie<-600)&&(fBatt_SOC < iDyLadeende-1))
-//                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < iDyLadeende-1)))
+                || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94))
+                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if (WBchar6[1] > 5)
                     WBchar6[1]--;
