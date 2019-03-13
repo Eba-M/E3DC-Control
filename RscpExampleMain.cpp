@@ -48,6 +48,7 @@ static int iPowerBalance;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC;
 static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
+static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 
@@ -188,7 +189,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 static float fBatt_SOC, fBatt_SOC_alt;
 static time_t tLadezeit_alt;
-static int iDischarge = -1;
+
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
 
@@ -211,7 +212,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Damit kann gleich eine intelligente Notstromreserve realisiert werden.
     // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
     // Die Notstromreserve im System ist davon unberührt
-    
+    if (iLMStatus == 1) {
     
     if ((((ts->tm_wday>0&&ts->tm_wday<6) ||
           ((ts->tm_wday==0)&&e3dc_config.htsun)
@@ -224,8 +225,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         ){
             // ENdladen einschalten)
         if (iDischarge < iMaxPower) {
+            
         Control_MAX_DISCHARGE(frameBuffer,iMaxPower);
-        iDischarge = iMaxPower;
+        iBattPowerStatus = 0;
+        iLMStatus = 5;
         }
 
     } else {
@@ -233,8 +236,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (iDischarge != 0)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
             { Control_MAX_DISCHARGE(frameBuffer,0);
-                iDischarge = 0;}
-        }
+            iBattPowerStatus = 0;
+            iLMStatus = 5;
+;}
+    }}
     
     // HT Endeladeleistung freigeben  ENDE
     
@@ -343,8 +348,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static int iLadeleistung[27][4]; //27*4 Zellen
     
 
-    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
-    return 0;
+//    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
+//    return 0;
 
     if (iWBStatus == 0)  {
 
@@ -356,14 +361,18 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
         
-        memcpy(WBchar6,"\x01\x06\x00\x00\x00\x00",6);
-        WBchar6[1] = WBchar[2];
+        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
+        WBchar6[1]=WBchar[2];
+        WBchar6[0]=WBchar[0];
 
         if (WBchar[2]==32)
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
 
+        
+            if (WBchar[2] > 4)
             iWBStatus = 5;
+            else return 0;
 //         createRequestWBData(frameBuffer);
     }
     
@@ -415,22 +424,32 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
              }
             if (
-                 ((iPower_Bat < -2600)&&(WBchar6[1] > 6)) ||
-                 ((iPower_Bat < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
+                 ((iPower_Bat-fPower_Grid < -2600)&&(WBchar6[1] > 6)) ||
+                 ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
                  ((fBatt_SOC < e3dc_config.ladeende)&&
                   (iPower_Bat<2000)&&
                   (iPower_Bat+800<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
-                   ((iPower_Bat)<iMinLade)&&
+//                   ((iPower_Bat)<iMinLade)&&
                   ((fAvBatterie+200)<iFc)&&
-                  ((fAvBatterie)<iMinLade)&&
+//                  ((fAvBatterie)<iMinLade)&&
                   (WBchar6[1]>6))
                  ) { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
-                if ((iPower_Bat < -1100)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat < -1800)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat < -2500)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*2)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*3)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*4)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*5)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*6)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*7)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*8)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*9)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*10)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*11)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*12)&& (WBchar6[1]>6)) WBchar6[1]--;
+                if ((iPower_Bat-fPower_Grid < 2000-700*13)&& (WBchar6[1]>6)) WBchar6[1]--;
 
                 
                 if (WBchar6[1]==31) WBchar6[1]--;;
@@ -448,8 +467,24 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94))
                 || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
-                {if (WBchar6[1] > 5)
+                {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
+
+                    if ((iPower_Bat-fPower_Grid < 2000-700)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*2)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*3)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*4)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*5)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*6)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*7)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*8)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*9)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*10)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*11)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*12)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    if ((iPower_Bat-fPower_Grid < 2000-700*13)&& (WBchar6[1]>6)) WBchar6[1]--;
+
+                    if (WBchar6[1]!=WBchar[2])
                     createRequestWBData(frameBuffer);
                     if (WBchar6[1] > 6)
                         iWBStatus = 7; else // Warten bis Neustart
@@ -458,7 +493,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }
     printf("DyLadeende %i ",iDyLadeende);
-    printf(" iWBStatus %i\n",iWBStatus);
+    printf(" iWBStatus %i\n ",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
@@ -1131,6 +1166,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case TAG_EMS_MAX_DISCHARGE_POWER: {              //102 response for TAG_EMS_MAX_DISCHARGE_POWER
                         uint32_t uPower = protocol->getValueAsUInt32(&PMData[i]);
                         printf("MAX_DISCHARGE_POWER %i W\n", uPower);
+                        iDischarge = uPower;
                         break;
                     }
                     case TAG_EMS_DISCHARGE_START_POWER:{              //103 response for TAG_EMS_DISCHARGE_START_POWER
