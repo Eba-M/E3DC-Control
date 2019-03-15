@@ -41,6 +41,6 @@ typedef struct {
     uint8_t wurzelzaehler,ladeschwelle, ladeende;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung;
     float_t speichergroesse,winterminimum, sommermaximum, einspeiselimit,
-    hton, htoff;
+    hton, htoff, htsockel;
     
 }e3dc_config_t;

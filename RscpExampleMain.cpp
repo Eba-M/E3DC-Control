@@ -204,7 +204,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     t = tE3DC % (24*3600);
     
-    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
+//    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
+    float fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
     // HT Endeladeleistung freigeben
     // Mo-Fr wird während der Hochtarif der Speicher zwischen hton und htoff endladen
@@ -363,7 +364,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
-        WBchar6[0]=WBchar[0];
 
         if (WBchar[2]==32)
             bWBmaxLadestrom = true; else
@@ -1083,6 +1083,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    printf(" WB EXTERN_DATA\n");
                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
                                     bWBLademodus = (WBchar[0]&1);
+                                    WBchar6[0]=WBchar[0];
                                     printf("\n");
                                     if (bWBLademodus) printf("Sonnenmodus:");
                                     printf(" MODUS ist %u",WBchar[0]);
@@ -1456,6 +1457,7 @@ int main(int argc, char *argv[])
     e3dc_config.htsun = false;
     e3dc_config.hton = 0;
     e3dc_config.htoff = 24*3600; // in Sekunden
+    e3dc_config.htsockel = 0;
 
     if(fp) {
         while (fgets(line, sizeof(line), fp)) {
@@ -1511,6 +1513,8 @@ int main(int argc, char *argv[])
                     e3dc_config.ladeende = atoi(value);
                 else if(strcmp(var, "htmin") == 0)
                     e3dc_config.ht = atoi(value);
+                else if(strcmp(var, "htsockel") == 0)
+                    e3dc_config.htsockel = atoi(value);
                 else if(strcmp(var, "hton") == 0)
                     e3dc_config.hton = atof(value)*3600; // in Sekunden
                 else if(strcmp(var, "htoff") == 0)
@@ -1527,11 +1531,14 @@ int main(int argc, char *argv[])
         }
         fclose(fp);
     }
+    static int iEC = 0;
     if (!fp) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
     // endless application which re-connections to server on connection lost
     if (fp)
-    while(true)
+        while(iEC < 10)
     {
+        iEC++; // Schleifenzähler erhöhen
+
         // connect to server
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
@@ -1576,7 +1583,7 @@ int main(int argc, char *argv[])
         iSocket = -1;
         sleep(10);
     }
-    printf("mainloop beendet");
+    printf("mainloop wirklich beendet");
     return 0;
 }
 
