@@ -265,7 +265,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
         if (iFc < e3dc_config.minimumLadeleistung) iFc = 0;
       }
-        printf("\nMinLoad: %u %u ",iMinLade, iFc);
+        printf("MinLoad: %u %u ",iMinLade, iFc);
     } else
         if (t > tLadezeitende) iFc = e3dc_config.maximumLadeleistung;
            else iFc = 0;
@@ -335,7 +335,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus>1) iLMStatus--;
     printf("AVBatt   %0.1f ",fAvBatterie);
     printf("Discharge %i ",iDischarge);
-    printf("BattLoad %i\n",iBattLoad);
+    printf("BattLoad %i ",iBattLoad);
+    printf("Reserve %0.1f%%\n",fht);
 
     return 0;
 }
@@ -384,7 +385,16 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 createRequestWBData(frameBuffer);
                 iWBStatus = 7; }
         }
+        }     else if ((!bWBLademodus)&& (WBchar6[1] < 6))  // Immer von 6A aus starten
+{ // Wallbox lädt nicht
+    if (not bWBmaxLadestrom)
+    { WBchar6[1] = 6;
+        createRequestWBData(frameBuffer);
+        iWBStatus = 7;
     }
+    else WBchar6[1] = 32;
+}
+
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
         if (fPower_WB == 0) {
