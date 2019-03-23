@@ -254,9 +254,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
-    if (t >= tLadezeitende) {
+
+// Überwachungszeitraum für das Überschussladen übschritten oder Speicher > Ladeende
+// Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
+    if ((t >= tLadezeitende)||(fBatt_SOC>=fLadeende)) {
         tLadezeitende = tLadezeitende2 - tZeitgleichung;
-        fLadeende = 95;
+        fLadeende = 93;
     };
     
     if ((t < (tLadezeitende))&&(fBatt_SOC<fLadeende))
@@ -449,9 +452,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                  ((iPower_Bat-fPower_Grid < -2600)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-                 ((fBatt_SOC < e3dc_config.ladeende)&&
-                  (iPower_Bat<2000)&&
-                  (iPower_Bat+800<iBattLoad)&&
+//                ((fBatt_SOC < e3dc_config.ladeende)&&
+                ((((fBatt_SOC < 85)&&(iPower_Bat<(2000)))||
+                ((fBatt_SOC >= 85)&&(fBatt_SOC < 93)&&
+                 (iPower_Bat<(1500))))&&
+                  ((iPower_Bat+800)<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
 //                   ((iPower_Bat)<iMinLade)&&
                   ((fAvBatterie+200)<iFc)&&
@@ -546,7 +551,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
     }
     else
     {
-        printf("\nRequest cyclic example data\n");
+//        printf("\nRequest cyclic example data\n");
         // request power data information
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_PV);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_ADD);
@@ -1407,8 +1412,8 @@ static void mainLoop(void)
         // check that frame data was created
         
         if(frameBuffer.dataLength == 0){
-            sleep(1);
             createRequestExample(&frameBuffer);
+            sleep(1);
         }
         // check that frame data was created
 
@@ -1471,7 +1476,7 @@ int main(int argc, char *argv[])
     e3dc_config.speichergroesse = SPEICHERGROESSE;
     e3dc_config.winterminimum = WINTERMINIMUM;
     e3dc_config.sommermaximum = SOMMERMAXIMUM;
-    e3dc_config.sommerladeende = SOMMERMAXIMUM+6; // 6h später
+    e3dc_config.sommerladeende = SOMMERLADEENDE; 
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
@@ -1608,8 +1613,8 @@ int main(int argc, char *argv[])
         iSocket = -1;
         sleep(10);
     }
-    printf("mainloop wirklich beendet");
+    printf("Programm wirklich beendet");
     
-//    return 0;
+    return 0;
 }
 
