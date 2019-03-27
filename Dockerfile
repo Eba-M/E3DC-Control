@@ -1,4 +1,4 @@
-ROM node:latest
+FROM node:latest
 
 # Surpress Upstart errors/warning
 RUN dpkg-divert --local --rename --add /sbin/initctl
