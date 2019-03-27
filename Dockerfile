@@ -1,5 +1,5 @@
-FROM node:latest
-
+#FROM node:latest
+FROM arm32v6/alpine:3.7
 # Surpress Upstart errors/warning
 RUN dpkg-divert --local --rename --add /sbin/initctl
 RUN ln -sf /bin/true /sbin/initctl
