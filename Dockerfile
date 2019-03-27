@@ -24,11 +24,7 @@ RUN echo "*** Installing gcc (4.9->8) and clang (3.8->6) ***" \
   && echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list.d/unstable.list \
   && apt-get update \
   && apt-get install -y cmake \
-  && apt-get install -y g++-4.9 g++-5 g++-6 g++-7 g++-8 \
-  && apt-get install -y clang++-3.8 \
-  && apt-get install -y clang++-3.9 \
-  && apt-get install -y clang++-4.0 \
-  && apt-get install -y clang++-5.0 \
+  && apt-get install -y  g++-7 g++-8 \
   && apt-get install -y clang++-6.0 \
   && apt-get autoremove --purge -y \
   && apt-get autoclean -y \
@@ -38,11 +34,10 @@ RUN echo "*** Installing gcc (4.9->8) and clang (3.8->6) ***" \
   
 RUN apt-get purge -y --auto-remove gcc libc6-dev make
 
-# Clone the conf files into the docker container
+# Clone the conf files into the docker contain
+sudo mkdir /home/e3dc-control
+chmod 777 /home/e3dc-control
+WORKDIR /home/e3dc-control
+
 RUN git clone https://github.com/Eba-M/E3DC-Control.git /home/e3dc-control
-RUN cd /home/e3dc-control
-RUN make
 RUN /home/e3dc-control/E3DC_CONTROL
-#CMD ["/bin/bash", "cd /home/e3dc-control"]
-#CMD ["/bin/bash", "/home/e3dc-control/make"]
-#CMD ["/bin/bash", "/home/e3dc-control/E3DC_CONTROL"]
