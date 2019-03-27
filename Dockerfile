@@ -18,8 +18,8 @@ RUN apt-get install g++
 
 # Clone the conf files into the docker container
 RUN git clone https://github.com/Eba-M/E3DC-Control.git /home/e3dc-control
-
-RUN /home/e3dc-control/make
+RUN cd /home/e3dc-control
+RUN make
 RUN /home/e3dc-control/E3DC_CONTROL
 #CMD ["/bin/bash", "cd /home/e3dc-control"]
 #CMD ["/bin/bash", "/home/e3dc-control/make"]
