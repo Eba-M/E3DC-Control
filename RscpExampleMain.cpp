@@ -193,16 +193,20 @@ static time_t tLadezeit_alt;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
 
-    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-
-    time_t tLadezeitende;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     time_t t;
-    int32_t tZeitgleichung;
+
     tm *ts;
     ts = gmtime(&tE3DC);
-    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-
     t = tE3DC % (24*3600);
+    float fLadeende = e3dc_config.ladeende;
+    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+
+    time_t tLadezeitende,tLadezeitende2;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+    int32_t tZeitgleichung;
+    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+
     
 //    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
     float fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
@@ -250,13 +254,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
-    if ((t < (tLadezeitende))&&(fBatt_SOC<e3dc_config.ladeende))
+
+// Überwachungszeitraum für das Überschussladen übschritten oder Speicher > Ladeende
+// Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
+    if ((t >= tLadezeitende)||(fBatt_SOC>=fLadeende)) {
+        tLadezeitende = tLadezeitende2 - tZeitgleichung;
+        fLadeende = 93;
+    };
+    
+    if ((t < (tLadezeitende))&&(fBatt_SOC<fLadeende))
     {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
         tLadezeit_alt=t; // alle 300sec Berechnen
-        iFc = (e3dc_config.ladeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
+        iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
@@ -425,9 +437,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
   
             if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && (iPower_Bat >= 0) && (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -5300) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -4500) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -3800) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -10*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -9*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -8*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -7*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -6*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
                 if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 9;   // Länger warten bei hohen Stömen
@@ -437,9 +452,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                  ((iPower_Bat-fPower_Grid < -2600)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-                 ((fBatt_SOC < e3dc_config.ladeende)&&
-                  (iPower_Bat<2000)&&
-                  (iPower_Bat+800<iBattLoad)&&
+//                ((fBatt_SOC < e3dc_config.ladeende)&&
+                ((((fBatt_SOC < 85)&&(iPower_Bat<(2000)))||
+                ((fBatt_SOC >= 85)&&(fBatt_SOC < 93)&&
+                 (iPower_Bat<(1500))))&&
+                  ((iPower_Bat+800)<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
 //                   ((iPower_Bat)<iMinLade)&&
                   ((fAvBatterie+200)<iFc)&&
@@ -534,7 +551,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
     }
     else
     {
-        printf("\nRequest cyclic example data\n");
+//        printf("\nRequest cyclic example data\n");
         // request power data information
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_PV);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_ADD);
@@ -1395,8 +1412,8 @@ static void mainLoop(void)
         // check that frame data was created
         
         if(frameBuffer.dataLength == 0){
-            sleep(1);
             createRequestExample(&frameBuffer);
+            sleep(1);
         }
         // check that frame data was created
 
@@ -1459,6 +1476,7 @@ int main(int argc, char *argv[])
     e3dc_config.speichergroesse = SPEICHERGROESSE;
     e3dc_config.winterminimum = WINTERMINIMUM;
     e3dc_config.sommermaximum = SOMMERMAXIMUM;
+    e3dc_config.sommerladeende = SOMMERLADEENDE; 
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
@@ -1515,6 +1533,8 @@ int main(int argc, char *argv[])
                     e3dc_config.winterminimum = atof(value);
                 else if(strcmp(var, "sommermaximum") == 0)
                     e3dc_config.sommermaximum = atof(value);
+                else if(strcmp(var, "sommerladeende") == 0)
+                    e3dc_config.sommerladeende = atof(value);
                 else if(strcmp(var, "einspeiselimit") == 0)
                     e3dc_config.einspeiselimit = atof(value);
                 else if(strcmp(var, "ladeschwelle") == 0)
@@ -1587,13 +1607,14 @@ int main(int argc, char *argv[])
 
         // enter the main transmit / receive loop
         mainLoop();
-        printf("mainloop beendet");
+        printf("mainloop beendet %i\n",iEC);
         // close socket connection
         SocketClose(iSocket);
         iSocket = -1;
         sleep(10);
     }
-    printf("mainloop wirklich beendet");
+    printf("Programm wirklich beendet");
+    
     return 0;
 }
 
