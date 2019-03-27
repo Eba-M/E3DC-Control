@@ -14,11 +14,8 @@ apt-get install -y git
 RUN npm install -g node-gyp
 
 #-- C++ Install
-RUN apt-get install g++
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python && \
-    npm install && \
-    npm cache clean && \
-    apk del .build-deps
+RUN apt-get install g++ make gcc
+
     
 RUN echo "*** Installing gcc (4.9->8) and clang (3.8->6) ***" \
   && DEBIAN_FRONTEND=noninteractive apt-get update \
