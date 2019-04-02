@@ -43,7 +43,7 @@ static int32_t iPower_PV;
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
-static uint32_t iBattLoad;
+static int32_t iBattLoad;
 static int iPowerBalance;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC;
@@ -464,52 +464,31 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                   (WBchar6[1]>6))
                  ) { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*2)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*3)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*4)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*5)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*6)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*7)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*8)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*9)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*10)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*11)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*12)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat-fPower_Grid < 2000-700*13)&& (WBchar6[1]>6)) WBchar6[1]--;
-
+                for (int X1 = 3; X1 < 20; X1++)
+                    if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--; else break;
                 
                 if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 10; else // Länger warten bei hohen Stömen
+                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
                 iWBStatus = 9;  // Länger warten bei hohen Stömen
 
             } else
             if (((iPower_Bat < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))
-                || ((iPower_Bat < -2000)&&(fBatt_SOC < iDyLadeende-1))
-                || ((iPower_Bat < -1500)&&(fBatt_SOC < iDyLadeende-2))
-                || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3))
-                || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4))
+                || ((iPower_Bat < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
+                || ((iPower_Bat < -1500)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
+                || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3)&&(iBattLoad>0))
+                || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4)&&(iBattLoad>0))
                 || (fAvPower_Grid>400)
-                || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94))
-                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)))
+                || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94)&&(iBattLoad>0))
+                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)&&(iBattLoad>0)))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
 
-                    if ((iPower_Bat-fPower_Grid < 2000-700)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*2)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*3)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*4)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*5)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*6)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*7)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*8)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*9)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*10)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*11)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*12)&& (WBchar6[1]>6)) WBchar6[1]--;
-                    if ((iPower_Bat-fPower_Grid < 2000-700*13)&& (WBchar6[1]>6)) WBchar6[1]--;
+                    for (int X1 = 3; X1 < 20; X1++)
+                        if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--;
+                        else break;
+
 
                     if (WBchar6[1]!=WBchar[2])
                     createRequestWBData(frameBuffer);
@@ -520,7 +499,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }
     printf("DyLadeende %i ",iDyLadeende);
-    printf(" iWBStatus %i\n ",iWBStatus);
+    printf(" iWBStatus %i \n",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
@@ -849,7 +828,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
                         if ((fPower2+fPower3)||0){
                         printf("%0.1f W %0.1f W ", fPower2, fPower3);
-                        printf(" # %0.1f W", fPower1+fPower2+fPower3);
+                        printf(" # %0.1f W \n", fPower1+fPower2+fPower3);
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
                             fPower_Grid = fPower1+fPower2+fPower3;
@@ -865,7 +844,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             if (iAvPower_GridCount<20)
                                 fAvPower_Grid = fAvPower_Grid3600; else
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                            printf("\n & %0.01f %0.01f %0.01f %0.01f W\n", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
+                            printf(" & %0.01f %0.01f %0.01f %0.01f W\n", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
                     }
                         break;
                     }
@@ -924,7 +903,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf("\nDC%u %0.0f W", index, fPower);
+                                printf("DC%u %0.0f W ", index, fPower);
 
                             }
                         }
@@ -964,8 +943,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf(" %0.2f A", fPower);
-                                
+//                                printf(" %0.2f A \n", fPower);
+                                printf(" %0.2f A ", fPower);
+
                             }
                         }
                         protocol->destroyValueData(container);
@@ -1111,9 +1091,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
                                     bWBLademodus = (WBchar[0]&1);
                                     WBchar6[0]=WBchar[0];
-                                    printf("\n");
-                                    if (bWBLademodus) printf("Sonnenmodus:");
-                                    printf(" MODUS ist %u",WBchar[0]);
+                                    printf(" \n");
+                                    if (bWBLademodus) printf("Sonnenmodus: ");
+                                    printf("MODUS ist %u",WBchar[0]);
                                     printf(" Ladestromstärke ist %uA\n",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
