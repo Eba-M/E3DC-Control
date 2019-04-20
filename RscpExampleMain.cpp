@@ -188,6 +188,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
+static int32_t iDiffLadeleistung;
 static time_t tLadezeit_alt;
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
@@ -337,8 +338,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           {
         
             {
+            iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
+            if (iDiffLadeleistung < 0 )iDiffLadeleistung = 0;
+            if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
+            if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
             iBattLoad = iPower;
-            ControlLoadData2(frameBuffer,iBattLoad);
+            ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
             iLMStatus = 7;
             }
 
