@@ -333,22 +333,24 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
               iPower = e3dc_config.maximumLadeleistung;
         
  
-        if (abs( int(iPower - iBattLoad)) > 20)
+        if ((abs( int(iPower - iBattLoad)) > 30)&&(iLMStatus == 1))
           {
         
             {
             iBattLoad = iPower;
             ControlLoadData2(frameBuffer,iBattLoad);
-            iLMStatus = 5;
+            iLMStatus = 7;
             }
 
           }
     }
-    if (iLMStatus>1) iLMStatus--;
+    
     printf("AVBatt   %0.1f ",fAvBatterie);
     printf("Discharge %i ",iDischarge);
     printf("BattLoad %i ",iBattLoad);
+    printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
+    if (iLMStatus>1) iLMStatus--;
 
     return 0;
 }
@@ -358,6 +360,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
     static int iDyLadeende;
+    static uint8_t WBChar_alt = 0;
     
     static int iLadeleistung[27][4]; //27*4 Zellen
     
@@ -395,6 +398,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if ((WBchar6[1]<32)&&(fBatt_SOC>(cMinimumladestand+2))) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
         }     else if ((!bWBLademodus)&& (WBchar6[1] < 6))  // Immer von 6A aus starten
@@ -429,6 +433,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     int x1,x2;
                     for (x1=1;x1<=33;x1++) {};
                 createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
                 iWBStatus = 7;
                 }
                     else WBchar6[1] = 32;
@@ -445,7 +450,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 9;   // Länger warten bei hohen Stömen
+                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else iWBStatus = 9;
+                WBChar_alt = WBchar6[1];
+
+                // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
 
              }
             if (
@@ -469,6 +477,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
                 if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
                 iWBStatus = 9;  // Länger warten bei hohen Stömen
 
@@ -492,6 +501,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                     if (WBchar6[1]!=WBchar[2])
                     createRequestWBData(frameBuffer);
+                    WBChar_alt = WBchar6[1];
                     if (WBchar6[1] > 6)
                         iWBStatus = 7; else // Warten bis Neustart
                         iWBStatus = 20;  // Warten bis Neustart
