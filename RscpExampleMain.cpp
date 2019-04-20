@@ -52,6 +52,9 @@ static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 
+// Startup
+static int iStartUp = 1;
+
 e3dc_config_t e3dc_config;
 
 
@@ -344,6 +347,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
           }
     }
+    
+        //Start: Alle Paramater sauber setzten:
+    if (iStartUp == 1){
+         ControlLoadData2(frameBuffer,iBattLoad);
+         iStartUp = 0;
+    }
+    
     if (iLMStatus>1) iLMStatus--;
     printf("AVBatt   %0.1f ",fAvBatterie);
     printf("Discharge %i ",iDischarge);
