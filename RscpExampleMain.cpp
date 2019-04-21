@@ -339,7 +339,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         
             {
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
-            if (iDiffLadeleistung < 0 )iDiffLadeleistung = 0;
+            if ((iDiffLadeleistung < 0 )||(iBattLoad<100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
             iBattLoad = iPower;
