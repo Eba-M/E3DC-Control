@@ -457,7 +457,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
 
                     createRequestWBData(frameBuffer);
-                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else iWBStatus = 9;
+//                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
+                    iWBStatus = 9;
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
@@ -485,7 +486,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
+//                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
                 iWBStatus = 9;  // Länger warten bei hohen Stömen
 
             } else
