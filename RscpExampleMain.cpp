@@ -458,7 +458,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                     createRequestWBData(frameBuffer);
 //                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
-                    iWBStatus = 9;
+                    iWBStatus = 12;
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
