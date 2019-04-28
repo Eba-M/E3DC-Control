@@ -487,7 +487,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
 //                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
-                iWBStatus = 9;  // Länger warten bei hohen Stömen
+                iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
             if (((iPower_Bat < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))
