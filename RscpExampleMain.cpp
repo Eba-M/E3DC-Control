@@ -256,9 +256,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
 
-// Überwachungszeitraum für das Überschussladen übschritten oder Speicher > Ladeende
+// Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    if ((t >= tLadezeitende)||(fBatt_SOC>=fLadeende)) {
+    if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
         tLadezeitende = tLadezeitende2 - tZeitgleichung;
         fLadeende = 93;
     };
@@ -420,7 +420,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
-        if (fPower_WB == 0) {
+        if ((fPower_WB == 0)&&(iWBStatus==1)) {
             iDyLadeende = cMinimumladestand;
         }
                 if ( (fPower_WB == 0) &&
@@ -435,7 +435,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              )
             && (WBchar6[1] != 6)  // Immer von 6A aus starten
             ) { // Wallbox lädt nicht
-            if (not bWBmaxLadestrom)
+            if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 { WBchar6[1] = 6;
                     int x1,x2;
                     for (x1=1;x1<=33;x1++) {};
