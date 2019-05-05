@@ -366,7 +366,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
-    static int iDyLadeende;
+    static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
     
     static int iLadeleistung[27][4]; //27*4 Zellen
@@ -428,7 +428,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              ||(
                 ( ((fPower_Grid - iPower_Bat)< -3300)&&(fBatt_SOC>cMinimumladestand) )
              ||
-                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&(fAvBatterie>iFc) ) // größer Mindesladeschwellex
+                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&
+                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
              ||
                 ((fAvPower_Grid< -500)&&(fBatt_SOC>=iDyLadeende))
                 )
@@ -496,8 +497,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3)&&(iBattLoad>0))
                 || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4)&&(iBattLoad>0))
                 || (fAvPower_Grid>400)
-                || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94)&&(iBattLoad>0))
-                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)&&(iBattLoad>0)))
+                || ((iPower_Bat < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
+                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc)&&(fAvBatterie<0)&&(fBatt_SOC < 94)&&(iBattLoad>0))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
@@ -516,7 +517,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }
-    printf("DyLadeende %i ",iDyLadeende);
+    printf("DyLadeende %0.01f ",iDyLadeende);
     printf(" iWBStatus %i \n",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
