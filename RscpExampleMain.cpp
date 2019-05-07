@@ -188,7 +188,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 static float fBatt_SOC, fBatt_SOC_alt;
 static int32_t iDiffLadeleistung;
-static time_t tLadezeit_alt;
+static time_t tLadezeit_alt,tE3DC_alt;
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -296,7 +296,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 0){
         iLMStatus = 5;
         tLadezeit_alt = 0;
-        iBattLoad = e3dc_config.maximumLadeleistung;
+//        iBattLoad = e3dc_config.maximumLadeleistung;
+        iBattLoad = 100;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
 
         
@@ -335,15 +336,16 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
         
-        if ((abs( int(iPower - iBattLoad)) > 30)&&(iLMStatus == 1))
+        if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
           {
         
             {
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
-            if ((iDiffLadeleistung < 0 )||(iBattLoad<100)) iDiffLadeleistung = 0;
+            if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
             iBattLoad = iPower;
+                tE3DC_alt = t;
             ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
             iLMStatus = 7;
             }
