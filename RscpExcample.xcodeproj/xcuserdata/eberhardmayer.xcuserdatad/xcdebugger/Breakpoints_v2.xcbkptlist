@@ -463,7 +463,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1286"
             endingLineNumber = "1286"
-            landmarkName = "receiveLoop(bool &amp; bStopExecution)"
+            landmarkName = "processReceiveBuffer(const unsigned char * ucBuffer, int iLength)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
