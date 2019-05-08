@@ -22,6 +22,6 @@ RUN apt-get install g++ make gcc
 WORKDIR /home/e3dc-control
 
 RUN git clone https://github.com/Eba-M/E3DC-Control.git /home/e3dc-control
-COPY e3dc.config.txt.template /home/config/e3dc.config.txt
+COPY e3dc.config.txt.template /home/e3dc-control/e3dc.config.txt
 RUN g++ -o E3DC_CONTROL RscpExampleMain.cpp RscpProtocol.cpp AES.cpp SocketConnection.cpp
 RUN ./E3DC_CONTROL
