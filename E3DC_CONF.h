@@ -13,7 +13,7 @@
 #endif /* E3DC_CONF_h */
 // Konfigurationsdatei
 #define CONF_FILE "e3dc.config.txt"
-#define CONF_PATH "/home/config"
+#define CONF_PATH "/home/config/"
 
 #define WURZELZAEHLER 6;     // 0 = interner Zähler 6 = externer Zähler
 
