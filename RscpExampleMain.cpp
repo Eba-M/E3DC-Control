@@ -40,7 +40,6 @@ static uint8_t ucDecryptionIV[AES_BLOCK_SIZE];
 // static int32_t iPower_Grid;
 static uint8_t iCurrent_WB;
 static uint8_t iCurrent_Set_WB;
-static int iMaxPower = 3000;
 static float fPower_Grid;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
@@ -102,7 +101,7 @@ int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
+    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
 
@@ -132,7 +131,7 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
+    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
 
@@ -205,7 +204,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 static float fBatt_SOC, fBatt_SOC_alt;
 static int32_t iDiffLadeleistung;
-static time_t tLadezeit_alt;
+static time_t tLadezeit_alt,tE3DC_alt;
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -246,9 +245,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         ||(iNotstrom==4)  //Inselbetrieb
         ){
             // ENdladen einschalten)
-        if (iDischarge < iMaxPower) {
+        if (iDischarge < e3dc_config.maximumLadeleistung) {
 
-        Control_MAX_DISCHARGE(frameBuffer,iMaxPower);
+        Control_MAX_DISCHARGE(frameBuffer,e3dc_config.maximumLadeleistung);
         iBattPowerStatus = 0;
         iLMStatus = 5;
         }
@@ -313,7 +312,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 0){
         iLMStatus = 5;
         tLadezeit_alt = 0;
-        iBattLoad = e3dc_config.maximumLadeleistung;
+//        iBattLoad = e3dc_config.maximumLadeleistung;
+        iBattLoad = 100;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
 
 
@@ -352,15 +352,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
 
-        if ((abs( int(iPower - iBattLoad)) > 30)&&(iLMStatus == 1))
+        if (((abs( int(iPower - iBattLoad)) > 30)||(t%3600==0))&&(iLMStatus == 1))
+//            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
           {
 
             {
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
-            if ((iDiffLadeleistung < 0 )||(iBattLoad<100)) iDiffLadeleistung = 0;
+            if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
             iBattLoad = iPower;
+                tE3DC_alt = t;
             ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
             iLMStatus = 7;
             }
@@ -389,7 +391,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
-    static int iDyLadeende;
+    static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
 
     static int iLadeleistung[27][4]; //27*4 Zellen
@@ -451,7 +453,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              ||(
                 ( ((fPower_Grid - iPower_Bat)< -3300)&&(fBatt_SOC>cMinimumladestand) )
              ||
-                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&(fAvBatterie>iFc) ) // größer Mindesladeschwellex
+                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&
+                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
              ||
                 ((fAvPower_Grid< -500)&&(fBatt_SOC>=iDyLadeende))
                 )
@@ -513,14 +516,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
-            if (((iPower_Bat < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))
-                || ((iPower_Bat < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
-                || ((iPower_Bat < -1500)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
-                || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3)&&(iBattLoad>0))
-                || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4)&&(iBattLoad>0))
-                || (fAvPower_Grid>400)
-                || ((iPower_Bat < -500)&&(fAvBatterie<-400)&&(fBatt_SOC < 94)&&(iBattLoad>0))
-                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < 94)&&(iBattLoad>0)))
+            if (((iPower_Bat-fPower_Grid < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))   //Speicher > 94%
+                || ((iPower_Bat-fPower_Grid < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1500)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1000)&&(fBatt_SOC < iDyLadeende-3)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -500)&&(fBatt_SOC < iDyLadeende-4)&&(iBattLoad>0))
+                || (fAvPower_Grid>400)          // Hohem Netzbezug
+                                                // Bei Speicher < 94%
+                || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad>0))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
@@ -539,7 +543,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }
-    printf("DyLadeende %i ",iDyLadeende);
+    printf("DyLadeende %0.01f ",iDyLadeende);
     printf(" iWBStatus %i \n",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
