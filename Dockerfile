@@ -1,7 +1,8 @@
 
 FROM multiarch/alpine:armhf-v3.8
 RUN apk add --update nodejs npm
-
+# Restore node modules
+RUN npm install
 # Surpress Upstart errors/warning
 RUN dpkg-divert --local --rename --add /sbin/initctl
 RUN ln -sf /bin/true /sbin/initctl
