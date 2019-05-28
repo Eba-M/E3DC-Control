@@ -1,6 +1,6 @@
 
 FROM multiarch/alpine:armhf-v3.8
-RUN apk add --update nodejs npm
+#RUN apk add --update nodejs npm
 # Restore node modules
 RUN npm install
 # Surpress Upstart errors/warning
