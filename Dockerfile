@@ -1,5 +1,6 @@
-FROM node:latest
-#FROM arm32v6/alpine:3.7
+
+FROM multiarch/alpine:armhf-v3.8
+RUN apk add --update nodejs npm
 
 # Surpress Upstart errors/warning
 RUN dpkg-divert --local --rename --add /sbin/initctl
