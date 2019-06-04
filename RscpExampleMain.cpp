@@ -203,16 +203,16 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
+static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
 static int32_t iDiffLadeleistung;
 static time_t tLadezeit_alt,tE3DC_alt;
-
+static time_t t;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
 
-    time_t t;
-
     tm *ts;
     ts = gmtime(&tE3DC);
+    if (tE3DC % (24*3600)<t) {fSavedyesderday=fSavedtoday; fSavedtoday=0;}
     t = tE3DC % (24*3600);
     float fLadeende = e3dc_config.ladeende;
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -333,6 +333,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
           iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
 
+            if (iPower > 0) fSavedtoday = fSavedtoday + iPower;
+            
           if (iPower < 100) {iPower = 0;}
           else
               if (iPower > e3dc_config.maximumLadeleistung) {iPower = e3dc_config.maximumLadeleistung;}
@@ -382,6 +384,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("BattLoad %i ",iBattLoad);
     printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
+    printf("Saved today %0.003fkWh yesterday  %0.003fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
     if (iLMStatus>1) iLMStatus--;
 
     return 0;
@@ -1645,7 +1648,7 @@ int main(int argc, char *argv[])
             memset(ucEncryptionIV, 0xff, AES_BLOCK_SIZE);
 
             // limit password length to AES_KEY_SIZE
-            int iPasswordLength = strlen(e3dc_config.aes_password);
+            int64_t iPasswordLength = strlen(e3dc_config.aes_password);
             if(iPasswordLength > AES_KEY_SIZE)
                 iPasswordLength = AES_KEY_SIZE;
 
