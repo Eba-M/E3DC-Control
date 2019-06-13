@@ -1564,9 +1564,9 @@ int main(int argc, char *argv[])
 
             }
         }
-        printf("e3dc_user %s\n",e3dc_config.e3dc_user);
-        printf("e3dc_password %s\n",e3dc_config.e3dc_password);
-        printf("aes_password %s\n",e3dc_config.aes_password);
+//        printf("e3dc_user %s\n",e3dc_config.e3dc_user);
+//        printf("e3dc_password %s\n",e3dc_config.e3dc_password);
+//        printf("aes_password %s\n",e3dc_config.aes_password);
         fclose(fp);
     }
     static int iEC = 0;
