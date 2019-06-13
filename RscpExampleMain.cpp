@@ -193,7 +193,7 @@ static time_t tLadezeit_alt,tE3DC_alt;
 static time_t t;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
-
+    printf("\n");
     tm *ts;
     ts = gmtime(&tE3DC);
     if (tE3DC % (24*3600)<t) {fSavedyesderday=fSavedtoday; fSavedtoday=0;}
@@ -524,7 +524,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }
     printf("DyLadeende %0.01f ",iDyLadeende);
-    printf(" iWBStatus %i \n",iWBStatus);
+    printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }

@@ -15,7 +15,7 @@
 #define CONF_FILE "e3dc.config.txt"
 #define CONF_PATH "/Users/eberhardmayer/Documents/E3DC/"
 
-#define WURZELZAEHLER 6;     // 0 = interner Zähler 6 = externer Zähler
+#define WURZELZAEHLER 0;     // 0 = interner Zähler 6 = externer Zähler
 
 #define LADESCHWELLE 50;     // bis zur dieser Schwelle wird geladen bevor die Regelung beginnt
 #define LADEENDE 80;         // Zielwert bis Ende Regelung, dannach wird Ladung auf 93% weiter geregelt und dann ab SOMMERLADEENDE freigegeben
