@@ -23,6 +23,7 @@
 #define OBERERLADEKORRIDOR  1500 // oberere Ladeleistung liegen, jedoch
 #define MINIMUMLADELEISTUNG  500 // immer > MINIMUMLADELEISTUNG
 #define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
+#define WRLEISTUNG 12000 // maximale Ladeleistung
 
 #define SPEICHERGROESSE 13.8 // nutzbare Kapazität des S10 Speichers
 #define WINTERMINIMUM   11.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht
@@ -40,7 +41,7 @@ typedef struct {
     char aes_password[128];
     bool wallbox,ext1,ext2,ext3,debug,htsat,htsun;
     uint8_t wurzelzaehler,ladeschwelle, ladeende;
-    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung;
+    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
     hton, htoff, htsockel;
     

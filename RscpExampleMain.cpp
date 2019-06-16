@@ -38,7 +38,7 @@ static float fPower_Grid;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
-static int32_t iPower_PV;
+static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
@@ -316,8 +316,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             
         
           iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
+            // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
 
+            if (iPower_PV_E3DC > e3dc_config.wrleistung)
+                iPower = iPower + iPower_PV_E3DC - e3dc_config.wrleistung;
             if (iPower > 0) fSavedtoday = fSavedtoday + iPower;
+            
             
           if (iPower < 100) {iPower = 0;}
           else
@@ -722,6 +726,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         int32_t iPower = protocol->getValueAsInt32(response);
         printf("EMS PV %i", iPower);
         iPower_PV = iPower;
+        iPower_PV_E3DC = iPower;
         break;
     }
     case TAG_EMS_POWER_BAT: {    // response for TAG_EMS_REQ_POWER_BAT
@@ -1478,6 +1483,7 @@ int main(int argc, char *argv[])
     e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
     e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
     e3dc_config.maximumLadeleistung = MAXIMUMLADELEISTUNG;
+    e3dc_config.wrleistung = WRLEISTUNG;
     e3dc_config.speichergroesse = SPEICHERGROESSE;
     e3dc_config.winterminimum = WINTERMINIMUM;
     e3dc_config.sommermaximum = SOMMERMAXIMUM;
@@ -1532,6 +1538,8 @@ int main(int argc, char *argv[])
                     e3dc_config.minimumLadeleistung = atoi(value);
                 else if(strcmp(var, "maximumLadeleistung") == 0)
                     e3dc_config.maximumLadeleistung = atoi(value);
+                else if(strcmp(var, "wrleistung") == 0)
+                    e3dc_config.wrleistung = atoi(value);
                 else if(strcmp(var, "speichergroesse") == 0)
                     e3dc_config.speichergroesse = atof(value);
                 else if(strcmp(var, "winterminimum") == 0)
