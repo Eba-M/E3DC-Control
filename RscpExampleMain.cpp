@@ -10,6 +10,8 @@
 #include <time.h>
 #include "E3DC_CONF.h"
 
+#define VERSION "2019.6.18.01"
+
 #define AES_KEY_SIZE        32
 #define AES_BLOCK_SIZE      32
 
@@ -318,15 +320,19 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
             // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
 
+            if (iPower < 0) {iPower = 0;}
+
+
             if (iPower_PV_E3DC > e3dc_config.wrleistung)
-                iPower = iPower + iPower_PV_E3DC - e3dc_config.wrleistung;
-            if (iPower > 0) fSavedtoday = fSavedtoday + iPower;
+            iPower = iPower + iPower_PV_E3DC - e3dc_config.wrleistung;
+           
             
             
-          if (iPower < 100) {iPower = 0;}
-          else
-              if (iPower > e3dc_config.maximumLadeleistung) {iPower = e3dc_config.maximumLadeleistung;}
-        
+            if (iPower < 50) {iPower = 0;}
+            else
+            if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
+            else if (iPower <100) iPower = 100;
+            fSavedtoday = fSavedtoday + iPower;
 //          if (iPower+200 > fAvBatterie) fAvBatterie = iPower+200; // Überschussladen ohne Überhöhung wg. durchschnittl. Ladeleistung;
             if (iFc > iPower)
             {   iPower = iFc;
@@ -691,7 +697,7 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("\nRequest cyclic example data done\n");
+    printf("\nRequest cyclic example data done %s\n",VERSION);
 
     return 0;
 }
