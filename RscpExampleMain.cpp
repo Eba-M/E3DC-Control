@@ -320,11 +320,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
             // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
 
-            if (iPower < 0) {iPower = 0;}
-
-
-            if (iPower_PV_E3DC > e3dc_config.wrleistung)
-            iPower = iPower + iPower_PV_E3DC - e3dc_config.wrleistung;
+            
+            if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
+            iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
            
             
             
@@ -697,7 +695,7 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("\nRequest cyclic example data done %s\n",VERSION);
+    printf("\nRequest cyclic example data done \n");
 
     return 0;
 }
@@ -1592,6 +1590,8 @@ int main(int argc, char *argv[])
         iEC++; // Schleifenzähler erhöhen
 
         // connect to server
+        printf("Program Start Version:%s\n",VERSION);
+
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
