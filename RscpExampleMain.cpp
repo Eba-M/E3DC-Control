@@ -309,7 +309,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
     fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
-    if (iLMStatus == 1) {
+    
         
        
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
@@ -317,10 +317,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         {
             
         
-          iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
+          iPower = (-iPower_Bat + int32_t(fPower_Grid) - e3dc_config.einspeiselimit*-1000)*-1;
+
             // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
 
-            
             if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
             iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
            
@@ -355,7 +355,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
-            iBattLoad = iPower;
+            if (iLMStatus == 1) {
+                iBattLoad = iPower;
                 tE3DC_alt = t;
             ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
             iLMStatus = 7;
