@@ -82,12 +82,12 @@ nano e3dc.config.txt.template
 
 editieren und die Parameter
 
-# /etc/e3dc.conf - Configuration file for E3DC Rscp application
 server_ip = xxx.xxx.xxx.xxx
 server_port = 5033
 e3dc_user = xxxxxxxxxx
 e3dc_password = xxxxxxxx
-und die möglichen Parameter
+
+// und die möglichen Parameter
 
 wallbox = false         // true, wenn man die E3DC-Wallbox nutzen möchte
 ext1 = false				// true, wenn ein externer Zähler genutzt wird
@@ -135,9 +135,9 @@ sudo apt-get install screen
 
 // Skriptdatei erstellen
 
-nano E3DC.sh
+ nano E3DC.sh
 
-#!/bin/bash
+ #!/bin/bash
 while true;
  do
 ./E3DC-Control
@@ -156,16 +156,16 @@ chmod +x E3DC.sh
 
 sudo nano /etc/init.d/e3dcstart
 
-#!/bin/bash
-### BEGIN INIT INFO
-# Provides:          scriptname
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start daemon at boot time
-# Description:       Enable service provided by daemon.
-### END INIT INFO
+ #!/bin/bash
+ ### BEGIN INIT INFO
+ # Provides:          scriptname
+ # Required-Start:    $remote_fs $syslog
+ # Required-Stop:     $remote_fs $syslog
+ # Default-Start:     2 3 4 5
+ # Default-Stop:      0 1 6
+ # Short-Description: Start daemon at boot time
+ # Description:       Enable service provided by daemon.
+ ### END INIT INFO
 echo "E3DC-Control  wird gestartet"
 su  pi -c "screen -dmS E3DC /home/pi/E3DC-Control/E3DC.sh"
 
