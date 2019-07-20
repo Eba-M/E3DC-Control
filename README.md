@@ -40,13 +40,14 @@ https://desertbot.io/blog/ssh-into-pi-zero-over-usb
 Den Raspberry PI einrichten und Betrieb
 
 
-WLAN SCHON VOR DER INBETRIEBNAHME KONFIGURIEREN
+# WLAN SCHON VOR DER INBETRIEBNAHME KONFIGURIEREN
 
 Mitunter ist es praktisch, wenn Sie einen Raspberry Pi auf Anhieb über das WLAN via SSH bedienen können. Das gibt Ihnen die Möglichkeit, ohne angeschlossene Maus und Tastatur mit der Konfiguration zu beginnen — zumindest soweit, wie Sie dies via SSH im Textmodus durchführen können.
 Die leere Datei ssh bewirkt, dass der SSH-Dienst sofort aktiviert wird. (Bei aktuellen Raspbian-Versionen ist dies ja nicht mehr der Fall.) 
 Und die Datei wpa_supplicant.conf enthält die WLAN-Konfiguration. Sie wird beim ersten Start des Raspberry Pi in das Verzeichnis /etc/wpa_supplicant kopiert. Die Datei muss die Bezeichnung des WLANs (SSID) und dessen Passwort enthalten. Dabei gilt dieser Aufbau. 
 
-# Datei wpa_supplicant.conf in der Boot-Partition (Raspbian Stretch)
+Datei wpa_supplicant.conf in der Boot-Partition (Raspbian Stretch)
+
 country=DE
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
