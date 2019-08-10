@@ -329,21 +329,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         {
             
         
-          iPower = (-iPower_Bat + int32_t(fPower_Grid) - e3dc_config.einspeiselimit*-1000)*-1;
-
-            // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
-
-            if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
-            iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
-           
-            
-            
-            if (iPower < 50) {iPower = 0;}
-            else
-            {if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
-                else if (iPower <100) iPower = 100;}
-            fSavedtoday = fSavedtoday + iPower;
-//          if (iPower+200 > fAvBatterie) fAvBatterie = iPower+200; // Überschussladen ohne Überhöhung wg. durchschnittl. Ladeleistung;
             if (iFc > iPower)
             {   iPower = iFc;
                 if (iPower > fAvBatterie) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
