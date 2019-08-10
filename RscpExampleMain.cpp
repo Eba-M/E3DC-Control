@@ -10,8 +10,6 @@
 #include <time.h>
 #include "E3DC_CONF.h"
 
-#define VERSION "2019.6.18.01"
-
 #define AES_KEY_SIZE        32
 #define AES_BLOCK_SIZE      32
 
@@ -309,11 +307,25 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
     fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
+    // Überschussleistung=iPower ermitteln
+
+    iPower = (-iPower_Bat + int32_t(fPower_Grid) - e3dc_config.einspeiselimit*-1000)*-1;
     
+    // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
+    
+    if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
+        iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
+    
+    if (iPower < 50) iPower = 0;
+    else
+    if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
+    else
+    if (iPower <100) iPower = 100;
+    
+    fSavedtoday = fSavedtoday + iPower;
+
         
-       
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
-  // Überschussleistung=iPower ermitteln
         {
             
         
@@ -328,8 +340,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             
             if (iPower < 50) {iPower = 0;}
             else
-            if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
-            else if (iPower <100) iPower = 100;
+            {if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
+                else if (iPower <100) iPower = 100;}
             fSavedtoday = fSavedtoday + iPower;
 //          if (iPower+200 > fAvBatterie) fAvBatterie = iPower+200; // Überschussladen ohne Überhöhung wg. durchschnittl. Ladeleistung;
             if (iFc > iPower)
@@ -370,7 +382,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("BattLoad %i ",iBattLoad);
     printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
-    printf("Saved today %0.003fkWh yesterday  %0.003fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
+   printf("Saved today %0.0004fkWh yesterday  %0.0004fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
     if (iLMStatus>1) iLMStatus--;
 
     return 0;
