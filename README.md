@@ -125,7 +125,7 @@ abspeichern
 
 // Installieren von Screen
 
-sudo apt-get install screen
+`sudo apt-get install screen`
 
 
 
@@ -135,28 +135,28 @@ sudo apt-get install screen
 
 // Skriptdatei erstellen
 
- nano E3DC.sh
+nano E3DC.sh
 
- #!/bin/bash
+`#!/bin/bash
 while true;
  do
 ./E3DC-Control
 sleep 30
 done
-
+`
 // Skriptdatei ausführbar machen
 
-chmod +x E3DC.sh
+`chmod +x E3DC.sh`
 
 // Ausführen
 
-./E3DC.sh
+`./E3DC.sh`
 
 // Autostartdatei erstellen
 
-sudo nano /etc/init.d/e3dcstart
+`sudo nano /etc/init.d/e3dcstart`
 
- #!/bin/bash
+` #!/bin/bash
  ### BEGIN INIT INFO
  # Provides:          scriptname
  # Required-Start:    $remote_fs $syslog
@@ -169,20 +169,20 @@ sudo nano /etc/init.d/e3dcstart
 echo "E3DC-Control  wird gestartet"
 su  pi -c "screen -dmS E3DC /home/pi/E3DC-Control/E3DC.sh"
 
-exit 0
+exit 0`
 
 
 
 // Skriptdatei ausführbar machen
 
 
-sudo chmod 755 /etc/init.d/e3dcstart
+`sudo chmod 755 /etc/init.d/e3dcstart`
 
 // Skriptdatei in die autostart einfügen
 
-sudo update-rc.d e3dcstart defaults
+`sudo update-rc.d e3dcstart defaults`
 
 
 Richtig herunterfahren
 
-sudo shutdown -h 0
+`sudo shutdown -h 0`
