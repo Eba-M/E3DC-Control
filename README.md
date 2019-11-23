@@ -62,13 +62,13 @@ Damit kann der Raspberry auf das Hausnetz zugreifen
 Sobald der Raspberry Pi hochgefahren ist, können Sie sich mit ssh pi@raspberrypi und dem Default-Passwort raspberry einloggen. Anschließend müssen Sie sofort mit sudo passwd pi ein neues Passwort für den Benutzer pi einrichten! Ein aktiver SSH-Server in Kombination mit dem Default-Passwort ist ein großes Sicherheitsrisiko!
 // Installieren git
 
-sudo apt install git
+`sudo apt install git`
 
-git clone  https://github.com/Eba-M/E3DC-Control.git
+`git clone  https://github.com/Eba-M/E3DC-Control.git`
 
 // updates runterladen
 
-git pull  https://github.com/Eba-M/E3DC-Control.git
+`git pull  https://github.com/Eba-M/E3DC-Control.git`
 
 
 // Nach E3DC wechseln und mit make kompilieren
@@ -82,7 +82,7 @@ nano e3dc.config.txt.template
 
 editieren und die Parameter
 
-server_ip = xxx.xxx.xxx.xxx
+```server_ip = xxx.xxx.xxx.xxx
 server_port = 5033
 e3dc_user = xxxxxxxxxx
 e3dc_password = xxxxxxxx
@@ -112,7 +112,7 @@ htoff = 14                // Ende Hochtarif
 htsat = true              // Hochtarif Samstag
 htsun = true              // Hochtourig Sonntag
 debug = false             // zusätzliche debug ausgaben
-
+```
 
 anpassen
 
