@@ -114,36 +114,27 @@ htsun = true              // Hochtourig Sonntag
 debug = false             // zusätzliche debug ausgaben
 ```
 
-anpassen
-
-und als 
-
-e3dc.config.txt
-
-abspeichern
+anpassen und als 
+`e3dc.config.txt`
+abspeichern.
 
 
-// Installieren von Screen
+Installieren von Screen
 
 `sudo apt-get install screen`
-
-
-
-
-
 
 
 // Skriptdatei erstellen
 
 nano E3DC.sh
 
-`#!/bin/bash
+```#!/bin/bash
 while true;
  do
 ./E3DC-Control
 sleep 30
 done
-`
+```
 // Skriptdatei ausführbar machen
 
 `chmod +x E3DC.sh`
@@ -156,7 +147,7 @@ done
 
 `sudo nano /etc/init.d/e3dcstart`
 
-` #!/bin/bash
+``` #!/bin/bash
  ### BEGIN INIT INFO
  # Provides:          scriptname
  # Required-Start:    $remote_fs $syslog
@@ -169,7 +160,8 @@ done
 echo "E3DC-Control  wird gestartet"
 su  pi -c "screen -dmS E3DC /home/pi/E3DC-Control/E3DC.sh"
 
-exit 0`
+exit 0
+```
 
 
 
