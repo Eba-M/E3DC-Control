@@ -62,13 +62,13 @@ Damit kann der Raspberry auf das Hausnetz zugreifen
 Sobald der Raspberry Pi hochgefahren ist, können Sie sich mit ssh pi@raspberrypi und dem Default-Passwort raspberry einloggen. Anschließend müssen Sie sofort mit sudo passwd pi ein neues Passwort für den Benutzer pi einrichten! Ein aktiver SSH-Server in Kombination mit dem Default-Passwort ist ein großes Sicherheitsrisiko!
 // Installieren git
 
-sudo apt install git
+`sudo apt install git`
 
-git clone  https://github.com/Eba-M/E3DC-Control.git
+`git clone  https://github.com/Eba-M/E3DC-Control.git`
 
 // updates runterladen
 
-git pull  https://github.com/Eba-M/E3DC-Control.git
+`git pull  https://github.com/Eba-M/E3DC-Control.git`
 
 
 // Nach E3DC wechseln und mit make kompilieren
@@ -82,7 +82,7 @@ nano e3dc.config.txt.template
 
 editieren und die Parameter
 
-server_ip = xxx.xxx.xxx.xxx
+```server_ip = xxx.xxx.xxx.xxx
 server_port = 5033
 e3dc_user = xxxxxxxxxx
 e3dc_password = xxxxxxxx
@@ -112,51 +112,42 @@ htoff = 14                // Ende Hochtarif
 htsat = true              // Hochtarif Samstag
 htsun = true              // Hochtourig Sonntag
 debug = false             // zusätzliche debug ausgaben
+```
+
+anpassen und als 
+`e3dc.config.txt`
+abspeichern.
 
 
-anpassen
+Installieren von Screen
 
-und als 
-
-e3dc.config.txt
-
-abspeichern
-
-
-// Installieren von Screen
-
-sudo apt-get install screen
-
-
-
-
-
+`sudo apt-get install screen`
 
 
 // Skriptdatei erstellen
 
- nano E3DC.sh
+nano E3DC.sh
 
- #!/bin/bash
+```#!/bin/bash
 while true;
  do
 ./E3DC-Control
 sleep 30
 done
-
+```
 // Skriptdatei ausführbar machen
 
-chmod +x E3DC.sh
+`chmod +x E3DC.sh`
 
 // Ausführen
 
-./E3DC.sh
+`./E3DC.sh`
 
 // Autostartdatei erstellen
 
-sudo nano /etc/init.d/e3dcstart
+`sudo nano /etc/init.d/e3dcstart`
 
- #!/bin/bash
+``` #!/bin/bash
  ### BEGIN INIT INFO
  # Provides:          scriptname
  # Required-Start:    $remote_fs $syslog
@@ -170,19 +161,20 @@ echo "E3DC-Control  wird gestartet"
 su  pi -c "screen -dmS E3DC /home/pi/E3DC-Control/E3DC.sh"
 
 exit 0
+```
 
 
 
 // Skriptdatei ausführbar machen
 
 
-sudo chmod 755 /etc/init.d/e3dcstart
+`sudo chmod 755 /etc/init.d/e3dcstart`
 
 // Skriptdatei in die autostart einfügen
 
-sudo update-rc.d e3dcstart defaults
+`sudo update-rc.d e3dcstart defaults`
 
 
 Richtig herunterfahren
 
-sudo shutdown -h 0
+`sudo shutdown -h 0`
