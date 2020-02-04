@@ -43,7 +43,7 @@ static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
 static int32_t iBattLoad;
-static int iPowerBalance;
+static int iPowerBalance,iPowerHome;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC;
 static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
@@ -369,7 +369,24 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("Reserve %0.1f%%\n",fht);
    printf("Saved today %0.0004fkWh yesterday  %0.0004fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
     if (iLMStatus>1) iLMStatus--;
+    if (e3dc_config.openWB)
+    {
+    char buffer [50];
+    sprintf(buffer,"echo %0.1f > /var/www/html/openWB/ramdisk/wattbezug",fPower_Grid);
+    system(buffer);
 
+    sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/pvwatt",iPower_PV*-1);
+    system(buffer);
+
+    sprintf(buffer,"echo %0.1f > /var/www/html/openWB/ramdisk/llaktuell",fPower_WB);
+    system(buffer);
+
+    sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/speicherleistung",iPower_Bat);
+    system(buffer);
+
+    sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
+    system(buffer);
+    }
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
@@ -379,7 +396,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int iMaxcurrent=31;
     static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
-    
+    static int32_t iWBMinimumPower = 1300; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
     
 
@@ -396,7 +413,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
         
-        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
+        memcpy(WBchar6,"\x00\x06\x00\x00\x01\x00",6);
         WBchar6[1]=WBchar[2];
 
         if (WBchar[2]==32)
@@ -407,7 +424,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (WBchar[2] > 4)
             iWBStatus = 5;
             else return 0;
-//         createRequestWBData(frameBuffer);
+        
+//            createRequestWBData(frameBuffer);
     }
     
     if (iWBStatus == 1) {
@@ -423,7 +441,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 { // Wallbox lädt nicht
     if (not bWBmaxLadestrom)
     { WBchar6[1] = 6;
+//      WBchar6[4] = 1; // Laden starten
         createRequestWBData(frameBuffer);
+        WBchar6[4] = 0; // toggle aus
         iWBStatus = 7;
     }
     else WBchar6[1] = 32;
@@ -437,7 +457,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ( (fPower_WB == 0) &&
                ( ((fPower_Grid - iPower_Bat)< -5500)
              ||(
-                ( ((fPower_Grid - iPower_Bat)< -3300)&&(fBatt_SOC>cMinimumladestand) )
+                ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1))&&(fBatt_SOC>cMinimumladestand) )
              ||
                 ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&
                  ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
@@ -445,20 +465,23 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 ((fAvPower_Grid< -500)&&(fBatt_SOC>=iDyLadeende))
                 )
              )
-            && (WBchar6[1] != 6)  // Immer von 6A aus starten
+//            && (WBchar6[1] != 6)  // Immer von 6A aus starten
             ) { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 { WBchar6[1] = 6;
                     int x1,x2;
                     for (x1=1;x1<=33;x1++) {};
+
+                WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
+                WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 7;
                 }
                     else WBchar6[1] = 32;
         }
         if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
-  
+            if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
             if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && (iPower_Bat >= 0) && (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -10*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
@@ -467,7 +490,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -7*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -6*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-
+                    WBchar6[5] = 0; // Toggle aus
                     createRequestWBData(frameBuffer);
 //                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
                     iWBStatus = 12;
@@ -520,16 +543,18 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         else break;
 
 
-                    if (WBchar6[1]!=WBchar[2])
-                    createRequestWBData(frameBuffer);
+                    if (WBchar6[1]!=WBchar[2]){
+                        if (WBchar6[1]==5) {(WBchar6[1]=6);
+                            WBchar6[4] = 1;} // Laden beenden
+                        createRequestWBData(frameBuffer);}
                     WBChar_alt = WBchar6[1];
-                    if (WBchar6[1] > 6)
+                    if (WBchar6[4] == 0)
                         iWBStatus = 7; else // Warten bis Neustart
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
         }
-    printf("DyLadeende %0.01f ",iDyLadeende);
+        printf("Power %0i DyLadeende %0.01f ",iWBMinimumPower, iDyLadeende);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
@@ -740,6 +765,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         int32_t iPower2 = protocol->getValueAsInt32(response);
         printf(" home %i", iPower2);
         iPowerBalance = iPower2;
+        iPowerHome = iPower2;
 
         break;
     }
@@ -1476,6 +1502,7 @@ int main(int argc, char *argv[])
     }
     char var[128], value[128], line[256];
     e3dc_config.wallbox = false;
+    e3dc_config.openWB = false;
     e3dc_config.ext1 = false;
     e3dc_config.ext2 = false;
     e3dc_config.ext3 = false;
@@ -1520,6 +1547,9 @@ int main(int argc, char *argv[])
                 else if((strcmp(var, "wallbox") == 0)&&
                        (strcmp(value, "true") == 0))
                     e3dc_config.wallbox = true;
+                else if((strcmp(var, "openWB") == 0)&&
+                        (strcmp(value, "true") == 0))
+                    e3dc_config.openWB = true;
                 else if((strcmp(var, "ext1") == 0)&&
                         (strcmp(value, "true") == 0))
                     e3dc_config.ext1 = true;
