@@ -413,7 +413,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
         
-        memcpy(WBchar6,"\x00\x06\x00\x00\x01\x00",6);
+        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
 
         if (WBchar[2]==32)
@@ -476,7 +476,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 createRequestWBData(frameBuffer);
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 7;
+                iWBStatus = 20;
                 }
                     else WBchar6[1] = 32;
         }
@@ -504,8 +504,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                  ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
 //                ((fBatt_SOC < e3dc_config.ladeende)&&
-                ((((fBatt_SOC < 85)&&(iPower_Bat<(2000)))||
-                ((fBatt_SOC >= 85)&&(fBatt_SOC < 93)&&
+                ((((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<(2000)))||
+                ((fBatt_SOC >= e3dc_config.ladeende)&&(fBatt_SOC < 93)&&
                  (iPower_Bat<(1500))))&&
                   ((iPower_Bat+800)<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
