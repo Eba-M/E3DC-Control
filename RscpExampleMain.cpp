@@ -437,7 +437,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
-        }     else if ((!bWBLademodus)&& (WBchar6[1] < 6))  // Immer von 6A aus starten
+        }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))  // Immer von 6A aus starten
 { // Wallbox lädt nicht
     if (not bWBmaxLadestrom)
     { WBchar6[1] = 6;
@@ -490,7 +490,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((fPower_Grid-iPower_Bat < -7*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -6*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                    WBchar6[5] = 0; // Toggle aus
                     createRequestWBData(frameBuffer);
 //                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
                     iWBStatus = 12;
