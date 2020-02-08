@@ -451,10 +451,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
-        if ((fPower_WB == 0)&&(iWBStatus==1)) {
+        if ((fPower_WB == 0)&&(iWBStatus==1)&&bWBLademodus) {
             iDyLadeende = cMinimumladestand;
         }
-                if ( (fPower_WB == 0) &&
+                if ( (fPower_WB == 0) &&bWBLademodus &&
                ( ((fPower_Grid - iPower_Bat)< -5500)
              ||(
                 ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1))&&(fBatt_SOC>cMinimumladestand) )
