@@ -850,7 +850,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
             int32_t iPower = protocol->getValueAsInt32(response);
             
-            printf(" SET %i\n", iPower);
+//            printf(" SET %i\n", iPower);
             break;
         }
         case TAG_EMS_EMERGENCY_POWER_STATUS: {    // response for TAG_EMS_EMERGENCY_POWER_STATUS
