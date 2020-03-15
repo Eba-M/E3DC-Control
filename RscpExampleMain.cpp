@@ -344,7 +344,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
         
-        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
+//        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
           {
         
@@ -366,19 +366,20 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iLMStatus == 1) {
                  iBattLoad = iPower;
                  tE3DC_alt = t;
-                    if (iPower_Bat > iPower) {
+//                    if (iPower_Bat > iPower)
+                    {
 // die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
                         //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
                         if (iPower > iPower_Bat - int32_t(fPower_Grid))
                             iPower = iPower_Bat - int32_t(fPower_Grid);
-                        if (iPower > 50)
+                        if (iPower < e3dc_config.maximumLadeleistung)
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
-                        iLMStatus = 5;}
-                    else if (fPower_Grid>50){
+                        iLMStatus = 10;}
+/*                    else if (fPower_Grid>50){
 // Zurück in den Automatikmodus
                         ControlLoadData(frameBuffer,0,0);
                         iLMStatus = 7;}
-
+*/
                 }
 
           }
