@@ -54,7 +54,7 @@ static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=O
 e3dc_config_t e3dc_config;
 
 
-int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power) {
+int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -64,7 +64,8 @@ int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power) {
     SRscpValue PMContainer;
 //    Power = Power*-1;
     protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
-    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,3);
+    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
+    if (Mode > 0)
     protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_VALUE,Power);
     // append sub-container to root container
     protocol.appendValue(&rootValue, PMContainer);
@@ -343,21 +344,42 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
         
-        if (((abs( int(iPower - iBattLoad)) > 30)||(t%3600==0))&&(iLMStatus == 1))
+        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
           {
         
             {
+            if (iBattLoad > iPower_Bat)
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
             if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
-            if (iLMStatus == 1) {
+/*            if (iLMStatus == 1) {
                 iBattLoad = iPower;
                 tE3DC_alt = t;
             ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
             iLMStatus = 7;
             }
+*/
+// Steuerung direkt über vorgabe der Batterieladeleistung
+// -iPower_Bat + int32_t(fPower_Grid)
+                if (iLMStatus == 1) {
+                 iBattLoad = iPower;
+                 tE3DC_alt = t;
+                    if (iPower_Bat > iPower) {
+// die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
+                        //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
+                        if (iPower > iPower_Bat - int32_t(fPower_Grid))
+                            iPower = iPower_Bat - int32_t(fPower_Grid);
+                        if (iPower > 50)
+                        ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
+                        iLMStatus = 5;}
+                    else if (fPower_Grid>50){
+// Zurück in den Automatikmodus
+                        ControlLoadData(frameBuffer,0,0);
+                        iLMStatus = 7;}
+
+                }
 
           }
     }
@@ -398,7 +420,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower = 1300; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
-    
+    static bool bWBOn = false; // Wallbox eingeschaltet
 
 //    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
 //    return 0;
@@ -439,9 +461,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))  // Immer von 6A aus starten
 { // Wallbox lädt nicht
-    if (not bWBmaxLadestrom)
+    if ((not bWBmaxLadestrom)&&(not bWBOn))
     { WBchar6[1] = 6;
 //      WBchar6[4] = 1; // Laden starten
+        bWBOn = true;
         createRequestWBData(frameBuffer);
         WBchar6[4] = 0; // toggle aus
         iWBStatus = 7;
@@ -473,7 +496,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     for (x1=1;x1<=33;x1++) {};
 
                 WBchar6[4] = 1; // Laden starten
+                if (not bWBOn)
                 createRequestWBData(frameBuffer);
+                bWBOn = true;
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 20;
@@ -524,11 +549,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
-            if (((iPower_Bat-fPower_Grid < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))   //Speicher > 94%
+// Bedingung zum Wallbox abschalten ermitteln
+//
+                
+                
+            if (
+                   ((iPower_Bat-fPower_Grid < -2700)&&(fBatt_SOC < 94))
+                || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
                 || ((iPower_Bat-fPower_Grid < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -1500)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -1000)&&(fBatt_SOC < iDyLadeende-3)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -500)&&(fBatt_SOC < iDyLadeende-4)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1500)&&(fBatt_SOC < iDyLadeende-1.5)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1000)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -500)&&(fBatt_SOC < iDyLadeende-2.5)&&(iBattLoad>0))
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
                 || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
@@ -544,7 +575,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                     if (WBchar6[1]!=WBchar[2]){
                         if (WBchar6[1]==5) {(WBchar6[1]=6);
-                            WBchar6[4] = 1;} // Laden beenden
+                            WBchar6[4] = 1;
+                            bWBOn = false;
+                        } // Laden beenden
                         createRequestWBData(frameBuffer);}
                     WBChar_alt = WBchar6[1];
                     if (WBchar6[4] == 0)
