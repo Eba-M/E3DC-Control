@@ -368,12 +368,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                  iBattLoad = iPower;
                  tE3DC_alt = t;
 //                    if (iPower_Bat > iPower)
-                    {
 // die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
                         //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
+                        
+                        if (iPower < e3dc_config.maximumLadeleistung)
+                        {
                         if (iPower > iPower_Bat - int32_t(fPower_Grid))
                             iPower = iPower_Bat - int32_t(fPower_Grid);
-                        if (iPower < e3dc_config.maximumLadeleistung)
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
                         iLMStatus = 10;}
 /*                    else if (fPower_Grid>50){
@@ -1504,10 +1505,11 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
-            if (e3dc_config.wallbox)
+            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox))
             WBProcess(&frameBuffer);
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);
+//            sleep(1);
         }
         // check that frame data was created
         
