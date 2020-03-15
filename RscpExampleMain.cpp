@@ -349,7 +349,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           {
         
             {
-            if (iBattLoad > iPower_Bat)
+            if (iBattLoad > (iPower_Bat-iDiffLadeleistung))
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
             if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
