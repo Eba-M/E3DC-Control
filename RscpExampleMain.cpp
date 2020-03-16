@@ -375,6 +375,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                         {
                         if (iPower > iPower_Bat - int32_t(fPower_Grid))
                             iPower = iPower_Bat - int32_t(fPower_Grid);
+                            if (iPower < 0) iPower = 0;
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
                         iLMStatus = 10;}
 /*                    else if (fPower_Grid>50){
@@ -1513,7 +1514,8 @@ static void mainLoop(void)
         }
         // check that frame data was created
         
-        if(frameBuffer.dataLength == 0){
+        if(frameBuffer.dataLength == 0)
+        {
             createRequestExample(&frameBuffer);
             sleep(1);
         }
