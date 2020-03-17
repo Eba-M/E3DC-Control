@@ -372,9 +372,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
                         //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
                         
-//                        if ((iPower < e3dc_config.maximumLadeleistung)&&(iPower<(iPower_Bat - int32_t(fPower_Grid))))
+                        if ((iPower < e3dc_config.maximumLadeleistung)&&(iPower<(iPower_Bat - int32_t(fPower_Grid))))
                         {
-                        if (iPower < iPower_Bat - int32_t(fPower_Grid))
+//                        if (iPower < iPower_Bat - int32_t(fPower_Grid))
 //                            iPower = iPower_Bat - int32_t(fPower_Grid);
 //                        if (iPower >0)
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
