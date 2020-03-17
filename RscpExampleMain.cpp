@@ -374,9 +374,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                         
 //                        if ((iPower < e3dc_config.maximumLadeleistung)&&(iPower<(iPower_Bat - int32_t(fPower_Grid))))
                         {
-                        if (iPower > iPower_Bat - int32_t(fPower_Grid))
-                            iPower = iPower_Bat - int32_t(fPower_Grid);
-                        if (iPower >0)
+                        if (iPower < iPower_Bat - int32_t(fPower_Grid))
+//                            iPower = iPower_Bat - int32_t(fPower_Grid);
+//                        if (iPower >0)
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
                         iLMStatus = 10;}
 /*                    else if (fPower_Grid>50){
