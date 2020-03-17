@@ -18,7 +18,7 @@ static int iSocket = -1;
 static int iAuthenticated = 0;
 static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
 static int iWBStatus = 0; // Status, WB schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
-static int iLMStatus = 0; // Status, Load Management  schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
+static int iLMStatus = 0; // Status, Load Management  negativer Wert in Sekunden = Anforderung + Warten bis zur nächsten Anforderung, der angeforderte Wert steht in iE3DC_Req_Load
 static float fAvBatterie;
 static int iAvBatt_Count = 0;
 static uint8_t WBchar[8];
@@ -50,6 +50,7 @@ static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
 static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
+static int32_t iE3DC_Req_Load; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 
 e3dc_config_t e3dc_config;
 
@@ -371,11 +372,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
                         //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
                         
-                        if (iPower < e3dc_config.maximumLadeleistung)
+//                        if ((iPower < e3dc_config.maximumLadeleistung)&&(iPower<(iPower_Bat - int32_t(fPower_Grid))))
                         {
                         if (iPower > iPower_Bat - int32_t(fPower_Grid))
                             iPower = iPower_Bat - int32_t(fPower_Grid);
-                            if (iPower < 0) iPower = 0;
+                        if (iPower >0)
                         ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
                         iLMStatus = 10;}
 /*                    else if (fPower_Grid>50){
