@@ -249,8 +249,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         ){
             // ENdladen einschalten)
 if (iPower_Bat == 0)
-{    sprintf(Log,"BAT %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
+{    sprintf(Log,"BAT %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, t);
         WriteLog();
+    iLMStatus = 10;
 }
         if (iDischarge < e3dc_config.maximumLadeleistung) {
             
