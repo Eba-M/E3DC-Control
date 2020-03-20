@@ -1699,7 +1699,14 @@ int main(int argc, char *argv[])
                     e3dc_config.ext7 = true;
                 else if((strcmp(var, "debug") == 0)&&
                         (strcmp(value, "true") == 0))
-                    e3dc_config.debug = true;
+                {e3dc_config.debug = true;
+                    time(&t);
+                    struct tm * ptm;
+                    ptm = gmtime(&t);
+                    sprintf(Log,"Start %s ", strtok(asctime(ptm),"\n"));
+                    WriteLog();
+
+                }
                 else if(strcmp(var, "untererLadekorridor") == 0)
                     e3dc_config.untererLadekorridor = atoi(value);
                 else if(strcmp(var, "obererLadekorridor") == 0)
