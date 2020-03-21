@@ -248,8 +248,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         ||(iNotstrom==4)  //Inselbetrieb
         ){
             // ENdladen einschalten)
-if (iPower_Bat == 0)
-{    sprintf(Log,"BAT %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, t);
+if ((iPower_Bat == 0)&&(fPower_Grid>100))
+{    sprintf(Log,"BAT %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iDischarge);
         WriteLog();
     iLMStatus = 10;
 }
@@ -408,7 +408,7 @@ if (iPower_Bat == 0)
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             sprintf(Log,"CTL %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
                             WriteLog();
-
+                            iBattLoad = iE3DC_Req_Load;
                             iLMStatus = -10;}
 /*                    else if (fPower_Grid>50){
 // Zurück in den Automatikmodus
