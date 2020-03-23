@@ -409,7 +409,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                             sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                             WriteLog();
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
-                            iLMStatus = -10;}
+                            iLMStatus = -10; else
+                            iLMStatus = 10;
+                                }
 /*                    else if (fPower_Grid>50){
 // Zurück in den Automatikmodus
                         ControlLoadData(frameBuffer,0,0);
