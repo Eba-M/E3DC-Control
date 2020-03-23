@@ -408,6 +408,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                             WriteLog();
+                            if (iPower_Bat>0)
                             iLMStatus = -10;}
 /*                    else if (fPower_Grid>50){
 // Zurück in den Automatikmodus
