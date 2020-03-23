@@ -1071,7 +1071,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "464"
             endingLineNumber = "464"
-            landmarkName = "LoadDataProcess(SRscpFrameBuffer * frameBuffer)"
+            landmarkName = "WBProcess(SRscpFrameBuffer * frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
