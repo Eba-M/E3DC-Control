@@ -435,6 +435,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
            if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
             iLMStatus = -5;
+            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+            WriteLog();
+
 }
     };
     printf("AVBatt   %0.1f ",fAvBatterie);
