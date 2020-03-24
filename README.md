@@ -92,7 +92,7 @@ e3dc_password = xxxxxxxx
 wallbox = false         // true, wenn man die E3DC-Wallbox nutzen möchte
 ext1 = false				// true, wenn ein externer Zähler genutzt wird
 ext2 = false
-wurzelzaehler = 1		// 6 = externer Wurzelzähler
+wurzelzaehler = 0		// 6 = externer Wurzelzähler
 einspeiselimit = 7.0 // 70% Einspeisegrenze
 untererLadekorridor = 500  
 obererLadekorridor = 1500  // bei der PRO wird 4500 empfohlen
