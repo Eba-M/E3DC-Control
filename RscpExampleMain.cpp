@@ -58,16 +58,31 @@ e3dc_config_t e3dc_config;
 
 int WriteLog()
 {
-    if (e3dc_config.debug) {
+  static time_t t,t_alt = 0;
+    int day;
+    char fname[80];
+    time(&t);
     FILE *fp;
-    fp = fopen("/var/www/html/openWB/ramdisk/Logfile.txt", "a");
-    if(!fp)
-        fp = fopen("/var/www/html/openWB/ramdisk/Logfile.txt", "w");
-    if(!fp)
-        fp = fopen(CONF_PATH "Logfile.txt", "a");
-    if(!fp)
-        fp = fopen(CONF_PATH "Logfile.txt", "w");
+    struct tm * ptm;
+    ptm = gmtime(&t);
 
+    if (e3dc_config.debug) {
+    
+    if ((t%24*3600)<t_alt) // neuer Tag
+    {
+        day = (t%(24*3600*4))/(24*3600);
+        day = day + 2;
+        if (day > 3) day = day - 4;
+        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        fp = fopen(fname,"w");       // altes logfile löschen
+        fclose(fp);
+    }
+        day = (t%(24*3600*4))/(24*3600);
+        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        fp = fopen(fname, "a");
+    if(!fp)
+        fp = fopen(fname, "w");
+    if(fp)
     fprintf(fp,"%s\n",Log);
         fclose(fp);}
 return(0);
@@ -209,13 +224,24 @@ static float fBatt_SOC, fBatt_SOC_alt;
 static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tE3DC_alt;
-static time_t t;
+static time_t t = 0;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     printf("\n");
     tm *ts;
     ts = gmtime(&tE3DC);
-    if (tE3DC % (24*3600)<t) {fSavedyesderday=fSavedtoday; fSavedtoday=0;}
+    float ft;
+    ft = float(tE3DC % (24*3600))/3600;
+    int hh,mm,ss;
+    hh = t % (24*3600)/3600;
+    mm = t % (3600)/60;
+    ss = t % (60);
+
+    if (tE3DC % (24*3600)<t) {
+        sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday,fSavedyesderday);
+        fSavedyesderday=fSavedtoday; fSavedtoday=0;
+        WriteLog();
+    }
     t = tE3DC % (24*3600);
     float fLadeende = e3dc_config.ladeende;
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -691,7 +717,8 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0)
         {
             int32_t Mode;
-            if (iE3DC_Req_Load>=0) Mode = 3; else
+            if (iE3DC_Req_Load==0) Mode = 1; else
+            if (iE3DC_Req_Load>0) Mode = 3; else
             { iE3DC_Req_Load = iE3DC_Req_Load*-1;
                 Mode = 2;}
             iLMStatus = iLMStatus*-1;
@@ -1645,6 +1672,7 @@ int main(int argc, char *argv[])
     e3dc_config.ext2 = false;
     e3dc_config.ext3 = false;
     e3dc_config.ext7 = false;
+    sprintf(e3dc_config.logfile,"%slogfile",CONF_PATH);
     e3dc_config.debug = false;
     e3dc_config.wurzelzaehler = 0;
     e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
@@ -1703,6 +1731,8 @@ int main(int argc, char *argv[])
                 else if((strcmp(var, "ext7") == 0)&&
                         (strcmp(value, "true") == 0))
                     e3dc_config.ext7 = true;
+                else if(strcmp(var, "logfile") == 0)
+                    strcpy(e3dc_config.logfile, value);
                 else if((strcmp(var, "debug") == 0)&&
                         (strcmp(value, "true") == 0))
                 {e3dc_config.debug = true;
