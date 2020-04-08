@@ -66,12 +66,13 @@ Sobald der Raspberry Pi hochgefahren ist, können Sie sich mit ssh pi@raspberry
 
 `git clone  https://github.com/Eba-M/E3DC-Control.git`
 
-// updates runterladen
+// updates runterladen (nur erforderlich, wenn ein neues Updat installiert werden soll
 
+cd E3DC-Control  // Nach E3DC wechseln und mit pull runterladen
 `git pull  https://github.com/Eba-M/E3DC-Control.git`
 
 
-// Nach E3DC wechseln und mit make kompilieren
+// nach clone oder pull  mit make kompilieren
 
 cd E3DC-Control
 make
