@@ -75,6 +75,7 @@ git pull  https://github.com/Eba-M/E3DC-Control.git`
 // nach clone oder pull  mit make kompilieren
 
 cd E3DC-Control
+
 make
 
 mit nano die Datei
