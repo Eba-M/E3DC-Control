@@ -50,7 +50,7 @@ static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
 static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
-static int32_t iE3DC_Req_Load; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
+static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
 char Log[80];
 e3dc_config_t e3dc_config;
@@ -68,11 +68,9 @@ int WriteLog()
 
     if (e3dc_config.debug) {
     
-    if ((t%24*3600)<t_alt) // neuer Tag
+    if ((t%24*3600+12*3600)<t_alt) // neuer Tag
     {
         day = (t%(24*3600*4))/(24*3600);
-        day = day + 2;
-        if (day > 3) day = day - 4;
         sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
         fp = fopen(fname,"w");       // altes logfile löschen
         fclose(fp);
@@ -85,6 +83,7 @@ int WriteLog()
     if(fp)
     fprintf(fp,"%s\n",Log);
         fclose(fp);}
+    t_alt = t%(24*3600);
 return(0);
 }
 int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
@@ -237,8 +236,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     mm = t % (3600)/60;
     ss = t % (60);
 
-    if (tE3DC % (24*3600)<t) {
-        sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday,fSavedyesderday);
+    if ((tE3DC % (24*3600)+12*3600)<t) {
+        sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday/3600000,fSavedyesderday/3600000);
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
         WriteLog();
     }
@@ -246,11 +245,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     float fLadeende = e3dc_config.ladeende;
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
 
-    time_t tLadezeitende,tLadezeitende2;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+    time_t tLadezeitende,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     int32_t tZeitgleichung;
     tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
     
 //    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
@@ -310,15 +311,24 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
+    tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
 
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
-        tLadezeitende = tLadezeitende2 - tZeitgleichung;
-        fLadeende = 93;
-    };
-    
-    if ((t < (tLadezeitende))&&(fBatt_SOC<fLadeende))
+    int xSoC;
+    if (t < tLadezeitende3) {
+        if (cos((ts->tm_yday+9)*2*3.14/365)>0) xSoC = cos((ts->tm_yday+9)*2*3.14/365)*100+e3dc_config.unload;
+        else
+            xSoC = e3dc_config.unload;
+        if (xSoC < fBatt_SOC)
+        {tLadezeitende = tLadezeitende3 - tZeitgleichung;
+            fLadeende = xSoC;}
+    }
+ else
+     if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
+         tLadezeitende = tLadezeitende2 - tZeitgleichung;
+         fLadeende = 93;
+     }    if (t < tLadezeitende)
     {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
       {
@@ -328,12 +338,19 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
-          iFc = (iFc-e3dc_config.untererLadekorridor);
+          if (iFc >= e3dc_config.untererLadekorridor)
+              iFc = (iFc-e3dc_config.untererLadekorridor);
+          else
+            if (abs(iFc) >= e3dc_config.untererLadekorridor)
+               iFc = (iFc+e3dc_config.untererLadekorridor);
+            else
+              iFc = 0;
           iFc = iFc*(e3dc_config.maximumLadeleistung/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
-        if (iFc < e3dc_config.minimumLadeleistung) iFc = 0;
+          if (abs(iFc) > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
+          if (abs(iFc) < e3dc_config.minimumLadeleistung) iFc = 0;
       }
-        printf("MinLoad: %u %u ",iMinLade, iFc);
+        printf("MinLoad: %i %i ",iMinLade, iFc);
     } else
         if (t > tLadezeitende) iFc = e3dc_config.maximumLadeleistung;
            else iFc = 0;
@@ -368,20 +385,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
         iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
     
-    if (iPower < 50) iPower = 0;
-    else
-    if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
-    else
-    if (iPower <100) iPower = 100;
+//    if (iPower < 50) iPower = 0;
+//    else
+//    if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
+//    else
+//    if (iPower <100) iPower = 100;
     
-    fSavedtoday = fSavedtoday + iPower;
+    if (iPower > 0)
+      fSavedtoday = fSavedtoday + iPower;
 
         
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
         {
             
         
-            if (iFc > iPower)
+            if (iPower<iFc)
             {   iPower = iFc;
                 if (iPower > fAvBatterie) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
                 if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
@@ -403,9 +421,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             {
             if (iBattLoad > (iPower_Bat-iDiffLadeleistung))
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
-            if ((iDiffLadeleistung < 0 )||(iBattLoad<=100)) iDiffLadeleistung = 0;
+            if ((iDiffLadeleistung < 0 )||(abs(iBattLoad)<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
-            if ((iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
+            if (abs(iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
 /*            if (iLMStatus == 1) {
                 iBattLoad = iPower;
                 tE3DC_alt = t;
@@ -435,9 +453,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                             sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                             WriteLog();
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
-                            iLMStatus = -10; else
+                            {
+                                iLMStatus = -10;} else
                             iLMStatus = 10;
-                                }
+                            }
 /*                    else if (fPower_Grid>50){
 // Zurück in den Automatikmodus
                         ControlLoadData(frameBuffer,0,0);
@@ -1687,6 +1706,7 @@ int main(int argc, char *argv[])
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
+    e3dc_config.unload = 100;
     e3dc_config.ht = 0;
     e3dc_config.htsat = false;
     e3dc_config.htsun = false;
@@ -1767,6 +1787,8 @@ int main(int argc, char *argv[])
                     e3dc_config.ladeschwelle = atoi(value);
                 else if(strcmp(var, "ladeende") == 0)
                     e3dc_config.ladeende = atoi(value);
+                else if(strcmp(var, "unload") == 0)
+                    e3dc_config.unload = atoi(value);
                 else if(strcmp(var, "htmin") == 0)
                     e3dc_config.ht = atoi(value);
                 else if(strcmp(var, "htsockel") == 0)

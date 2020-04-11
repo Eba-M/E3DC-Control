@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "2020.4.2.01"
+#define VERSION "2020.4.11.01" //April branch
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -41,8 +41,8 @@ typedef struct {
     char aes_password[128];
     char logfile[128];
     bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB;
-    uint8_t wurzelzaehler,ladeschwelle, ladeende;
-    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave;
+    uint8_t wurzelzaehler,ladeschwelle, ladeende, unload;
+    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
     hton, htoff, htsockel;
     
