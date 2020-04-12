@@ -608,7 +608,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
-            if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && (iPower_Bat >= 0) && (WBchar6[1]<iMaxcurrent)){
+            if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && ((iPower_Bat > iMinLade)||(iPower_Bat > iBattLoad)) && (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -10*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                 if ((fPower_Grid-iPower_Bat < -9*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
