@@ -228,6 +228,7 @@ static time_t t = 0;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     printf("\n");
+    iBattLoad = 0;
     tm *ts;
     ts = gmtime(&tE3DC);
     float ft;
@@ -1085,7 +1086,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             if (iAvPower_GridCount<20)
                                 fAvPower_Grid = fAvPower_Grid3600; else
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                            printf(" & %0.01f %0.01f %0.01f %0.01f W\n", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
+                            printf(" & %0.01f %0.01f %0.01f %0.01f W ", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
                     }
                         break;
                     }
@@ -1254,7 +1255,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_WB_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("WB is %0.1f W", fPower);
+                        printf("\nWB is %0.1f W", fPower);
                         fPower_WB = fPower;
 /*                        if (iCyc_WB>0) iCyc_WB--;
                         if (fPower > 1)
@@ -1283,7 +1284,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
                         printf(" %0.1f W", fPower);
                         fPower_WB = fPower_WB + fPower;
-                        printf(" Total %0.1f W\n", fPower_WB);
+                        printf(" Total %0.1f W", fPower_WB);
                         break;
                     }
 /*                    case TAG_WB_AVAILABLE_SOLAR_POWER: {              // response for TAG_PM_REQ_L3
