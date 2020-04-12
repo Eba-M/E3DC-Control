@@ -66,23 +66,25 @@ Sobald der Raspberry Pi hochgefahren ist, können Sie sich mit ssh pi@raspberry
 
 `git clone  https://github.com/Eba-M/E3DC-Control.git`
 
-// updates runterladen
+// updates runterladen (nur erforderlich, wenn ein neues Updat installiert werden soll
 
-`git pull  https://github.com/Eba-M/E3DC-Control.git`
+cd E3DC-Control  // Nach E3DC wechseln und mit pull runterladen
 
+git pull  https://github.com/Eba-M/E3DC-Control.git`
 
-// Nach E3DC wechseln und mit make kompilieren
+// nach clone oder pull  mit make kompilieren
 
 cd E3DC-Control
+
 make
 
-mit nano die Datei
+// mit nano die Datei
 
 nano e3dc.config.txt.template
 
-editieren und die Parameter
+// editieren und die Parameter
 
-```server_ip = xxx.xxx.xxx.xxx
+server_ip = xxx.xxx.xxx.xxx
 server_port = 5033
 e3dc_user = xxxxxxxxxx
 e3dc_password = xxxxxxxx
@@ -114,12 +116,12 @@ htsun = true              // Hochtourig Sonntag
 debug = false             // zusätzliche debug ausgaben
 ```
 
-anpassen und als 
-`e3dc.config.txt`
-abspeichern.
+// anpassen und als 
+//`e3dc.config.txt`
+// abspeichern.
 
 
-Installieren von Screen
+// Installieren von Screen
 
 `sudo apt-get install screen`
 
@@ -128,7 +130,9 @@ Installieren von Screen
 
 nano E3DC.sh
 
-```#!/bin/bash
+// folgende kopieren
+
+#!/bin/bash
 while true;
  do
 ./E3DC-Control
