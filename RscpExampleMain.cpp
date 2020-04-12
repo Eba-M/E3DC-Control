@@ -228,7 +228,6 @@ static time_t t = 0;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     printf("\n");
-    iBattLoad = 0;
     tm *ts;
     ts = gmtime(&tE3DC);
     float ft;
@@ -368,7 +367,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         iLMStatus = 5;
         tLadezeit_alt = 0;
 //        iBattLoad = e3dc_config.maximumLadeleistung;
-        iBattLoad = 100;
+//        iBattLoad = 100;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
 
         
@@ -532,7 +531,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         iDyLadeende = e3dc_config.ladeschwelle;
         iFc = 0;
-        iBattLoad = 100;
+//        iBattLoad = 100;
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
 
