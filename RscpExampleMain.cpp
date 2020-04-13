@@ -321,6 +321,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (cos((ts->tm_yday+9)*2*3.14/365)>0) xSoC = cos((ts->tm_yday+9)*2*3.14/365)*100+e3dc_config.unload;
         else
             xSoC = e3dc_config.unload;
+        if (xSoC < e3dc_config.ladeschwelle) e3dc_config.ladeschwelle = xSoC;
         if (xSoC < fBatt_SOC)
         {tLadezeitende = tLadezeitende3 - tZeitgleichung;
             fLadeende = xSoC;}
