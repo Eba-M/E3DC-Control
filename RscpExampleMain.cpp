@@ -547,7 +547,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
             if (WBchar[2] > 4)
             iWBStatus = 5;
-            else return 0;
+            else {
+//                iWBStatus= 1;
+                return 0;}
         
 //            createRequestWBData(frameBuffer);
     }
@@ -688,7 +690,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }
-        printf("Power %0i DyLadeende %0.01f ",iWBMinimumPower, iDyLadeende);
+        printf("\nPower %0i DyLadeende %0.01f ",iWBMinimumPower, iDyLadeende);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
@@ -873,7 +875,7 @@ if (e3dc_config.ext7)
         protocol.createContainerValue(&WBContainer, TAG_WB_REQ_DATA);
         protocol.appendValue(&WBContainer, TAG_WB_INDEX, (uint8_t)0);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_MODE);
-//        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
+        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L1);
@@ -1305,7 +1307,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case (TAG_WB_RSP_PARAM_1): {              // response for TAG_RSP_PARAM_1
 
                         
-                       printf(" WB Param_1\n");
+/*                       printf(" WB Param_1\n");
                         printf(" datatype %08X", PMData[i].dataType);
                         printf(" length %02X", PMData[i].length);
                         printf(" data");
@@ -1315,7 +1317,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf("%02X", PMData[i].data[y]);
                         }
                         printf("\n");
-
+*/
                         std::vector<SRscpValue> WBData = protocol->getValueAsContainer(&PMData[i]);
 
                         for(size_t i = 0; i < WBData.size(); ++i) {
@@ -1335,7 +1337,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     printf(" \n");
                                     if (bWBLademodus) printf("Sonnenmodus: ");
                                     printf("MODUS ist %u",WBchar[0]);
-                                    printf(" Ladestromstärke ist %uA\n",WBchar[2]);
+                                    printf(" Ladestromstärke ist %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
                                     }
