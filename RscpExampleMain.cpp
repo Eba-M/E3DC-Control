@@ -1714,6 +1714,7 @@ int main(int argc, char *argv[])
     e3dc_config.einspeiselimit = EINSPEISELIMIT;
     e3dc_config.ladeschwelle = LADESCHWELLE;
     e3dc_config.ladeende = LADEENDE;
+    e3dc_config.ladeende2 = LADEENDE2;
     e3dc_config.unload = 100;
     e3dc_config.ht = 0;
     e3dc_config.htsat = false;
@@ -1795,6 +1796,8 @@ int main(int argc, char *argv[])
                     e3dc_config.ladeschwelle = atoi(value);
                 else if(strcmp(var, "ladeende") == 0)
                     e3dc_config.ladeende = atoi(value);
+                else if(strcmp(var, "ladeende2") == 0)
+                    e3dc_config.ladeende2 = atoi(value);
                 else if(strcmp(var, "unload") == 0)
                     e3dc_config.unload = atoi(value);
                 else if(strcmp(var, "htmin") == 0)
