@@ -223,7 +223,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 static float fBatt_SOC, fBatt_SOC_alt;
 static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
-static time_t tLadezeit_alt,tE3DC_alt;
+static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -332,10 +332,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
          fLadeende = 93;
      }    if (t < tLadezeitende)
     {
-      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
+      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0))
+// Neuberechnung der Ladeleistung erfolgt, denn der SoC sich ändert oder
+// tLadezeitende sich ändert oder nach Ablauf von mind nach 5 Minuten
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
-        tLadezeit_alt=t; // alle 300sec Berechnen
+          tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
+          tLadezeit_alt=t; // alle 300sec Berechnen
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
