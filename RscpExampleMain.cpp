@@ -490,7 +490,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
          tLadezeitende = tLadezeitende2 - tZeitgleichung;
-         fLadeende = 93;
+         fLadeende = e3dc_config.ladeende2;
      }    if (t < tLadezeitende)
     {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0))
@@ -500,8 +500,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
           tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
           tLadezeit_alt=t; // alle 300sec Berechnen
+        
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
-        iFc = iFc / (tLadezeitende-t);
+          if ((tLadezeitende-t) > 600)
+          iFc = iFc / (tLadezeitende-t);
+          iFc = iFc / (600);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
           if (iFc >= e3dc_config.untererLadekorridor)
