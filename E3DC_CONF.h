@@ -14,6 +14,7 @@
 // Konfigurationsdatei
 #define CONF_FILE "e3dc.config.txt"
 #define CONF_PATH "/Users/eberhardmayer/Documents/E3DC/"
+#define OPENWB "localhost"
 
 #define WURZELZAEHLER 0;     // 0 = interner Zähler 6 = externer Zähler
 
@@ -32,6 +33,7 @@
 #define SOMMERLADEENDE  18.5 // alle Zeiten in GMT = MEZ Winterzeit - 1
 #define EINSPEISELIMIT   6.9 // maximal erlaubte Einspeiseleistung in kW
 
+
 //const int cLadeschwelle = LADESCHWELLE; // Minimum Lade-Schwelle wird bevorzugt der E3DC-Speicher geladen
 //const int cLadeende = LADEENDE;     // Lade-Schwelle des überwachten Ladens
 typedef struct {
@@ -41,6 +43,7 @@ typedef struct {
     char e3dc_password[128];
     char aes_password[128];
     char logfile[128];
+    char openWBhost[128];
     bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc;
