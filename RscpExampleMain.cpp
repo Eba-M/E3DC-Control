@@ -73,13 +73,13 @@ int WriteLog()
     {
 //        int tt = (t%(24*3600)+12*3600);
         day = (t%(24*3600*4))/(24*3600);
-        hour = (t%(24*3600))/(3600*1)*1;
+        hour = (t%(24*3600))/(3600*4)*4;
         sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         fclose(fp);
     }
         day = (t%(24*3600*4))/(24*3600);
-        hour = (t%(24*3600))/(3600*1)*1;
+        hour = (t%(24*3600))/(3600*4)*4;
         sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname, "a");
     if(!fp)
