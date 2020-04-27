@@ -1886,16 +1886,15 @@ int main(int argc, char *argv[])
     static int iEC = 0;
  time(&t);
  struct tm * ptm;
- ptm = gmtime(&t);
- sprintf(Log,"Start %s ", strtok(asctime(ptm),"\n"));
- WriteLog();
 
     // endless application which re-connections to server on connection lost
         if (GetConfig())
         while(iEC < 10)
     {
         iEC++; // Schleifenzähler erhöhen
-
+        ptm = gmtime(&t);
+        sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
+        WriteLog();
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
 
