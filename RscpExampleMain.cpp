@@ -60,7 +60,7 @@ e3dc_config_t e3dc_config;
 int WriteLog()
 {
   static time_t t,t_alt = 0;
-    int day;
+    int day,hour;
     char fname[80];
     time(&t);
     FILE *fp;
@@ -73,12 +73,14 @@ int WriteLog()
     {
 //        int tt = (t%(24*3600)+12*3600);
         day = (t%(24*3600*4))/(24*3600);
-        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        hour = (t%(24*3600))/(3600*1)*1;
+        sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         fclose(fp);
     }
         day = (t%(24*3600*4))/(24*3600);
-        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        hour = (t%(24*3600))/(3600*1)*1;
+        sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname, "a");
     if(!fp)
         fp = fopen(fname, "w");
@@ -502,7 +504,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           tLadezeit_alt=t; // alle 300sec Berechnen
         
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
-          if ((tLadezeitende-t) > 300)
+          if ((tLadezeitende-t) < 300)
           iFc = iFc / (tLadezeitende-t);
           iFc = iFc / (300);
         iMinLade = iFc;
