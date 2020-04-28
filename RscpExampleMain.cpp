@@ -248,6 +248,7 @@ bool GetConfig()
         if(!fp) {
             fp = fopen(CONF_FILE, "r");
         }
+    if(fp) {
         char var[128], value[128], line[256];
         e3dc_config.wallbox = false;
         e3dc_config.openWB = false;
@@ -282,7 +283,6 @@ bool GetConfig()
         e3dc_config.peakshave = -1;
 
 
-        if(fp) {
             while (fgets(line, sizeof(line), fp)) {
                 memset(var, 0, sizeof(var));
                 memset(value, 0, sizeof(value));
