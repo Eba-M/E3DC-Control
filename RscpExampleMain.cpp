@@ -483,7 +483,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    int xSoC;
+    float_t xSoC;
     if (t < tLadezeitende3) {
         if (cos((ts->tm_yday+9)*2*3.14/365)>0) xSoC = cos((ts->tm_yday+9)*2*3.14/365)*100+e3dc_config.unload;
         else
@@ -491,6 +491,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (xSoC < e3dc_config.ladeschwelle) e3dc_config.ladeschwelle = xSoC;
         if (xSoC < fBatt_SOC)
         {tLadezeitende = tLadezeitende3 - tZeitgleichung;
+// wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
+// damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
+            if ((fBatt_SOC-xSoC) < 0.6)
+                fLadeende = fBatt_SOC; else
             fLadeende = xSoC;}
     }
  else
