@@ -627,6 +627,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //                        die Variable wird im Mainloop überprüft und im E3DC gesetzt
 //                        wenn iLMStatus einen negativen Wert hat
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
+                            if (iE3DC_Req_Load >e3dc_config.maximumLadeleistung)
+                                iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
                             sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                             WriteLog();
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
