@@ -393,6 +393,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     ts = gmtime(&tE3DC);
     float ft;
     ft = float(tE3DC % (24*3600))/3600;
+    t = tE3DC % (24*3600);
     int hh,mm,ss;
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
@@ -403,9 +404,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
         WriteLog();
     }
-    if ((mm+ss)==0) GetConfig();
-
-    t = tE3DC % (24*3600);
+    static time_t t_config = t;
+    if (t-t_config > 600)
+    { GetConfig();
+        t_config = t;
+    }
+   
     float fLadeende = e3dc_config.ladeende;
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
