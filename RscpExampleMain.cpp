@@ -504,7 +504,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           tLadezeit_alt=t; // alle 300sec Berechnen
         
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
-          if ((tLadezeitende-t) < 300)
+          if ((tLadezeitende-t) > 300)
           iFc = iFc / (tLadezeitende-t);
           iFc = iFc / (300);
         iMinLade = iFc;
