@@ -1573,6 +1573,15 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     break;
                                     
                                 }
+                                case TAG_WB_SET_EXTERN: {
+                                    //response for TAG_RSP_PARAM_1
+                                    uint8_t iLen = protocol->getValueAsUChar8(&WBData[i]);
+
+//                                   printf(" WB EXTERN_DATA_LEN %u\n",iLen);
+                                    break;
+                                                                        
+                                                                    }
+
                                 default:
 
                                     printf("Unknown WB tag %08X", WBData[i].tag);
