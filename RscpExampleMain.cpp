@@ -405,7 +405,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         WriteLog();
     }
     static time_t t_config = t;
-    if (t-t_config > 600)
+    if (t-t_config > 6)
     { GetConfig();
         t_config = t;
     }
@@ -630,6 +630,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //                        Es wird nur die Variable mit dem Sollwert gefüllt
 //                        die Variable wird im Mainloop überprüft und im E3DC gesetzt
 //                        wenn iLMStatus einen negativen Wert hat
+                            if (iPower > e3dc_config.maximumLadeleistung)
+                            iE3DC_Req_Load = e3dc_config.maximumLadeleistung-1; else
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             if (iE3DC_Req_Load >e3dc_config.maximumLadeleistung)
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
@@ -637,7 +639,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                             WriteLog();
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
-                                if ((iE3DC_Req_Load == iE3DC_Req_Load_alt)&&(iE3DC_Req_Load==e3dc_config.maximumLadeleistung))
+                                if ((iE3DC_Req_Load == iE3DC_Req_Load_alt)&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
                                 iLMStatus = 6;
                                 else
                                 iLMStatus = -6;
