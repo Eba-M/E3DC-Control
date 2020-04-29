@@ -15,8 +15,8 @@
             timestampString = "609025271.097766"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1809"
-            endingLineNumber = "1809"
+            startingLineNumber = "1801"
+            endingLineNumber = "1801"
             landmarkName = "receiveLoop(bStopExecution)"
             landmarkType = "9">
          </BreakpointContent>
@@ -117,8 +117,8 @@
             timestampString = "609025271.101516"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1860"
-            endingLineNumber = "1860"
+            startingLineNumber = "1852"
+            endingLineNumber = "1852"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -168,8 +168,8 @@
             timestampString = "609025271.103145"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1893"
-            endingLineNumber = "1893"
+            startingLineNumber = "1885"
+            endingLineNumber = "1885"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -185,8 +185,8 @@
             timestampString = "609025271.103673"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1867"
-            endingLineNumber = "1867"
+            startingLineNumber = "1859"
+            endingLineNumber = "1859"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -202,8 +202,8 @@
             timestampString = "609025271.104739"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1894"
-            endingLineNumber = "1894"
+            startingLineNumber = "1886"
+            endingLineNumber = "1886"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -440,8 +440,8 @@
             timestampString = "609025271.113813"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1702"
-            endingLineNumber = "1702"
+            startingLineNumber = "1694"
+            endingLineNumber = "1694"
             landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
@@ -457,8 +457,8 @@
             timestampString = "609025271.11445"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1704"
-            endingLineNumber = "1704"
+            startingLineNumber = "1696"
+            endingLineNumber = "1696"
             landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
@@ -661,8 +661,8 @@
             timestampString = "609025271.122527"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1710"
-            endingLineNumber = "1710"
+            startingLineNumber = "1702"
+            endingLineNumber = "1702"
             landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
@@ -678,8 +678,8 @@
             timestampString = "609025271.123058"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1714"
-            endingLineNumber = "1714"
+            startingLineNumber = "1706"
+            endingLineNumber = "1706"
             landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
@@ -695,8 +695,8 @@
             timestampString = "609025271.123579"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1646"
-            endingLineNumber = "1646"
+            startingLineNumber = "1638"
+            endingLineNumber = "1638"
             landmarkName = "handleResponseValue(protocol, response)"
             landmarkType = "9">
          </BreakpointContent>
@@ -712,8 +712,8 @@
             timestampString = "609025271.1241111"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1801"
-            endingLineNumber = "1801"
+            startingLineNumber = "1793"
+            endingLineNumber = "1793"
             landmarkName = "receiveLoop(bStopExecution)"
             landmarkType = "9">
          </BreakpointContent>
@@ -746,8 +746,8 @@
             timestampString = "609025271.127055"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1888"
-            endingLineNumber = "1888"
+            startingLineNumber = "1880"
+            endingLineNumber = "1880"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -763,8 +763,8 @@
             timestampString = "609025271.128059"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1896"
-            endingLineNumber = "1896"
+            startingLineNumber = "1888"
+            endingLineNumber = "1888"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -1919,8 +1919,8 @@
             timestampString = "609025271.170541"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1870"
-            endingLineNumber = "1870"
+            startingLineNumber = "1862"
+            endingLineNumber = "1862"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -1953,8 +1953,8 @@
             timestampString = "609025271.171621"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1865"
-            endingLineNumber = "1865"
+            startingLineNumber = "1857"
+            endingLineNumber = "1857"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2234,23 +2234,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "75FFEB2D-5460-4D9B-94AA-ECF3581E2F57"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RscpExampleMain.cpp"
-            timestampString = "609025271.186255"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1531"
-            endingLineNumber = "1531"
-            landmarkName = "handleResponseValue(protocol, response)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "A74F3DD5-5EA2-40E3-8F16-83A3C9FE548C"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -2344,8 +2327,8 @@
             timestampString = "609025271.19047"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1863"
-            endingLineNumber = "1863"
+            startingLineNumber = "1855"
+            endingLineNumber = "1855"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2456,8 +2439,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1925"
-            endingLineNumber = "1925"
+            startingLineNumber = "1917"
+            endingLineNumber = "1917"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2488,8 +2471,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1929"
-            endingLineNumber = "1929"
+            startingLineNumber = "1921"
+            endingLineNumber = "1921"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
