@@ -405,7 +405,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         WriteLog();
     }
     static time_t t_config = t;
-    if (t-t_config > 6)
+    if (t-t_config > 60)
     { GetConfig();
         t_config = t;
     }
@@ -635,16 +635,16 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             if (iE3DC_Req_Load >e3dc_config.maximumLadeleistung)
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
-                            sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
-                            WriteLog();
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
                                 if ((iE3DC_Req_Load == iE3DC_Req_Load_alt)&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
                                 iLMStatus = 6;
                                 else
-                                iLMStatus = -6;
+                                {iLMStatus = -6;
 // Wenn bereits auf Automatik geschaltet wurde, braucht eine Anforderung mit
 // maximalLadeleistung nicht wiederholt werden.
+                                sprintf(Log,"CTL %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                WriteLog();}
                             } else
                             iLMStatus = 11;
                             }
