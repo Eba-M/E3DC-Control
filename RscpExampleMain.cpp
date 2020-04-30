@@ -53,9 +53,8 @@ static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
-char Log[80];
 e3dc_config_t e3dc_config;
-
+char Log[200];
 
 int WriteLog()
 {
