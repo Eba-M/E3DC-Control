@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -238,16 +239,31 @@ static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
-
+static time_t tm_CONF_dt;
+bool CheckConfig()
+{
+    struct stat stats;
+    time_t  tm_dt;
+    if (stat(CONF_PATH CONF_FILE,&stats)!=0)
+    stat(CONF_FILE,&stats);
+     tm_dt = *(&stats.st_mtime);
+    if (tm_dt==tm_CONF_dt)
+        return false; else return true;
+}
 bool GetConfig()
 {
         // get conf parameters
-        FILE *fp;
+    struct stat stats;
+    FILE *fp;
+        stat(CONF_PATH CONF_FILE,&stats);
         fp = fopen(CONF_PATH CONF_FILE, "r");
         if(!fp) {
             fp = fopen(CONF_FILE, "r");
+            stat(CONF_FILE,&stats);
+
         }
     if(fp) {
+        tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
         e3dc_config.wallbox = false;
         e3dc_config.openWB = false;
@@ -404,8 +420,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         WriteLog();
     }
     static time_t t_config = t;
-    if (t-t_config > 60)
-    { GetConfig();
+    
+    if (t-t_config > 10)
+    {
+        if (CheckConfig()) // Config-Datei hat sich geändert;
+        GetConfig();
         t_config = t;
     }
    
