@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
+<<<<<<< HEAD
+   uuid = "A04E3119-85ED-4FDC-9FE0-63F4E8BAB5D8"
+=======
    uuid = "0C349887-2B8E-43D6-9073-785F67290DD5"
+>>>>>>> origin/master
    type = "1"
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "BCFF6720-F719-4E0B-B5DC-CA5298A54A17"
+=======
             uuid = "4E5D831D-ED00-48F8-A2AB-6EABCE6E0086"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -15,16 +23,26 @@
             timestampString = "609025271.097766"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1327"
+            endingLineNumber = "1327"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "1800"
             endingLineNumber = "1800"
             landmarkName = "receiveLoop(bStopExecution)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "72E400F4-16AE-4351-9F11-2611E6212BDE"
+=======
             uuid = "CAF4C235-09D1-42E2-A646-39118F4ADC74"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -32,16 +50,26 @@
             timestampString = "609025271.0986871"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "914"
+            endingLineNumber = "914"
+            landmarkName = "createRequestExample(frameBuffer)"
+=======
             startingLineNumber = "1384"
             endingLineNumber = "1384"
             landmarkName = "handleResponseValue(protocol, response)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "5DC8D20C-3E28-4A1F-8D46-9368F6828027"
+=======
             uuid = "2C7D82D9-7D9D-4CF6-93D6-B732617162DC"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -49,16 +77,26 @@
             timestampString = "609025271.0992759"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "950"
+            endingLineNumber = "950"
+            landmarkName = "createRequestExample(frameBuffer)"
+=======
             startingLineNumber = "1420"
             endingLineNumber = "1420"
             landmarkName = "handleResponseValue(protocol, response)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "5DCBF1AA-3F21-4B9D-A7C1-49427936DACF"
+=======
             uuid = "3AE22D98-6327-419F-A3CC-A7C1BCFA3E52"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -66,16 +104,26 @@
             timestampString = "609025271.0998549"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1030"
+            endingLineNumber = "1030"
+            landmarkName = "createRequestExample(frameBuffer)"
+=======
             startingLineNumber = "1500"
             endingLineNumber = "1500"
             landmarkName = "handleResponseValue(protocol, response)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "DD975889-53E0-49CB-AE1C-4C4A1E49084B"
+=======
             uuid = "61741D29-EF81-450C-AA45-20FE8C9C0BCB"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -83,16 +131,26 @@
             timestampString = "609025271.1004339"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "991"
+            endingLineNumber = "991"
+            landmarkName = "createRequestExample(frameBuffer)"
+=======
             startingLineNumber = "1461"
             endingLineNumber = "1461"
             landmarkName = "handleResponseValue(protocol, response)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "F1984C15-1F6D-4984-AEDA-FB7DEAC9B086"
+=======
             uuid = "BC81059F-44B2-45AC-8ECA-ED59FCE59DCF"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -100,16 +158,26 @@
             timestampString = "609025271.100982"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "195"
+            endingLineNumber = "195"
+            landmarkName = "createRequestWBData(frameBuffer)"
+=======
             startingLineNumber = "406"
             endingLineNumber = "406"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "2E651384-BBFF-43CB-B44D-5D674BBBFE86"
+=======
             uuid = "9737807D-BB9A-4183-952D-312E0262E9F7"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -117,16 +185,26 @@
             timestampString = "609025271.101516"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1377"
+            endingLineNumber = "1377"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "1851"
             endingLineNumber = "1851"
             landmarkName = "mainLoop()"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "AE17503A-472F-4F49-8CBD-C628EDF6EDCE"
+=======
             uuid = "685D901E-5B91-4AA1-B359-F080FB959577"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -902,6 +980,8 @@
             startingLineNumber = "818"
             endingLineNumber = "818"
             landmarkName = "WBProcess(frameBuffer)"
+<<<<<<< HEAD
+=======
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1361,13 +1441,18 @@
             startingLineNumber = "847"
             endingLineNumber = "847"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "B962CDA6-4005-4657-8F43-AC7C5A98A1F9"
+=======
             uuid = "76935A99-6430-4BBC-932C-B330A85C75ED"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1375,8 +1460,13 @@
             timestampString = "609025271.151397"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "830"
+            endingLineNumber = "830"
+=======
             startingLineNumber = "746"
             endingLineNumber = "746"
+>>>>>>> origin/master
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1384,7 +1474,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "BC82028E-DA10-4D73-B822-D9CBCF9FE066"
+=======
             uuid = "56796757-23C1-49AC-96F1-770A8E2F50C0"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1392,16 +1486,26 @@
             timestampString = "609025271.151951"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1405"
+            endingLineNumber = "1405"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "772"
             endingLineNumber = "772"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "BA2374E4-9051-4FED-9837-F85E55C22814"
+=======
             uuid = "710996C0-24D2-4B77-A1D4-D5696F588A98"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1409,16 +1513,26 @@
             timestampString = "609025271.152488"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1383"
+            endingLineNumber = "1383"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "737"
             endingLineNumber = "737"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "985B62BE-3DF3-4BF7-A415-C116B7D28BA8"
+=======
             uuid = "75D338E7-1140-4BC2-A60A-F8497F009F38"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1426,16 +1540,26 @@
             timestampString = "609025271.153025"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1452"
+            endingLineNumber = "1452"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "725"
             endingLineNumber = "725"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "A494BA86-F307-4276-A317-FAD4C2966BFF"
+=======
             uuid = "C9FD359B-A1AB-4455-AFB6-AC280C712ED6"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1443,16 +1567,26 @@
             timestampString = "609025271.15356"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1406"
+            endingLineNumber = "1406"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "829"
             endingLineNumber = "829"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "FD29E35D-62EF-4735-B028-E9D5216AEBFF"
+=======
             uuid = "F73AFCD9-0D69-4A9E-BD84-09D4F0615634"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1460,16 +1594,26 @@
             timestampString = "609025271.154126"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "322"
+            endingLineNumber = "322"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "726"
             endingLineNumber = "726"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "0813DDE8-BAF1-4E4F-9A2B-610215A093DE"
+=======
             uuid = "7632D2BF-D74B-4BD7-A208-CBA8416B174C"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1477,16 +1621,26 @@
             timestampString = "609025271.154672"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "792"
+            endingLineNumber = "792"
+            landmarkName = "WBProcess(frameBuffer)"
+=======
             startingLineNumber = "1573"
             endingLineNumber = "1573"
             landmarkName = "handleResponseValue(protocol, response)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "D0624050-2716-4292-9D7E-8CA6C750F240"
+=======
             uuid = "88989742-0422-42AF-ACD1-3D31103020D6"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1494,16 +1648,26 @@
             timestampString = "609025271.155262"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "502"
+            endingLineNumber = "502"
+            landmarkName = "LoadDataProcess(frameBuffer)"
+=======
             startingLineNumber = "787"
             endingLineNumber = "787"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "ECFBF3DC-E733-4D55-B6BB-AA8F09226ED2"
+=======
             uuid = "665DE76C-EB63-44E9-AEEB-3EBC707B1002"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1511,8 +1675,13 @@
             timestampString = "609025271.155818"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "803"
+            endingLineNumber = "803"
+=======
             startingLineNumber = "741"
             endingLineNumber = "741"
+>>>>>>> origin/master
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1520,7 +1689,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "BDB29D35-F9DB-4FBF-ACAF-D4653FA1C351"
+=======
             uuid = "EE99951D-0EEC-49C5-95E2-18F63D8B3ABB"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1528,8 +1701,13 @@
             timestampString = "609025271.156357"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "769"
+            endingLineNumber = "769"
+=======
             startingLineNumber = "868"
             endingLineNumber = "868"
+>>>>>>> origin/master
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1537,7 +1715,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "BC9F3933-7B4F-4ABA-B388-31073F116F5C"
+=======
             uuid = "45728620-A1CF-4446-A571-756BE164A527"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1545,16 +1727,26 @@
             timestampString = "609025271.1569099"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "251"
+            endingLineNumber = "251"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "728"
             endingLineNumber = "728"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "201A2411-B9D3-4D27-843F-BF77AF0D6AB2"
+=======
             uuid = "B76D605A-F759-4B9C-B089-B307400864E7"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1562,16 +1754,26 @@
             timestampString = "609025271.157459"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "287"
+            endingLineNumber = "287"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "867"
             endingLineNumber = "867"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "CC9E0DE8-4FD5-4266-9CC4-657B73501B98"
+=======
             uuid = "546DEFDB-C67A-4478-AF2C-F8C7F12DFA35"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1579,16 +1781,26 @@
             timestampString = "609025271.157989"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "298"
+            endingLineNumber = "298"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "756"
             endingLineNumber = "756"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "3E1F40CE-6FA9-42E2-BE55-3C32A2DE87DD"
+=======
             uuid = "147C2B0D-FEB4-4630-83C2-DD52EECFBDF2"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1596,16 +1808,26 @@
             timestampString = "609025271.15863"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1434"
+            endingLineNumber = "1434"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "227"
             endingLineNumber = "227"
             landmarkName = "createRequestWBData(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "39C20289-DE8A-4227-B3EF-39D80549D31B"
+=======
             uuid = "7BFD2AC7-018F-4F43-B676-9905B28FEBB4"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1613,16 +1835,27 @@
             timestampString = "609025271.159218"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "236"
+            endingLineNumber = "236"
+            landmarkName = "unknown"
+            landmarkType = "0">
+=======
             startingLineNumber = "767"
             endingLineNumber = "767"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
+>>>>>>> origin/master
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "02342217-2492-4CE2-A6D3-010C3842E3D9"
+=======
             uuid = "E8235CA1-7606-4165-81E2-12F28C9FDEA4"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1630,16 +1863,26 @@
             timestampString = "609025271.159781"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "242"
+            endingLineNumber = "242"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "795"
             endingLineNumber = "795"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "FE23394E-C5FC-4499-919D-707E0C2D37B4"
+=======
             uuid = "4EF474C9-0950-4A2C-80EB-B0D85DF1157F"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1647,16 +1890,26 @@
             timestampString = "609025271.160392"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "247"
+            endingLineNumber = "247"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "796"
             endingLineNumber = "796"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "4FABF8E0-AC81-4779-A487-A15B5EC6DCAF"
+=======
             uuid = "171B4754-DFB1-41A1-B234-7E91990DCE65"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1664,16 +1917,26 @@
             timestampString = "609025271.161501"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "371"
+            endingLineNumber = "371"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "770"
             endingLineNumber = "770"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "32175AEE-7C9E-4981-A05C-643F5065D941"
+=======
             uuid = "24E6FE4A-D729-4DFC-B6B9-4C3399AB33ED"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1681,25 +1944,41 @@
             timestampString = "609025271.162485"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "384"
+            endingLineNumber = "384"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "620"
             endingLineNumber = "620"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "C78AD9D0-72A0-479D-8CCD-2019773F8D77"
+            shouldBeEnabled = "Yes"
+=======
             uuid = "90FFC624-0A86-416D-AA3D-A477FFC50A3B"
             shouldBeEnabled = "No"
+>>>>>>> origin/master
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             timestampString = "609025271.163089"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "432"
+            endingLineNumber = "432"
+=======
             startingLineNumber = "650"
             endingLineNumber = "650"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1707,7 +1986,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "DBE6DFC0-6013-4C51-A4A2-C3533648D4BB"
+=======
             uuid = "35CA2541-DFE0-4989-8DF7-AA0C636BFC56"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1715,16 +1998,26 @@
             timestampString = "609025271.164169"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1220"
+            endingLineNumber = "1220"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "625"
             endingLineNumber = "625"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "F7B4F9E4-E998-4E5C-A5DF-C25BAF9FB357"
+=======
             uuid = "A0C76473-E771-470D-A3DA-D762F05D06EE"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1732,16 +2025,26 @@
             timestampString = "609025271.164705"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1222"
+            endingLineNumber = "1222"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "651"
             endingLineNumber = "651"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "DFF4EFAC-811C-4586-A765-C71A42C2C448"
+=======
             uuid = "54636CF5-15C9-4231-B0F1-7E2D41558D2D"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1749,16 +2052,26 @@
             timestampString = "609025271.165239"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "292"
+            endingLineNumber = "292"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "617"
             endingLineNumber = "617"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "ECC22742-A315-4504-9024-A9459D02D110"
+=======
             uuid = "20A6543A-2283-4280-9B05-7D29723356D8"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1766,16 +2079,26 @@
             timestampString = "609025271.1657881"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "290"
+            endingLineNumber = "290"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "762"
             endingLineNumber = "762"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "A486282C-3594-43EF-9D05-7BA1BB5FB5B2"
+=======
             uuid = "C5E66698-CCCF-4F26-8ADC-D1EB09077AE9"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1783,16 +2106,26 @@
             timestampString = "609025271.166319"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "312"
+            endingLineNumber = "312"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "750"
             endingLineNumber = "750"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "21774FE7-D0BE-40B5-A5F1-1566702D51B3"
+=======
             uuid = "40FBFFE5-1D52-40EB-BE50-C8B8D6666F84"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1800,16 +2133,26 @@
             timestampString = "609025271.1668479"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "311"
+            endingLineNumber = "311"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "798"
             endingLineNumber = "798"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "06A43959-05F4-42EB-A256-BB7889EC0CB9"
+=======
             uuid = "CB38740D-1EF0-40E0-A3EF-321DC92877E7"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1817,16 +2160,27 @@
             timestampString = "609025271.167375"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "240"
+            endingLineNumber = "240"
+            landmarkName = "unknown"
+            landmarkType = "0">
+=======
             startingLineNumber = "600"
             endingLineNumber = "600"
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
+>>>>>>> origin/master
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "B0CC05DB-0E39-4688-AE8D-A177561E31AC"
+=======
             uuid = "57EA2123-CCC9-4A2F-BEE1-0BD466092686"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1834,8 +2188,13 @@
             timestampString = "609025271.167892"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "407"
+            endingLineNumber = "407"
+=======
             startingLineNumber = "601"
             endingLineNumber = "601"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1843,7 +2202,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "B8549CDD-39EF-467A-BB92-6B0C73C3866C"
+=======
             uuid = "20BE91FC-ADC6-435C-BCF8-F1827098F602"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1851,8 +2214,13 @@
             timestampString = "609025271.168411"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "394"
+            endingLineNumber = "394"
+=======
             startingLineNumber = "628"
             endingLineNumber = "628"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1860,7 +2228,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "A0759195-4A48-478E-A0CF-B95B743EB13D"
+=======
             uuid = "20F2DC1D-B450-41F4-9EF0-CED196D107F4"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1868,8 +2240,13 @@
             timestampString = "609025271.168932"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "412"
+            endingLineNumber = "412"
+=======
             startingLineNumber = "624"
             endingLineNumber = "624"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1877,7 +2254,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "C8CC1BC9-2239-4543-84F8-B573038BE5C5"
+=======
             uuid = "0B223F82-3A09-4B69-A311-FE2FD479082D"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1885,16 +2266,26 @@
             timestampString = "609025271.169461"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "774"
+            endingLineNumber = "774"
+            landmarkName = "WBProcess(frameBuffer)"
+=======
             startingLineNumber = "937"
             endingLineNumber = "937"
             landmarkName = "createRequestExample(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "3B3DF88E-9FED-4D7C-9D87-AF986403F05E"
+=======
             uuid = "F1D40BE9-0A48-4F14-BD0C-2CCF6B6393B3"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1902,16 +2293,26 @@
             timestampString = "609025271.169995"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "276"
+            endingLineNumber = "276"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "635"
             endingLineNumber = "635"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "4FC0C2FF-C4FA-4890-90AF-5471E47D6BD5"
+=======
             uuid = "47C0C381-CA96-4465-B7C3-464409AE5AD9"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1919,16 +2320,26 @@
             timestampString = "609025271.170541"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "357"
+            endingLineNumber = "357"
+            landmarkName = "GetConfig()"
+=======
             startingLineNumber = "1861"
             endingLineNumber = "1861"
             landmarkName = "mainLoop()"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "45739522-8EF4-437B-9792-DFFEFAFAB4FC"
+=======
             uuid = "E5BD8C42-5BF5-47B0-99DC-979A79548D4A"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1936,8 +2347,13 @@
             timestampString = "609025271.17109"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "402"
+            endingLineNumber = "402"
+=======
             startingLineNumber = "661"
             endingLineNumber = "661"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1945,7 +2361,11 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "2C45DF15-EC73-43CF-8B49-2E9C21EA871C"
+=======
             uuid = "4A42630C-E5C2-45CD-BEE6-60CC830AA1FF"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -1953,6 +2373,11 @@
             timestampString = "609025271.171621"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1508"
+            endingLineNumber = "1508"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "1856"
             endingLineNumber = "1856"
             landmarkName = "mainLoop()"
@@ -2177,13 +2602,18 @@
             startingLineNumber = "876"
             endingLineNumber = "876"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "7F103C9C-8FFA-4E10-A23C-BFF3BEEE50B9"
+=======
             uuid = "C36A0B63-703C-4C6F-B7A2-A9BF9C156D83"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -2191,16 +2621,26 @@
             timestampString = "609025271.1850719"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1491"
+            endingLineNumber = "1491"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "758"
             endingLineNumber = "758"
             landmarkName = "WBProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "4C3E2F24-2968-4F23-9B37-19B8B1F9EEDB"
+=======
             uuid = "F10BE5F0-64EE-4EBC-892F-19EFFDE74A55"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -2211,6 +2651,8 @@
             startingLineNumber = "1462"
             endingLineNumber = "1462"
             landmarkName = "handleResponseValue(protocol, response)"
+<<<<<<< HEAD
+=======
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2296,13 +2738,18 @@
             startingLineNumber = "689"
             endingLineNumber = "689"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "07575771-D453-4488-8B43-ADCD92D006A5"
+=======
             uuid = "81F7DC02-9C4E-432F-A343-F095F9E279B3"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -2310,24 +2757,39 @@
             timestampString = "609025271.19047"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "669"
+            endingLineNumber = "669"
+            landmarkName = "LoadDataProcess(frameBuffer)"
+=======
             startingLineNumber = "1854"
             endingLineNumber = "1854"
             landmarkName = "mainLoop()"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "FD8308FB-3563-4EDF-A45F-DC66ED9814D5"
+=======
             uuid = "325EC507-813C-4728-95C4-0322B2FC6B85"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "668"
+            endingLineNumber = "668"
+=======
             startingLineNumber = "690"
             endingLineNumber = "690"
+>>>>>>> origin/master
             landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2335,38 +2797,61 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "6C5E53A5-F0E7-4672-A167-FD9213C984FD"
+=======
             uuid = "1B98033F-1028-4F46-9A80-3E115C886A62"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1228"
+            endingLineNumber = "1228"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "702"
             endingLineNumber = "702"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "99A5CD44-FC05-49AD-BEF7-09838B4D377A"
+=======
             uuid = "CC526115-14A4-4F01-8EE2-C8ADC514FFE2"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1232"
+            endingLineNumber = "1232"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "709"
             endingLineNumber = "709"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "D0695856-FF25-44E9-8C37-FFD1195C0E21"
+=======
             uuid = "25D2E7F3-CDF2-4660-A03A-95356AACE90D"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -2384,54 +2869,85 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "8AB21B34-16D9-4564-A1BE-2020949B9C30"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1164"
+            endingLineNumber = "1164"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "485"
             endingLineNumber = "485"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "1953CB1B-F90B-4E84-8C73-1BB782A760AB"
+=======
             uuid = "F4227402-D8C2-43B4-8B7F-1CC4CA4FD9CD"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1319"
+            endingLineNumber = "1319"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "383"
             endingLineNumber = "383"
             landmarkName = "GetConfig()"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "07CAC10A-B6A3-489D-BFE2-FCB377CBBBA0"
+=======
             uuid = "BD8334B7-E729-426E-ACEC-E94CD86D4265"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1458"
+            endingLineNumber = "1458"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "1916"
             endingLineNumber = "1916"
             landmarkName = "main(argc, argv)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "1901D8CA-C8B0-4CE0-8E4A-570465FA54ED"
+=======
             uuid = "0C4A7EB7-9FAB-4354-90B1-0FE7CFB86DFC"
+>>>>>>> origin/master
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -2454,54 +2970,89 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1456"
+            endingLineNumber = "1456"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "1920"
             endingLineNumber = "1920"
             landmarkName = "main(argc, argv)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "E168AD07-6E80-4041-AD27-77F8BA5A3683"
+=======
             uuid = "74C38311-055B-40E2-AD19-4A30855996B6"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1460"
+            endingLineNumber = "1460"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "623"
             endingLineNumber = "623"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "C243E207-24FD-4024-BC73-2BFF906C024A"
+=======
             uuid = "6D6C8624-42E9-4676-89F4-671DF7EF721A"
+>>>>>>> origin/master
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "createRequestWBData(frameBuffer)"
+=======
             startingLineNumber = "495"
             endingLineNumber = "495"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "D8420436-15B8-404A-BE84-1B70134851EA"
+=======
             uuid = "79CC1808-F461-4ECE-8C21-B57BA561CDFB"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1401"
+            endingLineNumber = "1401"
+            landmarkName = "handleResponseValue(protocol, response)"
+=======
             startingLineNumber = "813"
             endingLineNumber = "813"
             landmarkName = "WBProcess(frameBuffer)"
@@ -2521,22 +3072,50 @@
             startingLineNumber = "645"
             endingLineNumber = "645"
             landmarkName = "LoadDataProcess(frameBuffer)"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+<<<<<<< HEAD
+            uuid = "DE03C003-969B-4199-B5BB-9D7B1AD3654F"
+=======
             uuid = "BB1BB97C-04EC-4C22-81D9-CE3E051DD2FF"
+>>>>>>> origin/master
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
+<<<<<<< HEAD
+            startingLineNumber = "1407"
+            endingLineNumber = "1407"
+            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "065C9DC6-CC74-4609-B6EF-E9B1FEEFE2CA"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RscpExampleMain.cpp"
+            timestampString = "568065536.579496"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "225"
+            endingLineNumber = "225"
+            landmarkName = "createRequestWBData(frameBuffer)"
+=======
             startingLineNumber = "324"
             endingLineNumber = "324"
             landmarkName = "GetConfig()"
+>>>>>>> origin/master
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

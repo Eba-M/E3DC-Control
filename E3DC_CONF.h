@@ -5,7 +5,11 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
+<<<<<<< HEAD
+#define VERSION "2020.4.26.01" //April branch
+=======
 #define VERSION "2020.4.30.02" //April branch
+>>>>>>> origin/master
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
