@@ -18,7 +18,7 @@ static int iSocket = -1;
 static int iAuthenticated = 0;
 static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
 static int iWBStatus = 0; // Status, WB schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
-static int iLMStatus = 0; // Status, Load Management  schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
+static int iLMStatus = 0; // Status, Load Management  negativer Wert in Sekunden = Anforderung + Warten bis zur nächsten Anforderung, der angeforderte Wert steht in iE3DC_Req_Load
 static float fAvBatterie;
 static int iAvBatt_Count = 0;
 static uint8_t WBchar[8];
@@ -34,27 +34,72 @@ static uint8_t ucDecryptionIV[AES_BLOCK_SIZE];
 // static int32_t iPower_Grid;
 static uint8_t iCurrent_WB;
 static uint8_t iCurrent_Set_WB;
-static int iMaxPower = 3000;
 static float fPower_Grid;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
-static int32_t iPower_PV;
+static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
-static uint32_t iBattLoad;
-static int iPowerBalance;
+static int32_t iBattLoad;
+static int iPowerBalance,iPowerHome;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC;
 static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
+static float_t fL1V=230,fL2V=230,fL3V=230;
+static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
-
+static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
+FILE * pFile;
+char Log[80];
 e3dc_config_t e3dc_config;
 
 
-int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power) {
+int WriteLog()
+{
+  static time_t t,t_alt = 0;
+    int day;
+    char fname[80];
+    time(&t);
+    FILE *fp;
+    struct tm * ptm;
+    ptm = gmtime(&t);
+
+    if (e3dc_config.debug) {
+    
+    if ((t%(24*3600)+12*3600)<t_alt) // neuer Tag
+    {
+//        int tt = (t%(24*3600)+12*3600);
+        day = (t%(24*3600*4))/(24*3600);
+        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        fp = fopen(fname,"w");       // altes logfile löschen
+        fclose(fp);
+    }
+        day = (t%(24*3600*4))/(24*3600);
+        sprintf(fname,"%s.%i.txt",e3dc_config.logfile,day);
+        fp = fopen(fname, "a");
+    if(!fp)
+        fp = fopen(fname, "w");
+    if(fp)
+    fprintf(fp,"%s\n",Log);
+        fclose(fp);}
+    t_alt = t%(24*3600);
+return(0);
+}
+
+int MQTTsend(char buffer[100])
+
+{
+    char cbuf[100];
+    if (e3dc_config.openWB) {
+        sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", e3dc_config.openWBhost,buffer);
+        system(cbuf);
+    }
+    return(0);
+}
+int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -64,7 +109,8 @@ int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power) {
     SRscpValue PMContainer;
 //    Power = Power*-1;
     protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
-    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,3);
+    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
+    if (Mode > 0)
     protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_VALUE,Power);
     // append sub-container to root container
     protocol.appendValue(&rootValue, PMContainer);
@@ -85,7 +131,7 @@ int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
+    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
     
@@ -115,7 +161,7 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>iMaxPower) uPower = iMaxPower; else uPower = iPower;
+    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
     
@@ -187,43 +233,237 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
-static time_t tLadezeit_alt;
-static int iDischarge = -1;
+static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
+static int32_t iDiffLadeleistung, iDiffLadeleistung2;
+static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
+static time_t t = 0;
+
+bool GetConfig()
+{
+        // get conf parameters
+        FILE *fp;
+        fp = fopen(CONF_PATH CONF_FILE, "r");
+        if(!fp) {
+            fp = fopen(CONF_FILE, "r");
+        }
+        char var[128], value[128], line[256];
+        e3dc_config.wallbox = false;
+        e3dc_config.openWB = false;
+        e3dc_config.ext1 = false;
+        e3dc_config.ext2 = false;
+        e3dc_config.ext3 = false;
+        e3dc_config.ext7 = false;
+        sprintf(e3dc_config.logfile,"%slogfile",CONF_PATH);
+        sprintf(e3dc_config.openWBhost,"%s",OPENWB);
+        e3dc_config.debug = false;
+        e3dc_config.wurzelzaehler = 0;
+        e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
+        e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
+        e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
+        e3dc_config.maximumLadeleistung = MAXIMUMLADELEISTUNG;
+        e3dc_config.wrleistung = WRLEISTUNG;
+        e3dc_config.speichergroesse = SPEICHERGROESSE;
+        e3dc_config.winterminimum = WINTERMINIMUM;
+        e3dc_config.sommermaximum = SOMMERMAXIMUM;
+        e3dc_config.sommerladeende = SOMMERLADEENDE;
+        e3dc_config.einspeiselimit = EINSPEISELIMIT;
+        e3dc_config.ladeschwelle = LADESCHWELLE;
+        e3dc_config.ladeende = LADEENDE;
+        e3dc_config.ladeende2 = LADEENDE2;
+        e3dc_config.unload = 100;
+        e3dc_config.ht = 0;
+        e3dc_config.htsat = false;
+        e3dc_config.htsun = false;
+        e3dc_config.hton = 0;
+        e3dc_config.htoff = 24*3600; // in Sekunden
+        e3dc_config.htsockel = 0;
+        e3dc_config.peakshave = -1;
+
+
+        if(fp) {
+            while (fgets(line, sizeof(line), fp)) {
+                memset(var, 0, sizeof(var));
+                memset(value, 0, sizeof(value));
+                if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
+                    if(strcmp(var, "server_ip") == 0)
+                        strcpy(e3dc_config.server_ip, value);
+                    else if(strcmp(var, "server_port") == 0)
+                        e3dc_config.server_port = atoi(value);
+                    else if(strcmp(var, "e3dc_user") == 0)
+                        strcpy(e3dc_config.e3dc_user, value);
+                    else if(strcmp(var, "e3dc_password") == 0)
+                        strcpy(e3dc_config.e3dc_password, value);
+                    else if(strcmp(var, "aes_password") == 0)
+                        strcpy(e3dc_config.aes_password, value);
+                    else if(strcmp(var, "openWBhost") == 0)
+                        strcpy(e3dc_config.openWBhost, value);
+                    else if(strcmp(var, "wurzelzaehler") == 0)
+                        e3dc_config.wurzelzaehler = atoi(value);
+                    else if((strcmp(var, "wallbox") == 0)&&
+                           (strcmp(value, "true") == 0))
+                        e3dc_config.wallbox = true;
+                    else if((strcmp(var, "openWB") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.openWB = true;
+                    else if((strcmp(var, "ext1") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.ext1 = true;
+                    else if((strcmp(var, "ext2") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.ext2 = true;
+                    else if((strcmp(var, "ext3") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.ext3 = true;
+                    else if((strcmp(var, "ext7") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.ext7 = true;
+                    else if(strcmp(var, "logfile") == 0)
+                        strcpy(e3dc_config.logfile, value);
+                    else if((strcmp(var, "debug") == 0)&&
+                            (strcmp(value, "true") == 0))
+                    {e3dc_config.debug = true;
+
+                        
+                    }
+                    else if(strcmp(var, "untererLadekorridor") == 0)
+                        e3dc_config.untererLadekorridor = atoi(value);
+                    else if(strcmp(var, "obererLadekorridor") == 0)
+                        e3dc_config.obererLadekorridor = atoi(value);
+                    else if(strcmp(var, "minimumLadeleistung") == 0)
+                        e3dc_config.minimumLadeleistung = atoi(value);
+                    else if(strcmp(var, "maximumLadeleistung") == 0)
+                        e3dc_config.maximumLadeleistung = atoi(value);
+                    else if(strcmp(var, "wrleistung") == 0)
+                        e3dc_config.wrleistung = atoi(value);
+                    else if(strcmp(var, "speichergroesse") == 0)
+                        e3dc_config.speichergroesse = atof(value);
+                    else if(strcmp(var, "winterminimum") == 0)
+                        e3dc_config.winterminimum = atof(value);
+                    else if(strcmp(var, "sommermaximum") == 0)
+                        e3dc_config.sommermaximum = atof(value);
+                    else if(strcmp(var, "sommerladeende") == 0)
+                        e3dc_config.sommerladeende = atof(value);
+                    else if(strcmp(var, "einspeiselimit") == 0)
+                        e3dc_config.einspeiselimit = atof(value);
+                    else if(strcmp(var, "ladeschwelle") == 0)
+                        e3dc_config.ladeschwelle = atoi(value);
+                    else if(strcmp(var, "ladeende") == 0)
+                        e3dc_config.ladeende = atoi(value);
+                    else if(strcmp(var, "ladeende2") == 0)
+                        e3dc_config.ladeende2 = atoi(value);
+                    else if(strcmp(var, "unload") == 0)
+                        e3dc_config.unload = atoi(value);
+                    else if(strcmp(var, "htmin") == 0)
+                        e3dc_config.ht = atoi(value);
+                    else if(strcmp(var, "htsockel") == 0)
+                        e3dc_config.htsockel = atoi(value);
+                    else if(strcmp(var, "peakshave") == 0)
+                        e3dc_config.peakshave = atof(value)*1000; //umrechnung kW in Watt
+                    else if(strcmp(var, "hton") == 0)
+                        e3dc_config.hton = atof(value)*3600; // in Sekunden
+                    else if(strcmp(var, "htoff") == 0)
+                        e3dc_config.htoff = atof(value)*3600; // in Sekunden
+                    else if((strcmp(var, "htsat") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.htsat = true;
+                    else if((strcmp(var, "htsun") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.htsun = true;
+
+
+                }
+            }
+    //        printf("e3dc_user %s\n",e3dc_config.e3dc_user);
+    //        printf("e3dc_password %s\n",e3dc_config.e3dc_password);
+    //        printf("aes_password %s\n",e3dc_config.aes_password);
+            fclose(fp);
+        }
+
+    if (!fp) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
+    return fp;
+}
+
+
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
-
-    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-
-    time_t tLadezeitende;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
-    time_t t;
-    int32_t tZeitgleichung;
+    printf("\n");
     tm *ts;
     ts = gmtime(&tE3DC);
-    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    float ft;
+    ft = float(tE3DC % (24*3600))/3600;
+    int hh,mm,ss;
+    hh = t % (24*3600)/3600;
+    mm = t % (3600)/60;
+    ss = t % (60);
+
+    if ((tE3DC % (24*3600)+12*3600)<t) {
+        sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday/3600000,fSavedyesderday/3600000);
+        fSavedyesderday=fSavedtoday; fSavedtoday=0;
+        WriteLog();
+    }
+    if ((mm+ss)==0) GetConfig();
 
     t = tE3DC % (24*3600);
+    float fLadeende = e3dc_config.ladeende;
+    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
+
+    time_t tLadezeitende,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+    int32_t tZeitgleichung;
+    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+
+    
+//    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
+    float fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
     // HT Endeladeleistung freigeben
-    if (((ts->tm_wday>0&&ts->tm_wday<6) &&
+    // Mo-Fr wird während der Hochtarif der Speicher zwischen hton und htoff endladen
+    // Samstag und Sonntag nur wenn htsat und htsun auf true gesetzt sind.
+    // Damit kann gleich eine intelligente Notstromreserve realisiert werden.
+    // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
+    // Die Notstromreserve im System ist davon unberührt
+    if (iLMStatus == 1) {
+    
+    if ((((ts->tm_wday>0&&ts->tm_wday<6) ||
+          ((ts->tm_wday==0)&&e3dc_config.htsun)
+          ||
+          ((ts->tm_wday==6)&&e3dc_config.htsat)          )&&
             (e3dc_config.hton < t && e3dc_config.htoff > t ))
-        ||(e3dc_config.ht<fBatt_SOC)
+        ||(fht<fBatt_SOC)
         ||(iNotstrom==1)  //Notstrom
         ||(iNotstrom==4)  //Inselbetrieb
         ){
             // ENdladen einschalten)
-        if (iDischarge < iMaxPower) {
-        Control_MAX_DISCHARGE(frameBuffer,iMaxPower);
-        iDischarge = iMaxPower;
+        if ((iPower_Bat == 0)&&(fPower_Grid>100))
+{            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+        WriteLog();
+    iLMStatus = 10;
+}
+        if (iDischarge < e3dc_config.maximumLadeleistung) {
+            
+        Control_MAX_DISCHARGE(frameBuffer,e3dc_config.maximumLadeleistung);
+        iBattPowerStatus = 0;
+        iLMStatus = 5;
+            sprintf(Log,"Ein %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
+            WriteLog();
+
         }
 
     } else {
             // Endladen ausschalten
-        if ((iDischarge != 0)&&(iNotstrom!=1)&&(iNotstrom!=4)) {
+        if (iDischarge != 0)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
             { Control_MAX_DISCHARGE(frameBuffer,0);
-                iDischarge = 0;}
-        }
-        }
+            iBattPowerStatus = 0;
+            iLMStatus = 5;
+                sprintf(Log,"AUS %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
+            WriteLog();
+
+;}
+    }}
     
     // HT Endeladeleistung freigeben  ENDE
     
@@ -233,22 +473,50 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
-    if ((t < (tLadezeitende))&&(fBatt_SOC<e3dc_config.ladeende))
+    tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
+
+// Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
+// Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
+    int xSoC;
+    if (t < tLadezeitende3) {
+        if (cos((ts->tm_yday+9)*2*3.14/365)>0) xSoC = cos((ts->tm_yday+9)*2*3.14/365)*100+e3dc_config.unload;
+        else
+            xSoC = e3dc_config.unload;
+        if (xSoC < e3dc_config.ladeschwelle) e3dc_config.ladeschwelle = xSoC;
+        if (xSoC < fBatt_SOC)
+        {tLadezeitende = tLadezeitende3 - tZeitgleichung;
+            fLadeende = xSoC;}
+    }
+ else
+     if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
+         tLadezeitende = tLadezeitende2 - tZeitgleichung;
+         fLadeende = 93;
+     }    if (t < tLadezeitende)
     {
-      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(iFc == 0))
+      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0))
+// Neuberechnung der Ladeleistung erfolgt, denn der SoC sich ändert oder
+// tLadezeitende sich ändert oder nach Ablauf von mind nach 5 Minuten
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
-        tLadezeit_alt=t; // alle 300sec Berechnen
-        iFc = (e3dc_config.ladeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
+          tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
+          tLadezeit_alt=t; // alle 300sec Berechnen
+        iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
         iFc = iFc / (tLadezeitende-t);
         iMinLade = iFc;
 //        iFc = (iFc-900)*5;
-          iFc = (iFc-e3dc_config.untererLadekorridor);
+          if (iFc >= e3dc_config.untererLadekorridor)
+              iFc = (iFc-e3dc_config.untererLadekorridor);
+          else
+            if (abs(iFc) >= e3dc_config.untererLadekorridor)
+               iFc = (iFc+e3dc_config.untererLadekorridor);
+            else
+              iFc = 0;
           iFc = iFc*(e3dc_config.maximumLadeleistung/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
-        if (iFc < e3dc_config.minimumLadeleistung) iFc = 0;
+          if (abs(iFc) > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
+          if (abs(iFc) < e3dc_config.minimumLadeleistung) iFc = 0;
       }
-        printf("\nMinLoad: %u %u ",iMinLade, iFc);
+        printf("MinLoad: %i %i ",iMinLade, iFc);
     } else
         if (t > tLadezeitende) iFc = e3dc_config.maximumLadeleistung;
            else iFc = 0;
@@ -256,18 +524,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     printf("GMT %ld:%ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
     
-
-    
-    
     printf("E3DC Zeit: %s", asctime(ts));
-
 
     
     int iPower = 0;
     if (iLMStatus == 0){
         iLMStatus = 5;
         tLadezeit_alt = 0;
-        iBattLoad = e3dc_config.maximumLadeleistung;
+//        iBattLoad = e3dc_config.maximumLadeleistung;
+//        iBattLoad = 100;
 //        fAvBatterie = e3dc_config.untererLadekorridor;
 
         
@@ -277,24 +542,33 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
     fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
-    if (iLMStatus == 1) {
+    // Überschussleistung=iPower ermitteln
+
+    iPower = (-iPower_Bat + int32_t(fPower_Grid) - e3dc_config.einspeiselimit*-1000)*-1;
+    
+    // die PV-leistung kann die WR-Leistung überschreiten. Überschuss in den Speicher laden;
+    
+    if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
+        iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
+    
+//    if (iPower < 50) iPower = 0;
+//    else
+//    if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
+//    else
+//    if (iPower <100) iPower = 100;
+    
+    if (iPower > 0)
+      fSavedtoday = fSavedtoday + iPower;
+
         
-       
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
-  // Überschussleistung=iPower ermitteln
         {
             
         
-          iPower = (-iPower_Bat + fPower_Grid - e3dc_config.einspeiselimit*-1000)*-1;
-
-          if (iPower < 100) {iPower = 0;}
-          else
-              if (iPower > e3dc_config.maximumLadeleistung) {iPower = e3dc_config.maximumLadeleistung;}
-        
-//          if (iPower+200 > fAvBatterie) fAvBatterie = iPower+200; // Überschussladen ohne Überhöhung wg. durchschnittl. Ladeleistung;
-            if (iFc > iPower)
+            if (iPower<iFc)
             {   iPower = iFc;
-                if (iPower > fAvBatterie) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
+                if ((iPower>0)&&(iPower > fAvBatterie)) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
+// Nur wenn positive Werte angefordert werden, wird dynamisiert
                 if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
                 
             }
@@ -303,23 +577,123 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
- 
-        if (abs( int(iPower - iBattLoad)) > 20)
-          {
+        if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
+            iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
+        
+//        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
+//            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
+    if (iLMStatus == 1)
+    {
         
             {
-            iBattLoad = iPower;
-            ControlLoadData2(frameBuffer,iBattLoad);
-            iLMStatus = 5;
+            if (iBattLoad > (iPower_Bat-iDiffLadeleistung))
+            iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
+            if ((iDiffLadeleistung < 0 )||(abs(iBattLoad)<=100)) iDiffLadeleistung = 0;
+            if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
+            if (abs(iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
+/*            if (iLMStatus == 1) {
+                iBattLoad = iPower;
+                tE3DC_alt = t;
+            ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
+            iLMStatus = 7;
             }
+*/
+// Steuerung direkt über vorgabe der Batterieladeleistung
+// -iPower_Bat + int32_t(fPower_Grid)
+                if (iLMStatus == 1) {
+                 iBattLoad = iPower;
+                 tE3DC_alt = t;
+//                    if (iPower_Bat > iPower)
+// die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
+                        //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
+                        
+                        {
+                        if (iPower > iPower_Bat - int32_t(fPower_Grid))
+                            iPower = e3dc_config.maximumLadeleistung;
+// Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
+// wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
+//                        if (iPower >0)
+//                        ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
+//                        Es wird nur die Variable mit dem Sollwert gefüllt
+//                        die Variable wird im Mainloop überprüft und im E3DC gesetzt
+//                        wenn iLMStatus einen negativen Wert hat
+                            iE3DC_Req_Load = iPower+iDiffLadeleistung;
+                            sprintf(Log,"CTL %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                            WriteLog();
+                            if (iPower_PV>0)  // Nur wenn die Sonne scheint
+                            {
+                                if ((iE3DC_Req_Load == iE3DC_Req_Load_alt)&&(iE3DC_Req_Load==e3dc_config.maximumLadeleistung))
+                                iLMStatus = 6;
+                                else
+                                iLMStatus = -6;
+// Wenn bereits auf Automatik geschaltet wurde, braucht eine Anforderung mit
+// maximalLadeleistung nicht wiederholt werden.
+                            } else
+                            iLMStatus = 11;
+                            }
+/*                    else if (fPower_Grid>50){
+// Zurück in den Automatikmodus
+                        ControlLoadData(frameBuffer,0,0);
+                        iLMStatus = 7;}
+*/
+                }
 
           }
     }
+// peakshaving erforderlich?
+    if ((e3dc_config.peakshave >= 0)&&(iLMStatus==1))
+    {
+        if ((fPower_Grid-iPower_Bat) > e3dc_config.peakshave)
+        {
+            iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
+            if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
+            if (iDiffLadeleistung2 < 0) iDiffLadeleistung2 = 0;
+            iBattLoad = e3dc_config.peakshave-iPowerHome;
+            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome+iDiffLadeleistung2;
+//            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
+           if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
+               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
+            iLMStatus = -5;
+            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+            WriteLog();
+
+}
+    };
     if (iLMStatus>1) iLMStatus--;
     printf("AVBatt   %0.1f ",fAvBatterie);
     printf("Discharge %i ",iDischarge);
-    printf("BattLoad %i\n",iBattLoad);
+    printf("BattLoad %i ",iBattLoad);
+    printf("iLMStatus %i ",iLMStatus);
+    printf("Reserve %0.1f%%\n",fht);
+    printf("Saved today %0.0004fkWh yesterday  %0.0004fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
+    char buffer [500];
+//    sprintf(buffer,"echo $PATH");
+//    system(buffer);
 
+    if (e3dc_config.openWB)
+    {
+//        sprintf(buffer,"mosquitto_pub -r -h raspberrypi -t openWB/set/evu/VPhase1 -m %0.1f",float(223.4));
+//        system(buffer);
+
+        
+    sprintf(buffer,"openWB/set/evu/W -m %0i",int(fPower_Grid));
+    MQTTsend(buffer);
+
+    sprintf(buffer,"openWB/set/pv/W -m %0i",iPower_PV*-1);
+    MQTTsend(buffer);
+
+    sprintf(buffer,"echo %0.1f > /var/www/html/openWB/ramdisk/llaktuell",fPower_WB);
+//    system(buffer);
+
+    sprintf(buffer,"openWB/set/Housebattery/W -m %0i",iPower_Bat);
+    MQTTsend(buffer);
+
+    sprintf(buffer,"openWB/set/Housebattery/%%Soc -m %0i",int(fBatt_SOC));
+    MQTTsend(buffer);
+
+    sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
+//    system(buffer);
+    }
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
@@ -327,31 +701,40 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
-    static int iDyLadeende;
-    
+    static float_t iDyLadeende;
+    static uint8_t WBChar_alt = 0;
+    static int32_t iWBMinimumPower = 1300; // MinimumPower bei 6A
+    static int iLadeleistung[27][4]; //27*4 Zellen
+    static bool bWBOn = false; // Wallbox eingeschaltet
 
-    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
-    return 0;
+//    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
+//    return 0;
 
     if (iWBStatus == 0)  {
 
         iDyLadeende = e3dc_config.ladeschwelle;
         iFc = 0;
-        iBattLoad = 100;
+//        iBattLoad = 100;
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
 
         
         
-        memcpy(WBchar6,"\x01\x06\x00\x00\x00\x00",6);
-        WBchar6[1] = WBchar[2];
+        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
+        WBchar6[1]=WBchar[2];
 
         if (WBchar[2]==32)
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
 
-            iWBStatus++;
-//         createRequestWBData(frameBuffer);
+        
+            if (WBchar[2] > 4)
+            iWBStatus = 5;
+            else {
+//                iWBStatus= 1;
+                return 0;}
+        
+//            createRequestWBData(frameBuffer);
     }
     
     if (iWBStatus == 1) {
@@ -360,86 +743,138 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if ((WBchar6[1]<32)&&(fBatt_SOC>(cMinimumladestand+2))) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
+        }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))  // Immer von 6A aus starten
+{ // Wallbox lädt nicht
+    if ((not bWBmaxLadestrom)&&(not bWBOn))
+    { WBchar6[1] = 6;
+//      WBchar6[4] = 1; // Laden starten
+        bWBOn = true;
+        createRequestWBData(frameBuffer);
+        WBchar6[4] = 0; // toggle aus
+        iWBStatus = 7;
     }
+    else WBchar6[1] = 32;
+}
+
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
-        if (fPower_WB == 0) {
+        if ((fPower_WB == 0)&&(iWBStatus==1)&&bWBLademodus) {
             iDyLadeende = cMinimumladestand;
         }
-                if ( (fPower_WB == 0) &&
+                if ( (fPower_WB == 0) &&bWBLademodus &&
                ( ((fPower_Grid - iPower_Bat)< -5500)
              ||(
-                ( ((fPower_Grid - iPower_Bat)< -3300)&&(fBatt_SOC>cMinimumladestand) )
+                ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1))&&(fBatt_SOC>cMinimumladestand) )
              ||
-                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&(fAvBatterie>iFc) ) // größer Mindesladeschwellex
+                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&
+                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
              ||
                 ((fAvPower_Grid< -500)&&(fBatt_SOC>=iDyLadeende))
                 )
              )
-            && (WBchar6[1] != 6)  // Immer von 6A aus starten
+//            && (WBchar6[1] != 6)  // Immer von 6A aus starten
             ) { // Wallbox lädt nicht
-            if (not bWBmaxLadestrom)
+            if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 { WBchar6[1] = 6;
+                    int x1,x2;
+                    for (x1=1;x1<=33;x1++) {};
+
+                WBchar6[4] = 1; // Laden starten
+                if (not bWBOn)
                 createRequestWBData(frameBuffer);
-                iWBStatus = 7;
+                bWBOn = true;
+                WBchar6[4] = 0; // Toggle aus
+                WBChar_alt = WBchar6[1];
+                iWBStatus = 20;
                 }
                     else WBchar6[1] = 32;
         }
         if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
-  
-            if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && (iPower_Bat >= 0) && (WBchar6[1]<iMaxcurrent)){
+            if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
+            if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && ((iPower_Bat > iMinLade)||(iPower_Bat > iBattLoad)) && (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -5300) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -4500) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -3800) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-
+                if ((fPower_Grid-iPower_Bat < -10*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -9*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -8*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -7*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -6*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
+                if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
                     createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 10; else iWBStatus = 7;   // Länger warten bei hohen Stömen
+//                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
+                    iWBStatus = 12;
+                WBChar_alt = WBchar6[1];
+
+                // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
 
              }
             if (
-                 ((iPower_Bat < -2600)&&(WBchar6[1] > 6)) ||
-                 ((iPower_Bat < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
+                 ((iPower_Bat-fPower_Grid < -2600)&&(WBchar6[1] > 6)) ||
+                 ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
                  ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-                 ((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<2000)&&(iPower_Bat+800<iBattLoad)&&
+//                ((fBatt_SOC < e3dc_config.ladeende)&&
+                ((((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<(2000)))||
+                ((fBatt_SOC >= e3dc_config.ladeende)&&(fBatt_SOC < 93)&&
+                 (iPower_Bat<(1500))))&&
+                  ((iPower_Bat+800)<iBattLoad)&&
                   ((iPower_Bat+400)<iFc)&&
-                   ((iPower_Bat)<iMinLade)&&((fAvBatterie+200)<iFc)&&((fAvBatterie)<iMinLade)&&
+//                   ((iPower_Bat)<iMinLade)&&
+                  ((fAvBatterie+200)<iFc)&&
+//                  ((fAvBatterie)<iMinLade)&&
                   (WBchar6[1]>6))
                  ) { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
-//                if ((iPower_Bat < -1100)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat < -1800)&& (WBchar6[1]>6)) WBchar6[1]--;
-                if ((iPower_Bat < -2500)&& (WBchar6[1]>6)) WBchar6[1]--;
-
+                for (int X1 = 3; X1 < 20; X1++)
+                    if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--; else break;
                 
                 if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
-                if (WBchar6[1]>16) iWBStatus = 7; else // Länger warten bei hohen Stömen
-                iWBStatus = 6;  // Länger warten bei hohen Stömen
+                WBChar_alt = WBchar6[1];
+//                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
+                iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
-            if (((iPower_Bat < -2700) || ((fPower_Grid > 3000)&&(iPower_Bat<1000)))
-                || ((iPower_Bat < -2000)&&(fBatt_SOC < iDyLadeende-1))
-                || ((iPower_Bat < -1500)&&(fBatt_SOC < iDyLadeende-2))
-                || ((iPower_Bat < -1000)&&(fBatt_SOC < iDyLadeende-3))
-                || ((iPower_Bat < -500)&&(fBatt_SOC < iDyLadeende-4))
-                || (fAvPower_Grid>400)
-                || ((iPower_Bat < -500)&&(fAvBatterie<-600)&&(fBatt_SOC < iDyLadeende-1))
-//                || ((iPower_Bat < -1000)&&(fAvBatterie<iFc&&(fAvBatterie<1000)&&(fBatt_SOC < iDyLadeende-1)))
+// Bedingung zum Wallbox abschalten ermitteln
+//
+                
+                
+            if (
+                   ((iPower_Bat-fPower_Grid < -2700)&&(fBatt_SOC < 94))
+                || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
+                || ((iPower_Bat-fPower_Grid < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1500)&&(fBatt_SOC < iDyLadeende-1.5)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1000)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -500)&&(fBatt_SOC < iDyLadeende-2.5)&&(iBattLoad>0))
+                || (fAvPower_Grid>400)          // Hohem Netzbezug
+                                                // Bei Speicher < 94%
+                || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -1000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad>0))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
-                {if (WBchar6[1] > 5)
+                {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
-                    createRequestWBData(frameBuffer);
-                    if (WBchar6[1] > 6)
+
+                    for (int X1 = 3; X1 < 20; X1++)
+                        if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--;
+                        else break;
+
+
+                    if (WBchar6[1]!=WBchar[2]){
+                        if (WBchar6[1]==5) {(WBchar6[1]=6);
+                            WBchar6[4] = 1;
+                            bWBOn = false;
+                        } // Laden beenden
+                        createRequestWBData(frameBuffer);}
+                    WBChar_alt = WBchar6[1];
+                    if (WBchar6[4] == 0)
                         iWBStatus = 7; else // Warten bis Neustart
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
         }
-    printf("DyLadeende %i ",iDyLadeende);
-    printf(" iWBStatus %i\n",iWBStatus);
+        printf("\nPower %0i DyLadeende %0.01f ",iWBMinimumPower, iDyLadeende);
+    printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
@@ -470,7 +905,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
     }
     else
     {
-        printf("\nRequest cyclic example data\n");
+//        printf("\nRequest cyclic example data\n");
         // request power data information
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_PV);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_ADD);
@@ -482,6 +917,28 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         {
             protocol.appendValue(&rootValue, TAG_EMS_REQ_GET_POWER_SETTINGS);
             iBattPowerStatus = 1;
+        }
+// request Power Meter information
+        if (iLMStatus < 0)
+        {
+            int32_t Mode;
+            if (iE3DC_Req_Load==0) Mode = 1; else
+                if (iE3DC_Req_Load>=e3dc_config.maximumLadeleistung) Mode = 0; else
+                if (iE3DC_Req_Load>0) Mode = 3; else
+            { iE3DC_Req_Load = iE3DC_Req_Load*-1;
+                Mode = 2;}
+            iLMStatus = iLMStatus*-1;
+            iE3DC_Req_Load_alt = iE3DC_Req_Load;
+        SRscpValue PMContainer;
+        //    Power = Power*-1;
+        protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
+        protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
+        if (Mode > 0)
+            protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_VALUE,iE3DC_Req_Load);
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, PMContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PMContainer);
         }
 
         // request battery information
@@ -536,6 +993,34 @@ if (e3dc_config.ext1)
 //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
         // append sub-container to root container
 if (e3dc_config.ext2)
+            protocol.appendValue(&rootValue, PMContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PMContainer);
+        // EXTERNER ZÄHLER 3
+        protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)3);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+        // append sub-container to root container
+if (e3dc_config.ext3)
+            protocol.appendValue(&rootValue, PMContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PMContainer);
+        // EXTERNER ZÄHLER 7
+        protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)7);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
+        protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+        //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+        // append sub-container to root container
+if (e3dc_config.ext7)
         protocol.appendValue(&rootValue, PMContainer);
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PMContainer);
@@ -576,6 +1061,7 @@ if (e3dc_config.ext2)
         protocol.appendValue(&WBContainer, TAG_WB_INDEX, (uint8_t)0);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_MODE);
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
+//        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L1);
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L2);
@@ -602,14 +1088,14 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("\nRequest cyclic example data done\n");
+    printf("\nRequest cyclic example data done \n");
 
     return 0;
 }
 
 int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 {
-
+    char buffer[100];
     // check if any of the response has the error flag set and react accordingly
     if(response->dataType == RSCP::eTypeError) {
         // handle error for example access denied errors
@@ -637,6 +1123,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         int32_t iPower = protocol->getValueAsInt32(response);
         printf("EMS PV %i", iPower);
         iPower_PV = iPower;
+        iPower_PV_E3DC = iPower;
         break;
     }
     case TAG_EMS_POWER_BAT: {    // response for TAG_EMS_REQ_POWER_BAT
@@ -648,6 +1135,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         int32_t iPower2 = protocol->getValueAsInt32(response);
         printf(" home %i", iPower2);
         iPowerBalance = iPower2;
+        iPowerHome = iPower2;
 
         break;
     }
@@ -670,7 +1158,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
             int32_t iPower = protocol->getValueAsInt32(response);
             
-            printf(" SET %i\n", iPower);
+//            printf(" SET %i\n", iPower);
             break;
         }
         case TAG_EMS_EMERGENCY_POWER_STATUS: {    // response for TAG_EMS_EMERGENCY_POWER_STATUS
@@ -768,9 +1256,16 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
                         if ((fPower2+fPower3)||0){
                         printf("%0.1f W %0.1f W ", fPower2, fPower3);
-                        printf(" # %0.1f W", fPower1+fPower2+fPower3);
+                        printf(" # %0.1f W \n", fPower1+fPower2+fPower3);
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
+                                sprintf(buffer,"openWB/set/evu/APhase1 -m %0.1f",float(fPower1/fL1V));
+                                MQTTsend(buffer);
+                            sprintf(buffer,"openWB/set/evu/APhase2 -m %0.1f",float(fPower2/fL2V));
+                            MQTTsend(buffer);
+                            sprintf(buffer,"openWB/set/evu/APhase3 -m %0.1f",float(fPower3/fL3V));
+                            MQTTsend(buffer);
+
                             fPower_Grid = fPower1+fPower2+fPower3;
                             if (iAvPower_GridCount<3600)
                                 iAvPower_GridCount++;
@@ -784,23 +1279,33 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             if (iAvPower_GridCount<20)
                                 fAvPower_Grid = fAvPower_Grid3600; else
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                            printf("\n & %0.01f %0.01f %0.01f %0.01f W\n", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
+                            printf(" & %0.01f %0.01f %0.01f %0.01f W ", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
                     }
                         break;
                     }
                     case TAG_PM_VOLTAGE_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
                         printf(" %0.1f V", fPower);
+                        fL1V = fPower;
+                        sprintf(buffer,"openWB/set/evu/VPhase1 -m %0.1f",float(fPower));
+                        MQTTsend(buffer);
+
                         break;
                     }
                     case TAG_PM_VOLTAGE_L2: {              // response for TAG_PM_REQ_L2
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
                         printf(" %0.1f V", fPower);
+                        fL2V = fPower;
+                        sprintf(buffer,"openWB/set/evu/VPhase2 -m %0.1f",float(fPower));
+                        MQTTsend(buffer);
                         break;
                     }
                     case TAG_PM_VOLTAGE_L3: {              // response for TAG_PM_REQ_L3
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
                         printf(" %0.1f V\n", fPower);
+                        fL3V = fPower;
+                        sprintf(buffer,"openWB/set/evu/VPhase3 -m %0.1f",float(fPower));
+                        MQTTsend(buffer);
                         break;
                     }
                         // ...
@@ -843,7 +1348,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf("\nDC%u %0.0f W", index, fPower);
+                                printf("DC%u %0.0f W ", index, fPower);
 
                             }
                         }
@@ -883,8 +1388,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
-                                printf(" %0.2f A", fPower);
-                                
+//                                printf(" %0.2f A \n", fPower);
+                                printf(" %0.2f A ", fPower);
+
                             }
                         }
                         protocol->destroyValueData(container);
@@ -952,7 +1458,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_WB_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("WB is %0.1f W", fPower);
+                        printf("\nWB is %0.1f W", fPower);
                         fPower_WB = fPower;
 /*                        if (iCyc_WB>0) iCyc_WB--;
                         if (fPower > 1)
@@ -981,7 +1487,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
                         printf(" %0.1f W", fPower);
                         fPower_WB = fPower_WB + fPower;
-                        printf(" Total %0.1f W\n", fPower_WB);
+                        printf(" Total %0.1f W", fPower_WB);
                         break;
                     }
 /*                    case TAG_WB_AVAILABLE_SOLAR_POWER: {              // response for TAG_PM_REQ_L3
@@ -1003,7 +1509,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case (TAG_WB_RSP_PARAM_1): {              // response for TAG_RSP_PARAM_1
 
                         
-/*                        printf(" WB Param_1\n");
+/*                       printf(" WB Param_1\n");
                         printf(" datatype %08X", PMData[i].dataType);
                         printf(" length %02X", PMData[i].length);
                         printf(" data");
@@ -1029,10 +1535,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    printf(" WB EXTERN_DATA\n");
                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
                                     bWBLademodus = (WBchar[0]&1);
-                                    printf("\n");
-                                    if (bWBLademodus) printf("Sonnenmodus:");
-                                    printf(" MODUS ist %u",WBchar[0]);
-                                    printf(" Ladestromstärke ist %uA\n",WBchar[2]);
+                                    WBchar6[0]=WBchar[0];
+                                    printf(" \n");
+                                    if (bWBLademodus) printf("Sonnenmodus: ");
+                                    printf("MODUS ist %u",WBchar[0]);
+                                    printf(" Ladestromstärke ist %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
                                     }
@@ -1112,6 +1619,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case TAG_EMS_MAX_DISCHARGE_POWER: {              //102 response for TAG_EMS_MAX_DISCHARGE_POWER
                         uint32_t uPower = protocol->getValueAsUInt32(&PMData[i]);
                         printf("MAX_DISCHARGE_POWER %i W\n", uPower);
+                        iDischarge = uPower;
                         break;
                     }
                     case TAG_EMS_DISCHARGE_START_POWER:{              //103 response for TAG_EMS_DISCHARGE_START_POWER
@@ -1321,16 +1829,18 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
-            if (e3dc_config.wallbox)
+            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox))
             WBProcess(&frameBuffer);
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);
+//            sleep(1);
         }
         // check that frame data was created
         
-        if(frameBuffer.dataLength == 0){
-            sleep(1);
+        if(frameBuffer.dataLength == 0)
+        {
             createRequestExample(&frameBuffer);
+//            sleep(1);
         }
         // check that frame data was created
 
@@ -1358,9 +1868,10 @@ static void mainLoop(void)
             }
             else {
                 // go into receive loop and wait for response
-                if (e3dc_config.debug) printf ("start receiveLoop");
+                sleep(1);
+//                if (e3dc_config.debug) printf ("start receiveLoop");
                 receiveLoop(bStopExecution);
-                if (e3dc_config.debug) printf ("end receiveLoop");
+//                if (e3dc_config.debug) printf ("end receiveLoop");
             }
         }
         // free frame buffer memory
@@ -1370,105 +1881,24 @@ static void mainLoop(void)
     }
     printf("mainloop beendet");
 }
-
 int main(int argc, char *argv[])
 {
-    // get conf parameters
-    FILE *fp;
-    fp = fopen(CONF_PATH CONF_FILE, "r");
-    if(!fp) {
-        fp = fopen(CONF_FILE, "r");
-    }
-    char var[128], value[128], line[256];
-    e3dc_config.wallbox = false;
-    e3dc_config.ext1 = false;
-    e3dc_config.ext2 = false;
-    e3dc_config.ext3 = false;
-    e3dc_config.debug = false;
-    e3dc_config.wurzelzaehler = 0;
-    e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
-    e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
-    e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
-    e3dc_config.maximumLadeleistung = MAXIMUMLADELEISTUNG;
-    e3dc_config.speichergroesse = SPEICHERGROESSE;
-    e3dc_config.winterminimum = WINTERMINIMUM;
-    e3dc_config.sommermaximum = SOMMERMAXIMUM;
-    e3dc_config.einspeiselimit = EINSPEISELIMIT;
-    e3dc_config.ladeschwelle = LADESCHWELLE;
-    e3dc_config.ladeende = LADEENDE;
-    e3dc_config.ht = 0;
-    e3dc_config.hton = 0;
-    e3dc_config.htoff = 24*3600; // in Sekunden
+    static int iEC = 0;
+ time(&t);
+ struct tm * ptm;
+ ptm = gmtime(&t);
+ sprintf(Log,"Start %s ", strtok(asctime(ptm),"\n"));
+ WriteLog();
 
-    if(fp) {
-        while (fgets(line, sizeof(line), fp)) {
-            memset(var, 0, sizeof(var));
-            memset(value, 0, sizeof(value));
-            if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
-                if(strcmp(var, "server_ip") == 0)
-                    strcpy(e3dc_config.server_ip, value);
-                else if(strcmp(var, "server_port") == 0)
-                    e3dc_config.server_port = atoi(value);
-                else if(strcmp(var, "e3dc_user") == 0)
-                    strcpy(e3dc_config.e3dc_user, value);
-                else if(strcmp(var, "e3dc_password") == 0)
-                    strcpy(e3dc_config.e3dc_password, value);
-                else if(strcmp(var, "aes_password") == 0)
-                    strcpy(e3dc_config.aes_password, value);
-                else if(strcmp(var, "wurzelzaehler") == 0)
-                    e3dc_config.wurzelzaehler = atoi(value);
-                else if((strcmp(var, "wallbox") == 0)&&
-                       (strcmp(value, "true") == 0))
-                    e3dc_config.wallbox = true;
-                else if((strcmp(var, "ext1") == 0)&&
-                        (strcmp(value, "true") == 0))
-                    e3dc_config.ext1 = true;
-                else if((strcmp(var, "ext2") == 0)&&
-                        (strcmp(value, "true") == 0))
-                    e3dc_config.ext2 = true;
-                else if((strcmp(var, "ext3") == 0)&&
-                        (strcmp(value, "true") == 0))
-                    e3dc_config.ext3 = true;
-                else if((strcmp(var, "debug") == 0)&&
-                        (strcmp(value, "true") == 0))
-                    e3dc_config.debug = true;
-                else if(strcmp(var, "untererLadekorridor") == 0)
-                    e3dc_config.untererLadekorridor = atoi(value);
-                else if(strcmp(var, "obererLadekorridor") == 0)
-                    e3dc_config.obererLadekorridor = atoi(value);
-                else if(strcmp(var, "minimumLadeleistung") == 0)
-                    e3dc_config.minimumLadeleistung = atoi(value);
-                else if(strcmp(var, "maximumLadeleistung") == 0)
-                    e3dc_config.maximumLadeleistung = atoi(value);
-                else if(strcmp(var, "speichergroesse") == 0)
-                    e3dc_config.speichergroesse = atof(value);
-                else if(strcmp(var, "winterminimum") == 0)
-                    e3dc_config.winterminimum = atof(value);
-                else if(strcmp(var, "sommermaximum") == 0)
-                    e3dc_config.sommermaximum = atof(value);
-                else if(strcmp(var, "einspeiselimit") == 0)
-                    e3dc_config.einspeiselimit = atof(value);
-                else if(strcmp(var, "ladeschwelle") == 0)
-                    e3dc_config.ladeschwelle = atoi(value);
-                else if(strcmp(var, "ladeende") == 0)
-                    e3dc_config.ladeende = atoi(value);
-                else if(strcmp(var, "htmin") == 0)
-                    e3dc_config.ht = atoi(value);
-                else if(strcmp(var, "hton") == 0)
-                    e3dc_config.hton = atof(value)*3600; // in Sekunden
-                else if(strcmp(var, "htoff") == 0)
-                    e3dc_config.htoff = atof(value)*3600; // in Sekunden
-
-            }
-        }
-        fclose(fp);
-    }
-    if (!fp) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
     // endless application which re-connections to server on connection lost
-    if (fp)
-    while(true)
+        if (GetConfig())
+        while(iEC < 10)
     {
+        iEC++; // Schleifenzähler erhöhen
+
         // connect to server
+        printf("Program Start Version:%s\n",VERSION);
+
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
@@ -1488,7 +1918,7 @@ int main(int argc, char *argv[])
             memset(ucEncryptionIV, 0xff, AES_BLOCK_SIZE);
 
             // limit password length to AES_KEY_SIZE
-            int iPasswordLength = strlen(e3dc_config.aes_password);
+            int64_t iPasswordLength = strlen(e3dc_config.aes_password);
             if(iPasswordLength > AES_KEY_SIZE)
                 iPasswordLength = AES_KEY_SIZE;
 
@@ -1506,13 +1936,14 @@ int main(int argc, char *argv[])
 
         // enter the main transmit / receive loop
         mainLoop();
-        printf("mainloop beendet");
+        printf("mainloop beendet %i\n",iEC);
         // close socket connection
         SocketClose(iSocket);
         iSocket = -1;
         sleep(10);
     }
-    printf("mainloop beendet");
+    printf("Programm wirklich beendet");
+    
     return 0;
 }
 
