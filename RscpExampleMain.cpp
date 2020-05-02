@@ -415,7 +415,18 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     ss = t % (60);
 
     if ((tE3DC % (24*3600)+12*3600)<t) {
+// Erstellen Statistik, Eintrag Logfile
         sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday/3600000,fSavedyesderday/3600000);
+        if (fSavedtoday > 0)
+        {
+        FILE *fp;
+        fp = fopen("savedtoday.txt", "a");
+        if(!fp)
+            fp = fopen("savedtoday.txt", "w");
+        if(fp)
+        fprintf(fp,"%s\n",Log);
+            fclose(fp);
+        }
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
         WriteLog();
     }
@@ -518,12 +529,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
          tLadezeitende = tLadezeitende2 - tZeitgleichung;
+         if (e3dc_config.ladeende > e3dc_config.ladeende2)
+         fLadeende = e3dc_config.ladeende;
+         else
          fLadeende = e3dc_config.ladeende2;
-     }    if (t < tLadezeitende)
+     }
+    
+    if (t < tLadezeitende)
     {
       if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0))
 // Neuberechnung der Ladeleistung erfolgt, denn der SoC sich ändert oder
-// tLadezeitende sich ändert oder nach Ablauf von mind nach 5 Minuten
+// tLadezeitende sich ändert oder nach Ablauf von höchstens 5 Minuten
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
           tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
@@ -608,9 +624,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-        if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
+/*        if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
-        
+*/
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
     if (iLMStatus == 1)
