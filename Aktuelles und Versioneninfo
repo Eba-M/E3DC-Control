@@ -1,0 +1,6 @@
+version 2020.5.2.0
+
+Auf vielfachen Wunsch wird nächtens eine Datei mit den "savedtoday" Daten erstellt bzw. fortgeschrieben. 
+Einfach mit nano savetoday.txt im Verzeichnis E3DC-Control aufrufen.
+
+Ein Eintrag wird nur erstellt, wenn savedtoday größer 0 ist.
