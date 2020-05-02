@@ -67,19 +67,18 @@ int WriteLog()
     struct tm * ptm;
     ptm = gmtime(&t);
 
+    day = (t%(24*3600*4))/(24*3600);
+    hour = (t%(24*3600))/(3600*4)*4;
+
     if (e3dc_config.debug) {
-    
-    if ((t%(24*3600)+12*3600)<t_alt) // neuer Tag
+
+    if (hour!=t_alt) // neuer Tag
     {
 //        int tt = (t%(24*3600)+12*3600);
-        day = (t%(24*3600*4))/(24*3600);
-        hour = (t%(24*3600))/(3600*4)*4;
         sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         fclose(fp);
     }
-        day = (t%(24*3600*4))/(24*3600);
-        hour = (t%(24*3600))/(3600*4)*4;
         sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname, "a");
     if(!fp)
@@ -87,7 +86,8 @@ int WriteLog()
     if(fp)
     fprintf(fp,"%s\n",Log);
         fclose(fp);}
-    t_alt = t%(24*3600);
+        t_alt = hour;
+;
 return(0);
 }
 

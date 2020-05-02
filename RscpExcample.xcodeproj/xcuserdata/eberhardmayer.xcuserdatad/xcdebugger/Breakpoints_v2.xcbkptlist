@@ -314,7 +314,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F53DEDA6-7638-45DF-B1F3-4341131D0CD5"
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
@@ -2592,7 +2592,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "E3B590F6-45F9-4CDF-8438-2F6BB6A2875C"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
@@ -2608,7 +2608,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "5DC92010-F51C-448A-BC6A-66306F8B3C31"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
@@ -2617,6 +2617,22 @@
             startingLineNumber = "417"
             endingLineNumber = "417"
             landmarkName = "LoadDataProcess(frameBuffer)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1A8F76FB-95C6-4FCF-A6F3-F9095FE949A6"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RscpExampleMain.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
+            landmarkName = "WriteLog()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
