@@ -1,3 +1,18 @@
+version 2020.5.2.1
+
+Für besondere Situation und zur Dokumentation der an E3DC übermittelten Anweisungen können diese in einer Logfile
+geschrieben werden (debug = true). Um zu verhindern, das die Logfiles im Laufe der Zeit zu groß werden, 
+werde diese nach 4 Tagen überschrieben. Um die SSD nicht unnötig zu belasten sollte 
+die Logfile einer RAMDisk gespeichert werden. (logfile = /RAMDisk/logfile)
+Die RAMDisk ist vorher zu erstellen.
+
+Für die normale Anwendung besteht kein Handlungsbedarf, dieser Eintrag dient nur der reinen Dokumentation.
+
+benutzte Parameter
+
+debug
+logfile
+
 version 2020.5.2.0
 
 Auf vielfachen Wunsch wird nächtens eine Datei mit den "savedtoday" Daten erstellt bzw. fortgeschrieben. 
