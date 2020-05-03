@@ -1,5 +1,10 @@
 version 2020.5.2.1
 
+Man kann nie genug testen, der Zeitstempel zur Auswertung der savetoday funktion rutschte im Zuge der
+Programmerweiterung an die falsche Stelle.
+
+version 2020.5.2.1
+
 Für besondere Situation und zur Dokumentation der an E3DC übermittelten Anweisungen können diese in einer Logfile
 geschrieben werden (debug = true). Um zu verhindern, das die Logfiles im Laufe der Zeit zu groß werden, 
 werde diese nach 4 Tagen überschrieben. Um die SSD nicht unnötig zu belasten sollte 
