@@ -61,7 +61,7 @@ int WriteLog()
 {
   static time_t t,t_alt = 0;
     int day,hour;
-    char fname[80];
+    char fname[127];
     time(&t);
     FILE *fp;
     struct tm * ptm;
@@ -91,10 +91,10 @@ int WriteLog()
 return(0);
 }
 
-int MQTTsend(char buffer[100])
+int MQTTsend(char buffer[127])
 
 {
-    char cbuf[100];
+    char cbuf[127];
     if (e3dc_config.openWB) {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", e3dc_config.openWBhost,buffer);
         system(cbuf);
@@ -406,9 +406,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("\n");
     tm *ts;
     ts = gmtime(&tE3DC);
-    float ft;
-    ft = float(tE3DC % (24*3600))/3600;
-    t = tE3DC % (24*3600);
     int hh,mm,ss;
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
@@ -417,6 +414,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if ((tE3DC % (24*3600)+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
         sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday/3600000,fSavedyesderday/3600000);
+        WriteLog();
         if (fSavedtoday > 0)
         {
         FILE *fp;
@@ -428,10 +426,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             fclose(fp);
         }
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
-        WriteLog();
+        
     }
-    static time_t t_config = t;
+    t = tE3DC % (24*3600);
     
+    static time_t t_config = t;
     if (t-t_config > 10)
     {
         if (CheckConfig()) // Config-Datei hat sich geändert;
@@ -1147,7 +1146,7 @@ if (e3dc_config.wallbox)
 
 int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 {
-    char buffer[100];
+    char buffer[127];
     // check if any of the response has the error flag set and react accordingly
     if(response->dataType == RSCP::eTypeError) {
         // handle error for example access denied errors
@@ -1790,7 +1789,7 @@ static void receiveLoop(bool & bStopExecution)
             vecDynamicBuffer.resize(vecDynamicBuffer.size() + 4096);
         }
         // receive data
-        int iResult = SocketRecvData(iSocket, &vecDynamicBuffer[0] + iReceivedBytes, vecDynamicBuffer.size() - iReceivedBytes);
+        long iResult = SocketRecvData(iSocket, &vecDynamicBuffer[0] + iReceivedBytes, vecDynamicBuffer.size() - iReceivedBytes);
         if(iResult < 0)
         {
             // check errno for the error code to detect if this is a timeout or a socket error
