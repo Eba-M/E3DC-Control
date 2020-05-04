@@ -437,7 +437,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         {
 //            printf("Config geändert");
             GetConfig();
-            printf("Config neu eingelesen");
+//            printf("Config neu eingelesen");
         }
             t_config = tE3DC;
     }
