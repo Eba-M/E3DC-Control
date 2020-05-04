@@ -1,3 +1,12 @@
+version 2020.5.4.0
+
+Die e3dc.config.txt wurde nur am aktuellem Tag neueingelesen. Das geht jetzt immer.
+Die Statistiken wurden erweiter. 
+Ü = Überschuss über dem einpeiselimit. Das würde man bei z.B. 70% hart verlieren 
+td = Saved today
+WB = Wenn man eine Wallbox hat, sieht man hier, was man über das eAuto Laden gerettet hat.
+yd = Der Wert vom Saved today des Vortages
+
 version 2020.5.3.0
 
 Man kann nie genug testen, der Zeitstempel zur Auswertung der savetoday funktion rutschte im Zuge der
