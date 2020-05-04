@@ -235,7 +235,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
-static float_t fSavedtoday, fSavedyesderday; // Überschussleistung
+static float_t fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
@@ -413,7 +413,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if ((tE3DC % (24*3600)+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
-        sprintf(Log,"Time %s %i:%i:%i %0.04f %0.04f", strtok(asctime(ts),"\n"),hh,mm,ss,fSavedtoday/3600000,fSavedyesderday/3600000);
+        sprintf(Log,"Time %s Ü:%0.04f S:%0.04f WB:%0.04f Y%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedyesderday/3600000,fSavedWB/3600000,fSavedyesderday/3600000);
         WriteLog();
         if (fSavedtoday > 0)
         {
@@ -603,8 +603,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    else
 //    if (iPower <100) iPower = 100;
     
+ 
+// Ermitteln Überschuss/gesicherte Leistungen
+
     if (iPower > 0)
-      fSavedtoday = fSavedtoday + iPower;
+          fSavedtoday = fSavedtoday + iPower;
+        if (iPower_PV > e3dc_config.einspeiselimit*1000)
+        {fSavedtotal = iPower_PV - e3dc_config.einspeiselimit*1000 + fSavedtotal;
+         if (fPower_WB>0)
+             if ((fPower_WB-fPower_Grid+iPower_Bat)>e3dc_config.einspeiselimit*1000)
+                 fSavedWB = fPower_WB-fPower_Grid+iPower_Bat- e3dc_config.einspeiselimit*1000;
+        }
 
         
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
@@ -715,7 +724,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("BattLoad %i ",iBattLoad);
     printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
-    printf("Saved today %0.0004fkWh yesterday  %0.0004fkWh\n",(fSavedtoday/3600000),(fSavedyesderday/3600000));
+    printf("Überschuss %0.0004fkWh Saved today %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
+    printf("yesterday %0.0004fkWh",(fSavedyesderday/3600000));
+
     char buffer [500];
 //    sprintf(buffer,"echo $PATH");
 //    system(buffer);
