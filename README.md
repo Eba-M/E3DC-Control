@@ -91,30 +91,50 @@ e3dc_password = xxxxxxxx
 
 // und die möglichen Parameter
 
-wallbox = false         // true, wenn man die E3DC-Wallbox nutzen möchte
-ext1 = false				// true, wenn ein externer Zähler genutzt wird
+wallbox = false         
+// true, wenn man die E3DC-Wallbox mit erweiterter Funktion nutzen möchte
+ext1 = false				
+// true, wenn ein externer Zähler genutzt wird
 ext2 = false
-wurzelzaehler = 0		// 6 = externer Wurzelzähler
-einspeiselimit = 7.0 // 70% Einspeisegrenze
+wurzelzaehler = 0		
+// 6 = externer Wurzelzähler
+einspeiselimit = 7.0 
+// 70% Einspeisegrenze bei z.B. 10kWp
 untererLadekorridor = 500  
-obererLadekorridor = 1500  // bei der PRO wird 4500 empfohlen
+obererLadekorridor = 1500  
+// bei der PRO wird 4500 empfohlen
 minimumLadeleistung = 300
-maximumLadeleistung = 3000  // 1500 bei mini, 3000 E12 und 9000/1200 PRO
-wrleistung = 12000          // AC-Leistung des WR, 4600 bei mini
-ladeschwelle = 15           // Unter 15% SoC wird immer geladen 
-ladeende = 85               // Ziel SoC 85% zwischen
-winterminimum = 11		   // winterminimum wintersonnenwende
-sommermaximum = 14           // sommermaximum sommersonnenwende
-sommerladeende = 18.5     // im Sommer wird das Laden auf 100% verzögert
+maximumLadeleistung = 3000  
+// 1500 bei mini, 3000 E12 und 9000/1200 PRO
+wrleistung = 12000          
+// AC-Leistung des WR, 4600 bei mini
+ladeschwelle = 15           
+// Unter 15% SoC wird immer geladen 
+ladeende = 85               
+// Ziel SoC 85% zwischen
+winterminimum = 11		   
+// winterminimum wintersonnenwende
+sommermaximum = 14           
+// sommermaximum sommersonnenwende
+sommerladeende = 18.5     
+// im Sommer wird das Laden auf 100% verzögert
 // Im Winterhalbjahr wird versucht den Speicher zum Hochtarif zu nutzen
-htmin = 30                // Speicherreserve 30% bei winterminimum
-htsockel = 10             // sockelwert bei Tag-Nachtgleiche
-hton = 5                  // Begin Hochtarif
-htoff = 14                // Ende Hochtarif 
-htsat = true              // Hochtarif Samstag
-htsun = true              // Hochtourig Sonntag
-debug = false             // zusätzliche debug ausgaben
-```
+htmin = 30                
+// Speicherreserve 30% bei winterminimum
+htsockel = 10             
+// sockelwert bei Tag-Nachtgleiche
+hton = 5                  
+// Begin Hochtarif
+htoff = 14                
+// Ende Hochtarif 
+htsat = true              
+// Hochtarif Samstag
+htsun = true              
+// Hochtourig Sonntag
+debug = false
+logfile = logfile
+// zusätzliche debug informationenin eine logfile ausgeben
+// Alle Steuerungsanweisungen an E3DC
 
 // anpassen und als 
 //`e3dc.config.txt`
