@@ -612,11 +612,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iPower > 0)
           fSavedtoday = fSavedtoday + iPower;
-        if (iPower_PV > e3dc_config.einspeiselimit*1000)
+    if (iPower_PV > e3dc_config.einspeiselimit*1000)
         {fSavedtotal = iPower_PV - e3dc_config.einspeiselimit*1000 + fSavedtotal;
-         if (fPower_WB>0)
-             if ((fPower_WB-fPower_Grid+iPower_Bat)>e3dc_config.einspeiselimit*1000)
-                 fSavedWB = fPower_WB-fPower_Grid+iPower_Bat- e3dc_config.einspeiselimit*1000;
+            
+    if (fPower_WB>0)
+        if ((fPower_WB-fPower_Grid+iPower_Bat)>e3dc_config.einspeiselimit*1000)
+            fSavedWB = fPower_WB-fPower_Grid+iPower_Bat-e3dc_config.einspeiselimit*1000;
         }
 
         
@@ -728,8 +729,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("BattLoad %i ",iBattLoad);
     printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
-    printf("Überschuss %0.0004fkWh Saved today %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
-    printf("yesterday %0.0004fkWh",(fSavedyesderday/3600000));
+    printf("Ü %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
+    if (e3dc_config.wallbox)
+    printf(" WB %0.0004fkWh",(fSavedWB/3600000));
+    printf(" yd %0.0004fkWh\n",(fSavedyesderday/3600000));
 
     char buffer [500];
 //    sprintf(buffer,"echo $PATH");
