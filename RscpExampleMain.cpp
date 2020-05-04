@@ -430,12 +430,16 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     }
     t = tE3DC % (24*3600);
     
-    static time_t t_config = t;
-    if (t-t_config > 10)
+    static time_t t_config = tE3DC;
+    if ((tE3DC-t_config) > 10)
     {
         if (CheckConfig()) // Config-Datei hat sich geändert;
-        GetConfig();
-        t_config = t;
+        {
+//            printf("Config geändert");
+            GetConfig();
+            printf("Config neu eingelesen");
+        }
+            t_config = tE3DC;
     }
    
     float fLadeende = e3dc_config.ladeende;
@@ -811,7 +815,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 { // Wallbox lädt nicht
     if ((not bWBmaxLadestrom)&&(not bWBOn))
     { WBchar6[1] = 6;
-//      WBchar6[4] = 1; // Laden starten
+      WBchar6[4] = 1; // Laden automatisch starten
         bWBOn = true;
         createRequestWBData(frameBuffer);
         WBchar6[4] = 0; // toggle aus
