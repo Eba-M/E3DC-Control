@@ -413,7 +413,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if ((tE3DC % (24*3600)+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
-        sprintf(Log,"Time %s Ü:%0.04f S:%0.04f WB:%0.04f Y%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedyesderday/3600000,fSavedWB/3600000,fSavedyesderday/3600000);
+        sprintf(Log,"Time %s Ü:%0.04f S:%0.04f WB:%0.04f Y%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedWB/3600000,fSavedyesderday/3600000);
         WriteLog();
         if (fSavedtoday > 0)
         {
