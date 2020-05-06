@@ -426,6 +426,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             fclose(fp);
         }
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
+        fSavedtotal=0; fSavedWB=0;
         
     }
     t = tE3DC % (24*3600);
