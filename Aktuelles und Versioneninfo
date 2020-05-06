@@ -1,3 +1,10 @@
+Version 2020.5.6.1
+
+es wird bis zum Zeitpunkt winterminimum entladen wenn der SoC > ladeende ist.
+Danach wird bis zum Regelzeitraumende nur entladen, wenn der SoC > ladeende 2 ist. 
+
+
+
 version 2020.5.4.0
 
 Die e3dc.config.txt wurde nur am aktuellem Tag neueingelesen. Das geht jetzt immer.
