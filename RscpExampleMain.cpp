@@ -667,7 +667,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iLMStatus == 1) {
 // Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
 // Danach wird nur bis auf ladeende2 entladen.
-                    if ((iPower < 0)&&((t>e3dc_config.winterminimum)||(fBatt_SOC>e3dc_config.ladeende2)))
+                    if ((iPower < 0)&&(t>e3dc_config.winterminimum)&&(fBatt_SOC<e3dc_config.ladeende2))
                      iPower = 0;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
