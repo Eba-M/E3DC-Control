@@ -615,7 +615,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Ermitteln Überschuss/gesicherte Leistungen
 
     if (iPower > 0)
-          fSavedtoday = fSavedtoday + iPower;
+    {if (iPower >iPower_Bat)
+          fSavedtoday = fSavedtoday + iPower_Bat;
+        else
+            fSavedtoday = fSavedtoday + iPower;}
     if (iPower_PV > e3dc_config.einspeiselimit*1000)
         {fSavedtotal = iPower_PV - e3dc_config.einspeiselimit*1000 + fSavedtotal;
             
@@ -667,7 +670,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iLMStatus == 1) {
 // Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
 // Danach wird nur bis auf ladeende2 entladen.
-                    if ((iPower < 0)&&(t>e3dc_config.winterminimum)&&(fBatt_SOC<e3dc_config.ladeende2))
+                    if ((iPower < 0)&&((t>e3dc_config.winterminimum)&&(fBatt_SOC<e3dc_config.ladeende2)))
                      iPower = 0;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
