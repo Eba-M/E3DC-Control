@@ -662,6 +662,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Steuerung direkt über vorgabe der Batterieladeleistung
 // -iPower_Bat + int32_t(fPower_Grid)
                 if (iLMStatus == 1) {
+// Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
+// Danach wird nur bis auf ladeende2 entladen.
+                    if ((iPower < 0)&&((t>e3dc_config.winterminimum)||(fBatt_SOC>e3dc_config.ladeende2)))
+                     iPower = 0;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
 //                    if (iPower_Bat > iPower)
