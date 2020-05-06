@@ -240,6 +240,7 @@ static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
 static time_t tm_CONF_dt;
+static bool bCheckConfig;
 bool CheckConfig()
 {
     struct stat stats;
@@ -438,6 +439,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         {
 //            printf("Config geändert");
             GetConfig();
+            bCheckConfig = true;
 //            printf("Config neu eingelesen");
         }
             t_config = tE3DC;
@@ -541,11 +543,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     if (t < tLadezeitende)
     {
-      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0))
+      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0)||bCheckConfig)
 // Neuberechnung der Ladeleistung erfolgt, denn der SoC sich ändert oder
 // tLadezeitende sich ändert oder nach Ablauf von höchstens 5 Minuten
       {
         fBatt_SOC_alt=fBatt_SOC; // bei Änderung SOC neu berechnen
+          bCheckConfig=false;
           tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
           tLadezeit_alt=t; // alle 300sec Berechnen
         
@@ -618,7 +621,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             
     if (fPower_WB>0)
         if ((fPower_WB-fPower_Grid+iPower_Bat)>e3dc_config.einspeiselimit*1000)
-            fSavedWB = fPower_WB-fPower_Grid+iPower_Bat-e3dc_config.einspeiselimit*1000;
+            fSavedWB = fSavedWB+fPower_WB-fPower_Grid+iPower_Bat-e3dc_config.einspeiselimit*1000;
         }
 
         
