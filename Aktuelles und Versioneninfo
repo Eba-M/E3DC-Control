@@ -1,7 +1,12 @@
+Version 2020.5.9.0
+
+die letzte Änderung ging zu weit, sie ließ nur unload bis auf ladeende2 zu.
+Ansonsten einige kosmetische Korrekturen
+
 Version 2020.5.6.1
 
 es wird bis zum Zeitpunkt winterminimum entladen wenn der SoC > ladeende ist.
-Danach wird bis zum Regelzeitraumende nur entladen, wenn der SoC > ladeende 2 ist. 
+Danach wird bis zum Regelzeitraumende nur entladen, wenn der SoC > ladeende2 ist. 
 
 
 
