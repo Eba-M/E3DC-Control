@@ -55,7 +55,7 @@ static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=O
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
 e3dc_config_t e3dc_config;
-char Log[200];
+char Log[300];
 
 int WriteLog()
 {
@@ -543,7 +543,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     if (t < tLadezeitende)
     {
-      if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0)||bCheckConfig)
+         if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0)||bCheckConfig)
 // Neuberechnung der Ladeleistung erfolgt, denn der SoC sich ändert oder
 // tLadezeitende sich ändert oder nach Ablauf von höchstens 5 Minuten
       {
@@ -571,13 +571,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           if (abs(iFc) < e3dc_config.minimumLadeleistung) iFc = 0;
       }
         printf("MinLoad: %i %i ",iMinLade, iFc);
-    } else
-        if (t > tLadezeitende) iFc = e3dc_config.maximumLadeleistung;
-           else iFc = 0;
-//  Laden auf 100% nach 15:30
-    
-    printf("GMT %ld:%ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
-    
+     }
+            else
+                if (t > tLadezeitende) tLadezeit_alt=0;
+        //neuberechnung erzwingen
+            else iFc = 0;
+        //  Laden auf 100% nach 15:30
+            
+            printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
+        
     printf("E3DC Zeit: %s", asctime(ts));
 
     
@@ -670,7 +672,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iLMStatus == 1) {
 // Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
 // Danach wird nur bis auf ladeende2 entladen.
-                    if ((iPower < 0)&&((t>e3dc_config.winterminimum)&&(fBatt_SOC<e3dc_config.ladeende2)))
+                     if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
                      iPower = 0;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
@@ -701,7 +703,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                                 {iLMStatus = -6;
 // Wenn bereits auf Automatik geschaltet wurde, braucht eine Anforderung mit
 // maximalLadeleistung nicht wiederholt werden.
-                                sprintf(Log,"CTL %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                 WriteLog();}
                             } else
                             iLMStatus = 11;
@@ -844,14 +846,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iDyLadeende = cMinimumladestand;
         }
                 if ( (fPower_WB == 0) &&bWBLademodus &&
-               ( ((fPower_Grid - iPower_Bat)< -5500)
+               ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1-2000))
              ||(
                 ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1))&&(fBatt_SOC>cMinimumladestand) )
              ||
-                ( ((fPower_Grid - iPower_Bat)< -1800)&&(fBatt_SOC>cMinimumladestand)&&
-                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
+                 ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1)+1800)&&(fBatt_SOC>cMinimumladestand)&&                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
              ||
-                ((fAvPower_Grid< -500)&&(fBatt_SOC>=iDyLadeende))
+                 ((fAvPower_Grid< -500)&&((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1)+1800)&&(fBatt_SOC>=iDyLadeende))
+
                 )
              )
 //            && (WBchar6[1] != 6)  // Immer von 6A aus starten
@@ -930,7 +932,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
                 || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -1000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad>0))
+                || ((iPower_Bat-fPower_Grid < -2000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad=e3dc_config.maximumLadeleistung))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
