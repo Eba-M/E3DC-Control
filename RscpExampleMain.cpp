@@ -577,11 +577,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         printf("MinLoad: %i %i ",iMinLade, iFc);
      }
             else
-                if (t > tLadezeitende)
-                {tLadezeit_alt=0;
-                    iFc = e3dc_config.maximumLadeleistung;}
-        //neuberechnung erzwingen
-                else iFc = 0;
+ 
+                    iFc = e3dc_config.maximumLadeleistung;
+
         //  Laden auf 100% nach 15:30
             
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
@@ -687,7 +685,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                         //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
                         
                         {
-                        if (iPower > iPower_Bat - int32_t(fPower_Grid))
+                        if (iPower > (iPower_Bat - int32_t(fPower_Grid)))
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                         {if (fPower_Grid > 100)
 // es liegt Netzbezug vor
