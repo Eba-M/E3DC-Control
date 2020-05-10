@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "2020.5.10.0" //Mai branch
+#define VERSION "2020.5.10.1" //Mai branch
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -14,6 +14,7 @@
 // Konfigurationsdatei
 #define CONF_FILE "e3dc.config.txt"
 #define CONF_PATH "/Users/eberhardmayer/Documents/E3DC/"
+#define CONF_PATH2 "/config/E3DC/"
 #define OPENWB "localhost"
 
 #define WURZELZAEHLER 0;     // 0 = interner Zähler 6 = externer Zähler

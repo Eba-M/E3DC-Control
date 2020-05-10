@@ -259,10 +259,12 @@ bool GetConfig()
         stat(CONF_PATH CONF_FILE,&stats);
         fp = fopen(CONF_PATH CONF_FILE, "r");
         if(!fp) {
-            fp = fopen(CONF_FILE, "r");
+            stat(CONF_PATH2 CONF_FILE,&stats);
+            fp = fopen(CONF_PATH2 CONF_FILE, "r");
+            if(!fp) {
             stat(CONF_FILE,&stats);
-
-        }
+            fp = fopen(CONF_FILE, "r");
+            }}
     if(fp) {
         tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
@@ -680,15 +682,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                      iPower = 0;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
-//                    if (iPower_Bat > iPower)
-// die aktuelle Batterieladeleistung liegt über der angeforderten Grenze, einbremsen
-                        //                 ControlLoadData(frameBuffer,(iBattLoad+iDiffLadeleistung),3);
-                        
+
                         {
-                        if (iPower > (iPower_Bat - int32_t(fPower_Grid)))
+                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > (iPower_Bat - int32_t(fPower_Grid))))
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
-                        {if (fPower_Grid > 100)
-// es liegt Netzbezug vor
+                        {if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
+// es liegt Netzbezug vor und System war nicht im Freilauf
                             {iPower = iPower_Bat - int32_t(fPower_Grid);
 // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
                                 if (iPower < e3dc_config.maximumLadeleistung*-1)
