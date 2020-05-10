@@ -577,9 +577,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         printf("MinLoad: %i %i ",iMinLade, iFc);
      }
             else
-                if (t > tLadezeitende) tLadezeit_alt=0;
+                if (t > tLadezeitende)
+                {tLadezeit_alt=0;
+                    iFc = e3dc_config.maximumLadeleistung;}
         //neuberechnung erzwingen
-            else iFc = 0;
+                else iFc = 0;
         //  Laden auf 100% nach 15:30
             
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
@@ -693,9 +695,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
                                 if (iPower < e3dc_config.maximumLadeleistung*-1)
                                  iPower = e3dc_config.maximumLadeleistung*-1;
-                            }}
+                            }
                             else
-                            iPower = e3dc_config.maximumLadeleistung;
+                                iPower = e3dc_config.maximumLadeleistung;}
 // Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
 // wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
 //                        if (iPower >0)
