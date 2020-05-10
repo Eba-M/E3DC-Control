@@ -414,7 +414,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if ((tE3DC % (24*3600)+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
-        sprintf(Log,"Time %s Ü:%0.04f S:%0.04f WB:%0.04f Y%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedWB/3600000,fSavedyesderday/3600000);
+        sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
         WriteLog();
         if (fSavedtoday > 0)
         {
@@ -422,9 +422,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         fp = fopen("savedtoday.txt", "a");
         if(!fp)
             fp = fopen("savedtoday.txt", "w");
-        if(fp)
-        fprintf(fp,"%s\n",Log);
-            fclose(fp);
+            if(fp){
+                fprintf(fp,"%s\n",Log);
+                fclose(fp);}
         }
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
         fSavedtotal=0; fSavedWB=0;
@@ -514,7 +514,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende = tLadezeitende - tZeitgleichung;
+    tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
+    printf("RB %2ld:%2ld ",tLadezeitende3/3600,tLadezeitende3%3600/60);
+    printf("RE %2ld:%2ld ",tLadezeitende/3600,tLadezeitende%3600/60);
+    printf("LE %2ld:%2ld\n",tLadezeitende2/3600,tLadezeitende2%3600/60);
 
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -525,7 +529,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             xSoC = e3dc_config.unload;
         if (xSoC < e3dc_config.ladeschwelle) e3dc_config.ladeschwelle = xSoC;
         if (xSoC < fBatt_SOC)
-        {tLadezeitende = tLadezeitende3 - tZeitgleichung;
+        {tLadezeitende = tLadezeitende3;
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
 // damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
             if ((fBatt_SOC-xSoC) < 0.6)
@@ -534,7 +538,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     }
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
-         tLadezeitende = tLadezeitende2 - tZeitgleichung;
+         tLadezeitende = tLadezeitende2;
          if (e3dc_config.ladeende > e3dc_config.ladeende2)
          fLadeende = e3dc_config.ladeende;
          else
@@ -682,6 +686,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                         
                         {
                         if (iPower > iPower_Bat - int32_t(fPower_Grid))
+// die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
+                        {if (fPower_Grid > 100)
+// es liegt Netzbezug vor
+                            {iPower = iPower_Bat - int32_t(fPower_Grid);
+// Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
+                                if (iPower < e3dc_config.maximumLadeleistung*-1)
+                                 iPower = e3dc_config.maximumLadeleistung*-1;
+                            }}
+                            else
                             iPower = e3dc_config.maximumLadeleistung;
 // Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
 // wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
@@ -742,7 +755,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("BattLoad %i ",iBattLoad);
     printf("iLMStatus %i ",iLMStatus);
     printf("Reserve %0.1f%%\n",fht);
-    printf("Ü %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
+    printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));
     printf(" yd %0.0004fkWh\n",(fSavedyesderday/3600000));
@@ -933,6 +946,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                                 // Bei Speicher < 94%
                 || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
                 || ((iPower_Bat-fPower_Grid < -2000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad=e3dc_config.maximumLadeleistung))
+                || ((fAvBatterie<(iFc-(e3dc_config.maximumLadeleistung-iFc))))
                 )  { // höchstens. 1500W Batterieentladen wenn voll
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
@@ -1170,7 +1184,7 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("\nRequest cyclic example data done %s\n",VERSION);
+    printf("\nRequest cyclic example data done %s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%24*3600/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
 
     return 0;
 }
