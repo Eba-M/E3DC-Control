@@ -1,3 +1,8 @@
+Version 2020.5.9.1
+
+neuer pfad für e3dc.config.txt 
+#define CONF_PATH2 "/config/E3DC/"
+
 Version 2020.5.9.0
 
 die letzte Änderung ging zu weit, sie ließ nur unload bis auf ladeende2 zu.
