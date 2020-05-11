@@ -245,27 +245,28 @@ bool CheckConfig()
 {
     struct stat stats;
     time_t  tm_dt;
-    if (stat(CONF_PATH CONF_FILE,&stats)!=0)
-    stat(CONF_FILE,&stats);
+     stat(e3dc_config.conffile,&stats);
      tm_dt = *(&stats.st_mtime);
     if (tm_dt==tm_CONF_dt)
         return false; else return true;
 }
 bool GetConfig()
 {
-        // get conf parameters
+// ermitteln location der conf-file
+    
+    // get conf parameters
+    bool fpread=false;
     struct stat stats;
     FILE *fp;
-        stat(CONF_PATH CONF_FILE,&stats);
-        fp = fopen(CONF_PATH CONF_FILE, "r");
+        fp = fopen(e3dc_config.conffile, "r");
         if(!fp) {
-            stat(CONF_PATH2 CONF_FILE,&stats);
-            fp = fopen(CONF_PATH2 CONF_FILE, "r");
+            sprintf(e3dc_config.conffile,"%s",CONF_PATH CONF_FILE);
             if(!fp) {
-            stat(CONF_FILE,&stats);
+            sprintf(e3dc_config.conffile,"%s",CONF_FILE);
             fp = fopen(CONF_FILE, "r");
             }}
     if(fp) {
+        stat(e3dc_config.conffile,&stats);
         tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
         e3dc_config.wallbox = false;
@@ -302,6 +303,7 @@ bool GetConfig()
 
 
             while (fgets(line, sizeof(line), fp)) {
+                fpread = true;
                 memset(var, 0, sizeof(var));
                 memset(value, 0, sizeof(value));
                 if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
@@ -399,8 +401,8 @@ bool GetConfig()
             fclose(fp);
         }
 
-    if (!fp) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
-    return fp;
+    if ((!fp)||not (fpread)) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
+    return fpread;
 }
 
 
@@ -1979,7 +1981,17 @@ static void mainLoop(void)
 }
 int main(int argc, char *argv[])
 {
-    static int iEC = 0;
+ for (int i=1; i < argc; i++)
+ {
+     // Ausgabe aller Parameter
+     printf(" %i %s",i,argv[i]);
+     // Auf speziellen Parameter prüfen
+     if((strcmp(argv[i], "-config") == 0)||(strcmp(argv[i], "-conf") == 0)||(strcmp(argv[i], "-c") == 0))
+     strcpy(e3dc_config.conffile, argv[i+1]);
+ }
+    
+    
+static int iEC = 0;
  time(&t);
  struct tm * ptm;
 

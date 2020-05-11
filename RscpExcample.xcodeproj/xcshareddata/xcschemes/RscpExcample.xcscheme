@@ -51,6 +51,12 @@
             ReferencedContainer = "container:RscpExcample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-config /Users/eberhardmayer/Documents/E3DC/e3dc.config.txt"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "PATH"
