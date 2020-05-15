@@ -1,3 +1,13 @@
+Version 2020.5.11.0
+
+die Änderungen aus 2020.5.9.1 wurden entfernt.
+Statt dessen ist es möglich, über einen runtimeparameter beim starten des Programmes als argument
+eine eigene configurationsdatei anzugeben. Es kann der relative oder absolute path mit angegeben werden.
+
+Beispiel:
+
+E3DC-Control -config /config/E3DC/e3dc.config.txt
+
 Version 2020.5.9.1
 
 neuer pfad für e3dc.config.txt 
