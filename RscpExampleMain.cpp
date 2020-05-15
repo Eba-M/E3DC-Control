@@ -1030,7 +1030,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         //    Power = Power*-1;
         protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
         protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
-        if (Mode > 0)
+//        if (Mode > 0)
             protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_VALUE,iE3DC_Req_Load);
         // append sub-container to root container
         protocol.appendValue(&rootValue, PMContainer);
