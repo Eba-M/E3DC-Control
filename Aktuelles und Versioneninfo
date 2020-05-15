@@ -1,3 +1,8 @@
+Version 2020.5.15.1
+
+Gelegentlich gab es Fehlermeldungen des RSCP. Diese Fehlermeldungen wurden in die Logfile verschoben, so dass sie auch 
+besser nachverfolgt werden können.
+
 Version 2020.5.11.0
 
 die Änderungen aus 2020.5.9.1 wurden entfernt.
