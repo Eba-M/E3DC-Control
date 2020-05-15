@@ -416,7 +416,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     mm = t % (3600)/60;
     ss = t % (60);
 
-    if ((tE3DC % (24*3600)+12*3600)<t) {
+    if (((tE3DC % (24*3600))+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
         sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
         WriteLog();
@@ -1197,7 +1197,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     if(response->dataType == RSCP::eTypeError) {
         // handle error for example access denied errors
         uint32_t uiErrorCode = protocol->getValueAsUInt32(response);
-        printf("Tag 0x%08X received error code %u.\n", response->tag, uiErrorCode);
+        sprintf(Log,"ERR Tag 0x%08X received error code %u.\n", response->tag, uiErrorCode);
+        WriteLog();
         return -1;
     }
 
