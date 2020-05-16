@@ -260,11 +260,9 @@ bool GetConfig()
     FILE *fp;
         fp = fopen(e3dc_config.conffile, "r");
         if(!fp) {
-            sprintf(e3dc_config.conffile,"%s",CONF_PATH CONF_FILE);
-            if(!fp) {
             sprintf(e3dc_config.conffile,"%s",CONF_FILE);
             fp = fopen(CONF_FILE, "r");
-            }}
+            }
     if(fp) {
         stat(e3dc_config.conffile,&stats);
         tm_CONF_dt = *(&stats.st_mtime);
@@ -275,7 +273,7 @@ bool GetConfig()
         e3dc_config.ext2 = false;
         e3dc_config.ext3 = false;
         e3dc_config.ext7 = false;
-        sprintf(e3dc_config.logfile,"%slogfile",CONF_PATH);
+        sprintf(e3dc_config.logfile,"logfile");
         sprintf(e3dc_config.openWBhost,"%s",OPENWB);
         e3dc_config.debug = false;
         e3dc_config.wurzelzaehler = 0;
@@ -711,12 +709,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
-                                if ((iE3DC_Req_Load == iE3DC_Req_Load_alt)&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
-                                iLMStatus = 6;
+                                if (((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
+// Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
+// und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
+// war, bleibt der Freilauf erhalten
+                                    iLMStatus = 2;
                                 else
                                 {iLMStatus = -6;
-// Wenn bereits auf Automatik geschaltet wurde, braucht eine Anforderung mit
-// maximalLadeleistung nicht wiederholt werden.
                                 sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                 WriteLog();}
                             } else
