@@ -1,3 +1,8 @@
+Version 2020.5.16.0
+
+Die DEFINITION für PATH wurde entfernt, diese wäre primär für den Entwickler vorgesehen. 
+Eine abweichende Angabe für die Konfugurationsdatei kann als runtime Parameter übergeben werden.
+
 Version 2020.5.15.1
 
 Gelegentlich gab es Fehlermeldungen des RSCP. Diese Fehlermeldungen wurden in die Logfile verschoben, so dass sie auch 
