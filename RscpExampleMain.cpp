@@ -729,7 +729,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
                                     }else
                                 iLMStatus = -6;
-                                iLastReq = 3;
+                                iLastReq = 10;
                                 sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                 WriteLog();}
                             } else
