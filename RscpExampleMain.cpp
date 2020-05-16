@@ -709,13 +709,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
+                                static bool bLastReq;
                                 if (((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
 // Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
 // und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
 // war, bleibt der Freilauf erhalten
-                                    iLMStatus = 2;
+
+                                {   iLMStatus = 2;
+                                    if (bLastReq)
+                                        sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                        WriteLog();
+                                    bLastReq = false;
+                                        }
                                 else
                                 {iLMStatus = -6;
+                                bLastReq = true;
                                 sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                 WriteLog();}
                             } else
