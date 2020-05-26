@@ -1,0 +1,248 @@
+Hier ist eine Beschreibung eines Anwenders, der die Parameter dokumentiert und erläutert hat
+
+vielen Dank an ArnoD dafür
+
+Ich habe jetzt die Beschreibung soweit fertig.
+
+Man kann natürlich das ein oder andere noch ergänzen oder genauer erklären.
+
+
+
+eba vielleicht kopierst du das ganze in deinen ersten Post hier im Forum, da die erste Seite noch aufmerksam gelesen wird, wenn jemand neu hinzukommt.
+
+
+
+server_ip =                  IP-Adresse vom E3DC. Muss sich im gleichen Netzwerk befinden.
+
+
+
+server_port =                 5033
+
+
+
+e3dc_user =                Gleicher Benutzername wie im E3DC-Portal auf der Webseite.
+
+
+
+e3dc_password = Passwort vom E3DC-Portal Webseite
+
+
+
+aes_password =           Passwort was im E3DC am Gerät eingegeben wurde,
+
+
+
+wallbox =                     true wenn man die E3DC-Wallbox mit erweiterter Funktion nutzen möchte
+
+
+
+ext1 =                             true, wenn ein externer Zähler genutzt wird
+
+
+
+ext2=                           true, wenn ein externer Zähler genutzt wird
+
+
+
+wurzelzaehler =          6= externer Wurzelzähler
+
+
+
+einspeiselimit =          maximale Einspeiseleistung bis zur Abregelung. Bei 70 % und 15kWp = 10.5 minus 0.1 kWh Abstand zum Grenzwert = 10.4 Einstellwert.
+
+
+
+wrleistung =               AC-Nennleistung des WR
+
+
+
+ladeschwelle =            Bis zu diesem SoC Wert wird sofort mit der gesamten überschüssigen PV-Leistung geladen. Erst wenn die ladeschwelle erreicht wird, wird mit dem geregelten Laden begonnen
+
+
+
+ladeende =                   SoC Wert Speicher der zum Ende des Regelzeitraum erreicht werden soll.
+
+
+
+ladeende2 =                 Parameter sommerladeende gibt die Zeit vor, bis zu der 93% erreicht werden sollten. Mit ladeende2
+kann der Wert abweichend vom Defaultwert 93% gesetzt werden. Sollte allerdings höher als ladeende
+
+sein, sonst wird sanft entladen.
+
+
+
+sommerladeende =       Zeit bis zu der der Batteriespeicher den SOC Wert im Parameter "ladeende2" erreichen soll
+
+
+
+winterminimum =          Beginn des Regelzeitraum am 21.12. GMT/UTC dezimal. Siehe Berechnung Regelzeitraum.
+
+
+
+sommermaximum =      Beginn des Regelzeitraum am 21.6. GMT/UTC dezimal. Siehe Berechnung Regelzeitraum.
+
+
+
+speichergroesse =        Speichergröße in kWh. Intern arbeitet das Programm immer nur mit dem % SoC das vom System geliefert wird. Der Parameter „speichergroesse“ dient aber der groben Abschätzung für die Ladegeschwindigkeit die zum Füllen des Speichers benötigt wird. Bei einem größeren Wert wird das laden zu Beginn etwas beschleunigen, bei kleinerem Wert verzögert. Man kann mit der Speichergröße die Ladung beeinflussen. Werden z.B 10kWh statt 13.8kWh eingetragen, wird er früher das Laden anfangen und anfänglich mit höherer Ladeleistung arbeiten und diese zum Ende hin stärker absenken.
+
+
+
+unload =                             wenn der SoC Wert der Batterie > Wert „unload“ ist, wird der Batteriespeicher mit Beginn Solarproduktion, bis Beginn Regelzeitraum (Definition und Berechnung siehe unten), auf SOC Wert Parameter "unload" entladen.
+
+Sobald die PV-Erzeugung den Hausverbrauch übersteigt und SoC < ladeschwelle ist, wird sofort mit der gesamten überschüssigen PV-Leistung geladen. Erst wenn die ladeschwelle erreicht wird, wird mit dem geregelten Laden begonnen. Danach wird bis SOC Wert „ladeende“ gleichmäßig geladen, mit Ausnahme, wenn die PV-Leistung den Parameter Wert „einspeiselimit“ übersteigt, wird die Ladeleistung um den Wert erhöht, um das Einspeiselimit einhalten zu können. Bei unterschreiten von dem Wert Einspeiselimit, wird wieder mit neu berechneter Ladeleistung, gleichmäßig bis „ladeende geladen. Bei großem Überschuss kann die gleichmäßige Ladeleistung bis auf 0 abgesenkt werden oder sogar zum entladen führen um den eingestellten Wert „ladeende“ bis zum Zeitpunkt „winterminimum“ zu erreichen.
+
+
+
+Parameter „unload" hat Vorrang vor "ladeschwelle", d.h. "ladeschwelle" wird ignoriert, falls "ladeschwelle" größer sein sollte als „unload“.
+
+
+
+minimumLadeleistung= Ab dieser Ladeleistung wird mit dem Laden der Batterie gestartet, wird diese unterschritten stoppt der Ladevorgang.
+
+
+
+maximumLadeleistung = AC-Speicher – max. Leistung Eingang in W. Maximale Leistung des Batteriewandlers. S10 mini =1500, S10E = 3000, S10E Pro = 6000 bis 12000
+
+
+
+obererLadekorridor
+
+untererLadekorridor = Der „obererLadekorridor“ und „untereLadekorridor“ definiert nur in welchem Bereich sich die gerechnete Ladeleistung bis zum Ladeende bewegen soll.
+
+
+
+htmin = Speicherreserve in % bei Wintersonnenwende 21.12
+
+
+
+htsockel = min. SOC Wert bei Tag-/Nachtgleiche 21.3./21.9.
+
+
+
+hton = Uhrzeit UTC für Freigabe Speicher entladen bis 0% SoC
+
+
+
+htoff = Uhrzeit UTC ab dieser Uhrzeit wird das entladen der Batterie gestoppt sobald der SoC den übers Jahr berechneten Mindes SoC erreicht (siehe Berechnung SoC HT weiter unten). Mit den HT Parameter kann man auch eine dynamische Notstromreserve verwirklichen, indem man bei „hton“ und „htoff“ dieselbe Zeit eingibt. Vorteil ist das der Speicher nicht alle 3 Wochen entladen wird wie bei der Notstromreserve von E3DC.
+
+
+
+htsat = Hochtarif auch am Samstag = true
+
+
+
+htsun = Hochtarif auch am Sonntag = true
+
+
+
+debug = zusätzliche debug Ausgaben in der Shell
+
+
+
+peakshave = Zurzeit ist nur reines Peakshaving realisiert, d.h. wenn man nicht mehr als z.B. 10kW Strombezug aus dem Netz haben möchte, dann speist der E3DC so viel aus, dass die 10kW Netzbezug eingehalten werden. Geregelt wird nicht nur nach dem Momentanverbrauch sondern auch nach dem 10min Average, da die Leistungsmessung-/Berechnung auf 1/4h Basis erfolgt.
+
+
+
+E3DC-Control -config /config/E3DC/e3dc.config.txt = Es ist möglich, über einen Runtime Parameter beim starten des Programmes als Argument eine eigene Konfigurationsdatei anzugeben. Es kann der relative oder absolute Path mit angegeben werden.
+
+
+
+
+
+Berechnung SoC HT: 21.12 (Wintersonnenwende) ist der Bezugs-SoC = Wert „htmin“ und wird bis zum 21.3 (Tag-/Nachtgleiche) auf Wert „htsockel“ reduziert und bis zum 20.06 (Sommersonnenwende) um ca. weitere 10% reduziert. Ab dem 20.06 (Sommersonnenwende) steigt der Bezugs-SoC wieder bis zum 21.09 (Tag-/Nachtgleiche) auf den Wert „htsockel“ und bis zum 21.12 (Wintersonnenwende) auf den Wert „htmin“. Je Monat ändert sich somit der SoC um ca. +- 3,3%
+
+
+
+Berechnung Regelzeitraum: Der Regelzeitraum wird vom Parameter "winterminimum" und „sommermaximum“ bestimmt. Die Zeiten werden in GMT dezimal eingetragen. Regelzeitbeginn und Regelzeitende werden dem Sonnenlauf entsprechend über eine Sinusfunktion errechnet.
+Beispiel:
+Heute ist der Do., 7. Mai Tag 128 + 9 Tage = 137/365*360= 135°.
+
+Der cos davon ist -0,7071. cos 0° - cos 180° = 1 - (-1) = 2. cos 137° = 1 - (-0,7071) = 1,7071
+
+winterminimum = 12,75 sommermaximum = 15, Differenz = 2,25h. 2,25h/2*1,7071 = 1,9204875h
+
+Regelzeitende = 12,75+1,92 = 14,67 = 14:40 Uhr GMT Zeit = 16:40 MESZ Zeit
+
+Regelzeitbeginn = 12,75-1,92 = 10,83 = 10:50 Uhr GMT Zeit = 12:50 MESZ Zeit
+
+
+
+
+
+Berechnung Ladeleistung:
+
+Beispiel:
+
+obererLadekorridor = 4500, untererLadekorridor = 900, maximumLadeleistung = 9000, minimumLadeleistung = 500
+
+Breite des Ladekorridors: 4500 - 900 = 3600
+
+Berechnung Faktor: 9000 / 3600 = 2.5
+
+Befindet sich der errechnete Ladewert, bei 1100W wird mit 500W begonnen zu laden, da die Ladeleistung nicht ausreicht, wird diese sich langsam erhöhen bis der errechnete Ladewert erreicht wird
+
+Rechenweg: (1100-900)*2.5= 500 W
+
+Befindet sich der errechnete Ladewert bei 1000W, würde der Ladevorgang nicht starten, da die Ladeleistung unter dem Wert „minimumLadeleistung“ liegt.
+
+Rechenweg: (1000-900)*2.5 = 250W und damit unter 500W
+
+Befindet sich der errechnete Ladewert bei 2800W, wird mit 4750W geladen und im weiteren Verlauf wieder absinken, da die Ladeleistung > Ladewert
+
+Rechenweg: (2800-900)*2.5= 4750W
+
+
+
+Legende E3DC-Control Bildschirmausgabe:
+
+Request cyclic example data done 2020.5.15.1 3:45: 0 = Letzte Aktualisierung Programmstand
+
+EMS PV 3463 add 0 # 3463 = Aktuelle PV Leistung WR1 / Aktuelle PV Leistung WR2 / Summe beider WR
+
+BAT -969 = Aktuelle Batterie Lade-Entlade Leistung
+
+home 4410 = Eigenverbrauch
+
+grid -22 = Einspeise Leistung
+
+E3DC 0 # 4410 = ?? # Eigenverbrauch
+
+Battery SOC 82.2 % 55.2 V -8.6 A = Battrie SoC, Spannung, Stromstärke
+
+#0 is -1189.0 W -606.0 W 1773.0 W # -22.0 W = Leistungswerte der 3 Phasen am internen WR & -345.3 -8.1 -10.6 -9.6 =
+
+W 230.5 V 229.9 V 228.4 V = Spannungen an den 3 Phasen
+
+DC0 1695 W 400 V 4.22 A = String1, Leistung, Spannung, Stromstärke
+
+DC1 1768 W 425 V 4.16 A = String1, Leistung, Spannung, Stromstärke
+
+RB 8: 7 = Start Regelzeitraum in GMT
+
+RE 13:46 = Ende Regelzeitraum in GMT
+
+LE 17:31 = Zeit Ladeende
+
+MinLoad: 2044 4088 = gerechnete Ladeleistung bis zum Ladeende / dynamische Ladeleistung
+
+GMT 13:46 = Uhrzeit des Ladeende auf 90% oder „ladeende2“
+
+ZG 186 = Korrektur der echten Ortszeit um +186 Sekunden
+
+E3DC Zeit: Mon May 25 12:17:21 2020 = Zeitstempel von E3DC
+
+AVBatt -1547.2 = Lade-/Entladeleistung im Mittel der letzten 2 Minuten
+
+Discharge 12000 = maximale Entladeleistung
+
+BattLoad 12000 = maximale Ladeleistung
+
+iLMStatus 5 = Zeitintervall zwischen den einzelnen Anforderungen an die E3DC Steuerung
+
+Reserve 0.0% =
+
+U 2.1275kWh = Strommenge über der 70% bzw. ohne Steuerung = 70% hart
+
+td 0.9993kWh = today saved = die 70%-weich-plus-Hausverbrauch übersteigende Produktion
+
+yd 3.8093kWh = yesterday saved
