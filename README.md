@@ -153,6 +153,7 @@ nano E3DC.sh
 // folgende kopieren
 
 #!/bin/bash
+cd /home/pi/E3DC-Control
 while true;
  do
 ./E3DC-Control
@@ -167,36 +168,18 @@ done
 
 `./E3DC.sh`
 
-// Autostartdatei erstellen
+// Eintrag in die autostart datei /etc/rc.local
 
-`sudo nano /etc/init.d/e3dcstart`
 
-``` #!/bin/bash
- ### BEGIN INIT INFO
- # Provides:          scriptname
- # Required-Start:    $remote_fs $syslog
- # Required-Stop:     $remote_fs $syslog
- # Default-Start:     2 3 4 5
- # Default-Stop:      0 1 6
- # Short-Description: Start daemon at boot time
- # Description:       Enable service provided by daemon.
- ### END INIT INFO
-echo "E3DC-Control  wird gestartet"
+sudo nano /etc/rc.local
+
+wird folgende Zeile vor dem „exit 0“ eingetragen
+
+``` 
 su  pi -c "screen -dmS E3DC /home/pi/E3DC-Control/E3DC.sh"
 
 exit 0
 ```
-
-
-
-// Skriptdatei ausführbar machen
-
-
-`sudo chmod 755 /etc/init.d/e3dcstart`
-
-// Skriptdatei in die autostart einfügen
-
-`sudo update-rc.d e3dcstart defaults`
 
 
 Richtig herunterfahren
