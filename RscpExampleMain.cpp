@@ -1024,14 +1024,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 bWBOn = true;
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 25;
+                iWBStatus = 30;
                 }
                     else WBchar6[1] = 32;
         }
-        if ((fPower_WB > 500) && not (bWBmaxLadestrom)) { // Wallbox lädt
+        if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0; 
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
-            else iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
+//            else iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
             if  ((iAvalPower>=(iWBMinimumPower/6))&&
                 (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
