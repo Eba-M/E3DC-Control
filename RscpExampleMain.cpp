@@ -20,8 +20,9 @@ static int iAuthenticated = 0;
 static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
 static int iWBStatus = 0; // Status, WB schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
 static int iLMStatus = 0; // Status, Load Management  negativer Wert in Sekunden = Anforderung + Warten bis zur nächsten Anforderung, der angeforderte Wert steht in iE3DC_Req_Load
-static float fAvBatterie;
+static float fAvBatterie,fAvBatterie900;
 static int iAvBatt_Count = 0;
+static int iAvBatt_Count900 = 0;
 static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
@@ -298,6 +299,8 @@ bool GetConfig()
         e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = -1;
+        e3dc_config.wbmode = 0;
+
 
 
             while (fgets(line, sizeof(line), fp)) {
@@ -377,6 +380,8 @@ bool GetConfig()
                         e3dc_config.ht = atoi(value);
                     else if(strcmp(var, "htsockel") == 0)
                         e3dc_config.htsockel = atoi(value);
+                    else if(strcmp(var, "wbmode") == 0)
+                        e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atof(value)*1000; //umrechnung kW in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -604,6 +609,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
     fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
+    if (iAvBatt_Count900 < 900) iAvBatt_Count900++;
+    fAvBatterie900 = fAvBatterie900*(iAvBatt_Count900-1)/iAvBatt_Count900;
+    fAvBatterie900 = fAvBatterie900 + (float(iPower_Bat)/iAvBatt_Count900);
+
     // Überschussleistung=iPower ermitteln
 
     iPower = (-iPower_Bat + int32_t(fPower_Grid) - e3dc_config.einspeiselimit*-1000)*-1;
@@ -729,7 +738,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
                                     }else
                                 iLMStatus = -6;
-                                iLastReq = 10;
+                                iLastReq = 6;
                                 sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                 WriteLog();}
                             } else
@@ -745,9 +754,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           }
     }
 // peakshaving erforderlich?
-    if ((e3dc_config.peakshave >= 0)&&(iLMStatus==1))
+    if ((e3dc_config.peakshave != 0)&&(iLMStatus==1))
     {
-        if ((fPower_Grid-iPower_Bat) > e3dc_config.peakshave)
+        if ((fPower_Grid-iPower_Bat) != e3dc_config.peakshave)
         {
             iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
             if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
@@ -758,17 +767,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
            if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
             iLMStatus = -5;
-            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
 
 }
     };
     if (iLMStatus>1) iLMStatus--;
-    printf("AVBatt   %0.1f ",fAvBatterie);
-    printf("Discharge %i ",iDischarge);
-    printf("BattLoad %i ",iBattLoad);
-    printf("iLMStatus %i ",iLMStatus);
-    printf("Reserve %0.1f%%\n",fht);
+    printf("AVB %0.1f %0.1f ",fAvBatterie,fAvBatterie900);
+    printf("DisC %i ",iDischarge);
+    printf("BattL %i ",iBattLoad);
+    printf("iLMSt %i ",iLMStatus);
+    printf("Rsv %0.1f%%\n",fht);
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));
@@ -811,12 +820,85 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int iMaxcurrent=31;
     static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
-    static int32_t iWBMinimumPower = 1300; // MinimumPower bei 6A
+    static int32_t iWBMinimumPower,iAvalPower,idynPower; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
     static bool bWBOn = false; // Wallbox eingeschaltet
+ 
 
-//    if (!bWBLademodus) // WB Steuerung nur bei Sonnenmodus
-//    return 0;
+/*
+ Die Ladeleistung der Wallbox wird nach verfügbaren PV-Überschussleistung gesteuert
+ Der WBModus gibt die Priorität der Wallbox gegenüber dem E3DC Speicher vor.
+ 
+ Der E3DC Speicher hat Priorität
+ 
+ Der angeforderte Ladeleistung des E3DC wird durch iBattLoad angezeigt.
+ der lineare Ladebedarf wird durch iMinLoad ermittelt
+ die berechnete dynamische Ladeleistung wird in iFc ermittelt.
+ ffAvBatterie und fAvBatterie900 zeigt die durchschnittliche Ladeleistung
+ der letzen 120 bzw. 900 Sekunden an.
+ 
+ WBModus = 0 KEINE STEUERUNG
+ 
+ WBModus = 1 NUR Überschuss > einspeiselimit
+
+ Der E3DC Speicher hat Priorität
+ Die Wallbox kann nur die Überschussleistung zur Verfügung gestellt werden
+ und speist sich aus der verfügbaren fPower_Grid > einspeiselimit-iWBMinimumPower.
+ 
+ WBModus = 2 NUR Überschuss
+
+ 
+ Der E3DC Speicher hat Priorität
+ Die Wallbox kann nur die Überschussleistung zur Verfügung gestellt werden
+ und speist sich aus der verfügbaren fPower_Grid > iWBMinimumPower.
+ Entspricht weitgehend dem jetzigen Verfahren.
+ 
+ der 1/4h Wert = fAvPower_Grid900 wird so geführt, dass er dem kleineren Wert von
+ MinLoad und iFC entspricht.  MinLoad und iFC sollten im unteren Bereich
+ des Ladekorridors (obererLadekorridor) geführt werden. Mit dem Ziel von MinLoad = iFc.
+ 
+ Bei SoC >= ladeende2 wird fAvPower_Grid900 so geführt, dass diese um Null pendelt.
+ Bei gridüberschuss von 100/200 oder iPower_Bat > 700 die Ladeleistung angeboben,
+ Bei iPower_Bat < -700 oder fAvPower_Grid900 < 100 wird das Laden reduziert.
+ 
+ Das Laden wird beendet bei fAvPower_Grid900 < -200.
+ Das Laden wird neu gestartet bei fAvPower_Grid900 > 100 +
+ verfügbare PV-Leistung (iPower_Bat-fPower_Grid)
+ und verfügbare Speicherleistung (e3dc_config.maximumLadeleistung -700)
+ großer als die iWBMinimumPower ist.
+ 
+ WBModus = 3
+ 
+ Der E3DC Speicher hat immer noch Priorität, untersützt aber die Wallbox stärker
+ bei temporäre Ertragsschwankungen, der E3DC-Speicher wird so geführt,
+ das immer die maximale Ladeleistung aufgenommen werden kann.
+ Damit wird aber auch hingenommen, dass unter Umständen am Abend
+ der Speicher nicht voll wird.
+ der 1/4h Wert = fAvPower_Grid900 wird so geführt, dass er dem kleineren Wert von
+ MinLoad und iFC nahe kommt dabei sollte iBattload immer dem
+ e3dc_config.maximumLadeleistung entsprechen. MinLoad und iFC sollten im oberen Bereich
+ des Ladekorridors (obererLadekorridor) geführt werden.
+ 
+ 
+ Zielparameter: fAvPower_Grid900 = 2*Minload - obererLadekorridor und
+                fAvPower_Grid    = 2*iFc - e3dc_config.maximumLadeleistung
+ 
+ Dies wird wie folgt erreicht:
+ 
+ Die Ladeleistung wird angehoben, wenn iBattload unter e3dc_config.maximumLadeleistung
+ fällt oder fAvPower_Grid > 2*iFc - e3dc_config.maximumLadeleistung steigt
+ 
+ dabei wird auch in Kauf genommen, dass die Batterie zeitweise entladen wird.
+ 
+ WBModus = 4
+ 
+ Hier bekommt die Wallbox die Priorität, der Speicher wird bis auf Ladeschwelle entladen, aber der Bezug aus dem Netz wird vermieden.
+ 
+ Die Laden wird gestartet sobald verfügbare PV-Leistung (iPower_Bat-fPower_Grid)
+ und verfügbare Speicherleistung (e3dc_config.maximumLadeleistung -700)
+ großer als die iWBMinimumPower ist.
+ Das Laden wird beendet bei Gridbezug > 100/200 und bei der Unterschreitung der Ladeschwelle.
+ */
 
     if (iWBStatus == 0)  {
 
@@ -845,16 +927,72 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            createRequestWBData(frameBuffer);
     }
     
-    if (iWBStatus == 1) {
+    if ((iWBStatus == 1)&&(e3dc_config.wbmode>0))
+    {
+        int iRefload;
+        if (iMinLade>iFc) iRefload = iFc;
+        else iRefload = iMinLade;
+        switch (e3dc_config.wbmode)
+        {
+            case 1:
+              iAvalPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
+              iAvalPower = iAvalPower+iPower_Bat+iWBMinimumPower;
+              if (iAvalPower < (iWBMinimumPower+fPower_WB)*-1) iAvalPower = -20000;
+//            wenn nicht abgeregelt werden muss, abschalten
+              break;
+            case 2:
+                // Wenn Überschuss dann Laden starten
+                
+                if (-fAvPower_Grid > iWBMinimumPower)
+// Netzüberschuss  größer Startleistung WB
+                 iAvalPower = -fAvPower_Grid;
+                else
+                if (fBatt_SOC > 10)
+// Mindestladestand Erreicht
+                {
+// Überschuss Netz
+                if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
+                  {if ((fPower_Grid > (iWBMinimumPower/6)))
+                         iAvalPower = -fPower_Grid;
+                     else
+                        (iAvalPower = iWBMinimumPower/6);
+                  }
+                 else
+// Überschussleistung verfügbar?
+                 { if ((iBattLoad - iPower_Bat) > (iWBMinimumPower/6))
+                     iAvalPower = iBattLoad - iPower_Bat;
+                 }
+                }
+              break;
+            case 3:
+                iAvalPower = iPower_Bat-fPower_Grid*2;
+                idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
+//                idynPower = idynPower- iRefload;
+// Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
+/*                if (idynPower > e3dc_config.maximumLadeleistung*0.9)
+                    idynPower = e3dc_config.maximumLadeleistung*0.9;
+                if (idynPower < e3dc_config.maximumLadeleistung*-0.9)
+                    idynPower = e3dc_config.maximumLadeleistung*-0.9;
+*/                iAvalPower = iAvalPower + idynPower;
+                break;
+            case 4:
+              iAvalPower = iPower_Bat-fPower_Grid*2;
+              idynPower = ((e3dc_config.obererLadekorridor - iRefload)*2 + (fAvBatterie900+fAvBatterie)/2);
+              iAvalPower = iAvalPower + idynPower;
+              break;
+        }
+        
         if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
-            if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) { //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
+            if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
+//Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
             if ((WBchar6[1]<32)&&(fBatt_SOC>(cMinimumladestand+2))) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
-        }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))  // Immer von 6A aus starten
+        }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))
+// Immer von 6A aus starten
 { // Wallbox lädt nicht
     if ((not bWBmaxLadestrom)&&(not bWBOn))
     { WBchar6[1] = 6;
@@ -872,73 +1010,50 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if ((fPower_WB == 0)&&(iWBStatus==1)&&bWBLademodus) {
             iDyLadeende = cMinimumladestand;
         }
-                if ( (fPower_WB == 0) &&bWBLademodus &&
-               ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1-2000))
-             ||(
-                ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1))&&(fBatt_SOC>cMinimumladestand) )
-             ||
-                 ( ((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1)+1800)&&(fBatt_SOC>cMinimumladestand)&&                 ((fAvBatterie>iFc)||(fBatt_SOC>94)) ) // größer Mindesladeschwellex
-             ||
-                 ((fAvPower_Grid< -500)&&((fPower_Grid - iPower_Bat)< (iWBMinimumPower*-1)+1800)&&(fBatt_SOC>=iDyLadeende))
-
-                )
-             )
+// Ermitteln Startbedingungen zum Ladestart der Wallbox
+        if ( (fPower_WB == 0) &&bWBLademodus && (iAvalPower>iWBMinimumPower))
 //            && (WBchar6[1] != 6)  // Immer von 6A aus starten
-            ) { // Wallbox lädt nicht
+             { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
-                { WBchar6[1] = 6;
-                    int x1,x2;
-                    for (x1=1;x1<=33;x1++) {};
-
+                {
+                WBchar6[1] = 6;
                 WBchar6[4] = 1; // Laden starten
                 if (not bWBOn)
                 createRequestWBData(frameBuffer);
                 bWBOn = true;
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 20;
+                iWBStatus = 25;
                 }
                     else WBchar6[1] = 32;
         }
-        if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
+        if ((fPower_WB > 500) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0; 
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
-            if (((fPower_Grid< -200)&&(fAvPower_Grid < -100)) && ((iPower_Bat > iMinLade)||(iPower_Bat >= iBattLoad)) && (WBchar6[1]<iMaxcurrent)){
+            else iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
+            if  ((iAvalPower>=(iWBMinimumPower/6))&&
+                (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -10*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -9*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -8*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -7*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -6*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                if ((fPower_Grid-iPower_Bat < -5*700) && (iPower_Bat >= 0)&& (WBchar6[1]<iMaxcurrent)) WBchar6[1]++;
-                    createRequestWBData(frameBuffer);
+                for (int X1 = 3; X1 < 20; X1++)
+                    
+                if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
+                    
+                createRequestWBData(frameBuffer);
 //                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
                     iWBStatus = 12;
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
 
-             }
-            if (
-                 ((iPower_Bat-fPower_Grid < -2600)&&(WBchar6[1] > 6)) ||
-                 ((iPower_Bat-fPower_Grid < -2000)&&(fAvBatterie<-1000)&&(WBchar6[1] > 6)) ||
-                 ((iPower_Bat < 2000) && (iPower_Bat+400 < iBattLoad) &&(fBatt_SOC < cMinimumladestand)&&(WBchar6[1] > 6)) ||
-//                ((fBatt_SOC < e3dc_config.ladeende)&&
-                ((((fBatt_SOC < e3dc_config.ladeende)&&(iPower_Bat<(2000)))||
-                ((fBatt_SOC >= e3dc_config.ladeende)&&(fBatt_SOC < 93)&&
-                 (iPower_Bat<(1500))))&&
-                  ((iPower_Bat+800)<iBattLoad)&&
-                  ((iPower_Bat+400)<iFc)&&
-//                   ((iPower_Bat)<iMinLade)&&
-                  ((fAvBatterie+200)<iFc)&&
-//                  ((fAvBatterie)<iMinLade)&&
-                  (WBchar6[1]>6))
-                 ) { // Mind. 2000W Batterieladen
+             } else
+
+// Prüfen Herabsetzung Ladeleistung
+            if ((WBchar6[1] > 6)&&(iAvalPower<=(iWBMinimumPower/6*-1)))
+                  { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
-                for (int X1 = 3; X1 < 20; X1++)
-                    if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--; else break;
+                for (int X1 = 2; X1 < 20; X1++)
+                    if ((iAvalPower <= (iWBMinimumPower/6*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
                 
-                if (WBchar6[1]==31) WBchar6[1]--;;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
 //                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
@@ -950,25 +1065,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 
             if (
-                   ((iPower_Bat-fPower_Grid < -2700)&&(fBatt_SOC < 94))
+                ((iPower_Bat-fPower_Grid < (300-e3dc_config.maximumLadeleistung))&&(fBatt_SOC < 94))
                 || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
-                || ((iPower_Bat-fPower_Grid < -2000)&&(fBatt_SOC < iDyLadeende-1)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -1500)&&(fBatt_SOC < iDyLadeende-1.5)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -1000)&&(fBatt_SOC < iDyLadeende-2)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -500)&&(fBatt_SOC < iDyLadeende-2.5)&&(iBattLoad>0))
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
-                || ((iPower_Bat-fPower_Grid < -1500)&&(fAvBatterie<-1000)&&(fBatt_SOC < 94)&&(iBattLoad>0))
-                || ((iPower_Bat-fPower_Grid < -2000)&&((fAvBatterie<(iFc-400))||(fAvBatterie<0))&&(fBatt_SOC < 94)&&(iBattLoad=e3dc_config.maximumLadeleistung))
-                || ((fAvBatterie<(iFc-(e3dc_config.maximumLadeleistung-iFc))))
-                )  { // höchstens. 1500W Batterieentladen wenn voll
+                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
+                || (iAvalPower < e3dc_config.maximumLadeleistung*0.9*-1)
+                )  {
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
-
-                    for (int X1 = 3; X1 < 20; X1++)
-                        if (((iPower_Bat-fPower_Grid) < (iBattLoad-700*X1))&& (WBchar6[1]>6)) WBchar6[1]--;
-                        else break;
-
 
                     if (WBchar6[1]!=WBchar[2]){
                         if (WBchar6[1]==5) {(WBchar6[1]=6);
@@ -983,7 +1088,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }
-        printf("\nPower %0i DyLadeende %0.01f ",iWBMinimumPower, iDyLadeende);
+        printf("\nAVal %0i Power %0i DyLadeende %0.01f ", iAvalPower,iWBMinimumPower, iDyLadeende);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
@@ -1136,7 +1241,7 @@ if (e3dc_config.ext7)
         protocol.destroyValueData(PMContainer);
 
         
-        // request Power Inverter information
+        // request Power Inverter information DC
         SRscpValue PVIContainer;
         protocol.createContainerValue(&PVIContainer, TAG_PVI_REQ_DATA);
         protocol.appendValue(&PVIContainer, TAG_PVI_INDEX, (uint8_t)0);
@@ -1152,7 +1257,26 @@ if (e3dc_config.ext7)
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PVIContainer);
 
-        
+        // request Power Inverter information AC
+
+        protocol.createContainerValue(&PVIContainer, TAG_PVI_REQ_DATA);
+        protocol.appendValue(&PVIContainer, TAG_PVI_INDEX, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_POWER, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_VOLTAGE, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_CURRENT, (uint8_t)0);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_POWER, (uint8_t)1);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_VOLTAGE, (uint8_t)1);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_CURRENT, (uint8_t)1);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_POWER, (uint8_t)2);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_VOLTAGE, (uint8_t)2);
+        protocol.appendValue(&PVIContainer, TAG_PVI_REQ_AC_CURRENT, (uint8_t)2);
+
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, PVIContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(PVIContainer);
+
+
         // request Wallbox information
 
         SRscpValue WBContainer;
@@ -1432,6 +1556,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         }
         case TAG_PVI_DATA: {        // resposne for TAG_PVI_REQ_DATA
             uint8_t ucPVIIndex = 0;
+            float fGesPower = 0;
             std::vector<SRscpValue> PVIData = protocol->getValueAsContainer(response);
             for(size_t i = 0; i < PVIData.size(); ++i) {
                 if(PVIData[i].dataType == RSCP::eTypeError) {
@@ -1507,6 +1632,70 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         protocol->destroyValueData(container);
                         break;
                     }
+                                        case TAG_PVI_AC_POWER:
+                                        {
+                                            int index = -1;
+                                            std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                                            for (size_t n = 0; n < container.size(); n++)
+                                            {
+                                                if (container[n].tag == TAG_PVI_INDEX)
+                                                {
+                                                    index = protocol->getValueAsUInt16(&container[n]);
+                                                }
+                                                else if (container[n].tag == TAG_PVI_VALUE)
+                                                {
+                                                    float fPower = protocol->getValueAsFloat32(&container[n]);
+                                                    if (index == 0) printf("\n");
+                                                    fGesPower = fGesPower + fPower;
+                                                    printf("AC%u %0.0fW", index, fPower);
+
+                                                }
+                                            }
+                                            protocol->destroyValueData(container);
+                                            break;
+                                        }
+                                        case TAG_PVI_AC_VOLTAGE:
+                                        {
+                                            int index = -1;
+                                            std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                                            for (size_t n = 0; n < container.size(); n++)
+                                            {
+                                                if (container[n].tag == TAG_PVI_INDEX)
+                                                {
+                                                    index = protocol->getValueAsUInt16(&container[n]);
+                                                }
+                                                else if (container[n].tag == TAG_PVI_VALUE)
+                                                {
+                                                    float fPower = protocol->getValueAsFloat32(&container[n]);
+                                                    printf(" %0.0fV", fPower);
+                                                    
+                                                }
+                                            }
+                                            protocol->destroyValueData(container);
+                                            break;
+                                        }
+                                        case TAG_PVI_AC_CURRENT:
+                                        {
+                                            int index = -1;
+                                            std::vector<SRscpValue> container = protocol->getValueAsContainer(&PVIData[i]);
+                                            for (size_t n = 0; n < container.size(); n++)
+                                            {
+                                                if (container[n].tag == TAG_PVI_INDEX)
+                                                {
+                                                    index = protocol->getValueAsUInt16(&container[n]);
+                                                }
+                                                else if (container[n].tag == TAG_PVI_VALUE)
+                                                {
+                                                    float fPower = protocol->getValueAsFloat32(&container[n]);
+                    //                                printf(" %0.2f A \n", fPower);
+                                                    printf(" %0.2fA ", fPower);
+                                                    if (index == 2) printf(" AC# %0.1fW",fGesPower);
+
+                                                }
+                                            }
+                                            protocol->destroyValueData(container);
+                                            break;
+                                        }
                         // ...
                     default:
                         // default behaviour
