@@ -585,8 +585,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
      }
             else
  
-                    iFc = e3dc_config.maximumLadeleistung;
-
+            {                    iFc = e3dc_config.maximumLadeleistung;
+                                 iMinLade =  iFc = e3dc_config.maximumLadeleistung;
+            }
         //  Laden auf 100% nach 15:30
             
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
