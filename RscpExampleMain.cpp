@@ -589,7 +589,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           if (abs(iFc) > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
           if (abs(iFc) < e3dc_config.minimumLadeleistung) iFc = 0;
       }
-        printf("MinLoad: %i %i ",iMinLade, iFc);
      }
             else
  
@@ -597,10 +596,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                     iMinLade =  e3dc_config.obererLadekorridor;
             }
         //  Laden auf 100% nach 15:30
-            
+            if (iMinLade == iMinLade2)
+                printf("ML1 %i RQ %i ",iMinLade,iFc);
+            else
+                printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
         
-    printf("E3DC Zeit: %s", asctime(ts));
+    printf("E3DC: %s", asctime(ts));
 
     
     int iPower = 0;
@@ -936,7 +938,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            createRequestWBData(frameBuffer);
     }
     
-    if ((iWBStatus == 1)&&(e3dc_config.wbmode>0))
+    if (e3dc_config.wbmode>0)
     {
         int iRefload;
         if (iMinLade>iFc) iRefload = iFc;
@@ -991,8 +993,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               iAvalPower = iAvalPower + idynPower;
               break;
         }
-        
-        if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
+        if (iWBStatus == 1)
+        {
+            if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid))
+                  iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
+            if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB))
+                iAvalPower = e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB;
+
+            if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
             if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
 //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
             if ((WBchar6[1]<32)&&(fBatt_SOC>(cMinimumladestand+2))) {
@@ -1097,7 +1105,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
-        }
+        }}
         printf("\nAVal %0i Power %0i DyLadeende %0.01f ", iAvalPower,iWBMinimumPower, iDyLadeende);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
