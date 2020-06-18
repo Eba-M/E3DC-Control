@@ -48,7 +48,7 @@ static int32_t iBattLoad;
 static int iPowerBalance,iPowerHome;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC;
-static int32_t iFc, iMinLade; // Mindestladeladeleistung des E3DC Speichers
+static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
@@ -551,6 +551,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
          else
          fLadeende = e3dc_config.ladeende2;
      }
+    if (t < tLadezeitende2)
+    // Berechnen der linearen Ladeleistung bis tLadezeitende2 = Sommerladeende
+    iMinLade2 = ((e3dc_config.ladeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
+    else
+        if (e3dc_config.ladeende2 <= fBatt_SOC) iMinLade2 = 0;
+        else iMinLade2 = e3dc_config.obererLadekorridor;
     
     if (t < tLadezeitende)
     {
@@ -562,7 +568,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           bCheckConfig=false;
           tLadezeitende_alt = tLadezeitende; // Auswertungsperiode
           tLadezeit_alt=t; // alle 300sec Berechnen
-        
+
+// Berechnen der Ladeleistung bis zum nächstliegenden Zeitpunkt
+                
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
@@ -585,8 +593,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
      }
             else
  
-            {                    iFc = e3dc_config.maximumLadeleistung;
-                                 iMinLade =  iFc = e3dc_config.maximumLadeleistung;
+            {       iFc = e3dc_config.maximumLadeleistung;
+                    iMinLade =  e3dc_config.obererLadekorridor;
             }
         //  Laden auf 100% nach 15:30
             
@@ -652,7 +660,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         
             if (iPower<iFc)
             {   iPower = iFc;
-                if ((iPower>0)&&(iPower > fAvBatterie)) iPower = iPower + pow((iPower-fAvBatterie),2)/20;
+                if ((iPower>0)&&(iPower > fAvBatterie900)) iPower = iPower + pow((iPower-fAvBatterie900),2)/20;
 // Nur wenn positive Werte angefordert werden, wird dynamisiert
                 if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
                 
@@ -977,7 +985,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */                iAvalPower = iAvalPower + idynPower;
                 break;
             case 4:
-              iAvalPower = iPower_Bat-fPower_Grid*2;
+              if (iRefload>iMinLade2) iRefload = iMinLade2;
+              iAvalPower = iPower_Bat-fPower_Grid*2-iRefload;
               idynPower = ((e3dc_config.obererLadekorridor - iRefload)*2 + (fAvBatterie900+fAvBatterie)/2);
               iAvalPower = iAvalPower + idynPower;
               break;
