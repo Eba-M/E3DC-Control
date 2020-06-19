@@ -994,12 +994,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               break;
         }
 
-        if (iAvalPowerCount < 10) iAvalPowerCount++;
-        iAvalPower = iAvalPower*(iAvBatt_Count-1)/iAvBatt_Count;
+        if (iAvalPowerCount < 3) iAvalPowerCount++;
+        iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
         iAvalPower = iAvalPower + iPower/iAvalPowerCount;
 
-        if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid))
-              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
+        if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
+              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB))
             iAvalPower = e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB;
 
@@ -1056,7 +1056,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0; 
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
-//            else iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
+            else if (iWBMinimumPower == 0 )
+                     iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
             if  ((iAvalPower>=(iWBMinimumPower/6))&&
                 (WBchar6[1]<iMaxcurrent)){
                 WBchar6[1]++;
