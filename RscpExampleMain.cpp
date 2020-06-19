@@ -831,7 +831,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int iMaxcurrent=31;
     static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
-    static int32_t iWBMinimumPower,iAvalPower,idynPower; // MinimumPower bei 6A
+    static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
     static bool bWBOn = false; // Wallbox eingeschaltet
  
@@ -940,15 +940,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     
     if (e3dc_config.wbmode>0)
     {
-        int iRefload;
+        int iRefload,iPower;
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
         switch (e3dc_config.wbmode)
         {
             case 1:
-              iAvalPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
-              iAvalPower = iAvalPower+iPower_Bat+iWBMinimumPower;
-              if (iAvalPower < (iWBMinimumPower+fPower_WB)*-1) iAvalPower = -20000;
+              iPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
+              iPower = iPower+iPower_Bat+iWBMinimumPower;
+              if (iPower < (iWBMinimumPower+fPower_WB)*-1) iPower = -20000;
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
             case 2:
@@ -956,7 +956,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 if (-fAvPower_Grid > iWBMinimumPower)
 // Netzüberschuss  größer Startleistung WB
-                 iAvalPower = -fAvPower_Grid;
+                 iPower = -fAvPower_Grid;
                 else
                 if (fBatt_SOC > 10)
 // Mindestladestand Erreicht
@@ -964,19 +964,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Überschuss Netz
                 if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
                   {if ((fPower_Grid > (iWBMinimumPower/6)))
-                         iAvalPower = -fPower_Grid;
+                         iPower = -fPower_Grid;
                      else
-                        (iAvalPower = iWBMinimumPower/6);
+                        (iPower = iWBMinimumPower/6);
                   }
                  else
 // Überschussleistung verfügbar?
                  { if ((iBattLoad - iPower_Bat) > (iWBMinimumPower/6))
-                     iAvalPower = iBattLoad - iPower_Bat;
+                     iPower = iBattLoad - iPower_Bat;
                  }
                 }
               break;
             case 3:
-                iAvalPower = iPower_Bat-fPower_Grid*2-iRefload;
+                iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 //                idynPower = idynPower- iRefload;
 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
@@ -984,22 +984,30 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     idynPower = e3dc_config.maximumLadeleistung*0.9;
                 if (idynPower < e3dc_config.maximumLadeleistung*-0.9)
                     idynPower = e3dc_config.maximumLadeleistung*-0.9;
-*/                iAvalPower = iAvalPower + idynPower;
+*/                iPower = iPower + idynPower;
                 break;
             case 4:
               if (iRefload>iMinLade2) iRefload = iMinLade2;
-              iAvalPower = iPower_Bat-fPower_Grid*2-iRefload;
+              iPower = iPower_Bat-fPower_Grid*2-iRefload;
               idynPower = ((e3dc_config.obererLadekorridor - iRefload)*2 + (fAvBatterie900+fAvBatterie)/2);
-              iAvalPower = iAvalPower + idynPower;
+              iPower = iPower + idynPower;
               break;
         }
+
+        if (iAvalPowerCount < 10) iAvalPowerCount++;
+        iAvalPower = iAvalPower*(iAvBatt_Count-1)/iAvBatt_Count;
+        iAvalPower = iAvalPower + iPower/iAvalPowerCount;
+
+        if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid))
+              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
+        if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB))
+            iAvalPower = e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB;
+
+        
         if (iWBStatus == 1)
         {
-            if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid))
-                  iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
-            if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB))
-                iAvalPower = e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB;
 
+            
             if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
             if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
 //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
