@@ -300,7 +300,7 @@ bool GetConfig()
         e3dc_config.hton = 0;
         e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
-        e3dc_config.peakshave = -1;
+        e3dc_config.peakshave = 0;
         e3dc_config.wbmode = 0;
 
 
@@ -385,7 +385,7 @@ bool GetConfig()
                     else if(strcmp(var, "wbmode") == 0)
                         e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "peakshave") == 0)
-                        e3dc_config.peakshave = atof(value)*1000; //umrechnung kW in Watt
+                        e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
                         e3dc_config.hton = atof(value)*3600; // in Sekunden
                     else if(strcmp(var, "htoff") == 0)
@@ -779,6 +779,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
            if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
+            if (iE3DC_Req_Load > 0) iE3DC_Req_Load = 0;
+// Keine Laden aus dem Netz zulassen
             iLMStatus = -7;
             sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
