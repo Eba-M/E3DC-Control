@@ -20,6 +20,8 @@ static int iAuthenticated = 0;
 static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
 static int iWBStatus = 0; // Status, WB schon mal angefragt, 0 inaktiv, 1 aktiv, 2 regeln
 static int iLMStatus = 0; // Status, Load Management  negativer Wert in Sekunden = Anforderung + Warten bis zur nächsten Anforderung, der angeforderte Wert steht in iE3DC_Req_Load
+static int iLMStatus2 = 0; // Status, Load Management  Peakshaving > 0 ist aktiv
+
 static float fAvBatterie,fAvBatterie900;
 static int iAvBatt_Count = 0;
 static int iAvBatt_Count900 = 0;
@@ -765,7 +767,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           }
     }
 // peakshaving erforderlich?
-    if ((e3dc_config.peakshave != 0)&&(iLMStatus==1))
+    if ((e3dc_config.peakshave != 0)&&(iLMStatus==2))
     {
         if ((fPower_Grid-iPower_Bat) != e3dc_config.peakshave)
         {
@@ -777,7 +779,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
            if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
-            iLMStatus = -5;
+            iLMStatus = -7;
             sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
 
@@ -987,9 +989,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */                iPower = iPower + idynPower;
                 break;
             case 4:
-              if (iRefload>iMinLade2) iRefload = iMinLade2;
+// Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
+              iRefload = iMinLade2;
               iPower = iPower_Bat-fPower_Grid*2-iRefload;
-              idynPower = ((e3dc_config.obererLadekorridor - iRefload)*2 + (fAvBatterie900+fAvBatterie)/2);
+              idynPower = ((fAvBatterie900+fAvBatterie)/2-iRefload)*3;
               iPower = iPower + idynPower;
               break;
         }
@@ -1020,9 +1023,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))
 // Immer von 6A aus starten
 { // Wallbox lädt nicht
-    if ((not bWBmaxLadestrom)&&(not bWBOn))
+    if ((not bWBmaxLadestrom))
     { WBchar6[1] = 6;
-      WBchar6[4] = 1; // Laden automatisch starten
+      if (bWBOn)
+          WBchar6[4] = 0; // Laden automatisch starten
+      else;
+          WBchar6[4] = 1; // Laden automatisch starten
         bWBOn = true;
         createRequestWBData(frameBuffer);
         WBchar6[4] = 0; // toggle aus
