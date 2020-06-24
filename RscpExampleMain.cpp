@@ -1738,7 +1738,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
                     //                                printf(" %0.2f A \n", fPower);
                                                     printf(" %0.2fA ", fPower);
-                                                    if (index == 2) printf(" AC# %0.1fW",fGesPower);
+                                                    if (index == 2) printf(" AC# %0.0fW",fGesPower);
 
                                                 }
                                             }
