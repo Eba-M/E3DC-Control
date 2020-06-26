@@ -1011,6 +1011,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               iPower = iPower + idynPower;
                 
               break;
+            case 5:
+            // Der Leitwert ist iMinLade2 und sollte dem Mittelwert
+            // des Ladekorridors entprechen
+            //    entsprechen
+                          if (iRefload > iMinLade2) iRefload = iMinLade2;
+                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
+                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
+                iPower = iPower + idynPower;
+                idynPower = ((e3dc_config.untererLadekorridor+e3dc_config.obererLadekorridor)/2-iRefload)*2;
+                iPower = iPower + idynPower;
+                            
+                          break;
         }
 
         if (iAvalPowerCount < 3) iAvalPowerCount++;
