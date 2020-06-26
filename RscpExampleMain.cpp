@@ -1012,6 +1012,22 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
               break;
             case 5:
+            // Der Leitwert ist iMinLade2 und sollte dem Gleichgewichtswert
+            // des Ladekorridors entprechen
+
+                if (iRefload > iMinLade2) iRefload = iMinLade2;
+                    iPower = iPower_Bat-fPower_Grid*3-iRefload;
+                    idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                    idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
+                    iPower = iPower + idynPower;
+// Gleichgewichtswert
+
+                idynPower = e3dc_config.untererLadekorridor+e3dc_config.untererLadekorridor/(e3dc_config.maximumLadeleistung / (e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor)-1);
+                idynPower = (idynPower-iRefload)*2;
+                iPower = iPower + idynPower;
+                            
+                          break;
+            case 6:
             // Der Leitwert ist iMinLade2 und sollte dem Mittelwert
             // des Ladekorridors entprechen
             //    entsprechen
@@ -1021,6 +1037,34 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                 iPower = iPower + idynPower;
                 idynPower = ((e3dc_config.untererLadekorridor+e3dc_config.obererLadekorridor)/2-iRefload)*2;
+                iPower = iPower + idynPower;
+                            
+                          break;
+            case 7:
+            // Der Leitwert ist iMinLade2 und sollte dem oberen Wert
+            // des Ladekorridors entprechen
+            //    entsprechen
+                          if (iRefload > iMinLade2) iRefload = iMinLade2;
+                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
+                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
+                iPower = iPower + idynPower;
+// Berechnung Leitwert
+                idynPower = ((e3dc_config.untererLadekorridor+2*e3dc_config.obererLadekorridor)/3-iRefload)*2.5;
+                iPower = iPower + idynPower;
+                            
+                          break;
+            case 8:
+            // Der Leitwert ist iMinLade2 und sollte dem oberen Wert
+            // des Ladekorridors entprechen
+            //    entsprechen
+                          if (iRefload > iMinLade2) iRefload = iMinLade2;
+                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
+                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
+                iPower = iPower + idynPower;
+                // Berechnung Leitwert
+                idynPower = (e3dc_config.obererLadekorridor-iRefload)*3;
                 iPower = iPower + idynPower;
                             
                           break;
