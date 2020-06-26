@@ -968,7 +968,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               break;
             case 2:
                 // Wenn Überschuss dann Laden starten
-                
+                iPower = 0;
                 if (-fAvPower_Grid > iWBMinimumPower)
 // Netzüberschuss  größer Startleistung WB
                  iPower = -fAvPower_Grid;
@@ -995,17 +995,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 //                idynPower = idynPower- iRefload;
 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
-/*                if (idynPower > e3dc_config.maximumLadeleistung*0.9)
-                    idynPower = e3dc_config.maximumLadeleistung*0.9;
-                if (idynPower < e3dc_config.maximumLadeleistung*-0.9)
-                    idynPower = e3dc_config.maximumLadeleistung*-0.9;
-*/                iPower = iPower + idynPower;
+                iPower = iPower + idynPower;
                 break;
             case 4:
 // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
               if (iRefload > iMinLade2) iRefload = iMinLade2;
               iPower = iPower_Bat-fPower_Grid*3-iRefload;
-//              idynPower = ((fAvBatterie900+fAvBatterie)/2-iRefload)*3;
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
               iPower = iPower + idynPower;
