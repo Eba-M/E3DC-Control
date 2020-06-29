@@ -1423,7 +1423,7 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("\nRequest cyclic example data done %s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+    printf("\nRequest cyclic example data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
 
     return 0;
 }
@@ -1457,7 +1457,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     }
     case TAG_EMS_POWER_PV: {    // response for TAG_EMS_REQ_POWER_PV
         int32_t iPower = protocol->getValueAsInt32(response);
-        printf("EMS PV %i", iPower);
+        printf("\nEMS PV %i", iPower);
         iPower_PV = iPower;
         iPower_PV_E3DC = iPower;
         break;
@@ -1790,7 +1790,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
                     //                                printf(" %0.2f A \n", fPower);
                                                     printf(" %0.2fA ", fPower);
-                                                    if (index == 2) printf(" AC# %0.0fW",fGesPower);
+                                                    if (index == 2) printf(" # %0.0fW",fGesPower);
 
                                                 }
                                             }
