@@ -962,8 +962,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         {
             case 1:
               iPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
-              iPower = iPower+iPower_Bat+iWBMinimumPower;
-              if (iPower < (iWBMinimumPower+fPower_WB)*-1) iPower = -20000;
+              iPower = iPower+iPower_Bat-iRefload;
+              if ((iPower+iWBMinimumPower) < (fPower_WB)*-1) iPower = -20000;
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
             case 2:
@@ -985,8 +985,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                   }
                  else
 // Überschussleistung verfügbar?
-                 { if ((iBattLoad - iPower_Bat) > (iWBMinimumPower/6))
-                     iPower = iBattLoad - iPower_Bat;
+                 { if (abs(iPower_Bat-iBattLoad) > (iWBMinimumPower/6))
+                     iPower = iPower_Bat-iBattLoad;
                  }
                 }
               break;
@@ -1088,7 +1088,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
-        }     else if ((!bWBLademodus)&& (WBchar6[1] > 6)&&(fPower_WB == 0))
+        }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0))
 // Immer von 6A aus starten
 { // Wallbox lädt nicht
     if ((not bWBmaxLadestrom))
