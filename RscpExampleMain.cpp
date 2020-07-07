@@ -962,7 +962,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         {
             case 1:
               iPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
-              iPower = iPower+iPower_Bat-iRefload;
+              iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower-fPower_WB;
               if ((iPower+iWBMinimumPower) < (fPower_WB)*-1) iPower = -20000;
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
