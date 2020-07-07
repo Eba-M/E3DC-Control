@@ -1117,8 +1117,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
                 WBchar6[1] = 6;
-                WBchar6[4] = 1; // Laden starten
                 if (not bWBOn)
+                WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
                 bWBOn = true;
                 WBchar6[4] = 0; // Toggle aus
@@ -1176,12 +1176,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {if ((WBchar6[1] > 5)&&bWBLademodus)
                     WBchar6[1]--;
 
-                    if (WBchar6[1]!=WBchar[2]){
                         if (WBchar6[1]==5) {(WBchar6[1]=6);
                             WBchar6[4] = 1;
                             bWBOn = false;
                         } // Laden beenden
-                        createRequestWBData(frameBuffer);}
+                        createRequestWBData(frameBuffer);
                     WBChar_alt = WBchar6[1];
                     if (WBchar6[4] == 0)
                         iWBStatus = 7; else // Warten bis Neustart
