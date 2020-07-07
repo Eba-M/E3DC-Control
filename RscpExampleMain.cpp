@@ -1128,7 +1128,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     else WBchar6[1] = 32;
         }
         if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
-            bWBOn = true; WBchar6[4] = 0; 
+            bWBOn = true; WBchar6[4] = 0;
+            WBchar6[1] = WBchar[2];
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
             else if (iWBMinimumPower == 0 )
                      iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
@@ -1165,23 +1166,25 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //
                 
                 
-            if (
+            if ((fPower_WB>100)&&(
                 ((iPower_Bat-fPower_Grid < (300-e3dc_config.maximumLadeleistung))&&(fBatt_SOC < 94))
                 || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
                 || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
                 || (iAvalPower < e3dc_config.maximumLadeleistung*0.9*-1)
-                )  {
-                {if ((WBchar6[1] > 5)&&bWBLademodus)
-                    WBchar6[1]--;
+                ))  {
+                if ((WBchar6[1] > 5)&&bWBLademodus)
+                {WBchar6[1]--;
 
                         if (WBchar6[1]==5) {(WBchar6[1]=6);
                             WBchar6[4] = 1;
                             bWBOn = false;
                         } // Laden beenden
                         createRequestWBData(frameBuffer);
+                    WBchar6[1]=5;
                     WBChar_alt = WBchar6[1];
+                    
                     if (WBchar6[4] == 0)
                         iWBStatus = 7; else // Warten bis Neustart
                         iWBStatus = 20;  // Warten bis Neustart
