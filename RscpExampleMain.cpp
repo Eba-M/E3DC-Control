@@ -1191,7 +1191,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }}
-        printf("\nAVal %0i Power %0i DyLadeende %0.01f ", iAvalPower,iWBMinimumPower, iDyLadeende);
+    printf("\nAVal %0i Power %0i WBMode %0i DyLadeende %0.01f ", iAvalPower,iWBMinimumPower, e3dc_config.wbmode, iDyLadeende);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
