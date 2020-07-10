@@ -1132,7 +1132,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }
                     else WBchar6[1] = 32;
         }
-        if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
+            if ((fPower_WB < 100) && not (bWBmaxLadestrom))  // Wallbox startet
+               iWBStatus = 30;  // warten mit der Steuerung
+            if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
