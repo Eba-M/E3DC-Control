@@ -1116,16 +1116,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if (not bWBOn)
-                {
-                WBchar6[1] = 6;
-                WBchar6[4] = 1; // Laden starten
-                createRequestWBData(frameBuffer);
-                bWBOn = true;
-                }
-                WBchar6[4] = 0; // Toggle aus
-                WBChar_alt = WBchar6[1];
-                iWBStatus = 30;
+                if ((not bWBOn)||(WBchar6[1] != 6))
+                    {
+                        WBchar6[1] = 6;
+                        if (not bWBOn)
+                        {
+                            WBchar6[4] = 1; // Laden starten
+                            bWBOn = true;
+                        }
+                        createRequestWBData(frameBuffer);
+                        WBchar6[4] = 0; // Toggle aus
+                        WBChar_alt = WBchar6[1];
+                        iWBStatus = 30;
+                    }
                 }
                     else WBchar6[1] = 32;
         }
