@@ -1090,21 +1090,21 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0))
 // Immer von 6A aus starten
-{ // Wallbox lädt nicht
+/*{ // Wallbox lädt nicht
     if ((not bWBmaxLadestrom))
     { WBchar6[1] = 6;
       if (bWBOn)
           WBchar6[4] = 0; // Laden automatisch starten
-      else;
+      else
           WBchar6[4] = 1; // Laden automatisch starten
         bWBOn = true;
         createRequestWBData(frameBuffer);
         WBchar6[4] = 0; // toggle aus
-        iWBStatus = 7;
+        iWBStatus = 10;
     }
     else WBchar6[1] = 32;
 }
-
+*/
         
         if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
         if ((fPower_WB == 0)&&(iWBStatus==1)&&bWBLademodus) {
@@ -1116,11 +1116,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                WBchar6[1] = 6;
                 if (not bWBOn)
+                {
+                WBchar6[1] = 6;
                 WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
                 bWBOn = true;
+                }
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 30;
@@ -1131,7 +1133,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
             if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
-            else if (iWBMinimumPower == 0 )
+            else
+                if ((iWBMinimumPower == 0) ||
+                    (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
                      iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
             if  ((iAvalPower>=(iWBMinimumPower/6))&&
                 (WBchar6[1]<iMaxcurrent)){
@@ -1177,7 +1181,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
                 {WBchar6[1]--;
 
-                        if (WBchar6[1]==5) {(WBchar6[1]=6);
+                        if (WBchar6[1]==5) {
+                            WBchar6[1]=6;
                             WBchar6[4] = 1;
                             bWBOn = false;
                         } // Laden beenden
@@ -1397,8 +1402,12 @@ if (e3dc_config.ext7)
         protocol.createContainerValue(&WBContainer, TAG_WB_REQ_DATA);
         protocol.appendValue(&WBContainer, TAG_WB_INDEX, (uint8_t)0);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_MODE);
+//        protocol.appendValue(&WBContainer, TAG_WB_REQ_MODE);
+//        protocol.appendValue(&WBContainer, TAG_WB_REQ_STATUS);
+
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
+//        protocol.appendValue(&WBContainer, TAG_WB_REQ_EXTERN_DATA_ALG);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L1);
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L2);
@@ -1937,6 +1946,13 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                 case TAG_WB_EXTERN_DATA: {              // response for TAG_RSP_PARAM_1
 //                                    printf(" WB EXTERN_DATA\n");
                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
+//                                    printf(" WB EXTERN_DATA\n");
+/*                                    printf("\n");
+                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
+                                        printf("%02X", WBchar[x]);
+                                    printf("\n");
+*/
+                                    
                                     bWBLademodus = (WBchar[0]&1);
                                     WBchar6[0]=WBchar[0];
                                     printf(" \n");
@@ -1978,15 +1994,17 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     // ...
                     default:
                         // default behaviour
-/*                        printf("Unknown WB tag %08X", PMData[i].tag);
+                        printf("Unknown WB tag %08X", PMData[i].tag);
                         printf(" datatype %08X", PMData[i].dataType);
                         printf(" length %02X", PMData[i].length);
-                        printf(" data %02X", PMData[i].data[0]);
-                        printf("%02X", PMData[i].data[1]);
-                        printf("%02X", PMData[i].data[2]);
-                        printf("%02X\n", PMData[i].data[3]);
+                        printf(" data ");
+                        uint8_t PMchar[PMData[i].length];
+                        memcpy(&PMchar,&PMData[i].data[0],(PMData[i].length));
+                        for(size_t x = 0; x < PMData[i].length; ++x)
+                            printf("%02X", PMchar[x]);
+                        printf("\n");
                         sleep(1);
-  */                      break;
+                    break;
                 }
             }
             protocol->destroyValueData(PMData);
