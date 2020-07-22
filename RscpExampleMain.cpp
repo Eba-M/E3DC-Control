@@ -955,7 +955,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     
     if (e3dc_config.wbmode>0)
     {
-        int iRefload,iPower;
+        int iRefload,iPower=0;
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
 // Speicher nur bis 5% entladen
@@ -1063,7 +1063,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 // Berechnung Leitwert
                 idynPower = (e3dc_config.obererLadekorridor-iRefload)*4;
                 iPower = iPower + idynPower;
-                            
+            case 9:
+                iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
+
                           break;
         }
 
@@ -1166,11 +1168,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              } else
 
 // Prüfen Herabsetzung Ladeleistung
-            if ((WBchar6[1] > 6)&&(iAvalPower<=(iWBMinimumPower/6*-1)))
+            if ((WBchar6[1] > 6)&&(iAvalPower<=((iWBMinimumPower/6)*-1)))
                   { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
                 for (int X1 = 2; X1 < 20; X1++)
-                    if ((iAvalPower <= (iWBMinimumPower/6*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
+                    if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
                 
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
@@ -1183,12 +1185,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 
             if ((fPower_WB>100)&&(
-                ((iPower_Bat-fPower_Grid < (300-e3dc_config.maximumLadeleistung))&&(fBatt_SOC < 94))
+                                  ((iPower_Bat-fPower_Grid < (e3dc_config.maximumLadeleistung*-0.9))&&(fBatt_SOC < 94))
                 || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
-                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-                || (iAvalPower < e3dc_config.maximumLadeleistung*0.9*-1)
+//                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
+//                || (iAvalPower < e3dc_config.maximumLadeleistung*0.9*-1)
+                || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
                 {WBchar6[1]--;
