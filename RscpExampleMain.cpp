@@ -958,8 +958,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         int iRefload,iPower=0;
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
-// Speicher nur bis 5% entladen
-        if (fBatt_SOC < 5) iRefload = e3dc_config.maximumLadeleistung;
         switch (e3dc_config.wbmode)
         {
             case 1:
@@ -1019,7 +1017,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower + idynPower;
 // Gleichgewichtswert
 
-                idynPower = e3dc_config.untererLadekorridor+e3dc_config.untererLadekorridor/(e3dc_config.maximumLadeleistung / (e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor)-1);
+                idynPower = e3dc_config.untererLadekorridor+float(e3dc_config.untererLadekorridor)/(float(e3dc_config.maximumLadeleistung) / (e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor)-1);
                 idynPower = (idynPower-iRefload)*4;
                 iPower = iPower + idynPower;
                             
@@ -1047,7 +1045,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                 iPower = iPower + idynPower;
 // Berechnung Leitwert
-                idynPower = ((e3dc_config.untererLadekorridor+2*e3dc_config.obererLadekorridor)/3-iRefload)*4;
+                idynPower = (float(e3dc_config.untererLadekorridor+2*e3dc_config.obererLadekorridor)/3-iRefload)*4;
                 iPower = iPower + idynPower;
                             
                           break;
@@ -1063,23 +1061,29 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 // Berechnung Leitwert
                 idynPower = (e3dc_config.obererLadekorridor-iRefload)*4;
                 iPower = iPower + idynPower;
+                break;
             case 9:
-                iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
+                iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
         }
 
 // im Sonnenmodus nur bei PV-Produktion regeln
         
-        if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100)
-            iAvalPower = 0;
         
         if (iAvalPowerCount < 3) iAvalPowerCount++;
         iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
         iAvalPower = iAvalPower + iPower/iAvalPowerCount;
 
+        if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100)
+            iAvalPower = 0;
+
+        
         if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
               iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
+        // Speicher nur bis 5-7% entladen
+        if (fBatt_SOC < 8) iAvalPower = iPower_Bat-fPower_Grid;
+        if (fBatt_SOC < 7) iAvalPower = iPower_Bat-fPower_Grid - iWBMinimumPower/6;
         if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB))
             iAvalPower = e3dc_config.maximumLadeleistung*-0.9-iPower_Bat-fPower_WB;
 
