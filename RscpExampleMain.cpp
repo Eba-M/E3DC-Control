@@ -532,6 +532,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     float_t xSoC;
+// Testcode
+    xSoC = (1+cos((ts->tm_yday+9)*2*3.14/365))*(100-e3dc_config.unload)/2+e3dc_config.unload;
+
+// Testcodeende
+    
     if (t < tLadezeitende3) {
         if (cos((ts->tm_yday+9)*2*3.14/365)>0) xSoC = cos((ts->tm_yday+9)*2*3.14/365)*100+e3dc_config.unload;
         else
@@ -1146,7 +1151,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     else WBchar6[1] = 32;
         }
             if ((fPower_WB < 100) && not (bWBmaxLadestrom))  // Wallbox startet
-               iWBStatus = 12;  // warten mit der Steuerung
+               iWBStatus = 32;  // warten mit der Steuerung
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
@@ -1194,7 +1199,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
 //                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-//                || (iAvalPower < e3dc_config.maximumLadeleistung*0.9*-1)
+                || (iAvalPower < (e3dc_config.maximumLadeleistung*0.9+fPower_Grid)*-1)
                 || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
