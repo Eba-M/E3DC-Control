@@ -1199,7 +1199,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
 //                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-                || (iAvalPower < (e3dc_config.maximumLadeleistung*0.9+fPower_Grid)*-1)
+                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
                 || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
