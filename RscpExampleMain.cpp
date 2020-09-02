@@ -1214,8 +1214,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1]=5;
                     WBChar_alt = WBchar6[1];
                     
-                    if (WBchar6[4] == 0)
-                        iWBStatus = 7; else // Warten bis Neustart
+                    if ((WBchar6[4] == 0) || (WBchar6[1] == 6))
+                        iWBStatus = 7; else // Warten bis Neustart oder bei 6A
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
