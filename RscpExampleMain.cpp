@@ -682,7 +682,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-        if (e3dc_config.wallbox&&((tE3DC-tWBtime)<900))     // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
+        if (e3dc_config.wallbox&&((tE3DC-tWBtime)<900)&&((tE3DC-tWBtime)>5))     // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
