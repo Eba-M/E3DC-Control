@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "2020.9.2.0" //Wallbox branch
+#define VERSION "2020.9.16.0" //Wallbox branch
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -45,7 +45,7 @@ typedef struct {
     char openWBhost[128];
     bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload;
-    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode;
+    int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
     hton, htoff, htsockel;
     

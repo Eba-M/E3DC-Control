@@ -49,7 +49,7 @@ static uint8_t iCyc_WB;
 static int32_t iBattLoad;
 static int iPowerBalance,iPowerHome;
 static uint8_t iNotstrom = 0;
-static time_t tE3DC;
+static time_t tE3DC, tWBtime;
 static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
@@ -301,7 +301,8 @@ bool GetConfig()
         e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = 0;
-        e3dc_config.wbmode = 0;
+        e3dc_config.wbmode = 4;
+        e3dc_config.wbminlade = 1000;
 
 
 
@@ -384,6 +385,8 @@ bool GetConfig()
                         e3dc_config.htsockel = atoi(value);
                     else if(strcmp(var, "wbmode") == 0)
                         e3dc_config.wbmode = atoi(value);
+                    else if(strcmp(var, "wbminlade") == 0)
+                        e3dc_config.wbminlade = atoi(value);
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -679,9 +682,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-/*        if (e3dc_config.wallbox&&(WBchar6[1]==5))     // Wenn Wallbox vorhanden und Laden ausgeschaltet
+        if (e3dc_config.wallbox&&((tE3DC-tWBtime)<900))     // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
-*/
+
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
     if (iLMStatus == 1)
@@ -907,11 +910,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  der Speicher nicht voll wird.
  der 1/4h Wert = fAvPower_Grid900 wird so geführt, dass er dem kleineren Wert von
  MinLoad und iFC nahe kommt dabei sollte iBattload immer dem
- e3dc_config.maximumLadeleistung entsprechen. MinLoad und iFC sollten im oberen Bereich
- des Ladekorridors (obererLadekorridor) geführt werden.
+ e3dc_config.maximumLadeleistung entsprechen. MinLoad und iFC < WBminlade
  
  
- Zielparameter: fAvPower_Grid900 = 2*Minload - obererLadekorridor und
+ Zielparameter: fAvPower_Grid900 = 2*Minload - WBminlade und
                 fAvPower_Grid    = 2*iFc - e3dc_config.maximumLadeleistung
  
  Dies wird wie folgt erreicht:
@@ -1011,8 +1013,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               iPower = iPower + idynPower;
                 
               break;
-            case 5:
-            // Der Leitwert ist iMinLade2 und sollte dem Gleichgewichtswert
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+
+            // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
 
                 if (iRefload > iMinLade2) iRefload = iMinLade2;
@@ -1020,53 +1026,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                     idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                     iPower = iPower + idynPower;
-// Gleichgewichtswert
+// WBminlade
 
-                idynPower = e3dc_config.untererLadekorridor+float(e3dc_config.untererLadekorridor)/(float(e3dc_config.maximumLadeleistung) / (e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor)-1);
-                idynPower = (idynPower-iRefload)*4;
+                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
                 iPower = iPower + idynPower;
                             
                           break;
-            case 6:
-            // Der Leitwert ist iMinLade2 und sollte dem Mittelwert
-            // des Ladekorridors entprechen
-            //    entsprechen
-                          if (iRefload > iMinLade2) iRefload = iMinLade2;
-                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
-                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
-                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-                iPower = iPower + idynPower;
-                idynPower = ((e3dc_config.untererLadekorridor+e3dc_config.obererLadekorridor)/2-iRefload)*4;
-                iPower = iPower + idynPower;
-                            
-                          break;
-            case 7:
-            // Der Leitwert ist iMinLade2 und sollte dem oberen Wert
-            // des Ladekorridors entprechen
-            //    entsprechen
-                          if (iRefload > iMinLade2) iRefload = iMinLade2;
-                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
-                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
-                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-                iPower = iPower + idynPower;
-// Berechnung Leitwert
-                idynPower = (float(e3dc_config.untererLadekorridor+2*e3dc_config.obererLadekorridor)/3-iRefload)*4;
-                iPower = iPower + idynPower;
-                            
-                          break;
-            case 8:
-            // Der Leitwert ist iMinLade2 und sollte dem oberen Wert
-            // des Ladekorridors entprechen
-            //    entsprechen
-                          if (iRefload > iMinLade2) iRefload = iMinLade2;
-                          iPower = iPower_Bat-fPower_Grid*3-iRefload;
-                          idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
-                            idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-                iPower = iPower + idynPower;
-                // Berechnung Leitwert
-                idynPower = (e3dc_config.obererLadekorridor-iRefload)*4;
-                iPower = iPower + idynPower;
-                break;
             case 9:
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
@@ -1152,6 +1117,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
             if ((fPower_WB < 100) && not (bWBmaxLadestrom))  // Wallbox startet
                iWBStatus = 32;  // warten mit der Steuerung
+            if (fPower_WB > 0) tWBtime = tE3DC; // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
