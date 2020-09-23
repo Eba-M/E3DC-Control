@@ -1224,6 +1224,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_PV);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_ADD);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_BAT);
+        protocol.appendValue(&rootValue, TAG_EMS_REQ_BAT_SOC);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_HOME);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_GRID);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_EMERGENCY_POWER_STATUS);
@@ -1469,6 +1470,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         printf(" BAT %i", iPower_Bat);
         break;
     }
+    case TAG_EMS_BAT_SOC: {              // response for TAG_BAT_REQ_RSOC
+        fBatt_SOC = protocol->getValueAsUChar8(response);
+//        printf("Battery SOC %0.1f %% ", fBatt_SOC);
+        break;
+    }
     case TAG_EMS_POWER_HOME: {    // response for TAG_EMS_REQ_POWER_HOME
         int32_t iPower2 = protocol->getValueAsInt32(response);
         printf(" home %i", iPower2);
@@ -1528,7 +1534,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 break;
             }
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
-                fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
+//                fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
                 printf("Battery SOC %0.1f %% ", fBatt_SOC);
                 break;
             }
