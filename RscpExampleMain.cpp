@@ -1534,7 +1534,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 break;
             }
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
-//                fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
+                if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
+                fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
                 printf("Battery SOC %0.1f %% ", fBatt_SOC);
                 break;
             }
