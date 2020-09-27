@@ -1,3 +1,26 @@
+Version 2020.9.23.0
+
+Steuerung Wallbox
+
+neue Parameter
+
+wbmode = 5
+wbminlade = 1000
+
+0  keine Steuerung
+1  nur laden starten, wenn sonst abgeregelt werden muss
+2  Laden nur aus reinem Überschuss
+3  Laden, aber mit Priorität Hausspeicher
+4  Leitwert ist wbminlade d.h. Hausspeicher wird nur verzögert aber bevorzugt geladen
+5..8  Leitwert ist wbminlade 
+mit  wbmode wird die Priorität der Wallbox eingestellt.
+bei 5 wird sachte gesteuert, die bestehende Speicherreserve wird kaum angefasst.
+bei 8 wird der Speicher soweit genutzt wie es die Einhaltungen wbminlade erlaubt .
+
+9 Die Wallbox hat Priorität und nutzt auch den Speicher um eine möglichst hohe Ladeleistung ohne Netzbezug zu ermöglichen. Dabei kann auch der Hausspeicher ganz entladen werden. 
+Also nur sinnvoll, wenn man weiß, das nach Autoladeende noch ausreichend Zeit besteht, dass sich der Hausspeicher wieder füllen kann. 
+
+
 Version 2020.5.16.0
 
 Die DEFINITION für PATH wurde entfernt, diese wäre primär für den Entwickler vorgesehen. 
