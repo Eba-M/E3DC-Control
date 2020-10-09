@@ -10,11 +10,16 @@
 #include "AES.h"
 #include <time.h>
 #include "E3DC_CONF.h"
+//#include "MQTTClient.h"
+//#include "json.hpp"
+
+// for convenience
+// using json = nlohmann::json;
 
 #define AES_KEY_SIZE        32
 #define AES_BLOCK_SIZE      32
 
-
+// json j;
 static int iSocket = -1;
 static int iAuthenticated = 0;
 static int iBattPowerStatus = 0; // Status, ob schon mal angefragt,
@@ -458,6 +463,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     }
    
     float fLadeende = e3dc_config.ladeende;
+    float fLadeende2 = e3dc_config.ladeende2;
+    if (cos((ts->tm_yday+9)*2*3.14/365) > 0)
+    {
+    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende)+fLadeende;
+    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
+    }
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
@@ -556,16 +567,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
          tLadezeitende = tLadezeitende2;
-         if (e3dc_config.ladeende > e3dc_config.ladeende2)
-         fLadeende = e3dc_config.ladeende;
-         else
-         fLadeende = e3dc_config.ladeende2;
+         if (fLadeende < fLadeende2)
+         fLadeende = fLadeende2;
+
      }
     if (t < tLadezeitende2)
     // Berechnen der linearen Ladeleistung bis tLadezeitende2 = Sommerladeende
-    iMinLade2 = ((e3dc_config.ladeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
+    iMinLade2 = ((fLadeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
     else
-        if (e3dc_config.ladeende2 <= fBatt_SOC) iMinLade2 = 0;
+        if (fLadeende2 <= fBatt_SOC) iMinLade2 = 0;
         else iMinLade2 = e3dc_config.obererLadekorridor;
     
     if (t < tLadezeitende)
