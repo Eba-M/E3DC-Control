@@ -552,7 +552,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         {tLadezeitende = tLadezeitende3;
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
 // damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
-            if ((fBatt_SOC-fLadeende3) < 0.6)
+            if (abs(fBatt_SOC-fLadeende3) < 0.6)
                 fLadeende = fBatt_SOC; else
             fLadeende = fLadeende3;}
     }
