@@ -549,13 +549,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     if (t < tLadezeitende3) {
-        {tLadezeitende = tLadezeitende3;
+//            tLadezeitende = tLadezeitende3;
+// Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
 // damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
-            if (abs(fBatt_SOC-fLadeende3) < 0.6)
+        if ((fBatt_SOC-fLadeende3) > 0){
+          if ((fBatt_SOC-fLadeende3) < 0.6)
                 fLadeende = fBatt_SOC; else
-            fLadeende = fLadeende3;}
-    }
+// Es wird bis tLadezeitende3 auf fLadeende3 entladen
+                fLadeende = fLadeende3;
+            tLadezeitende = tLadezeitende3;}
+                }
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
          tLadezeitende = tLadezeitende2;
