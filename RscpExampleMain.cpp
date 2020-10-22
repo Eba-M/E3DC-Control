@@ -59,6 +59,9 @@ static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Spei
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
+static bool bWBConnect; // True = Dose ist verriegelt
+static bool bWBCharge; // True Laden ist gestartet
+static bool bWBSonne;  // Sonnenmodus
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
@@ -1405,7 +1408,7 @@ if (e3dc_config.ext7)
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
-//        protocol.appendValue(&WBContainer, TAG_WB_REQ_EXTERN_DATA_ALG);
+        protocol.appendValue(&WBContainer, TAG_WB_REQ_EXTERN_DATA_ALG);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L1);
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L2);
@@ -1960,8 +1963,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     bWBLademodus = (WBchar[0]&1);
                                     WBchar6[0]=WBchar[0];
                                     printf(" \n");
-                                    if (bWBLademodus) printf("Sonnenmodus: ");
-                                    printf("MODUS ist %u",WBchar[0]);
+                                    if (bWBLademodus) printf("Sonne: "); else printf("Netz: ");
+                                    if (bWBConnect) {printf(" Dose verriegelt");
+                                        if (bWBCharge) printf(" lädt"); else printf(" ladebereit");
+                                    };
                                     printf(" Ladestromstärke ist %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
@@ -1971,6 +1976,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     }
                                     break;
                                 }
+                                    
                                 case TAG_WB_EXTERN_DATA_LEN: {              // response for TAG_RSP_PARAM_1
                                     uint8_t iLen = protocol->getValueAsUChar8(&WBData[i]);
 
@@ -1984,6 +1990,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     printf("Unknown WB tag %08X", WBData[i].tag);
                                     printf(" datatype %08X", WBData[i].dataType);
                             }
+                            
 /*                                    printf(" length %02X", WBData[i].length);
                                     printf(" data %02X", WBData[i].data[0]);
                                     printf("%02X", WBData[i].data[1]);
@@ -1995,6 +2002,61 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         break;
 
                     }
+                    case (TAG_WB_EXTERN_DATA_ALG): {              // response for TAG_RSP_PARAM_1
+
+                         std::vector<SRscpValue> WBData = protocol->getValueAsContainer(&PMData[i]);
+
+                         for(size_t i = 0; i < WBData.size(); ++i) {
+                             if(WBData[i].dataType == RSCP::eTypeError) {
+                                 // handle error for example access denied errors
+                                 uint32_t uiErrorCode = protocol->getValueAsUInt32(&WBData[i]);
+                                 printf("Tag 0x%08X received error code %u.\n", WBData[i].tag, uiErrorCode);
+                                 return -1;
+                             }
+                             // check each PM sub tag
+                             switch(WBData[i].tag) {
+                                 case TAG_WB_EXTERN_DATA: {              // response for TAG_RSP_PARAM_1
+                                     char WBchar[8];
+                                     memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
+                                     bWBConnect = (WBchar[2]&8);
+                                     bWBCharge = (WBchar[2]&16);
+                                     bWBSonne = (WBchar[2]&128);
+                                     printf(" WB ALG EXTERN_DATA\n");
+                                     printf("\n");
+                                     for(size_t x = 0; x < sizeof(WBchar); ++x)
+                                     { uint8_t y;
+                                         y=WBchar[x];
+                                         printf(" %02X", y);
+                                     } printf("\n");
+                                    break;
+                                 }
+                                     
+                                 case TAG_WB_EXTERN_DATA_LEN: {              // response for TAG_RSP_PARAM_1
+                                     uint8_t iLen = protocol->getValueAsUChar8(&WBData[i]);
+
+ //                                    printf(" WB EXTERN_DATA_LEN %u\n",iLen);
+                                     break;
+                                     
+                                 }
+
+                                 default:
+
+                                     printf("Unknown WB tag %08X", WBData[i].tag);
+                                     printf(" datatype %08X", WBData[i].dataType);
+                             }
+                             
+ /*                                    printf(" length %02X", WBData[i].length);
+                                     printf(" data %02X", WBData[i].data[0]);
+                                     printf("%02X", WBData[i].data[1]);
+                                     printf("%02X", WBData[i].data[2]);
+                                     printf("%02X\n", WBData[i].data[3]);
+ */                        }
+                        
+                             protocol->destroyValueData(WBData);
+                         break;
+
+                     }
+
                     // ...
                     default:
                         // default behaviour
