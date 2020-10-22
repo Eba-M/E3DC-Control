@@ -2021,14 +2021,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                      bWBConnect = (WBchar[2]&8);
                                      bWBCharge = (WBchar[2]&16);
                                      bWBSonne = (WBchar[2]&128);
-                                     printf(" WB ALG EXTERN_DATA\n");
+/*                                     printf(" WB ALG EXTERN_DATA\n");
                                      printf("\n");
                                      for(size_t x = 0; x < sizeof(WBchar); ++x)
                                      { uint8_t y;
                                          y=WBchar[x];
                                          printf(" %02X", y);
                                      } printf("\n");
-                                    break;
+ */                                    break;
                                  }
                                      
                                  case TAG_WB_EXTERN_DATA_LEN: {              // response for TAG_RSP_PARAM_1

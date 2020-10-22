@@ -17,7 +17,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2277"
             endingLineNumber = "2277"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "receiveLoop(bStopExecution)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -119,7 +119,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2328"
             endingLineNumber = "2328"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -170,7 +170,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2361"
             endingLineNumber = "2361"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -187,7 +187,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2335"
             endingLineNumber = "2335"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -204,7 +204,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2362"
             endingLineNumber = "2362"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -374,7 +374,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2170"
             endingLineNumber = "2170"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -391,7 +391,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2172"
             endingLineNumber = "2172"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -544,7 +544,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2178"
             endingLineNumber = "2178"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -561,7 +561,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2182"
             endingLineNumber = "2182"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "processReceiveBuffer(ucBuffer, iLength)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -578,7 +578,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2269"
             endingLineNumber = "2269"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "receiveLoop(bStopExecution)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -612,7 +612,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2356"
             endingLineNumber = "2356"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -629,7 +629,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2364"
             endingLineNumber = "2364"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1411,7 +1411,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2338"
             endingLineNumber = "2338"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1445,7 +1445,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2333"
             endingLineNumber = "2333"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1734,7 +1734,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2331"
             endingLineNumber = "2331"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1830,7 +1830,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2403"
             endingLineNumber = "2403"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1862,7 +1862,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2407"
             endingLineNumber = "2407"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2262,7 +2262,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2374"
             endingLineNumber = "2374"
-            landmarkName = "handleResponseValue(protocol, response)"
+            landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
