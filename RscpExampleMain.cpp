@@ -58,6 +58,7 @@ static time_t tE3DC, tWBtime;
 static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
+char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBConnect; // True = Dose ist verriegelt
 static bool bWBCharge; // True Laden ist gestartet
@@ -944,14 +945,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iWBStatus == 0)  {
 
-        iDyLadeende = e3dc_config.ladeschwelle;
-        iFc = 0;
-//        iBattLoad = 100;
-        
-        if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
-
-        
-        
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
 
@@ -969,7 +962,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            createRequestWBData(frameBuffer);
     }
     
-    if (e3dc_config.wbmode>0)
+    if ((e3dc_config.wbmode>0)&&bWBConnect) // Dose verriegelt, bereit zum Laden
     {
         int iRefload,iPower=0;
         if (iMinLade>iFc) iRefload = iFc;
@@ -1083,33 +1076,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0))
 // Immer von 6A aus starten
-/*{ // Wallbox lädt nicht
-    if ((not bWBmaxLadestrom))
-    { WBchar6[1] = 6;
-      if (bWBOn)
-          WBchar6[4] = 0; // Laden automatisch starten
-      else
-          WBchar6[4] = 1; // Laden automatisch starten
-        bWBOn = true;
-        createRequestWBData(frameBuffer);
-        WBchar6[4] = 0; // toggle aus
-        iWBStatus = 10;
-    }
-    else WBchar6[1] = 32;
-}
-*/
         
-        if (fBatt_SOC > iDyLadeende) iDyLadeende = fBatt_SOC;
-        if ((fPower_WB == 0)&&(iWBStatus==1)&&bWBLademodus) {
-            iDyLadeende = cMinimumladestand;
-        }
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
         if ( (fPower_WB == 0) &&bWBLademodus && (iAvalPower>iWBMinimumPower))
 //            && (WBchar6[1] != 6)  // Immer von 6A aus starten
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if ((not bWBOn)||(WBchar6[1] != 6))
+                if ((not bWBOn)||(WBchar6[1] != 6)||(not bWBCharge))
                     {
                         WBchar6[1] = 6;
                         if (not bWBOn)
@@ -1123,10 +1097,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iWBStatus = 30;
                     }
                 }
-                    else WBchar6[1] = 32;
+                    else WBchar6[1] = 2;
         }
-            if ((fPower_WB < 100) && not (bWBmaxLadestrom))  // Wallbox startet
-               iWBStatus = 32;  // warten mit der Steuerung
             if (fPower_WB > 0) tWBtime = tE3DC; // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
@@ -1962,12 +1934,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     
                                     bWBLademodus = (WBchar[0]&1);
                                     WBchar6[0]=WBchar[0];
-                                    printf(" \n");
-                                    if (bWBLademodus) printf("Sonne: "); else printf("Netz: ");
+                                    printf(" \nWB: Modus %02X ",cWBALG);
+                                    if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
                                     if (bWBConnect) {printf(" Dose verriegelt");
                                         if (bWBCharge) printf(" lädt"); else printf(" ladebereit");
                                     };
-                                    printf(" Ladestromstärke ist %uA ",WBchar[2]);
+                                    printf(" Ladestromstärke %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
                                     }
@@ -2018,6 +1990,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                  case TAG_WB_EXTERN_DATA: {              // response for TAG_RSP_PARAM_1
                                      char WBchar[8];
                                      memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
+                                     cWBALG = WBchar[2];
                                      bWBConnect = (WBchar[2]&8);
                                      bWBCharge = (WBchar[2]&16);
                                      bWBSonne = (WBchar[2]&128);
