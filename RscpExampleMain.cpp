@@ -1074,7 +1074,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 7; }
         }
-        }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0))
+            }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
 // Immer von 6A aus starten
         
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
