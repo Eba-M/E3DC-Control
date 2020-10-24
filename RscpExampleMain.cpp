@@ -962,7 +962,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            createRequestWBData(frameBuffer);
     }
     
-    if ((e3dc_config.wbmode>0)&&bWBConnect) // Dose verriegelt, bereit zum Laden
+    if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
         int iRefload,iPower=0;
         if (iMinLade>iFc) iRefload = iFc;
@@ -1061,7 +1061,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_WB;
 
         
-        if (iWBStatus == 1)
+        if ((iWBStatus == 1)&&(bWBConnect))
         {
 
             
@@ -1168,7 +1168,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }}
-    printf("\nAVal %0i Power %0i WBMode %0i DyLadeende %0.01f ", iAvalPower,iWBMinimumPower, e3dc_config.wbmode, iDyLadeende);
+    printf("\nAVal %0i Power %0i WBMode %0i ", iAvalPower,iWBMinimumPower, e3dc_config.wbmode);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
@@ -1934,7 +1934,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     
                                     bWBLademodus = (WBchar[0]&1);
                                     WBchar6[0]=WBchar[0];
-                                    printf(" \nWB: Modus %02X ",cWBALG);
+                                    printf(" \nWB: Modus %02X ",uint8_t(cWBALG));
+                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
+                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
                                     if (bWBConnect) {printf(" Dose verriegelt");
                                         if (bWBCharge) printf(" lädt"); else printf(" ladebereit");
