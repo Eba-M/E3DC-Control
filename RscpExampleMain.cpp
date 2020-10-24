@@ -1086,7 +1086,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((not bWBOn)||(WBchar6[1] != 6)||(not bWBCharge))
                     {
                         WBchar6[1] = 6;
-                        if (not bWBOn)
+                        if ((not bWBOn)||(not bWBCharge))
                         {
                             WBchar6[4] = 1; // Laden starten
                             bWBOn = true;
