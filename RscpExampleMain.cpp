@@ -576,7 +576,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     iMinLade2 = ((fLadeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
     else
         if (fLadeende2 <= fBatt_SOC) iMinLade2 = 0;
-        else iMinLade2 = e3dc_config.obererLadekorridor;
+        else iMinLade2 = e3dc_config.maximumLadeleistung;
     
     if (t < tLadezeitende)
     {
@@ -613,7 +613,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             else
  
             {       iFc = e3dc_config.maximumLadeleistung;
-                    iMinLade =  e3dc_config.obererLadekorridor;
+                    iMinLade =  e3dc_config.maximumLadeleistung;
             }
         //  Laden auf 100% nach 15:30
             if (iMinLade == iMinLade2)
