@@ -1057,8 +1057,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         // Speicher nur bis 5-7% entladen
         if (fBatt_SOC < 7) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid - iWBMinimumPower/6;
         else if (fBatt_SOC < 8) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
-        if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_WB))
-            iAvalPower = e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_WB;
+        if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9+iPower_Bat))
+            iAvalPower = e3dc_config.maximumLadeleistung*-0.9+iPower_Bat;
 
         
         if ((iWBStatus == 1)&&(bWBConnect))
