@@ -1939,7 +1939,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
                                     if (bWBConnect) {printf(" Dose verriegelt");
-                                        if (bWBCharge) printf(" lädt"); else printf(" ladebereit");
+                                        if (bWBCharge) printf(" lädt"); else
+                                            if (cWBALG&64) printf(" gestoppt");
+                                            else
+                                            printf(" ladebereit");
                                     };
                                     printf(" Ladestromstärke %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
@@ -2014,10 +2017,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                      
                                  }
 
-                                 default:
+//                                 default:
 
-                                     printf("Unknown WB tag %08X", WBData[i].tag);
-                                     printf(" datatype %08X", WBData[i].dataType);
+//                                     printf("Unknown WB tag %08X", WBData[i].tag);
+//                                     printf(" datatype %08X", WBData[i].dataType);
                              }
                              
  /*                                    printf(" length %02X", WBData[i].length);

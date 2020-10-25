@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include <netdb.h>
 #include <resolv.h>
 
 /*
@@ -15,6 +16,62 @@
  * This implementation is limited to Linux (POSIX) sockets only.
  * A Microsoft Windows implementation is not supplied in this example.
  */
+
+int OpenConnection(const char *hostname, int port)
+{
+    int sd, err;
+    struct addrinfo hints = {}, *addrs;
+    char port_str[16] = {};
+
+    hints.ai_family = AF_INET; // Since your original code was using sockaddr_in and
+                               // PF_INET, I'm using AF_INET here to match.  Use
+                               // AF_UNSPEC instead if you want to allow getaddrinfo()
+                               // to find both IPv4 and IPv6 addresses for the hostname.
+                               // Just make sure the rest of your code is equally family-
+                               // agnostic when dealing with the IP addresses associated
+                               // with this connection. For instance, make sure any uses
+                               // of sockaddr_in are changed to sockaddr_storage,
+                               // and pay attention to its ss_family field, etc...
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    sprintf(port_str, "%d", port);
+
+    err = getaddrinfo(hostname, port_str, &hints, &addrs);
+    if (err != 0)
+    {
+        fprintf(stderr, "%s: %s\n", hostname, gai_strerror(err));
+    }
+
+    for(struct addrinfo *addr = addrs; addr != NULL; addr = addr->ai_next)
+    {
+        sd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+        if (sd == -1)
+        {
+            err = errno;
+            break; // if using AF_UNSPEC above instead of AF_INET/6 specifically,
+                   // replace this 'break' with 'continue' instead, as the 'ai_family'
+                   // may be different on the next iteration...
+        }
+
+        if (connect(sd, addr->ai_addr, addr->ai_addrlen) == 0)
+            break;
+
+        err = errno;
+
+        close(sd);
+        sd = -1;
+    }
+
+    freeaddrinfo(addrs);
+
+    if (sd == -1)
+    {
+        fprintf(stderr, "%s: %s\n", hostname, strerror(err));
+    }
+
+    return sd;
+}
 
 int SocketConnect(const char *cpIpAddress, int iPort) {
 
