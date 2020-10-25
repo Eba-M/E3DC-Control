@@ -2017,10 +2017,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                      
                                  }
 
-//                                 default:
+                                 default:
 
-//                                     printf("Unknown WB tag %08X", WBData[i].tag);
-//                                     printf(" datatype %08X", WBData[i].dataType);
+                                     printf("Unknown WB tag %08X", WBData[i].tag);
+                                     printf(" datatype %08X", WBData[i].dataType);
                              }
                              
  /*                                    printf(" length %02X", WBData[i].length);
@@ -2038,7 +2038,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     // ...
                     default:
                         // default behaviour
-                        printf("Unknown WB tag %08X", PMData[i].tag);
+/*                        printf("Unknown WB tag %08X", PMData[i].tag);
                         printf(" datatype %08X", PMData[i].dataType);
                         printf(" length %02X", PMData[i].length);
                         printf(" data ");
@@ -2047,7 +2047,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         for(size_t x = 0; x < PMData[i].length; ++x)
                             printf("%02X", PMchar[x]);
                         printf("\n");
-                        sleep(1);
+*/                        sleep(1);
                     break;
                 }
             }
