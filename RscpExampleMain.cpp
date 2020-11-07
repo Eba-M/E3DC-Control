@@ -613,6 +613,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             else
  
             {       iFc = e3dc_config.maximumLadeleistung;
+                    if (fBatt_SOC < fLadeende)
+                        iMinLade = iFc;
+                    else
                     iMinLade =  0;
             }
         //  Laden auf 100% nach 15:30
