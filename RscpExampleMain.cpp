@@ -472,12 +472,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0)
     {
-    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende)+fLadeende;
+    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-    int cLadezeitende2 = (e3dc_config.winterminimum+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    int cLadezeitende2 = (e3dc_config.winterminimum+1+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600; // eine Stunde Später
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
 
     time_t tLadezeitende,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
@@ -613,7 +613,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             else
  
             {       iFc = e3dc_config.maximumLadeleistung;
-                    iMinLade =  e3dc_config.maximumLadeleistung;
+                    iMinLade =  0;
             }
         //  Laden auf 100% nach 15:30
             if (iMinLade == iMinLade2)
@@ -1209,6 +1209,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_HOME);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_GRID);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_EMERGENCY_POWER_STATUS);
+        protocol.appendValue(&rootValue, TAG_EMS_REQ_REMAINING_BAT_CHARGE_POWER);
         if(iBattPowerStatus == 0)
         {
             protocol.appendValue(&rootValue, TAG_EMS_REQ_GET_POWER_SETTINGS);
@@ -1486,6 +1487,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //            printf(" SET %i\n", iPower);
             break;
         }
+        case TAG_EMS_REMAINING_BAT_CHARGE_POWER: {    // response for TAG_EMS_SET_POWER
+                    int32_t iPower = protocol->getValueAsInt32(response);
+                    
+        //            printf(" SET %i\n", iPower);
+                    break;
+                }
         case TAG_EMS_EMERGENCY_POWER_STATUS: {    // response for TAG_EMS_EMERGENCY_POWER_STATUS
             int8_t iPower = protocol->getValueAsUChar8(response);
             
