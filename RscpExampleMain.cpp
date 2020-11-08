@@ -546,9 +546,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende = tLadezeitende - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
-    printf("RB %2ld:%2ld %0.0f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
-    printf("RE %2ld:%2ld %0.0f%% ",tLadezeitende/3600,tLadezeitende%3600/60,fLadeende);
-    printf("LE %2ld:%2ld %0.0f%%\n",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
+    printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
+    printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende/3600,tLadezeitende%3600/60,fLadeende);
+    printf("LE %2ld:%2ld %0.1f%%\n",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
 
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -1029,7 +1029,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                if ((iRefload > iMinLade2)&&(iMinLade2>0)) iRefload = iMinLade2;
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
                     iPower = iPower_Bat-fPower_Grid*3-iRefload;
-                    idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                    idynPower = (iRefload - int32_t(fAvBatterie900+fAvBatterie)/2)*-1;
                     idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                     iPower = iPower + idynPower;
 // WBminlade
