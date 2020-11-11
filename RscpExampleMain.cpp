@@ -962,7 +962,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
 
-        if (WBchar[2]==32)
+        if ((WBchar[2]==32)||(WBchar[2]==30))
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
 
