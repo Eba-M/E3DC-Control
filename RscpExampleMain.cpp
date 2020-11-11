@@ -944,6 +944,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  und verfügbare Speicherleistung (e3dc_config.maximumLadeleistung -700)
  großer als die iWBMinimumPower ist.
  Das Laden wird beendet bei Gridbezug > 100/200 und bei der Unterschreitung der Ladeschwelle.
+ 
+ Unterstützung Teslatar
+ 
+ Teslatar ist ein eigenständiges Python Program, dass auf dem Raspberry Pi läuft.
+ 
+ Im Zusammenhang damit gibt es auch noch ein Problem mit der Wallbox, da Sie einfach
+ auf den Zustand "gestoppt" springt, was ein späteres gesteuertes Laden verhindert.
+ Deswegen wird zwischen 21:00 GMT und 5:00 GMT die Ladesperre der Wallbox überwacht
+ Die Einstellung der Ladestromstärke auf 30A löst die Überwachung erst aus.
+ 
+ 
  */
 
     if (iWBStatus == 0)  {
@@ -1064,7 +1075,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_Grid;
 
         
-        if ((iWBStatus == 1)&&(bWBConnect))
+        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
         {
 
             
@@ -1081,15 +1092,29 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Immer von 6A aus starten
         
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
+// Laden per Teslatar, Netzmodus, LADESTROM 30A
+            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
+                WBchar6[1] = 30;
+                WBchar6[4] = 1; // Laden starten
+                createRequestWBData(frameBuffer);
+                WBchar6[4] = 0; // Toggle aus
+                WBChar_alt = WBchar6[1];
+                iWBStatus = 30;
+                struct tm * ptm;
+                ptm = gmtime(&t);
+                sprintf(Log,"WB starten %s", strtok(asctime(ptm),"\n"));
+                WriteLog();
+            };
+            
         if ( (fPower_WB == 0) &&bWBLademodus && (iAvalPower>iWBMinimumPower))
-//            && (WBchar6[1] != 6)  // Immer von 6A aus starten
+//            bWBLademodus = Sonne
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
                 if ((not bWBOn)||(WBchar6[1] != 6)||(not bWBCharge))
                     {
-                        WBchar6[1] = 6;
-                        if ((not bWBOn)||(not bWBCharge))
+                        WBchar6[1] = 6;  // Laden von 6A aus
+                        if (cWBALG&64)  // Laden gestoppt? dann starten
                         {
                             WBchar6[4] = 1; // Laden starten
                             bWBOn = true;
