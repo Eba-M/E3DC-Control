@@ -870,7 +870,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
     static bool bWBOn = false; // Wallbox eingeschaltet
- 
+    static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 
 /*
  Die Ladeleistung der Wallbox wird nach verfügbaren PV-Überschussleistung gesteuert
@@ -979,6 +979,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
         int iRefload,iPower=0;
+        if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid > 100)&&(fPower_Grid>200)))
+            iMaxBattLade = iPower_Bat;
+
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
         switch (e3dc_config.wbmode)
@@ -1066,13 +1069,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = 0;
 
         
-        if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
-              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
+        if (iAvalPower > (iMaxBattLade+iPower_Bat-fPower_Grid))
+              iAvalPower = iMaxBattLade+iPower_Bat-fPower_Grid;
         // Speicher nur bis 5-7% entladen
         if (fBatt_SOC < 7) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid - iWBMinimumPower/6;
         else if (fBatt_SOC < 8) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
-        if (iAvalPower < (e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_Grid))
-            iAvalPower = e3dc_config.maximumLadeleistung*-0.9+iPower_Bat-fPower_Grid;
+        if (iAvalPower < (iMaxBattLade+iPower_Bat-fPower_Grid))
+            iAvalPower = iMaxBattLade+iPower_Bat-fPower_Grid;
 
         
         if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
