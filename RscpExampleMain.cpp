@@ -1069,13 +1069,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = 0;
 
         
-        if (iAvalPower > (iMaxBattLade+iPower_Bat-fPower_Grid))
-              iAvalPower = iMaxBattLade+iPower_Bat-fPower_Grid;
+        if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
+              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         // Speicher nur bis 5-7% entladen
         if (fBatt_SOC < 7) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid - iWBMinimumPower/6;
         else if (fBatt_SOC < 8) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
         if (iAvalPower < (iMaxBattLade+iPower_Bat-fPower_Grid))
             iAvalPower = iMaxBattLade+iPower_Bat-fPower_Grid;
+
 
         
         if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
