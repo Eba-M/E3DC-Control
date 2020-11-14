@@ -1045,6 +1045,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower_Bat-fPower_Grid*3-iRefload;
                     idynPower = (iRefload - int32_t(fAvBatterie900+fAvBatterie)/2)*-1;
                     idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
+                    idynPower = idynPower + e3dc_config.maximumLadeleistung*.9 - iMaxBattLade;
+// Wenn der Speicher weniger Leistung aufnehmen kann muss dies berücksichtigt werden.
                     iPower = iPower + idynPower;
 // WBminlade
 
