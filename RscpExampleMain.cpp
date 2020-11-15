@@ -980,6 +980,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     {
         int iRefload,iPower=0;
         if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid < -100)&&(fPower_Grid<-200)))
+            if (iPower_Bat>=0)
             iMaxBattLade = iPower_Bat;
 
         if (iMinLade>iFc) iRefload = iFc;
