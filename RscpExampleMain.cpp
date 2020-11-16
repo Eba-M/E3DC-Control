@@ -988,7 +988,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     {
         int iRefload,iPower=0;
 // Ermitteln der tatsächlichen maximalen Speicherladeleistung
-        if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid < -100)&&(fPower_Grid<-200)))
+        if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid < -200)&&(fPower_Grid<-300)))
             if (iPower_Bat>=0)
             iMaxBattLade = iPower_Bat;
         
@@ -1065,6 +1065,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // WBminlade
 
                 idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
+                if (idynPower>0)
                 iPower = iPower + idynPower;
                             
                           break;
@@ -1216,7 +1217,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }}
-    printf("\nAVal %0i Power %0i WBMode %0i ", iAvalPower,iWBMinimumPower, e3dc_config.wbmode);
+    printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
     printf(" iWBStatus %i",iWBStatus);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
