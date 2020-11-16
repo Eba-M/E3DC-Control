@@ -988,10 +988,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     {
         int iRefload,iPower=0;
 // Ermitteln der tatsächlichen maximalen Speicherladeleistung
-        if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid < -200)&&(fPower_Grid<-300)))
-            if (iPower_Bat>=0)
+        if ((fAvPower_Grid < -200)&&(fPower_Grid<-300))
+            iMaxBattLade = iMaxBattLade*.99;
+        if (iPower_Bat > iMaxBattLade)
             iMaxBattLade = iPower_Bat;
-        
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
 
