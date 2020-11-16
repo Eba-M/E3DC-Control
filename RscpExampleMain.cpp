@@ -965,7 +965,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iWBStatus == 0)  {
 
-//        iMaxBattLade = e3dc_config.maximumLadeleistung*.8;
+        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
         
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
