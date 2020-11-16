@@ -573,7 +573,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
      }
     if (t < tLadezeitende2)
     // Berechnen der linearen Ladeleistung bis tLadezeitende2 = Sommerladeende
-    iMinLade2 = ((fLadeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
+    {iMinLade2 = ((fLadeende2 - fBatt_SOC)*e3dc_config.speichergroesse*10*3600)/(tLadezeitende2-t);
+    if (iMinLade2>e3dc_config.maximumLadeleistung)
+        iMinLade2=e3dc_config.maximumLadeleistung;
+    }
     else
         if (fLadeende2 <= fBatt_SOC) iMinLade2 = 0;
         else iMinLade2 = e3dc_config.maximumLadeleistung;
@@ -595,7 +598,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
           iFc = iFc / (300);
-        iMinLade = iFc;
+          if (iFc > e3dc_config.maximumLadeleistung)
+              iMinLade = e3dc_config.maximumLadeleistung;
+          else
+          iMinLade = iFc;
 //        iFc = (iFc-900)*5;
           if (iFc >= e3dc_config.untererLadekorridor)
               iFc = (iFc-e3dc_config.untererLadekorridor);
@@ -959,6 +965,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iWBStatus == 0)  {
 
+//        iMaxBattLade = e3dc_config.maximumLadeleistung*.8;
+        
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
 
@@ -979,12 +987,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
         int iRefload,iPower=0;
+// Ermitteln der tatsächlichen maximalen Speicherladeleistung
         if ((iPower_Bat > iMaxBattLade)||((fAvPower_Grid < -100)&&(fPower_Grid<-200)))
             if (iPower_Bat>=0)
             iMaxBattLade = iPower_Bat;
-
+        
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
+
+//        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
+//            iRefload = iMaxBattLade;
+
         switch (e3dc_config.wbmode)
         {
             case 1:

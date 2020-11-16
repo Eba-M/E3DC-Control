@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "2020.11.15.1" //Wallbox branch
+#define VERSION "2020.11.16.0" //Wallbox branch
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
