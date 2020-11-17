@@ -525,9 +525,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     } else {
             // Endladen ausschalten
-        if (iDischarge != 0)
+        if (iDischarge >1)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
-            { Control_MAX_DISCHARGE(frameBuffer,0);
+            { Control_MAX_DISCHARGE(frameBuffer,1);
             iBattPowerStatus = 0;
             iLMStatus = 5;
                 sprintf(Log,"AUS %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
@@ -1067,6 +1067,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
                 if (idynPower>0)
                 iPower = iPower + idynPower;
+//                if iPower_Bat < 0 iPower = iPower + iPower_Bat;
+// Wenn Batterie entladen wird, einbremsen + Abschalten auslösen
                             
                           break;
             case 9:
@@ -1258,7 +1260,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_HOME);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_GRID);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_EMERGENCY_POWER_STATUS);
-        protocol.appendValue(&rootValue, TAG_EMS_REQ_REMAINING_BAT_CHARGE_POWER);
+//        protocol.appendValue(&rootValue, TAG_EMS_REQ_REMAINING_BAT_CHARGE_POWER);
         if(iBattPowerStatus == 0)
         {
             protocol.appendValue(&rootValue, TAG_EMS_REQ_GET_POWER_SETTINGS);
