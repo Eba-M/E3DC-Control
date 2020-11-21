@@ -502,8 +502,16 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
           ((ts->tm_wday==0)&&e3dc_config.htsun)
           ||
           ((ts->tm_wday==6)&&e3dc_config.htsat)          )&&
-            (e3dc_config.hton < t && e3dc_config.htoff > t ))
-        ||(fht<fBatt_SOC)
+         (
+          ((e3dc_config.hton > e3dc_config.htoff) &&
+            ((e3dc_config.hton < t) ||
+             (e3dc_config.htoff > t )))
+          ||
+         ((e3dc_config.hton < e3dc_config.htoff) &&
+           (e3dc_config.hton < t && e3dc_config.htoff > t )))
+         )
+         ||
+            (fht<fBatt_SOC)
         ||(iNotstrom==1)  //Notstrom
         ||(iNotstrom==4)  //Inselbetrieb
         ){
