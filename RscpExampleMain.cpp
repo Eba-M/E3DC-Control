@@ -1069,7 +1069,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower_Bat-fPower_Grid*3-iRefload;
 // Wenn die Batterie mehr als 1000W entladen wird - weiter einbremsen
                 if (iPower_Bat < -1000)
-                    iPower = iPower + iPower_Bat;
+                    iPower = iPower + iPower_Bat*.5;
                     idynPower = (iMaxBattLade - int32_t(fAvBatterie900+fAvBatterie)/2)*-1;
                     idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                     idynPower = idynPower + e3dc_config.maximumLadeleistung*.9 - iMaxBattLade;
