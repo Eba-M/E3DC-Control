@@ -183,6 +183,10 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     SRscpValue PMContainer;
     protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER_SETTINGS);
     protocol.appendValue(&PMContainer, TAG_EMS_POWER_LIMITS_USED,true);
+    if (uPower < 65)
+    protocol.appendValue(&PMContainer, TAG_EMS_DISCHARGE_START_POWER,uPower);
+    else
+    protocol.appendValue(&PMContainer, TAG_EMS_DISCHARGE_START_POWER,uint32_t(65));
     protocol.appendValue(&PMContainer, TAG_EMS_MAX_DISCHARGE_POWER,uPower);
     // append sub-container to root container
     protocol.appendValue(&rootValue, PMContainer);
@@ -535,7 +539,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             // Endladen ausschalten
         if (iDischarge >1)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
-            { Control_MAX_DISCHARGE(frameBuffer,1);
+            { Control_MAX_DISCHARGE(frameBuffer,0);
             iBattPowerStatus = 0;
             iLMStatus = 5;
                 sprintf(Log,"AUS %s %0.02f %0.02f %i", strtok(asctime(ts),"\n"),fht,fBatt_SOC, iE3DC_Req_Load);
