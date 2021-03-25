@@ -1032,7 +1032,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {
 // Überschuss Netz
                 if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
-                  {if ((fPower_Grid > (iWBMinimumPower/6)))
+                  {if ((-fPower_Grid > (iWBMinimumPower/6)))
                          iPower = -fPower_Grid;
                      else
                         (iPower = iWBMinimumPower/6);
@@ -1040,8 +1040,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                  else
 // Überschussleistung verfügbar?
                  { if (abs(iPower_Bat-iBattLoad) > (iWBMinimumPower/6))
-                     iPower = iPower_Bat-iBattLoad;
-                 }
+                 {if (iBattLoad > iMaxBattLade)
+                    iPower = iPower_Bat-iMaxBattLade;
+                    else
+                    iPower = iPower_Bat-iBattLoad;
+                 }}
                 }
               break;
             case 3:
@@ -2009,7 +2012,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     
 //                                    bWBLademodus = (WBchar[0]&1);
                                     bWBLademodus = bWBSonne;
-                                    WBchar6[0]=WBchar[0];
+//                                    WBchar6[0]=WBchar[0];
+                                    WBchar6[0]=2+bWBSonne;
                                     printf(" \nWB: Modus %02X ",uint8_t(cWBALG));
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
