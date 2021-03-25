@@ -1118,7 +1118,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 
         
-        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
+//        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
+        if (iWBStatus == 1) // 
         {
 
             
@@ -2018,12 +2019,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
-                                    if (bWBConnect) {printf(" Dose verriegelt");
+                                    if (bWBConnect) printf(" Dose verriegelt");
                                         if (bWBCharge) printf(" lädt"); else
                                             if (cWBALG&64) printf(" gestoppt");
                                             else
                                             printf(" ladebereit");
-                                    };
+                                    ;
                                     printf(" Ladestromstärke %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
