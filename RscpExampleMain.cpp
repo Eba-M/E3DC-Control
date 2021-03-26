@@ -60,9 +60,11 @@ static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
 char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
-static bool bWBConnect; // True = Dose ist verriegelt
-static bool bWBCharge; // True Laden ist gestartet
-static bool bWBSonne;  // Sonnenmodus
+static bool bWBConnect; // True = Dose ist verriegelt x08
+static bool bWBStart; // True Laden ist gestartet x10
+static bool bWBCharge; // True Laden ist gestartet x20
+static bool bWBSonne;  // Sonnenmodus x80
+static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
@@ -2020,11 +2022,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
                                     if (bWBConnect) printf(" Dose verriegelt");
-                                        if (bWBCharge) printf(" lädt"); else
-                                            if (cWBALG&64) printf(" gestoppt");
-                                            else
-                                            printf(" ladebereit");
-                                    ;
+                                    if (bWBStart) printf(" gestartet");
+                                    if (bWBCharge) printf(" lädt");
+                                    if (bWBStopped ) printf(" gestoppt");
+
                                     printf(" Ladestromstärke %uA ",WBchar[2]);
                                     if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
@@ -2078,7 +2079,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                      memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
                                      cWBALG = WBchar[2];
                                      bWBConnect = (WBchar[2]&8);
-                                     bWBCharge = (WBchar[2]&16);
+                                     bWBCharge = (WBchar[2]&32);
+                                     bWBStart = (WBchar[2]&16);
+                                     bWBStopped = (WBchar[2]&64);
                                      bWBSonne = (WBchar[2]&128);
 /*                                     printf(" WB ALG EXTERN_DATA\n");
                                      printf("\n");
