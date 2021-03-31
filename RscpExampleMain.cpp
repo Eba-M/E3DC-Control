@@ -1160,7 +1160,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if ((WBchar6[1] != 6)||(bWBStopped))
+                if ((WBchar[1] != 6)||(bWBStopped))
                     {
                         WBchar6[1] = 6;  // Laden von 6A aus
                         if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))  // Laden gestoppt? dann starten
