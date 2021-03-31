@@ -715,7 +715,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-        if (e3dc_config.wallbox&&((tE3DC-tWBtime)<900)&&((tE3DC-tWBtime)>10))     // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
+        if (e3dc_config.wallbox&&bWBStopped&&((tE3DC-tWBtime)<900)&&((tE3DC-tWBtime)>10))
+// Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
+// und wenn die Wallbox gestoppt wurde, dann wird für 15min weitergeladen
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
@@ -1139,7 +1141,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
 // Laden per Teslatar, Netzmodus, LADESTROM 30A
-            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
+//            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
+            if ((WBchar[2] == 30) && not(bWBLademodus)&&bWBStopped) {
                 WBchar6[1] = 30;
                 WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
@@ -1152,15 +1155,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WriteLog();
             };
             
-        if ( (fPower_WB == 0) &&bWBLademodus && (iAvalPower>iWBMinimumPower))
+        if ( (fPower_WB == 0) &&bWBLademodus)
 //            bWBLademodus = Sonne
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if ((not bWBOn)||(WBchar6[1] != 6)||(not bWBCharge))
+                if ((WBchar6[1] != 6)||(bWBStopped))
                     {
                         WBchar6[1] = 6;  // Laden von 6A aus
-                        if (cWBALG&64)  // Laden gestoppt? dann starten
+                        if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))  // Laden gestoppt? dann starten
                         {
                             WBchar6[4] = 1; // Laden starten
                             bWBOn = true;
@@ -1171,7 +1174,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iWBStatus = 30;
                     }
                 }
-                    else WBchar6[1] = 2;
+//                    else WBchar6[1] = 2;
         }
             if (fPower_WB > 0) tWBtime = tE3DC; // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
