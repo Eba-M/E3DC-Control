@@ -1160,7 +1160,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if ((WBchar[1] != 6)||(bWBStopped))
+                if ((WBchar[2] != 6)||(bWBStopped))
                     {
                         WBchar6[1] = 6;  // Laden von 6A aus
                         if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))  // Laden gestoppt? dann starten
@@ -1176,7 +1176,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }
 //                    else WBchar6[1] = 2;
         }
-            if (fPower_WB > 0) tWBtime = tE3DC; // WB Lädt, Zeitstempel updaten
+            if (fPower_WB > 0) {tWBtime = tE3DC;
+               if (fPower_WB < 1000) iWBStatus = 30;
+            } // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
