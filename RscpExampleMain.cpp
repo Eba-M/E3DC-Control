@@ -1120,7 +1120,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 
-
+        if (iPower <= -20000) iAvalPower = iPower;
+        
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
         if (iWBStatus == 1) // 
