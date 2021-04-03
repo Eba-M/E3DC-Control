@@ -1021,7 +1021,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             case 1:
               iPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
               if (fPower_WB > 1000)
-                iPower = iPower+iPower_Bat-iRefload-fPower_WB;
+                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6-fPower_WB;
               else
                 iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower-fPower_WB;
               if ((iPower+iWBMinimumPower) < (fPower_WB)*-1) iPower = -20000;
