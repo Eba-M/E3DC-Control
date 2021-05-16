@@ -1081,24 +1081,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 //                if ((iRefload > iMinLade2)&&(iMinLade2>0)) iRefload = iMinLade2;
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
-                    iPower = iPower_Bat-fPower_Grid*3-iRefload;
-// Wenn die Batterie mehr als 1000W entladen wird - weiter einbremsen
-                if (iPower_Bat < -1000)
-                    iPower = iPower + iPower_Bat*.5;
-                    idynPower = (iMaxBattLade - int32_t(fAvBatterie900+fAvBatterie)/2)*-1;
-                    idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-                    idynPower = idynPower + e3dc_config.maximumLadeleistung*.9 - iMaxBattLade;
-// Wenn der Speicher weniger Leistung aufnehmen kann muss dies berücksichtigt werden.
-                    iPower = iPower + idynPower;
-// WBminlade
 
-                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
-                if (idynPower>0)
+                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+                idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-//                if iPower_Bat < 0 iPower = iPower + iPower_Bat;
-// Wenn Batterie entladen wird, einbremsen + Abschalten auslösen
-                            
-                          break;
+                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
+                iPower = iPower + idynPower;
+            break;
             case 9:
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
