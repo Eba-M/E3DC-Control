@@ -1020,13 +1020,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         switch (e3dc_config.wbmode)
         {
             case 1:
-              iPower = fPower_Grid*-1-e3dc_config.einspeiselimit*1000;
+              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+fPower_WB;
               if (fPower_WB > 1000)
-                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6+fPower_WB;
+                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
               else
-                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower+fPower_WB;
+                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
  
-              if ((iPower+iWBMinimumPower) < (fPower_WB)*-1)
+              if (iPower <  iWBMinimumPower*-1)
                 {iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
@@ -1034,8 +1034,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     bWBOff = true;
                     }
                 } else
+                {
                 bWBOff = false;
-
+// Bei aktivem Ladevorgang nicht gleich wieder abbrechen
+                if ((iPower < -2000)&&(fPower_WB>1000))
+                    iPower= -2000;
+                }
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
             case 2:
