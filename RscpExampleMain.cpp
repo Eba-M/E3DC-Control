@@ -892,7 +892,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static int iLadeleistung[27][4]; //27*4 Zellen
-    static bool bWBOn, bWBStopped = false; // Wallbox eingeschaltet
+    static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 
 /*
@@ -1028,13 +1028,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  
               if ((iPower+iWBMinimumPower) < (fPower_WB)*-1)
                 {iPower = -20000;
-// erst mit 30sec Verzögerung das Laden beenden, könnte ja sein das wieder Abregelung ansteht
-                    if (!bWBStopped)
+// erst mit 30sec Verzögerung das Laden beenden
+                    if (!bWBOff)
                     {iWBStatus = 30;
-                    bWBStopped = true;
+                    bWBOff = true;
                     }
                 } else
-                bWBStopped = false;
+                bWBOff = false;
 
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
