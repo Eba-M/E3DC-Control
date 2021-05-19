@@ -1027,7 +1027,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               else
                 iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
  
-              if (iPower <  iWBMinimumPower*-1)
+              if ((iPower <  iWBMinimumPower*-1)&&(WBchar[2] == 6))
                 {iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
