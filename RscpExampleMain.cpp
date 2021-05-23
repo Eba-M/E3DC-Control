@@ -483,16 +483,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-    int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600; // eine halbe Stunde Später
+    int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
 
-    time_t tLadezeitende,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+    time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     int32_t tZeitgleichung;
-    tLadezeitende = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-    tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende1 = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
-    
 //    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
     float fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
@@ -557,11 +556,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
-    tLadezeitende = tLadezeitende - tZeitgleichung;
+    tLadezeitende1 = tLadezeitende1 - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
+    tLadezeitende = tLadezeitende1;
     printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
-    printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende/3600,tLadezeitende%3600/60,fLadeende);
+    printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%%\n",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
 
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
@@ -708,7 +708,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((iPower>0)&&(iPower > fAvBatterie900)) iPower = iPower + pow((iPower-fAvBatterie900),2)/20;
 // Nur wenn positive Werte angefordert werden, wird dynamisiert
                 if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
-                
             }
             } else
 //            if (fBatt_SOC < cLadeende) iPower = 3000;
@@ -746,6 +745,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Danach wird nur bis auf ladeende2 entladen.
                      if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
                      iPower = 0;
+// Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
+//                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
+//                 iPower = e3dc_config.maximumLadeleistung*-1;
                  iBattLoad = iPower;
                  tE3DC_alt = t;
 
