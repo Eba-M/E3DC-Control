@@ -428,6 +428,8 @@ bool GetConfig()
     return fpread;
 }
 
+time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -486,7 +488,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
 
-    time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     int32_t tZeitgleichung;
     tLadezeitende1 = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
@@ -701,8 +702,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
         {
-            
-        
+            // Überprüfen ob vor RE der SoC > tLadeende2 ist, dann entladen was möglich
+
+            if ((t>tLadezeitende3)&&(t<tLadezeitende1)&&(fBatt_SOC>fLadeende2))
+                iFc = e3dc_config.maximumLadeleistung*-1;
+          
             if (iPower<iFc)
             {   iPower = iFc;
                 if ((iPower>0)&&(iPower > fAvBatterie900)) iPower = iPower + pow((iPower-fAvBatterie900),2)/20;
@@ -714,7 +718,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)&&(e3dc_config.ladeende>fBatt_SOC)&&
+    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
+        &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
+         ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
+        &&
         ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10))
 // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
 // und wenn die Wallbox gestoppt wurde, dann wird für bis zu 2h weitergeladen
@@ -1097,13 +1104,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
 
-//                if ((iRefload > iMinLade2)&&(iMinLade2>0)) iRefload = iMinLade2;
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
 
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
                 idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
+// Anhebung der Ladeleistung nur bis Ladezeitende1
+                if (t<tLadezeitende1)
                 iPower = iPower + idynPower;
             break;
             case 9:
