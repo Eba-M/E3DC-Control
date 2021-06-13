@@ -253,7 +253,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
-static float_t fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
+static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
@@ -720,6 +720,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         
     if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
+           (iWBStatus>1)||
          ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
         &&
         ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10))
@@ -898,10 +899,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
-    static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
-    static int iLadeleistung[27][4]; //27*4 Zellen
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 
