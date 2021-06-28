@@ -66,6 +66,7 @@ static bool bWBCharge; // True Laden ist gestartet x20
 static bool bWBSonne;  // Sonnenmodus x80
 static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
+static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 FILE * pFile;
 e3dc_config_t e3dc_config;
@@ -230,6 +231,8 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     protocol.createContainerValue(&WB2Container, TAG_WB_REQ_SET_EXTERN);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,6);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar6,iWBLen);
+    iWBSoll = WBchar6[1];   // angeforderte Ladestromstärke;
+
 
     protocol.appendValue(&WBContainer, WB2Container);
     // free memory of sub-container as it is now copied to rootValue
@@ -718,7 +721,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&(bWBStopped||iWBStatus>1)&&(e3dc_config.wbmode>1)
+    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&(bWBStopped||(iWBStatus>1))&&(e3dc_config.wbmode>1)
         &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
           ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
         &&
@@ -761,7 +764,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                  tE3DC_alt = t;
 
                         {
-                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > (iPower_Bat - int32_t(fPower_Grid))))
+                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                         {if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
 // es liegt Netzbezug vor und System war nicht im Freilauf
@@ -848,7 +851,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            if (iE3DC_Req_Load > iPower_Bat)
            if (abs(iE3DC_Req_Load) > 100)
               iLMStatus = -7;
-            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
+            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
 
 }
@@ -1108,7 +1111,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
+                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3)*2;
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if (t<tLadezeitende1)
                 iPower = iPower + idynPower;
@@ -1163,6 +1166,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
             if ((WBchar[2] == 30) && not(bWBLademodus)&&bWBStopped) {
                 WBchar6[1] = 30;
+                iWBSoll = 30;
                 WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
                 WBchar6[4] = 0; // Toggle aus
@@ -2056,12 +2060,16 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBStopped ) printf(" gestoppt");
 
                                     printf(" Ladestromstärke %uA ",WBchar[2]);
-                                    if (WBchar[2]==32) {
+                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
                                         bWBmaxLadestrom=true;
                                     }
-                                    if (WBchar[2]==31) {
+                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
+                                        bWBmaxLadestrom=true;
+                                    }
+                                    if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
                                     }
+                                    iWBIst = WBchar[2];
                                     break;
                                 }
                                     

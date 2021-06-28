@@ -111,7 +111,7 @@
 		EFDD5B662124C726008DDBEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1000;
+				LastUpgradeCheck = 1170;
 				ORGANIZATIONNAME = "Eberhard Mayer";
 				TargetAttributes = {
 					EFDD5B6D2124C726008DDBEA = {
@@ -265,6 +265,7 @@
 		EFDD5B762124C726008DDBEA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -273,6 +274,7 @@
 		EFDD5B772124C726008DDBEA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
