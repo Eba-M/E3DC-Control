@@ -2059,17 +2059,19 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBCharge) printf(" lädt");
                                     if (bWBStopped ) printf(" gestoppt");
 
-                                    printf(" Ladestromstärke %uA ",WBchar[2]);
                                     if ((WBchar[2]==32)&&(iWBSoll!=32)) {
                                         bWBmaxLadestrom=true;
                                     }
-                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
-                                        bWBmaxLadestrom=true;
-                                    }
+//                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
+//                                        bWBmaxLadestrom=true;
+//                                    }
                                     if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
                                     }
                                     iWBIst = WBchar[2];
+                                    if (bWBmaxLadestrom) printf(" Manuell");
+                                    else printf(" Automatic");
+                                    printf(" Ladestrom %uA ",WBchar[2]);
                                     break;
                                 }
                                     
