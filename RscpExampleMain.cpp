@@ -1119,8 +1119,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 idynPower = iPower_Bat-fPower_Grid + e3dc_config.maximumLadeleistung * (e3dc_config.wbmode-4)*.2;
 // Anhebung der Ladeleistung nur bis Ladezeitende1
-                if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade*.9))
-                iPower = idynPower;
+                if ((t<tLadezeitende1)&&(iPower<idynPower))
+                {
+                    if (iRefload<e3dc_config.wbminlade*.9)
+                     iPower = idynPower;
+                    else
+                      idynPower = iPower_Bat-fPower_Grid;}
             break;
             case 9:
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
