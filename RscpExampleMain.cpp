@@ -1108,13 +1108,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
 
-                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+                iPower = iPower_Bat-fPower_Grid-iRefload;
+                if (fPower_Grid<0) iPower = iPower - fPower_Grid;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3)*2;
+//              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden
+//              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
+//              es wird mit 20/40/60/80% von e3dc_config.maximumLadeleistung
+//              entladen
+                
+                idynPower = iPower_Bat-fPower_Grid + e3dc_config.maximumLadeleistung * (e3dc_config.wbmode-4)*.2;
 // Anhebung der Ladeleistung nur bis Ladezeitende1
-                if (t<tLadezeitende1)
-                iPower = iPower + idynPower;
+                if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade*.9))
+                iPower = idynPower;
             break;
             case 9:
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
@@ -2069,8 +2075,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                         bWBmaxLadestrom=false;
                                     }
                                     iWBIst = WBchar[2];
-                                    if (bWBmaxLadestrom) printf(" Manuell");
-                                    else printf(" Automatic");
+                                    if (bWBmaxLadestrom) printf(" Manu");
+                                    else printf(" Auto");
                                     printf(" Ladestrom %uA ",WBchar[2]);
                                     break;
                                 }
