@@ -1108,8 +1108,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
 
-                iPower = iPower_Bat-fPower_Grid-iRefload;
-                if (fPower_Grid<0) iPower = iPower - fPower_Grid;
+                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+                
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
 //              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden
@@ -1117,7 +1117,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //              es wird mit 20/40/60/80% von e3dc_config.maximumLadeleistung
 //              entladen
                 
-                idynPower = iPower_Bat-fPower_Grid + e3dc_config.maximumLadeleistung * (e3dc_config.wbmode-4)*.2;
+                idynPower = iPower_Bat-fPower_Grid*2 + e3dc_config.maximumLadeleistung * (e3dc_config.wbmode-4)*.2;
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
@@ -2079,6 +2079,22 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    }
                                     if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
+                                    }
+                                    if (int(WBchar[2])!=iWBIst)
+                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])!=iWBSoll)&&(int(WBchar[2])!=iWBIst))
+                                    {
+// ladeschwelle ändern 8..9
+                                        static int ladeschwelle = 0;
+                                        if  ((WBchar[2]==8)&&(ladeschwelle>0))
+                                        e3dc_config.ladeschwelle = ladeschwelle;
+                                        if  ((WBchar[2]==9)&&(ladeschwelle != e3dc_config.ladeschwelle)){
+                                            ladeschwelle = e3dc_config.ladeschwelle;
+                                            e3dc_config.ladeschwelle = 90;
+                                        }
+// lademodus ändern 10..19
+                                        if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
+                                        e3dc_config.wbmode = WBchar[2]-10;
+
                                     }
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
