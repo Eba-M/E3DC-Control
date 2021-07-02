@@ -2077,13 +2077,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
 //                                        bWBmaxLadestrom=true;
 //                                    }
-                                    if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
+                                if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
                                     }
                                     if (int(WBchar[2])!=iWBIst)
-                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])!=iWBSoll)&&(int(WBchar[2])!=iWBIst))
+                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])!=iWBSoll))
                                     {
 // ladeschwelle ändern 8..9
+/*
                                         static int ladeschwelle = 0;
                                         if  ((WBchar[2]==8)&&(ladeschwelle>0))
                                         e3dc_config.ladeschwelle = ladeschwelle;
@@ -2094,12 +2095,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // lademodus ändern 10..19
                                         if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
                                         e3dc_config.wbmode = WBchar[2]-10;
-
+*/
                                     }
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
-                                    printf(" Ladestrom %uA ",WBchar[2]);
+                                    printf(" Ladestrom %u/%uA ",iWBSoll,WBchar[2]);
                                     break;
                                 }
                                     
