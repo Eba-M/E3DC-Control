@@ -1117,7 +1117,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //              es wird mit 20/40/60/80% von e3dc_config.maximumLadeleistung
 //              entladen
                 
-                idynPower = iPower_Bat-fPower_Grid*2 + e3dc_config.maximumLadeleistung * (e3dc_config.wbmode-4)*.2;
+                idynPower = iPower_Bat-fPower_Grid*2 + (e3dc_config.maximumLadeleistung*.9 - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
@@ -2080,23 +2080,25 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                 if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
                                     }
-                                    if (int(WBchar[2])!=iWBIst)
+                                    if ((int(WBchar[2])!=iWBIst)&&(iWBStatus==1))
                                     if ((not bWBmaxLadestrom)&&(int(WBchar[2])!=iWBSoll))
                                     {
 // ladeschwelle ändern 8..9
-/*
+
                                         static int ladeschwelle = 0;
                                         if  ((WBchar[2]==8)&&(ladeschwelle>0))
                                         e3dc_config.ladeschwelle = ladeschwelle;
-                                        if  ((WBchar[2]==9)&&(ladeschwelle != e3dc_config.ladeschwelle)){
+                                        if  ((WBchar[2]==9)&&(ladeschwelle != e3dc_config.ladeschwelle))
+                                        {
                                             ladeschwelle = e3dc_config.ladeschwelle;
                                             e3dc_config.ladeschwelle = 90;
                                         }
 // lademodus ändern 10..19
                                         if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
                                         e3dc_config.wbmode = WBchar[2]-10;
-*/
-                                    }
+
+                                        }
+                                
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
@@ -2231,7 +2233,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_EMS_MAX_CHARGE_POWER: {              // 101 response for TAG_EMS_MAX_CHARGE_POWER
                         uint32_t uPower = protocol->getValueAsUInt32(&PMData[i]);
-                        printf("MAX_CHARGE_POWER %i W\n", uPower);
+                        if (uPower < e3dc_config.maximumLadeleistung)
+                            {if (uPower < 1500)
+                                  e3dc_config.maximumLadeleistung = 1500; else
+                                   e3dc_config.maximumLadeleistung = uPower;
+                            printf("MAX_CHARGE_POWER %i W\n", uPower);}
                         break;
                     }
                     case TAG_EMS_MAX_DISCHARGE_POWER: {              //102 response for TAG_EMS_MAX_DISCHARGE_POWER
