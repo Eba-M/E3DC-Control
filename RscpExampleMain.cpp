@@ -60,6 +60,7 @@ static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
 char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
+static bool bWBChanged; // Lademodus der Wallbox; wurde extern geändertz.B. Sonnenmodus
 static bool bWBConnect; // True = Dose ist verriegelt x08
 static bool bWBStart; // True Laden ist gestartet x10
 static bool bWBCharge; // True Laden ist gestartet x20
@@ -321,6 +322,7 @@ bool GetConfig()
         e3dc_config.peakshave = 0;
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
+        e3dc_config.wbminSoC = 10;
 
 
 
@@ -405,6 +407,8 @@ bool GetConfig()
                         e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "wbminlade") == 0)
                         e3dc_config.wbminlade = atoi(value);
+                    else if(strcmp(var, "wbminSoC") == 0)
+                        e3dc_config.wbminSoC = atof(value);
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -1102,6 +1106,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 6:
                 case 7:
                 case 8:
+                case 9:
 
             // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
@@ -1114,7 +1119,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iPower = iPower + idynPower;
 //              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden
 //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
-//              es wird mit 20/40/60/80% von e3dc_config.maximumLadeleistung
+//              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
 //              entladen
                 
                 idynPower = iPower_Bat-fPower_Grid*2 + (e3dc_config.maximumLadeleistung*.9 - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
@@ -1127,8 +1132,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                       if (iPower < iPower_Bat-fPower_Grid)
                           iPower = iPower_Bat-fPower_Grid;
                           }
-            break;
-            case 9:
+
+// Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen
+
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
@@ -1171,6 +1178,20 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iWBStatus = 7; }
         }
             }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
+
+// Wenn der wbmodus neu eingestellt wurde, dann mit 7A starten
+
+            if (bWBChanged) {
+                bWBChanged = false;
+                WBchar6[1] = 7;  // Laden von 6A aus
+                WBchar6[4] = 0; // Toggle aus
+                createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
+                iWBStatus = 5;
+
+
+            }
+            
 // Immer von 6A aus starten
         
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
@@ -2091,11 +2112,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                         if  ((WBchar[2]==9)&&(ladeschwelle != e3dc_config.ladeschwelle))
                                         {
                                             ladeschwelle = e3dc_config.ladeschwelle;
-                                            e3dc_config.ladeschwelle = 90;
+                                            e3dc_config.ladeschwelle = 100;
                                         }
 // lademodus ändern 10..19
                                         if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
                                         e3dc_config.wbmode = WBchar[2]-10;
+                                        
+                                        bWBChanged = true;
+                                        
 
                                         }
                                 
