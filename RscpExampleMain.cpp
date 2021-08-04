@@ -1136,6 +1136,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen
 
                 if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
+                iPower = e3dc_config.maximumLadeleistung*.3+iPower_Bat-fPower_Grid*2;
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1)))
+                iPower = e3dc_config.maximumLadeleistung*.6+iPower_Bat-fPower_Grid*2;
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+2)))
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
