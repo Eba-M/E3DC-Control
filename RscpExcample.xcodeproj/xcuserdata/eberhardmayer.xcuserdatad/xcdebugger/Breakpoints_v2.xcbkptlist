@@ -517,8 +517,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "2608"
             endingLineNumber = "2608"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "main(argc, argv)"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -1313,7 +1313,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }}
     printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i",iWBStatus);
+    printf(" iWBStatus %i %i",iWBStatus,WBchar6[1]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
