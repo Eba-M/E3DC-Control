@@ -2469,7 +2469,7 @@ static void mainLoop(void)
 {
     RscpProtocol protocol;
     bool bStopExecution = false;
-
+    bool bWBRequest = false;
     while(!bStopExecution)
     {
         
@@ -2481,8 +2481,14 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
-            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox))
+            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox)&&(bWBRequest))
             WBProcess(&frameBuffer);
+            
+            if(frameBuffer.dataLength == 0)
+                 bWBRequest = true;
+            else
+                 bWBRequest = false;
+            
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);
 //            sleep(1);

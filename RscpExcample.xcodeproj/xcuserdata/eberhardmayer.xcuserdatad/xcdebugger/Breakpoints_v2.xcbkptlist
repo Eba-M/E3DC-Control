@@ -15,8 +15,8 @@
             timestampString = "609025271.097766"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -81,8 +81,8 @@
             timestampString = "609025271.101516"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -130,8 +130,8 @@
             timestampString = "609025271.103145"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -145,8 +145,8 @@
             timestampString = "609025271.103673"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -160,8 +160,8 @@
             timestampString = "609025271.104739"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -328,8 +328,8 @@
             timestampString = "609025271.113813"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2509"
-            endingLineNumber = "2509"
+            startingLineNumber = "2515"
+            endingLineNumber = "2515"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -345,8 +345,8 @@
             timestampString = "609025271.11445"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2511"
-            endingLineNumber = "2511"
+            startingLineNumber = "2517"
+            endingLineNumber = "2517"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -481,8 +481,8 @@
             timestampString = "609025271.122527"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2517"
-            endingLineNumber = "2517"
+            startingLineNumber = "2523"
+            endingLineNumber = "2523"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -498,8 +498,8 @@
             timestampString = "609025271.123058"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2521"
-            endingLineNumber = "2521"
+            startingLineNumber = "2527"
+            endingLineNumber = "2527"
             landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
@@ -515,8 +515,8 @@
             timestampString = "609025271.1241111"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2608"
-            endingLineNumber = "2608"
+            startingLineNumber = "2614"
+            endingLineNumber = "2614"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -549,8 +549,8 @@
             timestampString = "609025271.127055"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -564,8 +564,8 @@
             timestampString = "609025271.128059"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1174,8 +1174,8 @@
             timestampString = "609025271.170541"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1206,8 +1206,8 @@
             timestampString = "609025271.171621"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1493,8 +1493,8 @@
             timestampString = "609025271.19047"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1587,8 +1587,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1617,8 +1617,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2991,8 +2991,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3229,8 +3229,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2611"
-            endingLineNumber = "2611">
+            startingLineNumber = "2617"
+            endingLineNumber = "2617">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3829,7 +3829,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "9B610D9C-E0A7-4A1F-8CDE-DE62C456DACC"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "RscpExampleMain.cpp"
@@ -4075,8 +4075,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2564"
-            endingLineNumber = "2564"
+            startingLineNumber = "2570"
+            endingLineNumber = "2570"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -4091,8 +4091,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2563"
-            endingLineNumber = "2563"
+            startingLineNumber = "2569"
+            endingLineNumber = "2569"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -4267,8 +4267,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2541"
-            endingLineNumber = "2541"
+            startingLineNumber = "2547"
+            endingLineNumber = "2547"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -4283,8 +4283,8 @@
             filePath = "RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2538"
-            endingLineNumber = "2538"
+            startingLineNumber = "2544"
+            endingLineNumber = "2544"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -4366,6 +4366,22 @@
             startingLineNumber = "1190"
             endingLineNumber = "1190"
             landmarkName = "WBProcess(frameBuffer)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8E803111-D8D3-402E-BC19-AA208C26245B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "RscpExampleMain.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "2484"
+            endingLineNumber = "2484"
+            landmarkName = "mainLoop()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
