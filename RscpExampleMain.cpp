@@ -213,7 +213,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
 
-    iWBStatus=12;
+    iWBStatus=18;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
@@ -1182,7 +1182,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 12; }
+                }
         }
             }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
 
@@ -1194,7 +1194,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[4] = 0; // Toggle aus
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 12;
 
 
             }
@@ -1239,7 +1238,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             WBchar6[4] = 0; // Toggle aus
                             createRequestWBData(frameBuffer);
                             WBChar_alt = WBchar6[1];
-                            iWBStatus = 12;
                         }
                 }
 //                    else WBchar6[1] = 2;
@@ -1263,8 +1261,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
                     
                 createRequestWBData(frameBuffer);
-//                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
-                    iWBStatus = 12;
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
@@ -1280,8 +1276,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-//                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
-                iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
 // Bedingung zum Wallbox abschalten ermitteln
@@ -1308,15 +1302,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         createRequestWBData(frameBuffer);
                     WBchar6[1]=5;
                     WBChar_alt = WBchar6[1];
-                    
-                    if ((WBchar6[4] == 0) || (WBchar6[1] == 6))
-                        iWBStatus = 12; else // Warten bis Neustart oder bei 6A
-                        iWBStatus = 20;  // Warten bis Neustart
+                    iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
         }}
     printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i %i",iWBStatus,WBchar6[1]);
+    printf(" iWBStatus %i %i %i",iWBStatus,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
