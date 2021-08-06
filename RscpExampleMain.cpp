@@ -213,7 +213,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
 
-    iWBStatus=18;
+    iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
@@ -1301,6 +1301,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         } // Laden beenden
                         createRequestWBData(frameBuffer);
                     WBchar6[1]=5;
+                    WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
                     iWBStatus = 20;  // Warten bis Neustart
                 }}
@@ -2100,7 +2101,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                         bWBmaxLadestrom=false;
                                     }
                                     if ((int(WBchar[2])!=iWBIst)&&(iWBStatus==1))
-                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])!=iWBSoll))
+                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])>iWBSoll))
                                     {
 // ladeschwelle ändern 8..9
 
