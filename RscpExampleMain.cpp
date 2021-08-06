@@ -1047,7 +1047,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
-                    {iWBStatus = 30;
+                    {iWBStatus = 29;
                     bWBOff = true;
                     }
                 } else
@@ -1308,7 +1308,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }}
     printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i %i %i",iWBStatus,WBchar6[1],WBchar[2]);
+    printf(" iWBStatus %i %i %i %i",iWBStatus,WBchar6[4],WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
