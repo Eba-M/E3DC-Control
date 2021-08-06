@@ -234,7 +234,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,6);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar6,iWBLen);
     iWBSoll = WBchar6[1];   // angeforderte Ladestromstärke;
-    WBToggel = WBchar6[4]; 
+    WBToggel = WBchar6[4];
 
 
     protocol.appendValue(&WBContainer, WB2Container);
@@ -1310,7 +1310,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }}
     printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i %i %i %i",iWBStatus,WBchar6[4],WBchar6[1],WBchar[2]);
+    printf(" iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
