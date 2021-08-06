@@ -213,7 +213,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
 
-    iWBStatus=7;
+    iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
@@ -1009,7 +1009,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
             if (WBchar[2] > 4)
-            iWBStatus = 5;
+            iWBStatus = 12;
             else {
 //                iWBStatus= 1;
                 return 0;}
@@ -1132,7 +1132,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (iRefload<e3dc_config.wbminlade*.9)
                      iPower = idynPower;
                     else
-                      if (iPower < iPower_Bat-fPower_Grid)
+                      if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
                           }
 
@@ -1182,7 +1182,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 7; }
+                iWBStatus = 12; }
         }
             }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
 
@@ -1194,7 +1194,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[4] = 0; // Toggle aus
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 5;
+                iWBStatus = 12;
 
 
             }
@@ -1239,7 +1239,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             WBchar6[4] = 0; // Toggle aus
                             createRequestWBData(frameBuffer);
                             WBChar_alt = WBchar6[1];
-                            iWBStatus = 5;
+                            iWBStatus = 12;
                         }
                 }
 //                    else WBchar6[1] = 2;
@@ -1310,7 +1310,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBChar_alt = WBchar6[1];
                     
                     if ((WBchar6[4] == 0) || (WBchar6[1] == 6))
-                        iWBStatus = 7; else // Warten bis Neustart oder bei 6A
+                        iWBStatus = 12; else // Warten bis Neustart oder bei 6A
                         iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
