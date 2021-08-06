@@ -30,6 +30,7 @@ static int iLMStatus2 = 0; // Status, Load Management  Peakshaving > 0 ist aktiv
 static float fAvBatterie,fAvBatterie900;
 static int iAvBatt_Count = 0;
 static int iAvBatt_Count900 = 0;
+static uint8_t WBToggel;
 static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
@@ -233,6 +234,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,6);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar6,iWBLen);
     iWBSoll = WBchar6[1];   // angeforderte Ladestromstärke;
+    WBToggel = WBchar6[4]; 
 
 
     protocol.appendValue(&WBContainer, WB2Container);
