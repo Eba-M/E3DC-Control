@@ -278,7 +278,7 @@ int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
     
     protocol.createContainerValue(&WB2Container, TAG_WB_REQ_SET_PARAM_1);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,8);
-    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar,iWBLen);
+    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar,8);
     iWBSoll = WBchar[2];   // angeforderte Ladestromstärke;
 
 
@@ -1306,7 +1306,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
                 WBchar[2] = WBchar6[1];
-                createRequestWBData2(frameBuffer);
+                createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
@@ -1320,9 +1320,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int X1 = 2; X1 < 20; X1++)
                     if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
                 WBchar[2] = WBchar6[1];
-                createRequestWBData2(frameBuffer);
+//                createRequestWBData2(frameBuffer);
 
-//                createRequestWBData(frameBuffer);
+                createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
 
             } else
