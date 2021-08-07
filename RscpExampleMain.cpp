@@ -256,6 +256,50 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     return 0;
 }
 
+int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
+    RscpProtocol protocol;
+    SRscpValue rootValue;
+
+    iWBStatus=12;
+    
+    // The root container is create with the TAG ID 0 which is not used by any device.
+    protocol.createContainerValue(&rootValue, 0);
+    
+    // request Power Meter information
+    SRscpValue WBContainer;
+    SRscpValue WB2Container;
+
+    // request Wallbox data
+
+    protocol.createContainerValue(&WBContainer, TAG_WB_REQ_DATA) ;
+    // add index 0 to select first wallbox
+    protocol.appendValue(&WBContainer, TAG_WB_INDEX,0);
+
+    
+    protocol.createContainerValue(&WB2Container, TAG_WB_REQ_SET_PARAM_1);
+    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,8);
+    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar,iWBLen);
+    iWBSoll = WBchar[2];   // angeforderte Ladestromstärke;
+
+
+    protocol.appendValue(&WBContainer, WB2Container);
+    // free memory of sub-container as it is now copied to rootValue
+    protocol.destroyValueData(WB2Container);
+
+    
+// append sub-container to root container
+    protocol.appendValue(&rootValue, WBContainer);
+//    protocol.appendValue(&rootValue, WB2Container);
+    // free memory of sub-container as it is now copied to rootValue
+    protocol.destroyValueData(WBContainer);
+    
+    // create buffer frame to send data to the S10
+    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
+    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
+    protocol.destroyValueData(rootValue);
+    
+    return 0;
+}
 
 
 static float fBatt_SOC, fBatt_SOC_alt;
@@ -1261,8 +1305,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int X1 = 3; X1 < 20; X1++)
                     
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
-                    
-                createRequestWBData(frameBuffer);
+                WBchar[2] = WBchar6[1];
+                createRequestWBData2(frameBuffer);
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
@@ -1275,8 +1319,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1]--;
                 for (int X1 = 2; X1 < 20; X1++)
                     if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
-                
-                createRequestWBData(frameBuffer);
+                WBchar[2] = WBchar6[1];
+                createRequestWBData2(frameBuffer);
+
+//                createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
 
             } else
