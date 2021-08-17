@@ -496,6 +496,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (((tE3DC % (24*3600))+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
+        GetConfig(); //Lesen Parameter aus e3dc.config.txt
         sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
         WriteLog();
         if (fSavedtoday > 0)
@@ -2153,13 +2154,15 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     {
 // ladeschwelle ändern 8..9
 
-                                        static int ladeschwelle = 0;
-                                        if  ((WBchar[2]==8)&&(ladeschwelle>0))
-                                        e3dc_config.ladeschwelle = ladeschwelle;
-                                        if  ((WBchar[2]==9)&&(ladeschwelle != e3dc_config.ladeschwelle))
+                                        
+                                        if  (WBchar[2]==8)
+                                        GetConfig();
+                                        if  (WBchar[2]==9)
                                         {
-                                            ladeschwelle = e3dc_config.ladeschwelle;
                                             e3dc_config.ladeschwelle = 100;
+                                            e3dc_config.ladeende = 100;
+                                            e3dc_config.ladeende2 = 100;
+
                                         }
 // lademodus ändern 10..19
                                         if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
