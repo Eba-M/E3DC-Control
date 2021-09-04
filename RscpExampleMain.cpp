@@ -1182,14 +1182,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                       if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
                           }
-
-// Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen
+// Nur bei PV-Ertrag
+                if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
+// Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
                 if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
                 iPower = iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1)))
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+.5)))
                 iPower = e3dc_config.maximumLadeleistung*.4+iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+2)))
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1)))
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
@@ -2165,7 +2166,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 
                                         }
 // lademodus ändern 10..19
-                                        if  ((WBchar[2]>=10)&&(WBchar[2]<=19))
+                                        if  ((WBchar[2]>=11)&&(WBchar[2]<=19))
+// lademodus 10 ausschließen, da gelegentlich vom System gesetzt
                                         e3dc_config.wbmode = WBchar[2]-10;
                                         
                                         bWBChanged = true;
