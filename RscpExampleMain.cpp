@@ -1187,11 +1187,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
                 if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
-                iPower = iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+.6)))
-                iPower = e3dc_config.maximumLadeleistung*.4+iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1.2)))
-                iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
+                iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2+iPower_Bat-fPower_Grid*2;
+                if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
+                    iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
         }
@@ -1713,7 +1711,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
                 if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
                 fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
-                printf("Battery SOC %0.1f %% ", fBatt_SOC);
+                printf("Battery SOC %0.02f%% ", fBatt_SOC);
                 break;
             }
             case TAG_BAT_MODULE_VOLTAGE: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
