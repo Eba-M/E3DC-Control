@@ -1188,9 +1188,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
                 iPower = iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+.5)))
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+.6)))
                 iPower = e3dc_config.maximumLadeleistung*.4+iPower_Bat-fPower_Grid*2;
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1)))
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC+1.2)))
                 iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
