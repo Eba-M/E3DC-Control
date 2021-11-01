@@ -152,14 +152,17 @@ nano E3DC.sh
 
 // folgende kopieren
 
+``` 
 #!/bin/bash
 
 cd /home/pi/E3DC-Control
 while true;
- do 
-./E3DC-Control 
-sleep 30 
+do 
+  ./E3DC-Control 
+  sleep 30 
 done 
+```
+
 ```
 // Skriptdatei ausführbar machen
 
@@ -167,7 +170,7 @@ done
 
 // Ausführen
 
-`./E3DC.sh`
+./E3DC.sh
 
 // Eintrag in die autostart datei /etc/rc.local
 
