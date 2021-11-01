@@ -40,7 +40,7 @@ https://desertbot.io/blog/ssh-into-pi-zero-over-usb
 Den Raspberry PI einrichten und Betrieb
 
 
-# WLAN SCHON VOR DER INBETRIEBNAHME KONFIGURIEREN
+WLAN SCHON VOR DER INBETRIEBNAHME KONFIGURIEREN
 
 Mitunter ist es praktisch, wenn Sie einen Raspberry Pi auf Anhieb über das WLAN via SSH bedienen können. Das gibt Ihnen die Möglichkeit, ohne angeschlossene Maus und Tastatur mit der Konfiguration zu beginnen — zumindest soweit, wie Sie dies via SSH im Textmodus durchführen können.
 Die leere Datei ssh bewirkt, dass der SSH-Dienst sofort aktiviert wird. (Bei aktuellen Raspbian-Versionen ist dies ja nicht mehr der Fall.) 
