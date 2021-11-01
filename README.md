@@ -155,15 +155,10 @@ nano E3DC.sh
 #!/bin/bash
 
 cd /home/pi/E3DC-Control
-
 while true;
-
  do
-
 ./E3DC-Control
-
 sleep 30
-
 done
 ```
 // Skriptdatei ausführbar machen
