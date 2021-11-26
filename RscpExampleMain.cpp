@@ -10,6 +10,7 @@
 #include "AES.h"
 #include <time.h>
 #include "E3DC_CONF.h"
+#include "SunriseCalc.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -70,6 +71,10 @@ static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
+
+int sunriseAt;  // Sonnenaufgang
+int sunsetAt;   // Sonnenuntergang
+
 FILE * pFile;
 e3dc_config_t e3dc_config;
 char Log[300];
@@ -369,6 +374,8 @@ bool GetConfig()
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
+        e3dc_config.hoehe = 50;
+        e3dc_config.laenge = 10;
 
 
 
@@ -455,6 +462,10 @@ bool GetConfig()
                         e3dc_config.wbminlade = atoi(value);
                     else if(strcmp(var, "wbminSoC") == 0)
                         e3dc_config.wbminSoC = atof(value);
+                    else if(strcmp(var, "hoehe") == 0)
+                        e3dc_config.hoehe = atof(value);
+                    else if(strcmp(var, "laenge") == 0)
+                        e3dc_config.laenge = atof(value);
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -528,6 +539,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             t_config = tE3DC;
     }
    
+#
+    
+    
+    
+    
     float fLadeende = e3dc_config.ladeende;
     float fLadeende2 = e3dc_config.ladeende2;
     float fLadeende3 = e3dc_config.unload;
@@ -1177,7 +1193,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
-                    if (iRefload<=iMaxBattLade)
+                    if (iRefload<iMaxBattLade)
                      iPower = idynPower;
                     else
                       if (iPower < (iPower_Bat-fPower_Grid))
@@ -2612,10 +2628,20 @@ static int iEC = 0;
     {
         iEC++; // Schleifenzähler erhöhen
         ptm = gmtime(&t);
+//      Berechne Sonnenaufgang-/untergang
+        SunriseCalc *location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+        location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
+        sunriseAt = location->sunrise();
+        sunsetAt = location->sunset();
+        int hh1 = sunsetAt / 60;
+        int mm1 = sunsetAt % 60;
+        int hh = sunriseAt / 60;
+        int mm = sunriseAt % 60;
         sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
         WriteLog();
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
+        printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
