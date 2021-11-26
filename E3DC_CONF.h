@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "2021.05.24.1" //Wallbox branch
+#define VERSION "B2021.11.09.0" //Beta
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -47,7 +47,7 @@ typedef struct {
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
-    hton, htoff, htsockel;
+    hton, htoff, htsockel, wbminSoC, hoehe, laenge;
     
     
 }e3dc_config_t;

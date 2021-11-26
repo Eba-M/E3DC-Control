@@ -10,6 +10,7 @@
 #include "AES.h"
 #include <time.h>
 #include "E3DC_CONF.h"
+#include "SunriseCalc.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -30,6 +31,7 @@ static int iLMStatus2 = 0; // Status, Load Management  Peakshaving > 0 ist aktiv
 static float fAvBatterie,fAvBatterie900;
 static int iAvBatt_Count = 0;
 static int iAvBatt_Count900 = 0;
+static uint8_t WBToggel;
 static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
@@ -60,13 +62,19 @@ static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
 char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
+static bool bWBChanged; // Lademodus der Wallbox; wurde extern geändertz.B. Sonnenmodus
 static bool bWBConnect; // True = Dose ist verriegelt x08
 static bool bWBStart; // True Laden ist gestartet x10
 static bool bWBCharge; // True Laden ist gestartet x20
 static bool bWBSonne;  // Sonnenmodus x80
 static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
+static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
+
+int sunriseAt;  // Sonnenaufgang
+int sunsetAt;   // Sonnenuntergang
+
 FILE * pFile;
 e3dc_config_t e3dc_config;
 char Log[300];
@@ -211,7 +219,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
 
-    iWBStatus=7;
+    iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
     protocol.createContainerValue(&rootValue, 0);
@@ -230,6 +238,54 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     protocol.createContainerValue(&WB2Container, TAG_WB_REQ_SET_EXTERN);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,6);
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar6,iWBLen);
+    iWBSoll = WBchar6[1];   // angeforderte Ladestromstärke;
+    WBToggel = WBchar6[4];
+
+
+    protocol.appendValue(&WBContainer, WB2Container);
+    // free memory of sub-container as it is now copied to rootValue
+    protocol.destroyValueData(WB2Container);
+
+    
+// append sub-container to root container
+    protocol.appendValue(&rootValue, WBContainer);
+//    protocol.appendValue(&rootValue, WB2Container);
+    // free memory of sub-container as it is now copied to rootValue
+    protocol.destroyValueData(WBContainer);
+    
+    // create buffer frame to send data to the S10
+    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
+    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
+    protocol.destroyValueData(rootValue);
+    
+    return 0;
+}
+
+int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
+    RscpProtocol protocol;
+    SRscpValue rootValue;
+
+    iWBStatus=12;
+    
+    // The root container is create with the TAG ID 0 which is not used by any device.
+    protocol.createContainerValue(&rootValue, 0);
+    
+    // request Power Meter information
+    SRscpValue WBContainer;
+    SRscpValue WB2Container;
+
+    // request Wallbox data
+
+    protocol.createContainerValue(&WBContainer, TAG_WB_REQ_DATA) ;
+    // add index 0 to select first wallbox
+    protocol.appendValue(&WBContainer, TAG_WB_INDEX,0);
+
+    
+    protocol.createContainerValue(&WB2Container, TAG_WB_REQ_SET_PARAM_1);
+    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA_LEN,8);
+    protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar,8);
+    iWBSoll = WBchar[2];   // angeforderte Ladestromstärke;
+
 
     protocol.appendValue(&WBContainer, WB2Container);
     // free memory of sub-container as it is now copied to rootValue
@@ -251,9 +307,8 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 }
 
 
-
 static float fBatt_SOC, fBatt_SOC_alt;
-static float_t fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
+static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
@@ -318,6 +373,9 @@ bool GetConfig()
         e3dc_config.peakshave = 0;
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
+        e3dc_config.wbminSoC = 10;
+        e3dc_config.hoehe = 50;
+        e3dc_config.laenge = 10;
 
 
 
@@ -402,6 +460,12 @@ bool GetConfig()
                         e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "wbminlade") == 0)
                         e3dc_config.wbminlade = atoi(value);
+                    else if(strcmp(var, "wbminSoC") == 0)
+                        e3dc_config.wbminSoC = atof(value);
+                    else if(strcmp(var, "hoehe") == 0)
+                        e3dc_config.hoehe = atof(value);
+                    else if(strcmp(var, "laenge") == 0)
+                        e3dc_config.laenge = atof(value);
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -428,6 +492,8 @@ bool GetConfig()
     return fpread;
 }
 
+time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
+
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -441,6 +507,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (((tE3DC % (24*3600))+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
+        GetConfig(); //Lesen Parameter aus e3dc.config.txt
         sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
         WriteLog();
         if (fSavedtoday > 0)
@@ -472,6 +539,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             t_config = tE3DC;
     }
    
+#
+    
+    
+    
+    
     float fLadeende = e3dc_config.ladeende;
     float fLadeende2 = e3dc_config.ladeende2;
     float fLadeende3 = e3dc_config.unload;
@@ -486,7 +558,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
 
-    time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
     int32_t tZeitgleichung;
     tLadezeitende1 = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
@@ -701,8 +772,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
         {
-            
-        
+            // Überprüfen ob vor RE der SoC > tLadeende2 ist, dann entladen was möglich
+
+            if ((t>tLadezeitende3)&&(t<tLadezeitende1)&&(fBatt_SOC>fLadeende2))
+                iFc = e3dc_config.maximumLadeleistung*-1;
+          
             if (iPower<iFc)
             {   iPower = iFc;
                 if ((iPower>0)&&(iPower > fAvBatterie900)) iPower = iPower + pow((iPower-fAvBatterie900),2)/20;
@@ -714,11 +788,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)&&(e3dc_config.ladeende>fBatt_SOC)&&
+    if (e3dc_config.wallbox&&(bWBStart||bWBConnect)&&(bWBStopped||(iWBStatus>1))&&(e3dc_config.wbmode>1)
+        &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
+          ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
+        &&
         ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10))
 // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
 // und wenn die Wallbox gestoppt wurde, dann wird für bis zu 2h weitergeladen
 // oder bis der SoC ladeende2 erreicht hat
+// oder solange iWBStatus > 1 ist
             iPower = e3dc_config.maximumLadeleistung; // mit voller Leistung E3DC Speicher laden
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
@@ -753,7 +831,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                  tE3DC_alt = t;
 
                         {
-                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > (iPower_Bat - int32_t(fPower_Grid))))
+                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                         {if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
 // es liegt Netzbezug vor und System war nicht im Freilauf
@@ -840,7 +918,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //            if (iE3DC_Req_Load > iPower_Bat)
            if (abs(iE3DC_Req_Load) > 100)
               iLMStatus = -7;
-            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
+            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
 
 }
@@ -891,10 +969,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     const int iMaxcurrent=31;
-    static float_t iDyLadeende;
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
-    static int iLadeleistung[27][4]; //27*4 Zellen
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 
@@ -996,7 +1072,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         
             if (WBchar[2] > 4)
-            iWBStatus = 5;
+            iWBStatus = 12;
             else {
 //                iWBStatus= 1;
                 return 0;}
@@ -1034,7 +1110,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
-                    {iWBStatus = 30;
+                    {iWBStatus = 29;
                     bWBOff = true;
                     }
                 } else
@@ -1093,21 +1169,48 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 6:
                 case 7:
                 case 8:
+                case 9:
 
             // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
 
-//                if ((iRefload > iMinLade2)&&(iMinLade2>0)) iRefload = iMinLade2;
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
-
+                if (iRefload > iMaxBattLade) iRefload = iMaxBattLade;
+// iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
+                
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-                idynPower = (e3dc_config.wbminlade-iRefload)*(e3dc_config.wbmode-3);
-                iPower = iPower + idynPower;
-            break;
-            case 9:
-                iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
+//              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden
+//              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
+//              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
+//              entladen
+                
+                idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
+// Berücksichtigung des SoC
+                if (fBatt_SOC < 15)
+                    idynPower = idynPower*(fBatt_SOC - 5)/10;
+// Anhebung der Ladeleistung nur bis Ladezeitende1
+                if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
+                {
+                    if (iRefload<iMaxBattLade)
+                     iPower = idynPower;
+                    else
+                      if (iPower < (iPower_Bat-fPower_Grid))
+                          iPower = iPower_Bat-fPower_Grid;
+                          }
+// Nur bei PV-Ertrag
+                if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
+// Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
+
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
+                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2;
+                 iPower = iPower +(iPower_Bat-fPower_Grid*2);
+                 iPower = iPower - e3dc_config.maximumLadeleistung/4;
+                    
+                }
+                if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
+                    iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
 
                           break;
         }
@@ -1146,9 +1249,22 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1]=32;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                iWBStatus = 7; }
+                }
         }
             }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
+
+// Wenn der wbmodus neu eingestellt wurde, dann mit 7A starten
+
+            if (bWBChanged) {
+                bWBChanged = false;
+                WBchar6[1] = 7;  // Laden von 6A aus
+                WBchar6[4] = 0; // Toggle aus
+                createRequestWBData(frameBuffer);
+                WBChar_alt = WBchar6[1];
+
+
+            }
+            
 // Immer von 6A aus starten
         
 // Ermitteln Startbedingungen zum Ladestart der Wallbox
@@ -1156,6 +1272,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
             if ((WBchar[2] == 30) && not(bWBLademodus)&&bWBStopped) {
                 WBchar6[1] = 30;
+                iWBSoll = 30;
                 WBchar6[4] = 1; // Laden starten
                 createRequestWBData(frameBuffer);
                 WBchar6[4] = 0; // Toggle aus
@@ -1188,7 +1305,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             WBchar6[4] = 0; // Toggle aus
                             createRequestWBData(frameBuffer);
                             WBChar_alt = WBchar6[1];
-                            iWBStatus = 5;
                         }
                 }
 //                    else WBchar6[1] = 2;
@@ -1210,10 +1326,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int X1 = 3; X1 < 20; X1++)
                     
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
-                    
+                WBchar[2] = WBchar6[1];
                 createRequestWBData(frameBuffer);
-//                if ((WBchar6[1]>16)&&(WBChar_alt<= 16)) iWBStatus = 30; else
-                    iWBStatus = 12;
                 WBChar_alt = WBchar6[1];
 
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
@@ -1226,11 +1340,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1]--;
                 for (int X1 = 2; X1 < 20; X1++)
                     if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
-                
+                WBchar[2] = WBchar6[1];
+//                createRequestWBData2(frameBuffer);
+
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-//                if (WBchar6[1]>16) iWBStatus = 15; else // Länger warten bei hohen Stömen
-                iWBStatus = 12;  // Länger warten bei hohen Stömen
 
             } else
 // Bedingung zum Wallbox abschalten ermitteln
@@ -1256,16 +1370,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         } // Laden beenden
                         createRequestWBData(frameBuffer);
                     WBchar6[1]=5;
+                    WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
-                    
-                    if ((WBchar6[4] == 0) || (WBchar6[1] == 6))
-                        iWBStatus = 7; else // Warten bis Neustart oder bei 6A
-                        iWBStatus = 20;  // Warten bis Neustart
+                    iWBStatus = 20;  // Warten bis Neustart
                 }}
     }
         }}
     printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i",iWBStatus);
+    printf(" iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
@@ -1620,7 +1732,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
                 if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
                 fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
-                printf("Battery SOC %0.1f %% ", fBatt_SOC);
+                printf("Battery SOC %0.02f%% ", fBatt_SOC);
                 break;
             }
             case TAG_BAT_MODULE_VOLTAGE: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
@@ -2048,13 +2160,44 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBCharge) printf(" lädt");
                                     if (bWBStopped ) printf(" gestoppt");
 
-                                    printf(" Ladestromstärke %uA ",WBchar[2]);
-                                    if (WBchar[2]==32) {
+                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
                                         bWBmaxLadestrom=true;
                                     }
-                                    if (WBchar[2]==31) {
+//                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
+//                                        bWBmaxLadestrom=true;
+//                                    }
+                                if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
                                         bWBmaxLadestrom=false;
                                     }
+                                    if ((int(WBchar[2])!=iWBIst)&&(iWBStatus==1))
+                                    if ((not bWBmaxLadestrom)&&(int(WBchar[2])>iWBSoll))
+                                    {
+// ladeschwelle ändern 8..9
+
+                                        
+                                        if  (WBchar[2]==8)
+                                        GetConfig();
+                                        if  (WBchar[2]==9)
+                                        {
+                                            e3dc_config.ladeschwelle = 100;
+                                            e3dc_config.ladeende = 100;
+                                            e3dc_config.ladeende2 = 100;
+
+                                        }
+// lademodus ändern 10..19
+                                        if  ((WBchar[2]>=11)&&(WBchar[2]<=19))
+// lademodus 10 ausschließen, da gelegentlich vom System gesetzt
+                                        e3dc_config.wbmode = WBchar[2]-10;
+                                        
+                                        bWBChanged = true;
+                                        
+
+                                        }
+                                
+                                    iWBIst = WBchar[2];
+                                    if (bWBmaxLadestrom) printf(" Manu");
+                                    else printf(" Auto");
+                                    printf(" Ladestrom %u/%uA ",iWBSoll,WBchar[2]);
                                     break;
                                 }
                                     
@@ -2185,7 +2328,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_EMS_MAX_CHARGE_POWER: {              // 101 response for TAG_EMS_MAX_CHARGE_POWER
                         uint32_t uPower = protocol->getValueAsUInt32(&PMData[i]);
-                        printf("MAX_CHARGE_POWER %i W\n", uPower);
+                        if (uPower < e3dc_config.maximumLadeleistung)
+                            {if (uPower < 1500)
+                                  e3dc_config.maximumLadeleistung = 1500; else
+                                   e3dc_config.maximumLadeleistung = uPower;
+                            printf("MAX_CHARGE_POWER %i W\n", uPower);}
                         break;
                     }
                     case TAG_EMS_MAX_DISCHARGE_POWER: {              //102 response for TAG_EMS_MAX_DISCHARGE_POWER
@@ -2389,7 +2536,7 @@ static void mainLoop(void)
 {
     RscpProtocol protocol;
     bool bStopExecution = false;
-
+    bool bWBRequest = false;
     while(!bStopExecution)
     {
         
@@ -2401,8 +2548,14 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
-            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox))
+            if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox)&&(bWBRequest))
             WBProcess(&frameBuffer);
+            
+            if(frameBuffer.dataLength == 0)
+                 bWBRequest = true;
+            else
+                 bWBRequest = false;
+            
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);
 //            sleep(1);
@@ -2475,10 +2628,20 @@ static int iEC = 0;
     {
         iEC++; // Schleifenzähler erhöhen
         ptm = gmtime(&t);
+//      Berechne Sonnenaufgang-/untergang
+        SunriseCalc *location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+        location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
+        sunriseAt = location->sunrise();
+        sunsetAt = location->sunset();
+        int hh1 = sunsetAt / 60;
+        int mm1 = sunsetAt % 60;
+        int hh = sunriseAt / 60;
+        int mm = sunriseAt % 60;
         sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
         WriteLog();
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
+        printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
