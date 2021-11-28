@@ -5,6 +5,7 @@
 //  Created by Eberhard Mayer on 20.11.21.
 //  Copyright © 2021 Eberhard Mayer. All rights reserved.
 //
+// 
 
 #ifndef SunriseCalc_hpp
 #define SunriseCalc_hpp
