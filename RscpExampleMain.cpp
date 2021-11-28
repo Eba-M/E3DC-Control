@@ -11,6 +11,7 @@
 #include <time.h>
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
+#include "aWATTar.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -2639,6 +2640,7 @@ static int iEC = 0;
         int mm = sunriseAt % 60;
         sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
         WriteLog();
+        aWATTar();
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
