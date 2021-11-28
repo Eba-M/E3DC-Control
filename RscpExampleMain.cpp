@@ -10,7 +10,7 @@
 #include "AES.h"
 #include <time.h>
 #include "E3DC_CONF.h"
-#include "SunriseCalc.hpp"
+//#include "SunriseCalc.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -2629,7 +2629,7 @@ static int iEC = 0;
         iEC++; // Schleifenzähler erhöhen
         ptm = gmtime(&t);
 //      Berechne Sonnenaufgang-/untergang
-        SunriseCalc *location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+/*        SunriseCalc *location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
         location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
         sunriseAt = location->sunrise();
         sunsetAt = location->sunset();
@@ -2637,11 +2637,12 @@ static int iEC = 0;
         int mm1 = sunsetAt % 60;
         int hh = sunriseAt / 60;
         int mm = sunriseAt % 60;
+ */
         sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
         WriteLog();
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
-        printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
+//        printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
