@@ -4,7 +4,7 @@
 //
 //  Created by Eberhard Mayer on 26.11.21.
 //  Copyright © 2021 Eberhard Mayer. All rights reserved.
-// test
+// 
 
 #ifndef awattar_hpp
 #define awattar_hpp
