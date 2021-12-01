@@ -11,6 +11,7 @@
 #include <time.h>
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
+#include "awattar.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -2642,7 +2643,7 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-
+        aWATTar();
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
