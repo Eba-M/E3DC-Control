@@ -36,7 +36,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/usr/local/bin"
+      customWorkingDirectory = "/Users/eberhardmayer/Documents/E3DC-Control"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
@@ -61,6 +61,11 @@
          <EnvironmentVariable
             key = "PATH"
             value = "$PATH:/usr/local/bin"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PATH"
+            value = "$PATH:/opt/homebrew/bin"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

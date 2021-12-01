@@ -11,7 +11,7 @@
 #include <time.h>
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
-#include "aWATTar.hpp"
+#include "awattar.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -313,8 +313,10 @@ static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussle
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t = 0;
-static time_t tm_CONF_dt;
+static time_t tm_CONF_dt; // zeitstempel Erstellung Configuration file;
+
 static bool bCheckConfig;
+
 bool CheckConfig()
 {
     struct stat stats;
