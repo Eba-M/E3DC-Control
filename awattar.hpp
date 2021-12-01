@@ -20,7 +20,7 @@
 typedef struct {int hh; float pp;}watt_s;
 
 
-void aWATTar ();
+void aWATTar();
 bool CheckaWATTar();
 
 

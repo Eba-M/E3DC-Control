@@ -35,7 +35,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
         return false; else return true;
 };
 
-void aWATTar ()
+void aWATTar()
 
 {
 
@@ -123,5 +123,4 @@ void aWATTar ()
         fprintf(fp,"%i %.2f; ",ch[j].hh,ch[j].pp);
     fprintf(fp,"\n");
     fclose(fp);
- 
 };
