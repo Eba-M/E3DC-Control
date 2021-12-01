@@ -33,7 +33,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      tm_dt = *(&stats.st_mtime);
     if (tm_dt==tm_Wallbox_dt)
         return false; else return true;
-}
+};
 
 void aWATTar ()
 
