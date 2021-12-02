@@ -2643,7 +2643,7 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-//        aWATTar();
+//        aWATTar(); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
