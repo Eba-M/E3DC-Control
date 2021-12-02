@@ -1,12 +1,12 @@
 //
 //  aWATTar.cpp
-//  RscpExcample
+//  
 //
 //  Created by Eberhard Mayer on 26.11.21.
 //  Copyright © 2021 Eberhard Mayer. All rights reserved.
-//
+//  
 
-#include "aWATTar.hpp"
+#include "awattar.hpp"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,24 @@
 
 //typedef struct {int hh; float pp;}watt_s;
 
-void aWATTar ()
+static time_t tm_Wallbox_dt; // zeitstempel Wallbox Steurungsdatei;
+bool CheckWallbox()
+/*
+Mit dieser Funktion wird überprüft, ob die Wallbox für das Laden zu
+aWATTar -Tarifen freigeschaltet werden muss.
+Wenn über den Webserver eine neue Ladedaueränderung erkannt wurde
+oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbeiten.
+ */
+{
+    struct stat stats;
+    time_t  tm_dt;
+     stat("e3dc.wallbox.txt",&stats);
+     tm_dt = *(&stats.st_mtime);
+    if (tm_dt==tm_Wallbox_dt)
+        return false; else return true;
+};
+
+void aWATTar()
 
 {
 
@@ -31,10 +48,13 @@ void aWATTar ()
     double_t pp;
     
     FILE * fp;
+
     system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
 
+    system ("pwd");
     fp = fopen("awattar.out","r");
     char line[256];
+    if (fp)
     while (fgets(line, sizeof(line), fp)) {
 
         ww.hh = atoi(line);
@@ -97,4 +117,10 @@ void aWATTar ()
 
     }
     w.clear();
+    fp = fopen("e3dc.wallbox.txt","w");
+    fprintf(fp,"%i\n",ladedauer);
+    for (int j = 0; j < ch.size(); j++ )
+        fprintf(fp,"%i %.2f; ",ch[j].hh,ch[j].pp);
+    fprintf(fp,"\n");
+    fclose(fp);
 };
