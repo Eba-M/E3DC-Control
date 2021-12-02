@@ -11,7 +11,8 @@
 		EF2BA06B2124C92900DA7E47 /* RscpProtocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF2BA0632124C92800DA7E47 /* RscpProtocol.cpp */; };
 		EF2BA06D2124C92900DA7E47 /* AES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF2BA0672124C92800DA7E47 /* AES.cpp */; };
 		EF2BA06E2124C92900DA7E47 /* SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF2BA0682124C92800DA7E47 /* SocketConnection.cpp */; };
-		EF45B19F2749728800DA4C96 /* SunriseCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF45B19D2749728800DA4C96 /* SunriseCalc.cpp */; };
+		EF73FD5C27543B500061652C /* awattar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF73FD5B27543B500061652C /* awattar.cpp */; };
+		EF73FD6227543C800061652C /* SunriseCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF73FD6127543C800061652C /* SunriseCalc.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,10 +38,14 @@
 		EF2BA0672124C92800DA7E47 /* AES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AES.cpp; sourceTree = SOURCE_ROOT; };
 		EF2BA0682124C92800DA7E47 /* SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketConnection.cpp; sourceTree = SOURCE_ROOT; };
 		EF2BA0692124C92800DA7E47 /* SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketConnection.h; sourceTree = SOURCE_ROOT; };
-		EF45B19D2749728800DA4C96 /* SunriseCalc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SunriseCalc.cpp; sourceTree = "<group>"; };
-		EF45B19E2749728800DA4C96 /* SunriseCalc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SunriseCalc.hpp; sourceTree = "<group>"; };
 		EF47F9EA212596F60058FF15 /* E3DC_CONF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = E3DC_CONF.h; sourceTree = SOURCE_ROOT; };
+		EF73FD5B27543B500061652C /* awattar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = awattar.cpp; sourceTree = SOURCE_ROOT; };
+		EF73FD5D27543B690061652C /* awattar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = awattar.hpp; sourceTree = SOURCE_ROOT; };
+		EF73FD6127543C800061652C /* SunriseCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SunriseCalc.cpp; sourceTree = SOURCE_ROOT; };
+		EF73FD6327543C930061652C /* SunriseCalc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SunriseCalc.hpp; sourceTree = SOURCE_ROOT; };
 		EFDD5B6E2124C726008DDBEA /* RscpExcample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RscpExcample; sourceTree = BUILT_PRODUCTS_DIR; };
+		EFE280162757BBB900527A93 /* awattar.out */ = {isa = PBXFileReference; lastKnownFileType = file; path = awattar.out; sourceTree = SOURCE_ROOT; };
+		EFE280172757BC4B00527A93 /* e3dc.wallbox.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = e3dc.wallbox.txt; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,8 +82,10 @@
 				EF2BA0662124C92800DA7E47 /* AES.h */,
 				EF2BA0652124C92800DA7E47 /* Makefile */,
 				EF2BA0622124C92800DA7E47 /* RscpExampleMain.cpp */,
-				EF45B19D2749728800DA4C96 /* SunriseCalc.cpp */,
-				EF45B19E2749728800DA4C96 /* SunriseCalc.hpp */,
+				EF73FD5D27543B690061652C /* awattar.hpp */,
+				EF73FD5B27543B500061652C /* awattar.cpp */,
+				EFE280162757BBB900527A93 /* awattar.out */,
+				EFE280172757BC4B00527A93 /* e3dc.wallbox.txt */,
 				EF47F9EA212596F60058FF15 /* E3DC_CONF.h */,
 				EF2BA0632124C92800DA7E47 /* RscpProtocol.cpp */,
 				EF2BA0602124C92800DA7E47 /* RscpProtocol.h */,
@@ -86,6 +93,8 @@
 				EF2BA0642124C92800DA7E47 /* RscpTypes.h */,
 				EF2BA0682124C92800DA7E47 /* SocketConnection.cpp */,
 				EF2BA0692124C92800DA7E47 /* SocketConnection.h */,
+				EF73FD6327543C930061652C /* SunriseCalc.hpp */,
+				EF73FD6127543C800061652C /* SunriseCalc.cpp */,
 			);
 			path = RscpExcample;
 			sourceTree = "<group>";
@@ -149,8 +158,9 @@
 				EF2BA06D2124C92900DA7E47 /* AES.cpp in Sources */,
 				EF2BA06A2124C92900DA7E47 /* RscpExampleMain.cpp in Sources */,
 				EF2BA06B2124C92900DA7E47 /* RscpProtocol.cpp in Sources */,
+				EF73FD6227543C800061652C /* SunriseCalc.cpp in Sources */,
 				EF2BA06E2124C92900DA7E47 /* SocketConnection.cpp in Sources */,
-				EF45B19F2749728800DA4C96 /* SunriseCalc.cpp in Sources */,
+				EF73FD5C27543B500061652C /* awattar.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
