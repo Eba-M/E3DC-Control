@@ -5,7 +5,7 @@ all: $(ROOT_VALUE)
 
 $(ROOT_VALUE): clean
 	$(CXX) -O3 RscpExampleMain.cpp RscpProtocol.cpp AES.cpp SocketConnection.cpp SunriseCalc.cpp awattar.cpp -o $@
-
+  
 
 clean:
 	-rm $(ROOT_VALUE) $(VECTOR)
