@@ -132,8 +132,10 @@ void aWATTar(std::vector<watt_s> &ch)
     w.clear();
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
-    for (int j = 0; j < ch.size(); j++ )
-        fprintf(fp,"%i %.2f; ",int(ch[j].hh%86400000/3600000),ch[j].pp);
+    for (int j = 0; j < ch.size(); j++ ){
+        k = (ch[j].hh% (24*3600)/3600);
+        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
+    }
     fprintf(fp,"\n");
     fclose(fp);
 };
