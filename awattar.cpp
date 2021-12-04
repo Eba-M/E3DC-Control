@@ -113,7 +113,7 @@ void aWATTar(std::vector<watt_s> &ch)
     if (k>0&&ladedauer>0){
     ww = low;
     ch.push_back(ww);
-    for (int l = 1;(l < k||l < ladedauer); l++)
+    for (int l = 1;((l < k)&&(l < ladedauer)); l++)
     {
         pp = low.pp;
         ww = high;
