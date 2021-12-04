@@ -13,14 +13,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-
+#include <vector>
 
 #endif /* aWATTar_hpp */
 
-typedef struct {int hh; float pp;}watt_s;
+typedef struct {time_t hh; float pp;}watt_s;
+// std::vector<watt_s> ch;  //charge hour
 
 
-void aWATTar();
+void aWATTar(std::vector<watt_s> &ch);
 bool CheckaWATTar();
 
 
