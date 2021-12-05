@@ -106,7 +106,8 @@ void aWATTar(std::vector<watt_s> &ch)
 // Beginn mit der aktuellen Uhrzeit bis nächsten Tag 7Uhr
     ptm = gmtime ( &w[0].hh);
     int k = ptm->tm_hour;
-    if (k > 7) k = 24-k+7;         // Es wird nur bis 7 Uhr nächsten Tag berücksichtigt
+    if (k > 7) k = 24-k+7;
+    else k = 7;   // Es wird nur bis 7 Uhr nächsten Tag berücksichtigt
     if (k >w.size()) k = w.size();
     // ersten wert hinzufügen
     

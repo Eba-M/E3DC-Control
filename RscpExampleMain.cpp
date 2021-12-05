@@ -1290,7 +1290,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (bWBLademodus)
                     WBchar6[0] = 1;            // Sonnenmodus
                     if (not(bWBmaxLadestrom))
-                    WBchar6[1] = 31;
+                        WBchar6[1] = 6; else WBchar6[1] = 32;
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);
