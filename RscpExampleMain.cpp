@@ -2676,7 +2676,7 @@ int main(int argc, char *argv[])
      strcpy(e3dc_config.conffile, argv[i+1]);
  }
     
-    
+
 static int iEC = 0;
  time(&t);
  struct tm * ptm;
@@ -2751,3 +2751,4 @@ static int iEC = 0;
     return 0;
 }
 
+// Delta E3DC-V1

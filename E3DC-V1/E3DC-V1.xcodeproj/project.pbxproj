@@ -16,16 +16,6 @@
 		EF0F3E9F275C3EB70083A8EE /* SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		EF0F3E85275C3EB60083A8EE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = EF7AB456275A15B0004CC034;
-			remoteInfo = "E3DC-Control";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		EF7AB482275C2C75004CC034 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -42,9 +32,7 @@
 		EF0F3E7E275C3EB60083A8EE /* SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketConnection.h; path = ../SocketConnection.h; sourceTree = "<group>"; };
 		EF0F3E7F275C3EB60083A8EE /* RscpTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpTags.h; path = ../RscpTags.h; sourceTree = "<group>"; };
 		EF0F3E80275C3EB60083A8EE /* SunriseCalc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SunriseCalc.hpp; path = ../SunriseCalc.hpp; sourceTree = "<group>"; };
-		EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "E3DC-Control.xcodeproj"; path = "../E3DC-Control/E3DC-Control.xcodeproj"; sourceTree = "<group>"; };
 		EF0F3E87275C3EB60083A8EE /* RscpTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpTypes.h; path = ../RscpTypes.h; sourceTree = "<group>"; };
-		EF0F3E88275C3EB60083A8EE /* E3DC-Control */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "E3DC-Control"; path = "../E3DC-Control"; sourceTree = "<group>"; };
 		EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RscpProtocol.cpp; path = ../RscpProtocol.cpp; sourceTree = "<group>"; };
 		EF0F3E8A275C3EB60083A8EE /* SunriseCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SunriseCalc.cpp; path = ../SunriseCalc.cpp; sourceTree = "<group>"; };
 		EF0F3E8B275C3EB60083A8EE /* AES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AES.h; path = ../AES.h; sourceTree = "<group>"; };
@@ -75,14 +63,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EF0F3E82275C3EB60083A8EE /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				EF0F3E86275C3EB60083A8EE /* E3DC-Control */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		EF7AB47B275C2C75004CC034 = {
 			isa = PBXGroup;
 			children = (
@@ -93,8 +73,6 @@
 				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
 				EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */,
 				EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */,
-				EF0F3E88275C3EB60083A8EE /* E3DC-Control */,
-				EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */,
 				EF0F3E90275C3EB70083A8EE /* E3DC-V1 */,
 				EF0F3E8C275C3EB60083A8EE /* e3dc.config.txt.template */,
 				EF0F3E8F275C3EB70083A8EE /* Makefile */,
@@ -165,28 +143,12 @@
 			mainGroup = EF7AB47B275C2C75004CC034;
 			productRefGroup = EF7AB485275C2C75004CC034 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = EF0F3E82275C3EB60083A8EE /* Products */;
-					ProjectRef = EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				EF7AB483275C2C75004CC034 /* E3DC-V1 */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		EF0F3E86275C3EB60083A8EE /* E3DC-Control */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = "E3DC-Control";
-			remoteRef = EF0F3E85275C3EB60083A8EE /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		EF7AB480275C2C75004CC034 /* Sources */ = {
