@@ -35,36 +35,46 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
         return false; else return true;
 };
 
-void aWATTar()
+void aWATTar(std::vector<watt_s> &ch)
 
 {
-
+//    std::vector<watt_s> ch;  //charge hour
     std::vector<watt_s> w;
     int ladedauer = 4;
-    std::vector<watt_s> ch;  //charge hour
     watt_s ww;
     
-    
+    struct tm * ptm;
     double_t pp;
     
     FILE * fp;
+    char line[256];
 
-    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
+
+//    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
+// es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
+    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 
     system ("pwd");
+    fp = fopen("e3dc.wallbox.txt","r");
+    if (fp)
+    {
+        (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
+        ladedauer = atoi(line);
+        fclose(fp);
+    };
     fp = fopen("awattar.out","r");
-    char line[256];
     if (fp)
     while (fgets(line, sizeof(line), fp)) {
 
-        ww.hh = atoi(line);
+        ww.hh = atol(line);
+        ptm = gmtime ( &ww.hh);
 //        h.push_back(hh);
         if (fgets(line, sizeof(line), fp)) {
             ww.pp = atof(line);
             w.push_back(ww);
         } else break;
     }
-
+    fclose(fp);
     watt_s high = w[0];
     watt_s high2 = w[0];
     watt_s low = w[0];
@@ -94,13 +104,16 @@ void aWATTar()
     }
 // die gewünschten Ladezeiten werden ermittelt
 // Beginn mit der aktuellen Uhrzeit bis nächsten Tag 7Uhr
-    int k = w[0].hh;
-    if (k > 7) k = 24-k+7;
+    ptm = gmtime ( &w[0].hh);
+    int k = ptm->tm_hour;
+    if (k > 7) k = 24-k+7;         // Es wird nur bis 7 Uhr nächsten Tag berücksichtigt
     if (k >w.size()) k = w.size();
-// ersten wert hinzufügen
+    // ersten wert hinzufügen
+    
+    if (k>0&&ladedauer>0){
     ww = low;
     ch.push_back(ww);
-    for (int l = 1;l < ladedauer; l++)
+    for (int l = 1;((l < k)&&(l < ladedauer)); l++)
     {
         pp = low.pp;
         ww = high;
@@ -115,12 +128,14 @@ void aWATTar()
         low = ww;
         
 
-    }
+    }}
     w.clear();
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
-    for (int j = 0; j < ch.size(); j++ )
-        fprintf(fp,"%i %.2f; ",ch[j].hh,ch[j].pp);
+    for (int j = 0; j < ch.size(); j++ ){
+        k = (ch[j].hh% (24*3600)/3600);
+        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
+    }
     fprintf(fp,"\n");
     fclose(fp);
 };

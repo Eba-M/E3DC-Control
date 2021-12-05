@@ -58,6 +58,8 @@ static int32_t iBattLoad;
 static int iPowerBalance,iPowerHome;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC, tWBtime;
+static int hh,mm,ss;
+
 static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
@@ -69,12 +71,13 @@ static bool bWBStart; // True Laden ist gestartet x10
 static bool bWBCharge; // True Laden ist gestartet x20
 static bool bWBSonne;  // Sonnenmodus x80
 static bool bWBStopped;  // Laden angehalten x40
-static bool bWBmaxLadestrom; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
+static bool bWBmaxLadestrom,bWBmaxLadestromSave; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 
 int sunriseAt;  // Sonnenaufgang
 int sunsetAt;   // Sonnenuntergang
+std::vector<watt_s> ch;  //charge hour
 
 FILE * pFile;
 e3dc_config_t e3dc_config;
@@ -501,7 +504,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     printf("\n");
     tm *ts;
     ts = gmtime(&tE3DC);
-    int hh,mm,ss;
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
     ss = t % (60);
@@ -974,6 +976,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
+    static bool bWBLademodusSave,bWBZeitsteuerung;
 
 /*
  Die Ladeleistung der Wallbox wird nach verfügbaren PV-Überschussleistung gesteuert
@@ -1057,6 +1060,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  Deswegen wird zwischen 21:00 GMT und 5:00 GMT die Ladesperre der Wallbox überwacht
  Die Einstellung der Ladestromstärke auf 30A löst die Überwachung erst aus.
  
+ Unterstützung aWATTar
+ 
+ Schaltet die Wallbox fpr die in cw gespeicherten Interval ein.
+ zu diesem zweck wird ein Ladeinterval zwischen Sonnenuntergang/-aufgang abgearbeitet
+ bWBLademodus True = Sonne
  
  */
 
@@ -1241,7 +1249,59 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
         if (iWBStatus == 1) // 
         {
+// Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
+            struct tm * ptm;
+            ptm = gmtime(&tE3DC);
 
+            if (not(bWBZeitsteuerung))
+            {
+                for (int j = 0; j < ch.size(); j++ )
+                    if ((ch[j].hh% (24*3600)/3600)==hh){
+                        bWBZeitsteuerung = true;
+                    };
+                if (bWBZeitsteuerung){
+                    bWBmaxLadestromSave = bWBmaxLadestrom;
+                    WBchar6[0] = 2;            // Netzmodus
+                    if (not(bWBmaxLadestrom))
+                    {
+                        bWBmaxLadestrom = true;
+                        WBchar6[1] = 32;
+                    }
+                    if (bWBStopped)
+                    WBchar6[4] = 1; // Laden starten
+                    bWBLademodusSave=bWBLademodus;    //Sonne Netz
+                    bWBLademodus = false;  // Netz
+                    createRequestWBData(frameBuffer);
+                    WBchar6[4] = 0; // Toggle aus
+                    iWBStatus = 30;
+                    return(0);
+
+                }
+            }else   // Das Ladefenster ist offen Überwachen, wann es sich wieder schließt
+            {
+                bWBZeitsteuerung = false;
+                for (int j = 0; j < ch.size(); j++ )
+                    if ((ch[j].hh% (24*3600)/3600)==hh){
+                        bWBZeitsteuerung = true;
+                    };
+                if (not(bWBZeitsteuerung)){    // Ausschalten
+                    bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
+                    bWBLademodus = bWBLademodusSave;
+                    if (bWBLademodus)
+                    WBchar6[0] = 1;            // Sonnenmodus
+                    if (not(bWBmaxLadestrom))
+                    WBchar6[1] = 31;
+                    if (bWBCharge)
+                    WBchar6[4] = 1; // Laden stoppen
+                    createRequestWBData(frameBuffer);
+                    WBchar6[4] = 0; // Toggle aus
+                    iWBStatus = 30;
+                    return(0);
+
+                }
+
+            };
+            
             
             if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
             if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
@@ -1279,8 +1339,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 30;
-                struct tm * ptm;
-                ptm = gmtime(&t);
                 sprintf(Log,"WB starten %s", strtok(asctime(ptm),"\n"));
                 WriteLog();
             };
@@ -2624,7 +2682,8 @@ static int iEC = 0;
  struct tm * ptm;
 
     // endless application which re-connections to server on connection lost
-        if (GetConfig())
+    system("pwd");
+    if (GetConfig())
         while(iEC < 10)
     {
         iEC++; // Schleifenzähler erhöhen
@@ -2643,7 +2702,7 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-//        aWATTar(); // im Master nicht aufrufen
+        aWATTar(ch); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {

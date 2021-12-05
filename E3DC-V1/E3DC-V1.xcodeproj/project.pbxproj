@@ -1,0 +1,364 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EF0F3E99275C3EB70083A8EE /* RscpProtocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */; };
+		EF0F3E9A275C3EB70083A8EE /* SunriseCalc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E8A275C3EB60083A8EE /* SunriseCalc.cpp */; };
+		EF0F3E9B275C3EB70083A8EE /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E8F275C3EB70083A8EE /* Makefile */; };
+		EF0F3E9C275C3EB70083A8EE /* RscpExampleMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */; };
+		EF0F3E9D275C3EB70083A8EE /* AES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E94275C3EB70083A8EE /* AES.cpp */; };
+		EF0F3E9E275C3EB70083A8EE /* awattar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E96275C3EB70083A8EE /* awattar.cpp */; };
+		EF0F3E9F275C3EB70083A8EE /* SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EF0F3E85275C3EB60083A8EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = EF7AB456275A15B0004CC034;
+			remoteInfo = "E3DC-Control";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EF7AB482275C2C75004CC034 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		EF0F3E7E275C3EB60083A8EE /* SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketConnection.h; path = ../SocketConnection.h; sourceTree = "<group>"; };
+		EF0F3E7F275C3EB60083A8EE /* RscpTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpTags.h; path = ../RscpTags.h; sourceTree = "<group>"; };
+		EF0F3E80275C3EB60083A8EE /* SunriseCalc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SunriseCalc.hpp; path = ../SunriseCalc.hpp; sourceTree = "<group>"; };
+		EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "E3DC-Control.xcodeproj"; path = "../E3DC-Control/E3DC-Control.xcodeproj"; sourceTree = "<group>"; };
+		EF0F3E87275C3EB60083A8EE /* RscpTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpTypes.h; path = ../RscpTypes.h; sourceTree = "<group>"; };
+		EF0F3E88275C3EB60083A8EE /* E3DC-Control */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "E3DC-Control"; path = "../E3DC-Control"; sourceTree = "<group>"; };
+		EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RscpProtocol.cpp; path = ../RscpProtocol.cpp; sourceTree = "<group>"; };
+		EF0F3E8A275C3EB60083A8EE /* SunriseCalc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SunriseCalc.cpp; path = ../SunriseCalc.cpp; sourceTree = "<group>"; };
+		EF0F3E8B275C3EB60083A8EE /* AES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AES.h; path = ../AES.h; sourceTree = "<group>"; };
+		EF0F3E8C275C3EB60083A8EE /* e3dc.config.txt.template */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = e3dc.config.txt.template; path = ../e3dc.config.txt.template; sourceTree = "<group>"; };
+		EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Aktuelles und Versioneninfo"; path = "../Aktuelles und Versioneninfo"; sourceTree = "<group>"; };
+		EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Beschreibung_Parameter; path = ../Beschreibung_Parameter; sourceTree = "<group>"; };
+		EF0F3E8F275C3EB70083A8EE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; };
+		EF0F3E90275C3EB70083A8EE /* E3DC-V1 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "E3DC-V1"; sourceTree = "<group>"; };
+		EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RscpExampleMain.cpp; path = ../RscpExampleMain.cpp; sourceTree = "<group>"; };
+		EF0F3E92275C3EB70083A8EE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = E3DC_CONF.h; path = ../E3DC_CONF.h; sourceTree = "<group>"; };
+		EF0F3E94275C3EB70083A8EE /* AES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AES.cpp; path = ../AES.cpp; sourceTree = "<group>"; };
+		EF0F3E95275C3EB70083A8EE /* RscpProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpProtocol.h; path = ../RscpProtocol.h; sourceTree = "<group>"; };
+		EF0F3E96275C3EB70083A8EE /* awattar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = awattar.cpp; path = ../awattar.cpp; sourceTree = "<group>"; };
+		EF0F3E97275C3EB70083A8EE /* awattar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = awattar.hpp; path = ../awattar.hpp; sourceTree = "<group>"; };
+		EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SocketConnection.cpp; path = ../SocketConnection.cpp; sourceTree = "<group>"; };
+		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EF7AB481275C2C75004CC034 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EF0F3E82275C3EB60083A8EE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EF0F3E86275C3EB60083A8EE /* E3DC-Control */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EF7AB47B275C2C75004CC034 = {
+			isa = PBXGroup;
+			children = (
+				EF0F3E94275C3EB70083A8EE /* AES.cpp */,
+				EF0F3E8B275C3EB60083A8EE /* AES.h */,
+				EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */,
+				EF0F3E96275C3EB70083A8EE /* awattar.cpp */,
+				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
+				EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */,
+				EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */,
+				EF0F3E88275C3EB60083A8EE /* E3DC-Control */,
+				EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */,
+				EF0F3E90275C3EB70083A8EE /* E3DC-V1 */,
+				EF0F3E8C275C3EB60083A8EE /* e3dc.config.txt.template */,
+				EF0F3E8F275C3EB70083A8EE /* Makefile */,
+				EF0F3E92275C3EB70083A8EE /* README.md */,
+				EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */,
+				EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */,
+				EF0F3E95275C3EB70083A8EE /* RscpProtocol.h */,
+				EF0F3E7F275C3EB60083A8EE /* RscpTags.h */,
+				EF0F3E87275C3EB60083A8EE /* RscpTypes.h */,
+				EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */,
+				EF0F3E7E275C3EB60083A8EE /* SocketConnection.h */,
+				EF0F3E8A275C3EB60083A8EE /* SunriseCalc.cpp */,
+				EF0F3E80275C3EB60083A8EE /* SunriseCalc.hpp */,
+				EF7AB485275C2C75004CC034 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EF7AB485275C2C75004CC034 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EF7AB484275C2C75004CC034 /* E3DC-V1 */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EF7AB483275C2C75004CC034 /* E3DC-V1 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF7AB48B275C2C75004CC034 /* Build configuration list for PBXNativeTarget "E3DC-V1" */;
+			buildPhases = (
+				EF7AB480275C2C75004CC034 /* Sources */,
+				EF7AB481275C2C75004CC034 /* Frameworks */,
+				EF7AB482275C2C75004CC034 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "E3DC-V1";
+			productName = "E3DC-V1";
+			productReference = EF7AB484275C2C75004CC034 /* E3DC-V1 */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EF7AB47C275C2C75004CC034 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1300;
+				TargetAttributes = {
+					EF7AB483275C2C75004CC034 = {
+						CreatedOnToolsVersion = 13.0;
+					};
+				};
+			};
+			buildConfigurationList = EF7AB47F275C2C75004CC034 /* Build configuration list for PBXProject "E3DC-V1" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EF7AB47B275C2C75004CC034;
+			productRefGroup = EF7AB485275C2C75004CC034 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = EF0F3E82275C3EB60083A8EE /* Products */;
+					ProjectRef = EF0F3E81275C3EB60083A8EE /* E3DC-Control.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				EF7AB483275C2C75004CC034 /* E3DC-V1 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		EF0F3E86275C3EB60083A8EE /* E3DC-Control */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "E3DC-Control";
+			remoteRef = EF0F3E85275C3EB60083A8EE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EF7AB480275C2C75004CC034 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF0F3E9F275C3EB70083A8EE /* SocketConnection.cpp in Sources */,
+				EF0F3E9B275C3EB70083A8EE /* Makefile in Sources */,
+				EF0F3E99275C3EB70083A8EE /* RscpProtocol.cpp in Sources */,
+				EF0F3E9C275C3EB70083A8EE /* RscpExampleMain.cpp in Sources */,
+				EF0F3E9D275C3EB70083A8EE /* AES.cpp in Sources */,
+				EF0F3E9A275C3EB70083A8EE /* SunriseCalc.cpp in Sources */,
+				EF0F3E9E275C3EB70083A8EE /* awattar.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EF7AB489275C2C75004CC034 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		EF7AB48A275C2C75004CC034 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		EF7AB48C275C2C75004CC034 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HS23W2A9N9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EF7AB48D275C2C75004CC034 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HS23W2A9N9;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EF7AB47F275C2C75004CC034 /* Build configuration list for PBXProject "E3DC-V1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF7AB489275C2C75004CC034 /* Debug */,
+				EF7AB48A275C2C75004CC034 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF7AB48B275C2C75004CC034 /* Build configuration list for PBXNativeTarget "E3DC-V1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF7AB48C275C2C75004CC034 /* Debug */,
+				EF7AB48D275C2C75004CC034 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EF7AB47C275C2C75004CC034 /* Project object */;
+}
