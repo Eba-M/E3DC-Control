@@ -1289,8 +1289,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     bWBLademodus = bWBLademodusSave;
                     if (bWBLademodus)
                     WBchar6[0] = 1;            // Sonnenmodus
-                    if (not(bWBmaxLadestrom))
-                        WBchar6[1] = 6; else WBchar6[1] = 32;
+                    if (not(bWBmaxLadestrom)){
+                        WBchar6[1] = 31;
+                    } else WBchar6[1] = 32;
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);
@@ -2219,13 +2220,15 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBCharge) printf(" lädt");
                                     if (bWBStopped ) printf(" gestoppt");
 
-                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
+//                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
+                                    if (WBchar[2]==32) {
                                         bWBmaxLadestrom=true;
                                     }
 //                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
 //                                        bWBmaxLadestrom=true;
 //                                    }
-                                if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
+//                                if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
+                                    if  (WBchar[2]==31) {
                                         bWBmaxLadestrom=false;
                                     }
                                     if ((int(WBchar[2])!=iWBIst)&&(iWBStatus==1))
