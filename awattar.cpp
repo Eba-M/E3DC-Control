@@ -187,7 +187,7 @@ void aWATTar(std::vector<watt_s> &ch)
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
-    double_t pp;
+    float pp;
     FILE * fp;
     char line[256];
     time(&rawtime);
@@ -268,6 +268,7 @@ int ladedauer = 4;
     for (int l = 1;((l < k)&&(l < ladedauer)); l++)
     {
         ww.pp = 1000;
+
         for (int j = 0; j < k; j++ )
         {
             if ((w[j].pp>pp)&&(w[j].pp<ww.pp))
@@ -276,9 +277,7 @@ int ladedauer = 4;
             }
         }
         ch.push_back(ww);
-
-        
-
+        pp = ww.pp;
     }
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
