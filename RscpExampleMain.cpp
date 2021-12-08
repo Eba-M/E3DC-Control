@@ -372,7 +372,7 @@ bool GetConfig()
         e3dc_config.htsat = false;
         e3dc_config.htsun = false;
         e3dc_config.hton = 0;
-        e3dc_config.htoff = 0; // in Sekunden
+        e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = 0;
         e3dc_config.wbmode = 4;
@@ -382,6 +382,7 @@ bool GetConfig()
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = false;
         e3dc_config.Avhourly = 5;   // geschätzter Verbrauch in %
+        e3dc_config.AWDiff = 10;   // geschätzter Verbrauch in %
 
 
 
@@ -489,7 +490,9 @@ bool GetConfig()
                             (strcmp(value, "true") == 0))
                         e3dc_config.aWATTar = true;
                     else if(strcmp(var, "Avhourly") == 0)
-                        e3dc_config.Avhourly = atoi(value); // % der SoC
+                        e3dc_config.Avhourly = atof(value); // % der SoC
+                    else if(strcmp(var, "Avhourly") == 0)
+                        e3dc_config.AWDiff = atof(value); // % der SoC
 
 
                 }
@@ -585,7 +588,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1) {
         
-        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,8))==2){
+        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2){
             iE3DC_Req_Load = 2900;
             iLMStatus = -5;
             return 0;
