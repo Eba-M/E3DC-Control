@@ -587,13 +587,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1) {
-        
+
         if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2){
             iE3DC_Req_Load = 2900;
             iLMStatus = -5;
             return 0;
         }
-        
+
             
 if (                             // Das Entladen aus dem Speicher
     (                            // wird freigegeben nach den ht/nt Regeln oder aWATTat
@@ -612,7 +612,7 @@ if (                             // Das Entladen aus dem Speicher
            (e3dc_config.hton < t && e3dc_config.htoff > t ))
         )      // Das Entladen wird durch hton/htoff zugelassen
     )  //
-    || ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==0)
+    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1)
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
         (fht<fBatt_SOC)        // Wenn der SoC > der berechneten Reserve liegt
