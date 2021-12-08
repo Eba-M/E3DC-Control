@@ -22,6 +22,6 @@ typedef struct {time_t hh; float pp;}watt_s;
 
 
 void aWATTar(std::vector<watt_s> &ch);
-bool CheckaWATTar();
+int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption);
 
 

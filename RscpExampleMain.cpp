@@ -372,7 +372,7 @@ bool GetConfig()
         e3dc_config.htsat = false;
         e3dc_config.htsun = false;
         e3dc_config.hton = 0;
-        e3dc_config.htoff = 24*3600; // in Sekunden
+        e3dc_config.htoff = 0; // in Sekunden
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = 0;
         e3dc_config.wbmode = 4;
@@ -380,6 +380,9 @@ bool GetConfig()
         e3dc_config.wbminSoC = 10;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
+        e3dc_config.aWATTar = false;
+        e3dc_config.Avhourly = 5;   // geschätzter Verbrauch in %
+
 
 
 
@@ -482,6 +485,11 @@ bool GetConfig()
                     else if((strcmp(var, "htsun") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.htsun = true;
+                    else if((strcmp(var, "aWATTar") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.aWATTar = true;
+                    else if(strcmp(var, "Avhourly") == 0)
+                        e3dc_config.Avhourly = atoi(value); // % der SoC
 
 
                 }
@@ -576,24 +584,38 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1) {
-    
-    if ((((ts->tm_wday>0&&ts->tm_wday<6) ||
-          ((ts->tm_wday==0)&&e3dc_config.htsun)
-          ||
-          ((ts->tm_wday==6)&&e3dc_config.htsat)          )&&
-         (
-          ((e3dc_config.hton > e3dc_config.htoff) &&
+        
+        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,8))==2){
+            iE3DC_Req_Load = 2900;
+            iLMStatus = -5;
+            return 0;
+        }
+        
+            
+if (                             // Das Entladen aus dem Speicher
+    (                            // wird freigegeben nach den ht/nt Regeln oder aWATTat
+        (                        // ht Regel
+          (ts->tm_wday>0&&ts->tm_wday<6) ||      // Montag - Freitag
+          ((ts->tm_wday==0)&&e3dc_config.htsun)  // Sonntag ohne Sperre
+            ||
+          ((ts->tm_wday==6)&&e3dc_config.htsat)
+        )&&  // Samstag ohne Sperre
+        (
+          ((e3dc_config.hton > e3dc_config.htoff) &&  // außerhalb der ht sperrzeiten
             ((e3dc_config.hton < t) ||
              (e3dc_config.htoff > t )))
           ||
          ((e3dc_config.hton < e3dc_config.htoff) &&
-           (e3dc_config.hton < t && e3dc_config.htoff > t )))
-         )
-         ||
-            (fht<fBatt_SOC)
-        ||(iNotstrom==1)  //Notstrom
-        ||(iNotstrom==4)  //Inselbetrieb
-        ){
+           (e3dc_config.hton < t && e3dc_config.htoff > t ))
+        )      // Das Entladen wird durch hton/htoff zugelassen
+    )  //
+    || ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,7))==0)
+   // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
+    ||
+        (fht<fBatt_SOC)        // Wenn der SoC > der berechneten Reserve liegt
+    ||(iNotstrom==1)  //Notstrom
+    ||(iNotstrom==4)  //Inselbetrieb
+   ){
             // ENdladen einschalten)
         if ((iPower_Bat == 0)&&(fPower_Grid>100))
 {            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
@@ -2610,6 +2632,7 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
+            aWATTar(ch); // im Master nicht aufrufen
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
@@ -2705,7 +2728,6 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-        aWATTar(ch); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {

@@ -43,11 +43,11 @@ typedef struct {
     char aes_password[128];
     char logfile[128],conffile[128];
     char openWBhost[128];
-    bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB;
+    bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB,aWATTar;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
-    hton, htoff, htsockel, wbminSoC, hoehe, laenge;
+    hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly;
     
     
 }e3dc_config_t;
