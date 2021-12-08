@@ -192,9 +192,8 @@ int ladedauer = 4;
     char line[256];
     time(&rawtime);
     ptm = gmtime (&rawtime);
-    if ((ptm->tm_hour==oldhour))
-        return; //   Do nothing
-    
+    if ((ptm->tm_hour!=oldhour))
+    {
     oldhour = ptm->tm_hour;
 
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
@@ -202,13 +201,6 @@ int ladedauer = 4;
     system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     
     system ("pwd");
-    fp = fopen("e3dc.wallbox.txt","r");
-    if (fp)
-    {
-        (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
-        ladedauer = atoi(line);
-        fclose(fp);
-    };
     fp = fopen("awattar.out","r");
     if(!fp) return;
     w.clear();
@@ -225,6 +217,7 @@ int ladedauer = 4;
         }
     
     fclose(fp);
+    }
     if (w.size() == 0)
     return;
     
@@ -254,6 +247,15 @@ int ladedauer = 4;
 // Beginn mit der aktuellen Uhrzeit bis nächsten Tag 7Uhr
     if (not(CheckWallbox()))
         return;
+
+    fp = fopen("e3dc.wallbox.txt","r");
+    if (fp)
+    {
+        (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
+        ladedauer = atoi(line);
+        fclose(fp);
+    };
+
     ptm = gmtime ( &w[0].hh);
     int k = ptm->tm_hour;
     if (k > 7) k = 24-k+7;
