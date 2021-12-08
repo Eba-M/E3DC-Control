@@ -262,11 +262,9 @@ int ladedauer = 4;
     // ersten wert hinzufügen
     
     if (k>0&&ladedauer>0){
-        if (low.pp < low2.pp)
-            ww = low; else
-            ww = low2;
+        ww = low;
         pp = ww.pp;
-    ch.push_back(ww);
+        ch.push_back(ww);
     for (int l = 1;((l < k)&&(l < ladedauer)); l++)
     {
         ww.pp = 1000;
