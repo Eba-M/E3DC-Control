@@ -266,6 +266,7 @@ int ladedauer = 4;
     if (k>0&&ladedauer>0){
         ww = low;
         pp = ww.pp;
+        ch.clear();
         ch.push_back(ww);
     for (int l = 1;((l < k)&&(l < ladedauer)); l++)
     {
