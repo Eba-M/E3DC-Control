@@ -382,7 +382,7 @@ bool GetConfig()
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = false;
         e3dc_config.Avhourly = 5;   // geschätzter Verbrauch in %
-        e3dc_config.AWDiff = 10;   // geschätzter Verbrauch in %
+        e3dc_config.AWDiff = 100;   // geschätzter Verbrauch in %
 
 
 
@@ -491,8 +491,8 @@ bool GetConfig()
                         e3dc_config.aWATTar = true;
                     else if(strcmp(var, "Avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
-                    else if(strcmp(var, "Avhourly") == 0)
-                        e3dc_config.AWDiff = atof(value); // % der SoC
+                    else if(strcmp(var, "AWDiff") == 0)
+                        e3dc_config.AWDiff = atof(value)*10; // % der SoC
 
 
                 }
