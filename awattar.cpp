@@ -49,13 +49,23 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
             return true;}
 }
 
-int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit hohen Preisen von low + Diff
+int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit > preis
 {                                            // l1 = erste position h1 = letzte Position
     int x1 = 0;
     for (int j = ab; j <= bis; j++ )
     {
 // Suchen nach Hoch und Tiefs
         if (w[j].pp > preis) x1++;
+    }
+    return x1;
+}
+int Lowprice(int ab,int bis,float preis)    // Anzahle Einträge mit < Preisf
+{                                            // l1 = erste position h1 = letzte Position
+    int x1 = 0;
+    for (int j = ab; j <= bis; j++ )
+    {
+// Suchen nach Hoch und Tiefs
+        if (w[j].pp < preis) x1++;
     }
     return x1;
 }
@@ -131,10 +141,10 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
     static float lowpp;
     time_t  rawtime;
     time(&rawtime);
-    int x1,x2;
+    int x1,x2,x3;
     int Minuten = rawtime%(24*3600)/60;
     if (w.size() == 0) return 0; // Preisvector ist leer
-    
+//    return 2;
     if (Minuten <= sunrise-120)
     {
         SucheHT(0,sunrise+120); // sunrise nächster Tag suchen HT Werte
@@ -142,7 +152,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
         if (h1 < l1)              // ist noch ein h1 vor dem low?
         {
             SucheHT(0,w[l1].hh);  // Hochpreis vor low? Rückwärts suchen
-            x2 = Highprice(0,l1,w[l1].pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
+            x2 = Highprice(0,l1,low2.pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
             if (w[0].pp > w[l1].pp+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
             return 1;
                 
@@ -151,7 +161,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             SucheHT(0,sunrise+120);            // l1 = geringster   h1 = höchster preis
             int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
             x2 = SuchePos(l1,sunrise+120);
-            x2 = Highprice(l1,x2,w[l1].pp+Diff);
+            x2 = Highprice(l1,x2,low2.pp+Diff);
         
 // Nachladen aus dem Netz erforderlich
             if ((fSoC < x2*fConsumption)&&(lw==0))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
@@ -174,17 +184,17 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
         //        SucheHT(0,sunset+120); // tagsüber und 2h Nach Sonnenuntergang HT überprüfen
         SucheHT(0,sunrise+24*60); // bis zu nächsten Sonnenaufgang
         SucheHT(0,w[l1].hh);     // gibt es eine Preisspitze bis zum zum low?
-        x2 = Highprice(0,l1,w[l1].pp+Diff);
-        if (x2 > 0)
+        x2 = Highprice(0,l1,w[l1].pp+Diff);   // kann zum Tiefstpreis nachgeladen werden?
+        if (x2 > 0)                           // x2 Anzahl Stunden zum entladen
             if (w[0].pp > w[l1].pp+Diff)  {         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
-            x1 = Highprice(0,l1,w[0].pp);
+            x1 = Highprice(0,l1,w[0].pp);           // Nur entladen wenn der SoC auch für Stunden mit höheren Preisen reicht
                 if ((fSoC-x1*fConsumption) > 0)  // und >= Höchstwert
                 return 1;}
         SucheHT(0,sunrise+120);            // l1 = geringster   h1 = höchster preis
         x2 = SuchePos(l1,sunrise+120);
-        x2 = Highprice(l1,x2,w[l1].pp+Diff);
+        x2 = Highprice(0,x2,w[0].pp+Diff); // ist die akt Stunde ein Tiefpreis
                                         // Nachladen aus dem Netz erforderlich
-        if ((fSoC < x2*fConsumption)&&((sunset-Minuten)<120))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+        if ((fSoC < x2*fConsumption)&&x2 > 0)      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             return 2; else
 
         return 0;
@@ -192,11 +202,10 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
     if (Minuten > sunset)
     {
         SucheHT(0,sunrise+24*60); // sunrise nächster Tag suchen HT Werte
-        int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
-        if (h1 < l1)              // ist noch ein h1 vor dem low?
+        low2 = w[l1];
+        x2 = Highprice(0,l1,w[l1].pp+Diff); // Hochpreis vor low? Rückwärts suchen
+        if (x2 > 0)               // ist noch ein h1 vor dem low?
         {
-            SucheHT(0,w[l1].hh);  // Hochpreis vor low? Rückwärts suchen
-            x2 = Highprice(0,l1,w[l1].pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
             if (w[0].pp > w[l1].pp+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
             {
                 x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -207,14 +216,23 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
         {
             SucheHT(0,sunrise+120+24*60);            // l1 = geringster   h1 = höchster preis
             int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
-            x2 = SuchePos(l1,sunrise+120+24*60);
-            x2 = Highprice(l1,x2,w[l1].pp+Diff);
-        
+            x3 = SuchePos(l1,sunrise+120+24*60);
+            x1 = Lowprice(0, x3, w[0].pp);
+            x2 = Highprice(l1,x3,w[l1].pp+Diff);  // Preisspitzen am Morgen
+            if (x2 > 0)
+            {
 // Nachladen aus dem Netz erforderlich
-            if ((fSoC < x2*fConsumption)&&(lw==0))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-            {   return 2;
+                if ((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                {   return 2;
             
-            }                              // Nachladen ab dem niedrigsten
+                }
+            } else // vorhandene Kapazität optimal zum Ausspeichern nutzen
+            {
+                x1 = Highprice(0,x3,w[0].pp)+1;  // Gibt es mehr Stunden mit höheren Preisen wg. Reserve +1
+                if ((fSoC-x1*fConsumption) > 0)  // ausreichend Speicher gefüllt -> entladen zulassen
+                    return 1;
+                    else return 0;
+            }
         }
     }
     return 0;

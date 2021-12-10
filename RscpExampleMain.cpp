@@ -589,7 +589,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1) {
 
         if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2){
-            iE3DC_Req_Load = 2900;
+            iE3DC_Req_Load = e3dc_config.maximumLadeleistung+1;
             iLMStatus = -5;
             return 0;
         }
@@ -1513,13 +1513,16 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         {
             int32_t Mode;
             if (iE3DC_Req_Load==0) Mode = 1; else
-                if (iE3DC_Req_Load>=e3dc_config.maximumLadeleistung) Mode = 0; else
+                if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung) Mode = 4; else // Netzlademodus
+                if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; else
                 if (iE3DC_Req_Load>0) Mode = 3; else
             { iE3DC_Req_Load = iE3DC_Req_Load*-1;
                 Mode = 2;}
             iLMStatus = iLMStatus*-1;
             iE3DC_Req_Load_alt = iE3DC_Req_Load;
-        SRscpValue PMContainer;
+            if (iE3DC_Req_Load > e3dc_config.maximumLadeleistung)
+                iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
+                SRscpValue PMContainer;
         //    Power = Power*-1;
         protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
         protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
