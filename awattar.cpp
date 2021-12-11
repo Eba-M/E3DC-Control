@@ -82,7 +82,7 @@ void SucheHT(int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Seku
     rawtime = mktime(ptm);
     if (bis/60 > 24)
     rawtime = rawtime + 24*3600;
-    ptm = gmtime (&rawtime);
+//    ptm = gmtime (&rawtime);
     } else rawtime = bis;
     high = w[ab];
     low = w[ab];
@@ -103,6 +103,9 @@ void SucheHT(int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Seku
               l1 = j;
           }
     }
+    time(&rawtime);
+    ptm = gmtime (&rawtime);
+
     return;
 }
 
@@ -129,6 +132,8 @@ int SuchePos(int ab,int bis)  // ab = Index bis zeitangabe in Minuten Suchen nac
         zeit = w[j].hh%(24*3600)/60;
         ret = j;
     }
+    time(&rawtime);
+    ptm = gmtime (&rawtime);
     return ret;
 }
 
@@ -190,8 +195,8 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
             x1 = Highprice(0,l1,w[0].pp);           // Nur entladen wenn der SoC auch für Stunden mit höheren Preisen reicht
                 if ((fSoC-x1*fConsumption) > 0)  // und >= Höchstwert
                 return 1;}
-        SucheHT(0,sunrise+120);            // l1 = geringster   h1 = höchster preis
-        x2 = SuchePos(l1,sunrise+120);
+        SucheHT(0,sunset+120);            // l1 = geringster   h1 = höchster preis
+        x2 = SuchePos(l1,sunset+120);
         x2 = Highprice(0,x2,w[0].pp+Diff); // ist die akt Stunde ein Tiefpreis
                                         // Nachladen aus dem Netz erforderlich
         if ((fSoC < x2*fConsumption)&&x2 > 0)      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
