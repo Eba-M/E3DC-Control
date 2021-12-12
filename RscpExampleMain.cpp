@@ -593,6 +593,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             iLMStatus = -5;
             return 0;
         }
+        ts = gmtime(&tE3DC);
 
             
 if (                             // Das Entladen aus dem Speicher

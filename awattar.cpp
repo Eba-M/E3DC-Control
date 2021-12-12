@@ -150,7 +150,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
     int Minuten = rawtime%(24*3600)/60;
     if (w.size() == 0) return 0; // Preisvector ist leer
 //    return 2;
-    if (Minuten <= sunrise-120)
+    if (Minuten <= sunrise)
     {
         SucheHT(0,sunrise+120); // sunrise nächster Tag suchen HT Werte
         int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
@@ -183,7 +183,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
 2h vor Sonnenuntergang
 Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen gespeert
  */
-    if ((Minuten > sunset-120)&&(Minuten <= sunset))
+    if ((Minuten > sunset)&&(Minuten <= sunset))
     {
 
         //        SucheHT(0,sunset+120); // tagsüber und 2h Nach Sonnenuntergang HT überprüfen
