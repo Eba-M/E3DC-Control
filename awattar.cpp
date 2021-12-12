@@ -152,6 +152,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
 //    return 2;
     if (Minuten <= sunrise)
     {
+        if (low2.pp == 0) low2 = w[0]; // ist low vorbelegt?
         SucheHT(0,sunrise+120); // sunrise nächster Tag suchen HT Werte
         int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
         if (h1 < l1)              // ist noch ein h1 vor dem low?
