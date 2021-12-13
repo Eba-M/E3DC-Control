@@ -589,8 +589,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1) {
 
         if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2){
-            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*2;
-            iLMStatus = -5;
+            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
+//            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
+            iLMStatus = -7;
             return 0;
         }
         ts = gmtime(&tE3DC);
