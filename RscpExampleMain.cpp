@@ -1514,13 +1514,13 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0)
         {
             int32_t Mode;
-            if (iE3DC_Req_Load==0) Mode = 1; else
+            if (iE3DC_Req_Load==0) Mode = 0; else
                 if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
                 {
                     iE3DC_Req_Load = iE3DC_Req_Load - e3dc_config.maximumLadeleistung;
                     Mode = 4;  // Steuerung Netzbezug Anforderung durch den Betrag > e3dc_config.maximumLadeleistung
                 }
-                else // Netzlademodus
+                else 
                 if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; else
                 if (iE3DC_Req_Load>0) Mode = 3; else
             { iE3DC_Req_Load = iE3DC_Req_Load*-1;
