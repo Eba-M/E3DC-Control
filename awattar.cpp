@@ -152,7 +152,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
     if (Minuten%60<1)
         return 1;  else // Zu testzwecken erst eine Minute Entladen erlauben
     {
-        if (Minuten%60<10)
+        if (Minuten%60<6)
             return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
     }
     if (w.size() == 0) return 0; // Preisvector ist leer
