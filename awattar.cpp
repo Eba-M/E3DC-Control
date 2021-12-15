@@ -161,9 +161,9 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
     if (w.size() == 0) return 0; // Preisvector ist leer
     if (Minuten <= sunrise)
     {
-        if (low2.pp == 0) low2 = w[0]; // ist low vorbelegt?
         SucheHT(0,sunrise+120); // sunrise nächster Tag suchen HT Werte
         SucheHT(0,w[l1].hh);
+        if (low2.pp == 0) low2 = w[l1]; // ist low vorbelegt?
         if (h1 < l1)              // ist noch ein h1 vor dem low?
         {
             x2 = Highprice(0,l1,low2.pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
@@ -181,14 +181,18 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
         {
             SucheHT(0,sunrise+120);            // l1 = geringster   h1 = höchster preis
             int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
-            x3 = SuchePos(sunrise+120+24*60);
+            x3 = SuchePos(sunrise+120);
             x1 = Lowprice(0, x3, w[0].pp);
             x2 = Highprice(l1,x3,w[l1].pp+Diff);  // Preisspitzen am Morgen
                                             // Nachladen aus dem Netz erforderlich
             if ((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 return 2; else
-
-            return 0;
+                {
+                    if (w[0].pp>low2.pp+Diff) return 1;
+                    else
+                    return 0;
+                }
+            
         }
         return 0;
     }
