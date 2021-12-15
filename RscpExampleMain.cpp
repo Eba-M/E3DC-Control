@@ -63,6 +63,7 @@ static int hh,mm,ss;
 static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
+static bool bDischarge = true;  // Wenn false, wird das Entladen blockiert, unabhängig von dem vom Portal gesetzen wert
 char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBChanged; // Lademodus der Wallbox; wurde extern geändertz.B. Sonnenmodus
@@ -510,6 +511,9 @@ bool GetConfig()
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 
 
+        
+
+
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     printf("\n");
@@ -587,13 +591,18 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1) {
-
-        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2){
-            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
+        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2)
+        {
+              iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
             iLMStatus = -7;
             return 0;
         }
+        if (not bDischarge) // Entladen soll unterdrückt werden
+            { iE3DC_Req_Load = 0;
+                iLMStatus = -7;
+                return 0;
+            }
         ts = gmtime(&tE3DC);
 
             
@@ -627,7 +636,10 @@ if (                             // Das Entladen aus dem Speicher
         WriteLog();
     iLMStatus = 10;
 }
-        if (iDischarge < e3dc_config.maximumLadeleistung) {
+       bDischarge = true;
+ 
+/*
+       if (iDischarge < e3dc_config.maximumLadeleistung) {
             
         Control_MAX_DISCHARGE(frameBuffer,e3dc_config.maximumLadeleistung);
         iBattPowerStatus = 0;
@@ -636,9 +648,12 @@ if (                             // Das Entladen aus dem Speicher
             WriteLog();
 
         }
-
+*/
     } else {
-            // Endladen ausschalten
+        
+bDischarge = false;
+
+/*            // Endladen ausschalten
         if (iDischarge >1)
             // Ausschalten nur wenn nicht im Notstrom/Inselbetrieb
             { Control_MAX_DISCHARGE(frameBuffer,0);
@@ -648,7 +663,12 @@ if (                             // Das Entladen aus dem Speicher
             WriteLog();
 
 ;}
-    }}
+*/
+
+    }
+        
+}
+
     
     // HT Endeladeleistung freigeben  ENDE
     
@@ -956,6 +976,7 @@ if (                             // Das Entladen aus dem Speicher
     if (iLMStatus>1) iLMStatus--;
     printf("AVB %0.1f %0.1f ",fAvBatterie,fAvBatterie900);
     printf("DisC %i ",iDischarge);
+    if (not bDischarge) printf("halt ");
     printf("BattL %i ",iBattLoad);
     printf("iLMSt %i ",iLMStatus);
     printf("Rsv %0.1f%%\n",fht);
@@ -1514,13 +1535,13 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0)
         {
             int32_t Mode;
-            if (iE3DC_Req_Load==0) Mode = 0; else
+            if (iE3DC_Req_Load==0) Mode = 1; else
                 if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
                 {
                     iE3DC_Req_Load = iE3DC_Req_Load - e3dc_config.maximumLadeleistung;
                     Mode = 4;  // Steuerung Netzbezug Anforderung durch den Betrag > e3dc_config.maximumLadeleistung
                 }
-                else 
+                else
                 if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; else
                 if (iE3DC_Req_Load>0) Mode = 3; else
             { iE3DC_Req_Load = iE3DC_Req_Load*-1;
