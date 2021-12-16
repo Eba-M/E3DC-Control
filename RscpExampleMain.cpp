@@ -599,10 +599,26 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             return 0;
         }
         if (not bDischarge) // Entladen soll unterdrückt werden
-            { iE3DC_Req_Load = 0;
+            { if ((fPower_Grid < -100)&&(iE3DC_Req_Load ==0))  // es wird eingespeist Entladesperre solange aufheben
+                {
+                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
+                    iLMStatus = -7;
+                    return 0;
+                }   else
+                if (iPower_Bat < -100)
+                {  // Batterie wird entladen
+                    iE3DC_Req_Load = 0;  // Sperren
+                    iLMStatus = -7;
+                    return 0;
+                }
+            } else          // Entladen ok
+             if ((fPower_Grid < -100)&&((iE3DC_Req_Load ==0)||iPower_Bat ==0))  // es wird eingespeist Entladesperre solange aufheben
+             {
+                iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
                 iLMStatus = -7;
                 return 0;
             }
+        
         ts = gmtime(&tE3DC);
 
             

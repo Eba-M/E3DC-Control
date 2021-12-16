@@ -189,7 +189,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             x1 = Lowprice(0, x3, w[0].pp);
             x2 = Highprice(l1,x3,low2.pp+Diff);  // Preisspitzen am Morgen
                                             // Nachladen aus dem Netz erforderlich
-            if ((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+            if ((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 return 2; else
                 {
                     if (w[0].pp>low2.pp+Diff) return 1;
@@ -257,7 +257,7 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
             if (x2 > 0)
             {
 // Nachladen aus dem Netz erforderlich
-                if ((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                if ((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   return 2;
             
                 }
