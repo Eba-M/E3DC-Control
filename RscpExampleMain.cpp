@@ -608,7 +608,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                     printf("Batterie laden zulassen ");
                     return 0;
                 }   else
-                if (iPower_Bat < -100)
+                if ((iPower_Bat < -100)||fPower_Grid<-100)
                 {  // Batterie wird entladen
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
