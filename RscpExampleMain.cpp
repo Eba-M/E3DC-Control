@@ -63,7 +63,7 @@ static int hh,mm,ss;
 static int32_t iFc, iMinLade,iMinLade2; // Mindestladeladeleistung des E3DC Speichers
 static float_t fL1V=230,fL2V=230,fL3V=230;
 static int iDischarge = -1;
-static bool bDischarge = true;  // Wenn false, wird das Entladen blockiert, unabhängig von dem vom Portal gesetzen wert
+static bool bDischarge = true,bDischargeDone;  // Wenn false, wird das Entladen blockiert, unabhängig von dem vom Portal gesetzen wert
 char cWBALG;
 static bool bWBLademodus; // Lademodus der Wallbox; z.B. Sonnenmodus
 static bool bWBChanged; // Lademodus der Wallbox; wurde extern geändertz.B. Sonnenmodus
@@ -74,7 +74,7 @@ static bool bWBSonne;  // Sonnenmodus x80
 static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom,bWBmaxLadestromSave; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
-static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
+static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 
 int sunriseAt;  // Sonnenaufgang
 int sunsetAt;   // Sonnenuntergang
@@ -594,28 +594,36 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2)
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
+            printf("Netzladen an");
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
             iLMStatus = -7;
+            bDischargeDone = false;
             return 0;
         }
         if (not bDischarge) // Entladen soll unterdrückt werden
-            { if ((fPower_Grid < -100)&&(iE3DC_Req_Load ==0))  // es wird eingespeist Entladesperre solange aufheben
+            { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
                     iLMStatus = -7;
+                    printf("Batterie laden zulassen ");
                     return 0;
                 }   else
                 if (iPower_Bat < -100)
                 {  // Batterie wird entladen
                     iE3DC_Req_Load = 0;  // Sperren
+                    if (iPower_PV > 0)
+                    iE3DC_Req_LoadMode = -2;       //Entlademodus
+                    printf("Entladen stoppen ");
                     iLMStatus = -7;
                     return 0;
                 }
             } else          // Entladen ok
-             if ((fPower_Grid < -100)&&((iE3DC_Req_Load ==0)||iPower_Bat ==0))  // es wird eingespeist Entladesperre solange aufheben
+             if ((fPower_Grid < -100)&&((iE3DC_Req_Load ==0)||iPower_Bat >=0))  // es wird eingespeist Entladesperre solange aufheben
              {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
-                iLMStatus = -7;
+//                iE3DC_Req_Load = e3dc_config.maximumLadeleistung;  //Automatik anstossen
+                 printf("Entladen starten ");
+                 iLMStatus = -7;
                 return 0;
             }
         
