@@ -590,18 +590,24 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Damit kann gleich eine intelligente Notstromreserve realisiert werden.
     // Die in ht eingestellte Reserve wird zwischen diesem Wert und 0% zur Tag-Nachtgleiche gesetzt
     // Die Notstromreserve im System ist davon unberührt
-    if (iLMStatus == 1) {
-        if  ((CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff))==2)
+    if (iLMStatus == 1)
+    {
+        int ret;
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff);
+        if  (ret == 2)
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
-            printf("Netzladen an");
+//            printf("Netzladen an");
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
             iLMStatus = -7;
             bDischargeDone = false;
             return 0;
         }
+        if (ret == 0) (bDischarge = false);
+        else
+            if (ret = 1) (bDischarge = true);
         if (not bDischarge) // Entladen soll unterdrückt werden
-            { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
+        { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
                     iLMStatus = -7;
@@ -617,16 +623,18 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                     iLMStatus = -7;
                     return 0;
                 }
-            } else          // Entladen ok
-             if ((fPower_Grid < -100)&&((iE3DC_Req_Load ==0)||iPower_Bat >=0))  // es wird eingespeist Entladesperre solange aufheben
-             {
+        }
+        else          // Entladen ok
+        if ((fPower_Grid > 100)&&((iE3DC_Req_Load ==0)||iPower_Bat >=0))  // es wird Strom bezogen Entladesperre solange aufheben
+        {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
-//                iE3DC_Req_Load = e3dc_config.maximumLadeleistung;  //Automatik anstossen
+//                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
+//                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
                  printf("Entladen starten ");
                  iLMStatus = -7;
                 return 0;
-            }
-        
+        }
+    
         ts = gmtime(&tE3DC);
 
             
