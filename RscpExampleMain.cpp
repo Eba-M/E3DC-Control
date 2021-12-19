@@ -674,7 +674,7 @@ bDischarge = false;
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
                     iLMStatus = -7;
                     printf("Batterie laden zulassen ");
-                    return 0;
+//                    return 0;
                 }   else
                 if (((iPower_Bat < -100)||(fPower_Grid>100))&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
                 {  // Entladen Stoppen wenn
@@ -683,7 +683,7 @@ bDischarge = false;
                     iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
     //                    printf("\nEntladen stoppen ");
                     iLMStatus = -7;
-                    return 0;
+//                    return 0;
                 }
         }
         else          // Entladen ok
@@ -694,7 +694,7 @@ bDischarge = false;
     //                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
                  printf("Entladen starten ");
                  iLMStatus = -7;
-                return 0;
+//                return 0;
         }
 
 
