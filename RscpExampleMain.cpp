@@ -617,7 +617,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
                     iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
-                    printf("\nEntladen stoppen ");
+//                    printf("\nEntladen stoppen ");
                     iLMStatus = -7;
                     return 0;
                 }
