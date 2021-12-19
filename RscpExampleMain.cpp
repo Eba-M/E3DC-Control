@@ -609,26 +609,26 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 {
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
                     iLMStatus = -7;
-                    printf("\nBatterie laden zulassen ");
+                    printf("Batterie laden zulassen ");
                     return 0;
                 }   else
-                if ((iPower_Bat < -100)&&(fPower_Grid>100)&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
-                {  // Batterie wird entladen
+                if (((iPower_Bat < -100)||(fPower_Grid>100))&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
+                {  // Entladen Stoppen wenn
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
-                    iE3DC_Req_LoadMode = -2;       //Entlademodus
+                    iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
                     printf("\nEntladen stoppen ");
                     iLMStatus = -7;
                     return 0;
                 }
         }
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&((iE3DC_Req_Load ==0)||iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&(iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
 //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
 //                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
-                 printf("\nEntladen starten ");
+                 printf("Entladen starten ");
                  iLMStatus = -7;
                 return 0;
         }
@@ -1156,7 +1156,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if ((WBchar[2]==32)||(WBchar[2]==30))
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
-
+            bWBLademodusSave = bWBSonne;    //Sonne = true
+            bWBmaxLadestromSave =  bWBmaxLadestrom;
         
             if (WBchar[2] > 4)
             iWBStatus = 12;
@@ -1331,13 +1332,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
 
-            if (not(bWBZeitsteuerung))
+            if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
                 for (int j = 0; j < ch.size(); j++ )
                     if ((ch[j].hh% (24*3600)/3600)==hh){
                         bWBZeitsteuerung = true;
                     };
-                if (bWBZeitsteuerung){
+                if ((bWBZeitsteuerung)&&(bWBConnect)){
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
                     if (not(bWBmaxLadestrom))
@@ -1347,7 +1348,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     }
                     if (bWBStopped)
                     WBchar6[4] = 1; // Laden starten
-                    bWBLademodusSave=bWBLademodus;    //Sonne Netz
+                    bWBLademodusSave=bWBLademodus;    //Sonne = true
                     bWBLademodus = false;  // Netz
                     createRequestWBData(frameBuffer);
                     WBchar6[4] = 0; // Toggle aus
@@ -1362,21 +1363,30 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if ((ch[j].hh% (24*3600)/3600)==hh){
                         bWBZeitsteuerung = true;
                     };
-                if (not(bWBZeitsteuerung)){    // Ausschalten
-                    bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
+                if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten
+                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||(bWBLademodus != bWBLademodusSave))
+                    {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
                     bWBLademodus = bWBLademodusSave;
                     if (bWBLademodus)
                     WBchar6[0] = 1;            // Sonnenmodus
                     if (not(bWBmaxLadestrom)){
                         WBchar6[1] = 31;
                     } else WBchar6[1] = 32;
+
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen
+                    createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+                    WBchar6[4] = 0; // Toggle aus
+                    iWBStatus = 30;
+                    return(0);
+                    } else
+                    if (bWBCharge)                     // Laden stoppen
+                    {WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
                     return(0);
-
+                    }
                 }
 
             };
