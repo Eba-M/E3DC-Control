@@ -603,36 +603,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             bDischargeDone = false;
             return 0;
         }
-        if (ret == 1) (bDischarge = true);
-        if (not bDischarge) // Entladen soll unterdrückt werden
-        { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
-                {
-                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
-                    iLMStatus = -7;
-                    printf("Batterie laden zulassen ");
-                    return 0;
-                }   else
-                if (((iPower_Bat < -100)||(fPower_Grid>100))&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
-                {  // Entladen Stoppen wenn
-                    iE3DC_Req_Load = 0;  // Sperren
-                    if (iPower_PV > 0)
-                    iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
-//                    printf("\nEntladen stoppen ");
-                    iLMStatus = -7;
-                    return 0;
-                }
-        }
-        else          // Entladen ok
-        if ((fPower_Grid > 100)&&(iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
-        {
-                iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
-//                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
-//                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
-                 printf("Entladen starten ");
-                 iLMStatus = -7;
-                return 0;
-        }
-    
+       
         ts = gmtime(&tE3DC);
 
             
@@ -653,7 +624,7 @@ if (                             // Das Entladen aus dem Speicher
            (e3dc_config.hton < t && e3dc_config.htoff > t ))
         )      // Das Entladen wird durch hton/htoff zugelassen
     )  //
-    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1)
+    || (ret==1) // Rückgabewert aus CheckaWattar
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
         (fht<fBatt_SOC)        // Wenn der SoC > der berechneten Reserve liegt
@@ -696,6 +667,38 @@ bDischarge = false;
 */
 
     }
+
+        if (not bDischarge) // Entladen soll unterdrückt werden
+        { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
+                {
+                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
+                    iLMStatus = -7;
+                    printf("Batterie laden zulassen ");
+                    return 0;
+                }   else
+                if (((iPower_Bat < -100)||(fPower_Grid>100))&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
+                {  // Entladen Stoppen wenn
+                    iE3DC_Req_Load = 0;  // Sperren
+                    if (iPower_PV > 0)
+                    iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
+    //                    printf("\nEntladen stoppen ");
+                    iLMStatus = -7;
+                    return 0;
+                }
+        }
+        else          // Entladen ok
+        if ((fPower_Grid > 100)&&(iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
+        {
+                iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
+    //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
+    //                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
+                 printf("Entladen starten ");
+                 iLMStatus = -7;
+                return 0;
+        }
+
+
+        
         
 }
 
