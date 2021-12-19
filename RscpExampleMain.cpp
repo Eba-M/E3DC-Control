@@ -609,26 +609,26 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                 {
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
                     iLMStatus = -7;
-                    printf("Batterie laden zulassen ");
+                    printf("\nBatterie laden zulassen ");
                     return 0;
                 }   else
-                if (((iPower_Bat < -100)||fPower_Grid<-100)&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
+                if ((iPower_Bat < -100)&&(fPower_Grid>100)&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
                 {  // Batterie wird entladen
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
                     iE3DC_Req_LoadMode = -2;       //Entlademodus
-                    printf("Entladen stoppen ");
+                    printf("\nEntladen stoppen ");
                     iLMStatus = -7;
                     return 0;
                 }
         }
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&((iE3DC_Req_Load ==0)||iPower_Bat >=0))  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&((iE3DC_Req_Load ==0)||iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
 //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
 //                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
-                 printf("Entladen starten ");
+                 printf("\nEntladen starten ");
                  iLMStatus = -7;
                 return 0;
         }
