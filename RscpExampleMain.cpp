@@ -603,9 +603,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             bDischargeDone = false;
             return 0;
         }
-        if (ret == 0) (bDischarge = false);
-        else
-            if (ret = 1) (bDischarge = true);
+        if (ret == 1) (bDischarge = true);
         if (not bDischarge) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
@@ -614,7 +612,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
                     printf("Batterie laden zulassen ");
                     return 0;
                 }   else
-                if ((iPower_Bat < -100)||fPower_Grid<-100)
+                if (((iPower_Bat < -100)||fPower_Grid<-100)&&(fPower_WB==0)) // Entladen zulassen wenn WB geladen wird
                 {  // Batterie wird entladen
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)

@@ -169,8 +169,8 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
         SucheHT(0,w[l1].hh);
         if (low2.pp == 0)
         { low2 = w[l1];
-            if (low2.pp > 100)
-                low2.pp = 100;
+            if (low2.pp > Diff)
+                low2.pp = Diff;
         } // ist low vorbelegt?
         if (h1 < l1)              // ist noch ein h1 vor dem low?
         {
@@ -191,7 +191,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
             x3 = SuchePos(sunrise+tagoffset);
             x1 = Lowprice(0, x3, w[0].pp);
-            x2 = Highprice(l1,x3,low2.pp+Diff);  // Preisspitzen am Morgen
+            x2 = Highprice(l1,x3,w[0].pp+Diff);  // Preisspitzen am Morgen
                                             // Nachladen aus dem Netz erforderlich
             if ((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 return 2; else
@@ -206,7 +206,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
     }
     if ((Minuten> sunrise)&&(Minuten <= sunset-120))
     {
-        return 0; //tagsüber immer entladen zulassen
+        return 0; //tagsüber entladen nicht zulassen
     }
 /*
 2h vor Sonnenuntergang
@@ -253,11 +253,11 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
             }
         } else                        // Es muss nichts mehr ausgespeichert werden
         {
-            SucheHT(0,sunrise+tagoffset+24*60);            // l1 = geringster   h1 = höchster preis
+            SucheHT(0,sunrise+tagoffset+24*60);            // l1 = geringster   h1 = höchster preis sunrise nächster tag
             int lw = l1;                        // wenn l1 = 0, dann ist die aktuelle Stunde ein Tiefpreis zum Nachladen
             x3 = SuchePos(sunrise+tagoffset+24*60);
-            x1 = Lowprice(0, x3, w[0].pp);
-            x2 = Highprice(l1,x3,w[l1].pp+Diff);  // Preisspitzen am Morgen
+            x1 = Lowprice(0, x3, w[0].pp);  // noch niedrigere Preise als die aktuelle
+            x2 = Highprice(l1,x3,low2.pp+Diff);  // Preisspitzen am Morgen
             if (x2 > 0)
             {
 // Nachladen aus dem Netz erforderlich
