@@ -137,7 +137,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -172,6 +172,9 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             if (low2.pp > Diff)
                 low2.pp = Diff;
         } // ist low vorbelegt?
+
+        if (w[0].pp<low2.pp) low2 = w[0]; // neues low?
+
         if (h1 < l1)              // ist noch ein h1 vor dem low?
         {
             x2 = Highprice(0,l1,low2.pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
@@ -193,7 +196,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             x1 = Lowprice(0, x3, w[0].pp);
             x2 = Highprice(l1,x3,w[0].pp+Diff);  // Preisspitzen am Morgen
                                             // Nachladen aus dem Netz erforderlich
-            if ((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+            if (((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 return 2; else
                 {
                     if (w[0].pp>low2.pp+Diff) return 1;
@@ -233,7 +236,7 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
         x1 = Lowprice(0, x3, w[0].pp);
         x2 = Highprice(l1,x3,w[l1].pp+Diff);  // Preisspitzen am Abend
                                         // Nachladen aus dem Netz erforderlich
-        if ((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+        if (((fSoC < x2*fConsumption)&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             return 2; else
 
         return 0;
@@ -261,7 +264,7 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
             if (x2 > 0)
             {
 // Nachladen aus dem Netz erforderlich
-                if ((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                if (((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   return 2;
             
                 }

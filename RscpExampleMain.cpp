@@ -593,7 +593,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1)
     {
         int ret;
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff);
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff);
         if  (ret == 2)
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
@@ -668,7 +668,7 @@ bDischarge = false;
 */
 
     }
-printf("ret %i",ret);
+// printf("ret %i",ret);
         if (not bDischarge) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
