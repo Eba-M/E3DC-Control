@@ -624,7 +624,7 @@ if (                             // Das Entladen aus dem Speicher
            (e3dc_config.hton < t && e3dc_config.htoff > t ))
         )      // Das Entladen wird durch hton/htoff zugelassen
     )  //
-    || (ret==1) // Rückgabewert aus CheckaWattar
+    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1) // Rückgabewert aus CheckaWattar
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
         (fht<fBatt_SOC)        // Wenn der SoC > der berechneten Reserve liegt
