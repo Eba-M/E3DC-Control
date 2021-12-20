@@ -177,7 +177,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fConsumption,float Diff
             x2 = Highprice(0,l1,low2.pp+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
             if (x2 > 0)               // ist noch ein h1 vor dem low?
             {
-                if (w[0].pp > w[l1].pp+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
+                if (w[0].pp > low2.pp+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
                 {
                     x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
                     if ((fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
