@@ -266,7 +266,7 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
             if (x2 > 0)
             {
 // Nachladen aus dem Netz erforderlich
-                if (((fSoC < (x2*fConsumption+5))&&((lw==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                if (((fSoC < (x2*fConsumption+5)&&(lw==0))||(x2*fConsumption-fSoC>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   return 2;
             
                 }
