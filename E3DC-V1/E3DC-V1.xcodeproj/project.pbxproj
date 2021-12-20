@@ -49,6 +49,8 @@
 		EF0F3E96275C3EB70083A8EE /* awattar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = awattar.cpp; path = ../awattar.cpp; sourceTree = "<group>"; };
 		EF0F3E97275C3EB70083A8EE /* awattar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = awattar.hpp; path = ../awattar.hpp; sourceTree = "<group>"; };
 		EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SocketConnection.cpp; path = ../SocketConnection.cpp; sourceTree = "<group>"; };
+		EF0F3EA027713F610083A8EE /* index.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
+		EF0F3EA12771402B0083A8EE /* e3dc.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = e3dc.php; sourceTree = "<group>"; };
 		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -70,6 +72,8 @@
 				EF0F3E8B275C3EB60083A8EE /* AES.h */,
 				EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */,
 				EF0F3E96275C3EB70083A8EE /* awattar.cpp */,
+				EF0F3EA027713F610083A8EE /* index.php */,
+				EF0F3EA12771402B0083A8EE /* e3dc.php */,
 				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
 				EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */,
 				EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */,
