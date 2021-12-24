@@ -377,7 +377,7 @@ int ladedauer = 4;
     long bis = von - von%24*3600 + 44*3600;
 
     von = w[0].hh;
-    bis = w[w.size()].hh;
+    bis = w[w.size()-1].hh;
 
     int k;       // bis zu     if (k > 7) k = 24-k+7;
     // ersten wert hinzufügen
@@ -386,7 +386,7 @@ int ladedauer = 4;
         pp = -1000;
         ch.clear();
  
-    for (int l = 0;l < ladedauer; l++)
+    for (int l = 0;(l < ladedauer)&&(l< w.size()); l++)
     {
         ww.pp = 1000;
 
