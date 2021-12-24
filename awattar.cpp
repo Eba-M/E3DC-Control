@@ -175,12 +175,13 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
                 low2.pp = Diff;
         } // ist low vorbelegt?
 
-        if (w[0].pp<low2.pp) low2 = w[0]; // neues low?
+//        if (w[0].pp<low2.pp) low2 = w[0]; // neues low?
+        if (w[l1].pp<low2.pp) low2 = w[l1]; // neues low?
 
-        if (h1 < l1)              // ist noch ein h1 vor dem low?
+        if ((h1 < l1)&&(w[0].pp>low2.pp*aufschlag+Diff))              // ist noch ein h1 vor dem low?
         {
             x2 = Highprice(0,l1,low2.pp*aufschlag+Diff);  // liegt der Hochpreis um den Diffpreis über das kommende Tief -> Endladen
-            if (x2 > 0)               // ist noch ein h1 vor dem low?
+            if (x2 > 0)               // ist noch ein hochpreis vor dem low?
             {
                 if (w[0].pp > low2.pp*aufschlag+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
                 {
@@ -370,25 +371,29 @@ int ladedauer = 4;
         fclose(fp);
     };
 
-    ptm = gmtime ( &w[0].hh);
-    int k = ptm->tm_hour;
-    if (k > 7) k = 24-k+7;
-    else k = 7;   // Es wird nur bis 7 Uhr nächsten Tag berücksichtigt
-    if (k >w.size()) k = w.size();
+   
+    long von = rawtime;
+    if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
+    long bis = von - von%24*3600 + 44*3600;
+
+    von = w[0].hh;
+    bis = w[w.size()].hh;
+
+    int k;       // bis zu     if (k > 7) k = 24-k+7;
     // ersten wert hinzufügen
     
-        ww = low;
-        pp = ww.pp;
+ 
+        pp = -1000;
         ch.clear();
-    if (k>0&&ladedauer>0)
-        ch.push_back(ww);
-    for (int l = 1;((l < k)&&(l < ladedauer)); l++)
+ 
+    for (int l = 0;l < ladedauer; l++)
     {
         ww.pp = 1000;
 
-        for (int j = 0; j < k; j++ )
+        for (int j = 0; j < w.size(); j++ )
         {
-            if ((w[j].pp>pp)&&(w[j].pp<ww.pp))
+            
+            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>von)&&(w[j].hh<bis))
             {
                 ww =  w[j];
             }
