@@ -248,15 +248,15 @@ Wenn nach Sonnenuntergang noch eine Preisspitze kommt, dann wird das Entladen ge
     {
         SucheHT(0,sunrise+24*60); // sunrise nächster Tag suchen HT Werte
         low2 = w[l1];
-        x2 = Highprice(0,l1,w[l1].pp*aufschlag+Diff); // Hochpreis vor low? Rückwärts suchen
-        if (x2 > 0)               // ist noch ein h1 vor dem low?
+//        x2 = Highprice(0,l1,w[l1].pp*aufschlag+Diff); // Hochpreis vor low? Rückwärts suchen
+        if  (w[0].pp > w[l1].pp*aufschlag+Diff)              // ist noch ein h1 vor dem low?
         {
-            if (w[0].pp > w[l1].pp*aufschlag+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
-            {
+//            if (w[0].pp > w[l1].pp*aufschlag+Diff)         // Der aktuelle Wert ist > Tiefstwert + Diff  Entladen erlaubt
+//            {
                 x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
                 if ((fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 return 1;
-            }
+//            }
         } else                        // Es muss nichts mehr ausgespeichert werden
         {
             SucheHT(0,sunrise+tagoffset+24*60);            // l1 = geringster   h1 = höchster preis sunrise nächster tag
@@ -393,7 +393,7 @@ int ladedauer = 4;
         for (int j = 0; j < w.size(); j++ )
         {
             
-            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>von)&&(w[j].hh<bis))
+            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>=von)&&(w[j].hh<=bis))
             {
                 ww =  w[j];
             }
