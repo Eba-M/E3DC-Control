@@ -205,6 +205,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     {
         if (h1>l1)       // erst kommt ein low dann ein high
         {   low2 = w[l1];
+            int lw = l1;
             do
             if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
             while (h1 > l1);
@@ -213,7 +214,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
             x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen
                                             // Nachladen aus dem Netz erforderlich
 //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-            if (((fSoC < (fmaxSoC-1))&&((l1==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+            if (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 return 2; else
                 {
                     if (w[0].pp>low2.pp*aufschlag+Diff) return 1;
