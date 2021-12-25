@@ -382,8 +382,9 @@ bool GetConfig()
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = false;
-        e3dc_config.Avhourly = 5;   // geschätzter Verbrauch in %
-        e3dc_config.AWDiff = 100;   // geschätzter Verbrauch in %
+        e3dc_config.Avhourly = 5;   // geschätzter stündlicher Verbrauch in %
+        e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
+        e3dc_config.AWAufschlag = 1.2;
 
 
 
@@ -494,6 +495,8 @@ bool GetConfig()
                         e3dc_config.Avhourly = atof(value); // % der SoC
                     else if(strcmp(var, "AWDiff") == 0)
                         e3dc_config.AWDiff = atof(value)*10; // % der SoC
+                    else if(strcmp(var, "AWAufschlag") == 0)
+                        e3dc_config.AWAufschlag = 1 + atof(value)/100; // % der SoC
 
 
                 }
@@ -593,7 +596,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1)
     {
         int ret;
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff);
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10); // Ladeleistung in % 
         if  (ret == 2)
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
