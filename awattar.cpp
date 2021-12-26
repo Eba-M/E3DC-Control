@@ -194,9 +194,9 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
 // testroutine neue auswertung
     if (low2.pp == 0)
     {
-        (SucheDiff(0, aufschlag,Diff));
-        low2 = w[l1];
-        if (low2.pp > (Diff+Diff*aufschlag))
+        if (SucheDiff(0, aufschlag,Diff))
+            low2 = w[l1];
+        else
             low2.pp = (Diff+Diff*aufschlag);
     } // ist low vorbelegt?
 
@@ -229,12 +229,13 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
             while (h1 < l1);
         
         
-// Überprüfen ob geladen werden kann
+// Überprüfen ob entladen werden kann
             
             
             x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
             if ((fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
+                if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
+                return 1;
         } else return 0;
     } else // Keine ausreichende Differenzen zum Ein-/Ausspeichern gefunden
     {
@@ -459,7 +460,7 @@ int ladedauer = 4;
     von = w[0].hh;
     bis = w[w.size()-1].hh;
 
-    int k;       // bis zu     if (k > 7) k = 24-k+7;
+    long k;       // bis zu     if (k > 7) k = 24-k+7;
     // ersten wert hinzufügen
     
  
@@ -473,13 +474,14 @@ int ladedauer = 4;
         for (int j = 0; j < w.size(); j++ )
         {
             
-            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>=von)&&(w[j].hh<=bis))
+            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>von)&&(w[j].hh<=bis))
             {
                 ww =  w[j];
             }
         }
         ch.push_back(ww);
         pp = ww.pp;
+        long erg = 24*3600;
     }
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
