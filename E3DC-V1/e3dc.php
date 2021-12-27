@@ -1,5 +1,4 @@
 <?php
-
 $datei = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
 $zeile = "1";
 
