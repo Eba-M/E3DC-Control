@@ -15,6 +15,7 @@
 #include <math.h>
 #include <time.h>
 #include <array>
+#include <algorithm>
 #include <vector>
 
 //typedef struct {int hh; float pp;}watt_s;
