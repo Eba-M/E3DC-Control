@@ -359,7 +359,7 @@ int ladedauer = 4;
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
         fprintf(fp,"%i:00 %.2f; ",ptm->tm_hour,ch[j].pp);
     }
-    fprintf(fp,"\n");
+    fprintf(fp,"%s\n",ptm->tm_zone);
     fclose(fp);
     CheckWallbox();
     }
