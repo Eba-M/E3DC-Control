@@ -636,7 +636,7 @@ if (                             // Das Entladen aus dem Speicher
     ||(iNotstrom==4)  //Inselbetrieb
    ){
             // ENdladen einschalten)
-        if ((iPower_Bat == 0)&&(fPower_Grid>100))
+        if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5)
 {            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
         WriteLog();
     iLMStatus = 10;
@@ -672,6 +672,7 @@ bDischarge = false;
 
     }
 // printf("ret %i",ret);
+//        if (ret<2)
         if (not bDischarge) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
@@ -691,7 +692,7 @@ bDischarge = false;
                 }
         }
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&(iPower_Bat ==0))  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&(iPower_Bat ==0)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
     //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
