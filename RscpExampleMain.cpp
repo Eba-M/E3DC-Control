@@ -342,6 +342,14 @@ bool GetConfig()
             fp = fopen(CONF_FILE, "r");
             }
     if(fp) {
+
+        FILE *sfp;
+        char fbuf[127];
+        bool bf;
+        sprintf(fbuf,"%s.check",e3dc_config.conffile);
+        sfp = fopen(fbuf, "w");
+
+
         stat(e3dc_config.conffile,&stats);
         tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
@@ -382,13 +390,12 @@ bool GetConfig()
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = false;
-        e3dc_config.Avhourly = 5;   // geschätzter stündlicher Verbrauch in %
+        e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
         e3dc_config.AWtest = 0;
 
-
-
+        bf = true;
 
             while (fgets(line, sizeof(line), fp)) {
                 fpread = true;
@@ -500,6 +507,14 @@ bool GetConfig()
                         e3dc_config.AWAufschlag = 1 + atof(value)/100; // % der SoC
                     else if(strcmp(var, "AWtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
+                    else
+                        bf = false;
+                    
+                    if (bf)
+                        fprintf(sfp,"%s = %s\n",var,value);
+                    else
+                        bf = true;
+
 
 
                 }
@@ -508,6 +523,7 @@ bool GetConfig()
     //        printf("e3dc_password %s\n",e3dc_config.e3dc_password);
     //        printf("aes_password %s\n",e3dc_config.aes_password);
             fclose(fp);
+            fclose(sfp);
         }
 
     if ((!fp)||not (fpread)) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
