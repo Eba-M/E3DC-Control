@@ -498,7 +498,7 @@ bool GetConfig()
                         e3dc_config.AWDiff = atof(value)*10; // % der SoC
                     else if(strcmp(var, "AWAufschlag") == 0)
                         e3dc_config.AWAufschlag = 1 + atof(value)/100; // % der SoC
-                    else if(strcmp(var, "AWTest") == 0)
+                    else if(strcmp(var, "AWtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
 
 
