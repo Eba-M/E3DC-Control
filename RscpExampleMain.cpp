@@ -385,6 +385,7 @@ bool GetConfig()
         e3dc_config.Avhourly = 5;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
+        e3dc_config.AWtest = 0;
 
 
 
@@ -497,6 +498,8 @@ bool GetConfig()
                         e3dc_config.AWDiff = atof(value)*10; // % der SoC
                     else if(strcmp(var, "AWAufschlag") == 0)
                         e3dc_config.AWAufschlag = 1 + atof(value)/100; // % der SoC
+                    else if(strcmp(var, "AWTest") == 0)
+                        e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
 
 
                 }
@@ -595,8 +598,17 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1)
     {
-        int ret;
+        int ret; // Steuerung Netzladen = 2, Entladen = 1
         ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10); // Ladeleistung in % 
+ 
+        switch (e3dc_config.AWtest) // Testfunktion
+        {
+            case 2:
+            if (fBatt_SOC > fht-1) break;  // do nothink
+            case 3: ret = 2; break;
+            case 1: ret = 1;
+        }
+
         if  (ret == 2)
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;

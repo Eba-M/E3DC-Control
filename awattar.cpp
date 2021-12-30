@@ -222,7 +222,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     }
 // Überprüfen ob entladen werden kann
     x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-    if ((fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+    if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
         if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
         return 1;
     return 0;  // kein Ergebniss gefunden
