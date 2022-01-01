@@ -1371,7 +1371,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
                 for (int j = 0; j < ch.size(); j++ )
-                    if ((ch[j].hh% (24*3600)/3600)==hh){
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
                 if ((bWBZeitsteuerung)&&(bWBConnect)){
