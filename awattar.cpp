@@ -219,6 +219,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
                 (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             {   low2 = w[0];
                 return 2;}
+            else if (x2>0) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
         } else
             do
             if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche high nach einem low
@@ -259,7 +260,7 @@ int ladedauer = 4;
     char line[256];
     time(&rawtime);
     ptm = gmtime (&rawtime);
-    if ((ptm->tm_hour!=oldhour))
+    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(w.size()<=12)))
     {
     oldhour = ptm->tm_hour;
 
@@ -267,7 +268,7 @@ int ladedauer = 4;
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
     system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     
-    system ("pwd");
+//    system ("pwd");
     fp = fopen("awattar.out","r");
     if(!fp) return;
     w.clear();
