@@ -305,7 +305,7 @@ if (not simu)
     if (w.size() == 0)
     return;
     
-    if (simu)
+     if (simu)
     { // simulation ausführen
         float fSoC = 57;
         float fmaxSoC = 70;
