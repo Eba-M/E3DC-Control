@@ -301,7 +301,7 @@ if (not simu)
         }
     
     fclose(fp);
-    } else return;
+    };
     if (w.size() == 0)
     return;
     
