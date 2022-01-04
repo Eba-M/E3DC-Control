@@ -265,7 +265,8 @@ int ladedauer = 4;
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
     } else {
-        von = (rawtime-rawtime%3600)*1000;
+        von = rawtime-rawtime%3600;
+        von = von*1000;
         bis = rawtime-rawtime%24*3600;
         bis = (bis + 48*3600)*1000;
     }
