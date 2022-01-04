@@ -230,7 +230,8 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
 //    printf("%0.02f %0.02f %0.02f %0.02f \n",(fSoC-x1*fConsumption),w[0].pp,w[l1].pp*aufschlag+Diff,low2.pp*aufschlag+Diff);
     if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-        if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
+//        if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
+            if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
         return 1;
     return 0;  // kein Ergebniss gefunden
 
@@ -251,7 +252,7 @@ void aWATTar(std::vector<watt_s> &ch)
  */
 {
 //    std::vector<watt_s> ch;  //charge hour
-    
+bool simu = false;
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
@@ -259,6 +260,15 @@ int ladedauer = 4;
     FILE * fp;
     char line[256];
     time(&rawtime);
+    long von, bis;
+    if (simu) {
+    von = (rawtime-30*24*3600)*1000;
+    bis = rawtime*1000;
+    } else {
+        von = (rawtime-rawtime%3600)*1000;
+        bis = rawtime-rawtime%24*3600;
+        bis = (bis + 48*3600)*1000;
+    }
     ptm = gmtime (&rawtime);
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(w.size()<=12)))
     {
@@ -266,8 +276,10 @@ int ladedauer = 4;
 
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
-    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-    
+//    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
+    sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%ld&end=%ld'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
+if (not simu)
+        system(line);
 //    system ("pwd");
     fp = fopen("awattar.out","r");
     if(!fp) return;
@@ -289,8 +301,54 @@ int ladedauer = 4;
     if (w.size() == 0)
     return;
     
-    
-  
+    if (simu)
+    { // simulation ausführen
+        float fSoC = 57;
+        float fmaxSoC = 70;
+        float fConsumption = 7;
+        float Diff = 32;
+        float aufschlag = 1.2;
+        float ladeleistung = 3000/13.8/10;
+        float geladen = 0;
+        float entladen = 0;
+        float direkt = 0;
+        float vergleich = 0;
+        float wertgeladen = 0;
+        float wertentladen = 0;
+        float wertdirekt = 0;
+        float wertvergleich = 0;
+        int ret;
+        while (w.size()>0)
+    {
+        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fConsumption,Diff,aufschlag, ladeleistung);
+        if (ret == 0)       {
+            direkt = direkt + fConsumption;
+            wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
+        }
+        if (ret == 1) {
+            if (fSoC>0)
+            {
+            entladen = entladen + fConsumption;
+            wertentladen = wertentladen + fConsumption * w[0].pp/1000;
+            fSoC = fSoC - fConsumption;
+            }
+        }
+        if (ret == 2) {
+            if (fSoC<fmaxSoC) {
+            geladen = geladen + ladeleistung;
+            wertgeladen = wertgeladen + ladeleistung * (w[0].pp*aufschlag+Diff)/1000;
+            fSoC = fSoC + ladeleistung;}
+            direkt = direkt + fConsumption;
+            wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
+            ;}
+
+        vergleich = vergleich + fConsumption;
+        wertvergleich= wertvergleich + fConsumption * w[0].pp/1000;
+
+        printf("%0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
+        w.erase(w.begin());
+    }// fConsumption }
+    }
 
     high = w[0];
     low = w[0];
@@ -325,9 +383,9 @@ int ladedauer = 4;
     };
 
    
-    long von = rawtime;
+    von = rawtime;
     if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
-    long bis = von - von%24*3600 + 44*3600;
+    bis = von - von%24*3600 + 44*3600;
 
     von = w[0].hh;
     bis = w[w.size()-1].hh;
