@@ -260,7 +260,7 @@ int ladedauer = 4;
     FILE * fp;
     char line[256];
     time(&rawtime);
-    long von, bis;
+    uint64_t von, bis;
     if (simu) {
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
