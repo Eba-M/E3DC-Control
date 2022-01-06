@@ -615,7 +615,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1)
     {
         int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10); // Ladeleistung in % 
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0); // Ladeleistung in % 
  
         switch (e3dc_config.AWtest) // Testfunktion
         {
@@ -1370,11 +1370,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
-                for (int j = 0; j < ch.size(); j++ )
+                for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
                     if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
-                if ((bWBZeitsteuerung)&&(bWBConnect)){
+                if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
                     if (not(bWBmaxLadestrom))
@@ -1392,7 +1392,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     return(0);
 
                 }
-            }else   // Das Ladefenster ist offen Überwachen, wann es sich wieder schließt
+            }else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
             {
                 bWBZeitsteuerung = false;
                 for (int j = 0; j < ch.size(); j++ )
@@ -1403,11 +1403,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||(bWBLademodus != bWBLademodusSave))
                     {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
                     bWBLademodus = bWBLademodusSave;
-                    if (bWBLademodus)
+//                    if (bWBLademodus)         // Sonnenmodus fest einstellen
                     WBchar6[0] = 1;            // Sonnenmodus
-                    if (not(bWBmaxLadestrom)){
-                        WBchar6[1] = 31;
-                    } else WBchar6[1] = 32;
+//                    if (not(bWBmaxLadestrom)){
+                        WBchar6[1] = 31;       // fest auf Automatik einstellen
+//                    } else WBchar6[1] = 32;
 
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen

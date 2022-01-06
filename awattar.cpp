@@ -26,6 +26,7 @@ static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
 static std::vector<watt_s> w;
+static std::vector<watt_s> weather; // wetterdaten
 static watt_s high;
 static watt_s high2;
 static watt_s low;
@@ -165,7 +166,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -191,7 +192,9 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     int tagoffset = 12*60-taglaenge;
     tagoffset = tagoffset/2;
     if (tagoffset < 0) tagoffset = 0;
-    
+
+if (mode == 0) // Standardmodus
+{
 // testroutine neue auswertung
     if (low2.pp == 0)
     {
@@ -210,10 +213,10 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
             do
             if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
             while (h1 > l1);
-// Überprüfen ob Entladen werden kann
+            // Überprüfen ob Entladen werden kann
             x1 = Lowprice(0, h1, w[0].pp);   // bis zum high suchen
             x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
-                                            // Nachladen aus dem Netz erforderlich
+                                            // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
 //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             if ((x2>0)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
                 (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
@@ -236,7 +239,63 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     return 0;  // kein Ergebniss gefunden
 
 }
+    if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
+    {
+    // testroutine neue auswertung
+        if (low2.pp == 0)
+        {
+            if (SucheDiff(0, aufschlag,Diff))
+                low2 = w[l1];
+            else
+                low2.pp = (Diff+Diff*aufschlag);
+        } // ist low vorbelegt?
 
+
+        if (SucheDiff(0, aufschlag,Diff))
+        {
+            if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
+            {
+                int lw = l1;
+                do
+                if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
+                while (h1 > l1);
+// suche das nächste low
+                // suchen nach dem low before next high
+                int hi = h1;
+                while (l1 > h1)
+                if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche low nach einem high
+// Wenn das neue Low ein Preispeak ist, dann weitersuchen
+                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
+                    SucheDiff(h1, aufschlag,Diff);
+    // Überprüfen ob Entladen werden kann
+                x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
+                x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
+                                                // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
+    //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                if ((x2>0)&&(x2*fConsumption>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
+                    (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                {   low2 = w[0];
+                    return 2;}
+                else
+                    if (x2*fConsumption>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
+            } else
+                do
+                if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche high nach einem low
+                while (l1 > h1);
+
+        }
+    // Überprüfen ob entladen werden kann
+        x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+    //    printf("%0.02f %0.02f %0.02f %0.02f \n",(fSoC-x1*fConsumption),w[0].pp,w[l1].pp*aufschlag+Diff,low2.pp*aufschlag+Diff);
+        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
+//                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
+            return 1;
+        return 0;  // kein Ergebniss gefunden
+
+    }
+    return 0;
+}
 
             
             
@@ -253,6 +312,7 @@ void aWATTar(std::vector<watt_s> &ch)
 {
 //    std::vector<watt_s> ch;  //charge hour
 bool simu = false;
+//    simu = true;
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
@@ -271,21 +331,26 @@ int ladedauer = 4;
         bis = (bis + 48*3600)*1000;
     }
     ptm = gmtime (&rawtime);
-    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(w.size()<=12)))
+    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec%10<1)&&(w.size()<=12)))
     {
     oldhour = ptm->tm_hour;
 
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
+//    if (ptm->tm_hour%3 == 0) // Alle 3 Stunden
+//        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-        fp = fopen("debug.out","w");
-        fprintf(fp,"%s",line);
-        fclose(fp);
-if (not simu)
+//        fp = fopen("debug.out","w");
+//        fprintf(fp,"%s",line);
+//        fclose(fp);
+ if (not simu)
         system(line);
 //    system ("pwd");
-    fp = fopen("awattar.out","r");
+if (not simu)
+        fp = fopen("awattar.out","r");
+else
+        fp = fopen("awattar.out.txt","r");
     if(!fp) return;
     w.clear();
 
@@ -307,8 +372,8 @@ if (not simu)
     
      if (simu)
     { // simulation ausführen
-        float fSoC = 57;
-        float fmaxSoC = 70;
+        float fSoC = 30;
+        float fmaxSoC = 80;
         float fConsumption = 7;
         float Diff = 32;
         float aufschlag = 1.2;
@@ -324,30 +389,50 @@ if (not simu)
         int ret;
         while (w.size()>0)
     {
-        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fConsumption,Diff,aufschlag, ladeleistung);
+        if (w.size()==420)
+            int x1 = 1;
+        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fConsumption,Diff,aufschlag, ladeleistung,1);
         if (ret == 0)       {
             direkt = direkt + fConsumption;
             wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
         }
-        if (ret == 1) {
-            if (fSoC>0)
-            {
-            entladen = entladen + fConsumption;
-            wertentladen = wertentladen + fConsumption * w[0].pp/1000;
-            fSoC = fSoC - fConsumption;
-            }
+        if (ret == 1)
+        {
+                fSoC = fSoC - fConsumption;
+                if (fSoC < 0) {
+                    entladen = entladen + fConsumption +fSoC;
+                    wertentladen = wertentladen + (fConsumption +fSoC)* w[0].pp/1000;
+                    fSoC = 0;
+
+                } else
+                {
+                    entladen = entladen + fConsumption;
+                    wertentladen = wertentladen + fConsumption * w[0].pp/1000;
+
+                }
         }
-        if (ret == 2) {
-            if (fSoC<fmaxSoC) {
-            geladen = geladen + ladeleistung;
-            wertgeladen = wertgeladen + ladeleistung * (w[0].pp*aufschlag+Diff)/1000;
-            fSoC = fSoC + ladeleistung;}
+        if (ret == 2)
+        {
+            fSoC = fSoC + ladeleistung*.9;
             direkt = direkt + fConsumption;
             wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
-            ;}
-
-        vergleich = vergleich + fConsumption;
-        wertvergleich= wertvergleich + fConsumption * w[0].pp/1000;
+            if (fSoC<fmaxSoC)
+            {
+                geladen = geladen + ladeleistung*.9;
+                wertgeladen = wertgeladen + ladeleistung*.9 * (w[0].pp*aufschlag+Diff)/1000;
+                direkt = direkt + ladeleistung;
+                wertdirekt = wertdirekt + ladeleistung*.9 * (w[0].pp*aufschlag+Diff)/1000;
+            } else
+            {
+                wertgeladen = wertgeladen + (fSoC-fmaxSoC) * (w[0].pp*aufschlag+Diff)/1000;
+                geladen = geladen +(fSoC-fmaxSoC);
+                wertdirekt = wertdirekt + (fSoC-fmaxSoC) * (w[0].pp*aufschlag+Diff)/1000;
+                direkt = direkt +(fSoC-fmaxSoC);
+                fSoC = fmaxSoC;
+            }
+        }
+            vergleich = vergleich + fConsumption;
+            wertvergleich= wertvergleich + fConsumption * w[0].pp/1000;
 
         printf("%0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
         w.erase(w.begin());
