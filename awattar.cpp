@@ -511,7 +511,7 @@ else
 //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
-        fprintf(fp,"%i.%i. %i:00 %.2f; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp);
+        fprintf(fp,"%i.%i. %i:00 %.2f; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
     }
     fprintf(fp,"%s\n",ptm->tm_zone);
     fclose(fp);
