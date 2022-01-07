@@ -244,9 +244,10 @@ if (mode == 0) // Standardmodus
     // testroutine neue auswertung
         if (low2.pp == 0)
         {
+            low2.pp = (Diff+Diff*aufschlag);
             if (SucheDiff(0, aufschlag,Diff))
                 low2 = w[l1];
-            else
+            if (low2.pp > (Diff+Diff*aufschlag))
                 low2.pp = (Diff+Diff*aufschlag);
         } // ist low vorbelegt?
 
