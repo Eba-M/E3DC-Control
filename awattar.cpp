@@ -373,12 +373,13 @@ else
     
      if (simu)
     { // simulation ausführen
-        float fSoC = 30;
+        float fSoC = 66;
         float fmaxSoC = 80;
-        float fConsumption = 7;
+        float fCharge = 6; // Speicher laden
+        float fConsumption = 4;  // Verbrauch
         float Diff = 32;
         float aufschlag = 1.2;
-        float ladeleistung = 3000/13.8/10;
+        float ladeleistung = 10000/35/10;
         float geladen = 0;
         float entladen = 0;
         float direkt = 0;
@@ -392,14 +393,14 @@ else
     {
         if (w.size()==420)
             int x1 = 1;
-        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fConsumption,Diff,aufschlag, ladeleistung,1);
+        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1);
         if (ret == 0)       {
             direkt = direkt + fConsumption;
             wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
         }
         if (ret == 1)
         {
-                fSoC = fSoC - fConsumption;
+                fSoC = fSoC - (fConsumption);
                 if (fSoC < 0) {
                     entladen = entladen + fConsumption +fSoC;
                     wertentladen = wertentladen + (fConsumption +fSoC)* w[0].pp/1000;
@@ -408,7 +409,7 @@ else
                 } else
                 {
                     entladen = entladen + fConsumption;
-                    wertentladen = wertentladen + fConsumption * w[0].pp/1000;
+                    wertentladen = wertentladen + (fConsumption) * w[0].pp/1000;
 
                 }
         }
@@ -512,7 +513,7 @@ else
 //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
-        fprintf(fp,"%i.%i. %i:00 %.2fct/kWh; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
+        fprintf(fp,"am %i.%i. um %i:00 zu %.2fct/kWh; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
     }
     fprintf(fp,"%s\n",ptm->tm_zone);
     fclose(fp);
