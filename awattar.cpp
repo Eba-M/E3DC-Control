@@ -509,11 +509,16 @@ else
 //    sort (ch.begin(),ch.end());
     std::sort(ch.begin(), ch.end(), [](const watt_s& a, const watt_s& b) {
         return a.hh < b.hh;});
+    int ptm_alt;
     for (int j = 0; j < ch.size(); j++ ){
 //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
+        if ((j==0)||(j>0&&ptm->tm_mday!=ptm_alt))
         fprintf(fp,"am %i.%i. um %i:00 zu %.2fct/kWh; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
+        else
+        fprintf(fp,"um %i:00 zu %.2fct/kWh; ",ptm->tm_hour,ch[j].pp/10);
+        ptm_alt = ptm->tm_mday;
     }
     fprintf(fp,"%s\n",ptm->tm_zone);
     fclose(fp);
