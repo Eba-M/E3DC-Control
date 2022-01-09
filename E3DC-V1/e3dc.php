@@ -26,7 +26,7 @@ if ($myfile)
         if  ($zeile3 == "1")
         {
                 echo "Die neue Ladedauer beträgt eine  Stunde<br>";
-                echo "die geplante Ladezeite ist  um " . $zeile2 . " Börsenpreis<br>";
+                echo "die geplante Ladezeit ist  um " . $zeile2 . " Börsenpreis<br>";
         }
         if  ( $zeile3 > "1")
         {

@@ -321,15 +321,16 @@ int ladedauer = 4;
     FILE * fp;
     char line[256];
     time(&rawtime);
-    uint64_t von, bis;
+    time_t von, bis;
     if (simu) {
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
     } else {
         von = rawtime-rawtime%3600;
         von = von*1000;
-        bis = rawtime-rawtime%24*3600;
-        bis = (bis + 48*3600)*1000;
+        bis = rawtime-rawtime%(24*3600);
+        bis = (bis + 48*3600);
+        bis = bis*1000;
     }
     ptm = gmtime (&rawtime);
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec%10<1)&&(w.size()<=12)))
@@ -345,12 +346,22 @@ int ladedauer = 4;
 //        fp = fopen("debug.out","w");
 //        fprintf(fp,"%s",line);
 //        fclose(fp);
- if (not simu)
-        system(line);
+        if (w.size() > 12)
+        {
+            if (w[0].hh+3600<rawtime)
+                w.erase(w.begin());
+            
+        }
+        else
+            if (not simu)
+                system(line);
 //    system ("pwd");
-if (not simu)
+
+if (w.size()<12) // Keine Daten, neu laden
+{
+    if (not simu)
         fp = fopen("awattar.out","r");
-else
+    else
         fp = fopen("awattar.out.txt","r");
     if(!fp) return;
     w.clear();
@@ -368,7 +379,8 @@ else
     
     fclose(fp);
     };
-    if (w.size() == 0)
+}
+        if (w.size() == 0)
     return;
     
      if (simu)

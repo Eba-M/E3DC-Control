@@ -709,8 +709,9 @@ bDischarge = false;
                     printf("Batterie laden zulassen ");
 //                    return 0;
                 }   else
-                if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))&&((fPower_WB==0)||(iPower_PV<100))) // Entladen zulassen wenn WB geladen wird
-                {  // Entladen Stoppen wenn
+//                if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))&&((fPower_WB==0)||(iPower_PV<100))) // Entladen zulassen wenn WB geladen wird
+                    if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
+                    {
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
                     iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
