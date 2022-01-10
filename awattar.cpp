@@ -321,7 +321,39 @@ int ladedauer = 4;
     FILE * fp;
     char line[256];
     time(&rawtime);
+    ptm = gmtime (&rawtime);
+
     int64_t von, bis;
+// Einlesen der letzten aWATTar Datei
+    if ((w.size()<12)&&(ptm->tm_sec%10<1)) // Keine Daten, neu laden
+    {
+        if (not simu)
+            fp = fopen("awattar.out","r");
+        else
+//            fp = fopen("awattar.out.txt","r");
+            fp = fopen("awattar.out","r");
+        if(!fp) return;
+        w.clear();
+
+    while (fgets(line, sizeof(line), fp)) {
+
+    ww.hh = atol(line);
+        ptm = gmtime ( &ww.hh);
+//        h.push_back(hh);
+    if (fgets(line, sizeof(line), fp)) {
+        ww.pp = atof(line);
+
+        if ((simu)||(ww.hh+3600>rawtime))
+        w.push_back(ww);
+    } else break;
+    }
+
+fclose(fp);
+};
+
+
+
+
     if (simu) {
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
@@ -332,20 +364,18 @@ int ladedauer = 4;
         bis = (bis + 48*3600);
         bis = bis*1000;
     }
-    ptm = gmtime (&rawtime);
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec%10<1)&&(w.size()<=12)))
     {
     oldhour = ptm->tm_hour;
 
+        
+        
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
 //    if (ptm->tm_hour%3 == 0) // Alle 3 Stunden
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-        fp = fopen("debug.out","w");
-        fprintf(fp,"%s",line);
-        fclose(fp);
         if (w.size() > 12)
         {
             if (w[0].hh+3600<rawtime)
@@ -353,45 +383,36 @@ int ladedauer = 4;
             
         }
         else
-            if (not simu)
+            if ((not simu)) // alte aWATTar Datei verarbeiten
+            {
+                fp = fopen("debug.out","w");
+                fprintf(fp,"%s",line);
+                fclose(fp);
                 system(line);
+            }
 //    system ("pwd");
 
-if (w.size()<12) // Keine Daten, neu laden
-{
-    if (not simu)
-        fp = fopen("awattar.out","r");
-    else
-        fp = fopen("awattar.out.txt","r");
-    if(!fp) return;
-    w.clear();
-
-        while (fgets(line, sizeof(line), fp)) {
-
-        ww.hh = atol(line);
-            ptm = gmtime ( &ww.hh);
-//        h.push_back(hh);
-        if (fgets(line, sizeof(line), fp)) {
-            ww.pp = atof(line);
-            w.push_back(ww);
-        } else break;
-        }
-    
-    fclose(fp);
-    };
 }
-        if (w.size() == 0)
+
+    
+    
+    if (w.size() == 0)
     return;
+    
+    if ((not simu)&&(w[0].hh+3600<rawtime))
+        w.erase(w.begin());
+
     
      if (simu)
     { // simulation ausführen
         float fSoC = 66;
-        float fmaxSoC = 80;
-        float fCharge = 6; // Speicher laden
-        float fConsumption = 4;  // Verbrauch
+        float fmaxSoC = 77;
+        float fCharge = 5; // Speicher laden
+        float fConsumption = 5;  // Verbrauch
         float Diff = 32;
         float aufschlag = 1.2;
-        float ladeleistung = 10000/35/10;
+//        float ladeleistung = 10000/35/10;
+        float ladeleistung = 3000/13.8/10;
         float geladen = 0;
         float entladen = 0;
         float direkt = 0;
