@@ -5,7 +5,6 @@ $zeile = "1";
 $zeile3 = $_POST["zwei"];
 if  (empty($zeile3)) $zeile3 = "0";
 
-
 $myfile = fopen($datei,"w");
 if ($myfile)
 {

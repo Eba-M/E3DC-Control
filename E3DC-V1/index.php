@@ -10,6 +10,7 @@ if (file_exists($datei))
      fclose($myfile);
 }
 
+
 #if (empty($zeile))
 #echo "is empty ";
 
