@@ -544,7 +544,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
     ss = t % (60);
-
+    static float fstrompreis;
     if (((tE3DC % (24*3600))+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
         GetConfig(); //Lesen Parameter aus e3dc.config.txt
@@ -615,7 +615,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (iLMStatus == 1)
     {
         int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1); // Ladeleistung in % 
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
         {
@@ -750,8 +750,9 @@ bDischarge = false;
     tLadezeitende = tLadezeitende1;
     printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
-    printf("LE %2ld:%2ld %0.1f%%\n",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
-
+    printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
+    if (e3dc_config.aWATTar) printf("%.2f",fstrompreis);
+    printf("\n");
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     if (t < tLadezeitende3) {

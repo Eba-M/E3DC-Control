@@ -166,7 +166,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -188,6 +188,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     }
  */
     if (w.size() == 0) return 0; // Preisvector ist leer
+    fstrompreis = w[0].pp;
     int taglaenge = sunset-sunrise;
     int tagoffset = 12*60-taglaenge;
     tagoffset = tagoffset/2;
@@ -325,7 +326,7 @@ int ladedauer = 4;
 
     int64_t von, bis;
 // Einlesen der letzten aWATTar Datei
-    if ((w.size()<12)&&(ptm->tm_sec%10<1)) // Keine Daten, neu laden
+    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec%10<1))) // Keine Daten, neu laden
     {
         if (not simu)
             fp = fopen("awattar.out","r");
@@ -426,7 +427,8 @@ fclose(fp);
     {
         if (w.size()==420)
             int x1 = 1;
-        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1);
+        float strompreis;
+        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis);
         if (ret == 0)       {
             direkt = direkt + fConsumption;
             wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
