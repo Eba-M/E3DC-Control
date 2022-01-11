@@ -335,27 +335,31 @@ int ladedauer = 4;
             fp = fopen("awattar.out","r");
         if(fp)
         {
-        w.clear();
+            w.clear();
 
-    while (fgets(line, sizeof(line), fp)) {
+            while (fgets(line, sizeof(line), fp))
+            {
 
-    ww.hh = atol(line);
-    if (fgets(line, sizeof(line), fp)) {
-        ww.pp = atof(line);
+                ww.hh = atol(line);
+                if (fgets(line, sizeof(line), fp))
+                {
+                    ww.pp = atof(line);
 
-        if ((simu)||(ww.hh+3600>rawtime))
-        w.push_back(ww);
-    } else break;
-    }
+                    if ((simu)||(ww.hh+3600>rawtime))
+                        w.push_back(ww);
+                } else break;
+            }
 
-fclose(fp);
+            fclose(fp);
 
         };
     }
-    if (simu) {
-    von = (rawtime-30*24*3600)*1000;
-    bis = rawtime*1000;
-    } else {
+    if (simu)
+    {
+        von = (rawtime-30*24*3600)*1000;
+        bis = rawtime*1000;
+    } else
+    {
         von = rawtime-rawtime%3600;
         von = von*1000;
         bis = rawtime-rawtime%(24*3600);
@@ -365,7 +369,7 @@ fclose(fp);
     
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec==0)&&(w.size()<=12)))
     {
-    oldhour = ptm->tm_hour;
+        oldhour = ptm->tm_hour;
 
         
         
@@ -391,7 +395,7 @@ fclose(fp);
             }
 //    system ("pwd");
 
-}
+    }
 
     
     
@@ -402,7 +406,7 @@ fclose(fp);
         w.erase(w.begin());
 
     
-     if (simu)
+    if (simu)
     { // simulation ausführen
         float fSoC = 66;
         float fmaxSoC = 77;
@@ -422,17 +426,19 @@ fclose(fp);
         float wertvergleich = 0;
         int ret;
         while (w.size()>0)
-    {
-        if (w.size()==420)
-            int x1 = 1;
-        float strompreis;
-        ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis);
-        if (ret == 0)       {
-            direkt = direkt + fConsumption;
-            wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
-        }
-        if (ret == 1)
         {
+            if (w.size()==420)
+            int x1 = 1;
+            
+            float strompreis;
+            ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis);
+            if (ret == 0)
+            {
+                direkt = direkt + fConsumption;
+                wertdirekt= wertdirekt + fConsumption * w[0].pp/1000;
+            }
+            if (ret == 1)
+            {
                 fSoC = fSoC - (fConsumption);
                 if (fSoC < 0) {
                     entladen = entladen + fConsumption +fSoC;
