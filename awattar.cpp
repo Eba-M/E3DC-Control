@@ -326,7 +326,7 @@ int ladedauer = 4;
 
     int64_t von, bis;
 // Einlesen der letzten aWATTar Datei
-    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec%10<1))) // Keine Daten, neu laden
+    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec==0))) // Keine Daten, neu laden
     {
         if (not simu)
             fp = fopen("awattar.out","r");
@@ -339,7 +339,7 @@ int ladedauer = 4;
     while (fgets(line, sizeof(line), fp)) {
 
     ww.hh = atol(line);
-        ptm = gmtime ( &ww.hh);
+//        ptm = gmtime ( &ww.hh);
 //        h.push_back(hh);
     if (fgets(line, sizeof(line), fp)) {
         ww.pp = atof(line);
@@ -352,9 +352,6 @@ int ladedauer = 4;
 fclose(fp);
 };
 
-
-
-
     if (simu) {
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
@@ -365,7 +362,8 @@ fclose(fp);
         bis = (bis + 48*3600);
         bis = bis*1000;
     }
-    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec%10<1)&&(w.size()<=12)))
+    
+    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec==0)&&(w.size()<=12)))
     {
     oldhour = ptm->tm_hour;
 
