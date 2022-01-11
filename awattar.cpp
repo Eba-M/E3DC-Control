@@ -326,7 +326,7 @@ int ladedauer = 4;
 
     int64_t von, bis;
 // Einlesen der letzten aWATTar Datei
-    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec==0))) // Keine Daten, neu laden
+    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec==5))) // Keine Daten, neu laden
     {
         if (not simu)
             fp = fopen("awattar.out","r");
@@ -339,8 +339,6 @@ int ladedauer = 4;
     while (fgets(line, sizeof(line), fp)) {
 
     ww.hh = atol(line);
-//        ptm = gmtime ( &ww.hh);
-//        h.push_back(hh);
     if (fgets(line, sizeof(line), fp)) {
         ww.pp = atof(line);
 
@@ -384,9 +382,9 @@ fclose(fp);
         else
             if ((not simu)) // alte aWATTar Datei verarbeiten
             {
-                fp = fopen("debug.out","w");
-                fprintf(fp,"%s",line);
-                fclose(fp);
+//                fp = fopen("debug.out","w");
+//                fprintf(fp,"%s",line);
+//                fclose(fp);
                 system(line);
             }
 //    system ("pwd");
