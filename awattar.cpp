@@ -333,7 +333,8 @@ int ladedauer = 4;
         else
 //            fp = fopen("awattar.out.txt","r");
             fp = fopen("awattar.out","r");
-        if(!fp) return;
+        if(fp)
+        {
         w.clear();
 
     while (fgets(line, sizeof(line), fp)) {
@@ -348,8 +349,9 @@ int ladedauer = 4;
     }
 
 fclose(fp);
-};
 
+        };
+    }
     if (simu) {
     von = (rawtime-30*24*3600)*1000;
     bis = rawtime*1000;
