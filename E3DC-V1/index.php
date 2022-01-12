@@ -28,7 +28,7 @@ else
         if ($zeile > "1")
                 echo "Die aktuelle  Ladedauer beträgt " . $zeile .  " Stunden<br>";
         if (! empty($zeile2))
-                echo "die bisher geplante Ladezeiten waren um " . $zeile2 ." Börsenpreis;<br>";
+                echo "die bisher geplante Ladezeiten waren " . $zeile2 ." Börsenpreis;<br>";
 }
 ?>
 <html>
