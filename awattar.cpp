@@ -315,7 +315,7 @@ void aWATTar(std::vector<watt_s> &ch)
 {
 //    std::vector<watt_s> ch;  //charge hour
 bool simu = false;
-    simu = true;
+//    simu = true;
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
