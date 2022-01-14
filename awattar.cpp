@@ -264,10 +264,11 @@ if (mode == 0) // Standardmodus
 // suche das nächste low
                 // suchen nach dem low before next high
                 int hi = h1;
-                while (l1 > h1)
+                while ((l1 > h1)&&(w[0].pp<w[l1].pp))
                 if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche low nach einem high
 // Wenn das neue Low ein Preispeak ist, dann weitersuchen
-                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
+//                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
+                if (w[0].pp<w[l1].pp)
                     SucheDiff(h1, aufschlag,Diff);
     // Überprüfen ob Entladen werden kann
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
@@ -314,7 +315,7 @@ void aWATTar(std::vector<watt_s> &ch)
 {
 //    std::vector<watt_s> ch;  //charge hour
 bool simu = false;
-//    simu = true;
+    simu = true;
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
@@ -325,35 +326,6 @@ int ladedauer = 4;
     ptm = gmtime (&rawtime);
 
     int64_t von, bis;
-// Einlesen der letzten aWATTar Datei
-    if ((w.size()==0)||((w.size()<12)&&(ptm->tm_sec==5))) // Keine Daten, neu laden
-    {
-        if (not simu)
-            fp = fopen("awattar.out","r");
-        else
-//            fp = fopen("awattar.out.txt","r");
-            fp = fopen("awattar.out","r");
-        if(fp)
-        {
-            w.clear();
-
-            while (fgets(line, sizeof(line), fp))
-            {
-
-                ww.hh = atol(line);
-                if (fgets(line, sizeof(line), fp))
-                {
-                    ww.pp = atof(line);
-
-                    if ((simu)||(ww.hh+3600>rawtime))
-                        w.push_back(ww);
-                } else break;
-            }
-
-            fclose(fp);
-
-        };
-    }
     if (simu)
     {
         von = (rawtime-30*24*3600)*1000;
@@ -386,21 +358,47 @@ int ladedauer = 4;
             
         }
         else
-            if ((not simu)) // alte aWATTar Datei verarbeiten
+            if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
 //                fp = fopen("debug.out","w");
 //                fprintf(fp,"%s",line);
 //                fclose(fp);
                 system(line);
+                // Einlesen der letzten aWATTar Datei
+                        if (not simu)
+                        {
+                            fp = fopen("awattar.out","r");
+//                        else
+//            fp = fopen("awattar.out.txt","r");
+//                            fp = fopen("awattar.out","r");
+                        if(fp)
+                        {
+                            w.clear();
+
+                            while (fgets(line, sizeof(line), fp))
+                            {
+
+                                ww.hh = atol(line);
+                                if (fgets(line, sizeof(line), fp))
+                                {
+                                    ww.pp = atof(line);
+
+                                    if ((simu)||(ww.hh+3600>rawtime))
+                                        w.push_back(ww);
+                                } else break;
+                            }
+
+                            fclose(fp);
+
+                        };
+                    }
+
             }
 //    system ("pwd");
 
     }
 
     
-    
-    if (w.size() == 0)
-    return;
     
     if ((not simu)&&(w[0].hh+3600<rawtime))
         w.erase(w.begin());
@@ -424,12 +422,40 @@ int ladedauer = 4;
         float wertentladen = 0;
         float wertdirekt = 0;
         float wertvergleich = 0;
-        int ret;
-        while (w.size()>0)
+        do
         {
-            if (w.size()==420)
-            int x1 = 1;
-            
+            if (w.size() == 0)
+                fp = fopen("awattar.out.txt","r");
+            if (w.size()  < 12)
+            {
+                do
+                {
+                    if (fgets(line, sizeof(line), fp))
+                    {
+
+                        ww.hh = atol(line);
+                        if (fgets(line, sizeof(line), fp))
+                        {
+                            ww.pp = atof(line);
+
+                            if ((simu)||(ww.hh+3600>rawtime))
+                                w.push_back(ww);
+                        } else
+                        {
+                            fclose(fp);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        fclose(fp);
+                        break;
+                    }
+                    int stunde = ww.hh%(24*3600)/3600;
+                }
+            while (ww.hh%(24*3600)/3600 < 23);
+            }
+            int ret;
             float strompreis;
             ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis);
             if (ret == 0)
@@ -475,11 +501,16 @@ int ladedauer = 4;
             vergleich = vergleich + fConsumption;
             wertvergleich= wertvergleich + fConsumption * w[0].pp/1000;
 
-        printf("%0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
+        printf("%i %0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",w[0].hh%(24*3600)/3600 ,fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
         w.erase(w.begin());
     }// fConsumption }
+        while (w.size()>0);
+
     }
 
+    if (w.size() == 0)
+    return;
+    
     high = w[0];
     low = w[0];
     int x1 = 0;
