@@ -286,7 +286,7 @@ if (mode == 0) // Standardmodus
                 if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche high nach einem low
                 while (l1 > h1);
 
-        }
+        } else l1 = w.size()-1;
     // Überprüfen ob entladen werden kann
         x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
     //    printf("%0.02f %0.02f %0.02f %0.02f \n",(fSoC-x1*fConsumption),w[0].pp,w[l1].pp*aufschlag+Diff,low2.pp*aufschlag+Diff);
@@ -339,7 +339,7 @@ int ladedauer = 4;
         bis = bis*1000;
     }
     
-    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%10==0)&&(ptm->tm_sec==0)&&(w.size()<=12)))
+    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12)))
     {
         oldhour = ptm->tm_hour;
 
@@ -400,7 +400,7 @@ int ladedauer = 4;
 
     
     
-    if ((not simu)&&(w[0].hh+3600<rawtime))
+    if ((not simu)&&(w[0].hh+3600<rawtime)&&w.size()>0)
         w.erase(w.begin());
 
     
