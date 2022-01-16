@@ -262,14 +262,18 @@ if (mode == 0) // Standardmodus
                 if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
                 while (h1 > l1);
 // suche das nächste low
-                // suchen nach dem low before next high
+                // suchen nach dem low before next high das low muss niedriger als das akutelle sein
                 int hi = h1;
-                while ((l1 > h1)&&(w[0].pp<w[l1].pp))
-                if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche low nach einem high
-// Wenn das neue Low ein Preispeak ist, dann weitersuchen
+                while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
+                    if (h1>l1)
+                        {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                    else
+                        {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
+                }
+                    // Wenn das neue Low ein Preispeak ist, dann weitersuchen
 //                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
-                if (w[0].pp<w[l1].pp)
-                    SucheDiff(h1, aufschlag,Diff);
+//                if (w[0].pp<w[l1].pp)
+//                    SucheDiff(h1, aufschlag,Diff);
     // Überprüfen ob Entladen werden kann
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
