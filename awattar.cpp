@@ -55,7 +55,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
 int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit > preis
 {                                            // l1 = erste position h1 = letzte Position
     int x1 = 0;
-    for (int j = ab; j <= bis; j++ )
+    for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
     {
 // Suchen nach Hoch und Tiefs
         if (w[j].pp > preis) x1++;
@@ -287,16 +287,23 @@ if (mode == 0) // Standardmodus
                     if (x2*fConsumption>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
             } else
                 do
-                if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche high nach einem low
+                    if (h1>l1)
+                        {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                    else
+                        {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
                 while (l1 > h1);
+//            while ((l1 > h1)||(low2.pp<w[l1].pp));
 
         } else l1 = w.size()-1;
     // Überprüfen ob entladen werden kann
-        x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-    //    printf("%0.02f %0.02f %0.02f %0.02f \n",(fSoC-x1*fConsumption),w[0].pp,w[l1].pp*aufschlag+Diff,low2.pp*aufschlag+Diff);
+        x1 = Highprice(0,w.size(),w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
+//            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
 //                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
+            return 1;
+        x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (w[0].pp>w[l1].pp*aufschlag+Diff)
             return 1;
         return 0;  // kein Ergebniss gefunden
 
