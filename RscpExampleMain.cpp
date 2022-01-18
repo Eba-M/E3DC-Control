@@ -835,7 +835,7 @@ bDischarge = false;
                 printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
         
-    printf("E3DC: %s", asctime(ts));
+    printf("E3DC: %i:%i:%i\n",hh,mm,ss);
 
     
     int iPower = 0;
