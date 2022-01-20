@@ -279,12 +279,14 @@ if (mode == 0) // Standardmodus
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-                if ((x2>0)&&(x2*fConsumption>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
-                    (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                float SollSoc = x2*fConsumption;
+                if (SollSoc > fmaxSoC-1) SollSoc = fmaxSoC-1;
+                if ((SollSoc>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
+                    (((fSoC < (SollSoc))&&((lw==0)||(SollSoc-fSoC)>x1*ladeleistung*.9))&&(fSoC<SollSoc)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
                     return 2;}
                 else
-                    if (x2*fConsumption>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
+                    if (SollSoc>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
             } else
                 do
                     if (h1>l1)
@@ -296,7 +298,7 @@ if (mode == 0) // Standardmodus
 
         } else l1 = w.size()-1;
     // Überprüfen ob entladen werden kann
-        x1 = Highprice(0,w.size(),w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+        x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
 //            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
 //                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
@@ -421,7 +423,7 @@ int ladedauer = 4;
 
     
     
-    if ((not simu)&&(w[0].hh+3600<rawtime)&&w.size()>0)
+    while ((not simu)&&(w[0].hh+3600<rawtime)&&w.size()>0)
         w.erase(w.begin());
 
     
