@@ -389,7 +389,7 @@ bool GetConfig()
         e3dc_config.wbminSoC = 10;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
-        e3dc_config.aWATTar = false;
+        e3dc_config.aWATTar = 0;
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
@@ -496,9 +496,11 @@ bool GetConfig()
                     else if((strcmp(var, "htsun") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.htsun = true;
-                    else if((strcmp(var, "aWATTar") == 0)&&
-                            (strcmp(value, "true") == 0))
-                        e3dc_config.aWATTar = true;
+                    else if(strcmp(var, "aWATTar") == 0)
+                    {if (strcmp(value, "true") == 0)
+                                 e3dc_config.aWATTar = 1;
+                        else
+                                 e3dc_config.aWATTar = atoi(value);}
                     else if(strcmp(var, "Avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
                     else if(strcmp(var, "AWDiff") == 0)
@@ -625,7 +627,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             case 1: ret = 1;
         }
 
-        if  (ret == 2)
+        if  ((ret == 2)&&(e3dc_config.aWATTar==1))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            printf("Netzladen an");
