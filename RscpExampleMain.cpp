@@ -1384,7 +1384,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
-                    if (not(bWBmaxLadestrom))
+//                    if (not(bWBmaxLadestrom))
                     {
                         bWBmaxLadestrom = true;
                         WBchar6[1] = 32;
@@ -1403,7 +1403,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             {
                 bWBZeitsteuerung = false;
                 for (int j = 0; j < ch.size(); j++ )
-                    if ((ch[j].hh% (24*3600)/3600)==hh){
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
                 if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten

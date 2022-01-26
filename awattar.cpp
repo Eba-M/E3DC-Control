@@ -299,12 +299,12 @@ if (mode == 0) // Standardmodus
         } else l1 = w.size()-1;
     // Überprüfen ob entladen werden kann
         x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
 //            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
 //                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
             return 1;
         x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (w[0].pp>w[l1].pp*aufschlag+Diff)
             return 1;
         if (SucheDiff(0, aufschlag,Diff)) // Wenn das nächste Low ein Nachladepunkt ist, überprüfen ob entladen werden kann
@@ -312,7 +312,7 @@ if (mode == 0) // Standardmodus
             while (l1>h1)
              if (not (SucheDiff(l1, aufschlag,Diff))) break;
             x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (w[0].pp>w[l1].pp*aufschlag+Diff)
                 return 1;
             
