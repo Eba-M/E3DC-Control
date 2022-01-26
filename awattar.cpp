@@ -362,6 +362,11 @@ int ladedauer = 4;
         bis = bis*1000;
     }
     
+    while ((not simu)&&w.size()>0&&(w[0].hh+3600<rawtime))
+        w.erase(w.begin());
+
+
+    
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12)))
     {
         oldhour = ptm->tm_hour;
@@ -374,13 +379,6 @@ int ladedauer = 4;
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-        if (w.size() > 12)
-        {
-            if (w[0].hh+3600<rawtime)
-                w.erase(w.begin());
-            
-        }
-        else
             if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
 //                fp = fopen("debug.out","w");
@@ -421,11 +419,7 @@ int ladedauer = 4;
 
     }
 
-    
-    
-    while ((not simu)&&(w[0].hh+3600<rawtime)&&w.size()>0)
-        w.erase(w.begin());
-
+        
     
     if (simu)
     { // simulation ausführen
@@ -608,9 +602,9 @@ int ladedauer = 4;
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
         if ((j==0)||(j>0&&ptm->tm_mday!=ptm_alt))
-        fprintf(fp,"am %i.%i. um %i:00 zu %.3fct/kWh; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
+        fprintf(fp,"%i. am %i.%i. um %i:00 zu %.3fct/kWh\n",j+1,ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
         else
-        fprintf(fp,"um %i:00 zu %.2fct/kWh; ",ptm->tm_hour,ch[j].pp/10);
+        fprintf(fp,"%i. um %i:00 zu %.2fct/kWh\n",j+1,ptm->tm_hour,ch[j].pp/10);
         ptm_alt = ptm->tm_mday;
     }
     fprintf(fp,"%s\n",ptm->tm_zone);

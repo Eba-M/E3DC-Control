@@ -1407,9 +1407,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         bWBZeitsteuerung = true;
                     };
                 if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten
-                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||(bWBLademodus != bWBLademodusSave))
+                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                     {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
-                    bWBLademodus = bWBLademodusSave;
+                    bWBLademodus = true;
 //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
                     WBchar6[0] = 1;            // Sonnenmodus
 //                    if (not(bWBmaxLadestrom)){

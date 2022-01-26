@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "D2022.01.21.0" //Delta
+#define VERSION "D2022.01.26.0" //Delta
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
