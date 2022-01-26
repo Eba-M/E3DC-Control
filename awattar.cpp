@@ -602,7 +602,10 @@ int ladedauer = 4;
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
         if ((j==0)||(j>0&&ptm->tm_mday!=ptm_alt))
-        fprintf(fp,"%i. am %i.%i. um %i:00 zu %.3fct/kWh\n",j+1,ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
+          if (ch.size() > 1)  // Datum und Reihenfolge ausgeben
+              fprintf(fp,"am %i.%i.\n%i. um %i:00 zu %.3fct/kWh\n",ptm->tm_mday,ptm->tm_mon+1,j+1,ptm->tm_hour,ch[j].pp/10);
+          else
+              fprintf(fp,"am %i.%i. um %i:00 zu %.3fct/kWh\n",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
         else
         fprintf(fp,"%i. um %i:00 zu %.2fct/kWh\n",j+1,ptm->tm_hour,ch[j].pp/10);
         ptm_alt = ptm->tm_mday;
