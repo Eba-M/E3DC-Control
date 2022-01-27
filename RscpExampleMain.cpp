@@ -1415,7 +1415,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    if (not(bWBmaxLadestrom)){
                         WBchar6[1] = 31;       // fest auf Automatik einstellen
 //                    } else WBchar6[1] = 32;
-
+                    bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
