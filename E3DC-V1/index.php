@@ -24,9 +24,9 @@ if ($zeile<"1")
 }
 else
 {
-        if ($zeile=="1")
+        if ($zeile<"2")
                 echo "Die aktuelle  Ladedauer beträgt eine  Stunde<br>";
-        if ($zeile > "1")
+        if ($zeile >= "2")
                 echo "Die aktuelle  Ladedauer beträgt " . $zeile .  " Stunden<br>";
         if (! empty($zeile2))
                 echo "die bisher geplante Ladezeiten waren:<br><br> " . $zeile2 ."<br>";

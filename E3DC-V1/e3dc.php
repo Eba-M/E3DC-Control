@@ -23,9 +23,9 @@ if ($myfile)
     }
     else
     {
-            if ($zeile=="1")
+            if ($zeile<"2")
                     echo "Die neue  Ladedauer beträgt eine  Stunde<br>";
-            if ($zeile > "1")
+            if ($zeile >= "2")
                     echo "Die geplante  Ladedauer beträgt " . $zeile .  " Stunden<br>";
             if (! empty($zeile2))
                     echo "die geplante Ladezeiten sind:<br><br> " . $zeile2 ."<br>";
