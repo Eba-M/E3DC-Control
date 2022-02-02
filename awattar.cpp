@@ -283,7 +283,6 @@ if (mode == 0) // Standardmodus
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc = x2*fConsumption;
-                if (SollSoc > fmaxSoC-1) SollSoc = fmaxSoC-1;
                 float SollSoc2 = fSoC;
                 for (int j=0;j<w.size();j++) // Simulation
                 {
@@ -292,7 +291,10 @@ if (mode == 0) // Standardmodus
                     if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - fConsumption;
                     if (SollSoc2 > fmaxSoC-1||SollSoc2<ladeleistung*-1) break;
                 }
-                if (SollSoc2 < 0) SollSoc = fSoC-SollSoc2;
+                if (SollSoc2 < 0){
+                    SollSoc2 = fSoC-SollSoc2;
+                    if (SollSoc2 > SollSoc)
+                        SollSoc = SollSoc2;}
                 if (SollSoc > fmaxSoC-1) SollSoc = fmaxSoC-1;
                 if ((SollSoc>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
                     ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
