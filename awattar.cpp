@@ -269,7 +269,9 @@ if (mode == 0) // Standardmodus
                     if (h1>l1)
                         {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
                     else
-                        {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(l1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
                 }
                     // Wenn das neue Low ein Preispeak ist, dann weitersuchen
 //                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
