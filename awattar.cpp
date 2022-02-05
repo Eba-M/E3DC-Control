@@ -267,7 +267,9 @@ if (mode == 0) // Standardmodus
                 int hi = h1;
                 while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
                     if (h1>l1)
-                        {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(h1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
                     else
                     {if (not (SucheDiff(l1, aufschlag,Diff))) {
                         l1 = w.size()-1;
