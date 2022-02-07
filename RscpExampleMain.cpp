@@ -223,7 +223,7 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
 int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
-
+    if (iWBStatus<12)
     iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -269,7 +269,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
-
+    if (iWBStatus<12)
     iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -1535,6 +1535,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                createRequestWBData2(frameBuffer);
 
                 createRequestWBData(frameBuffer);
+                if (WBchar6[1]==6)
+                    iWBStatus = 30;
                 WBChar_alt = WBchar6[1];
 
             } else
@@ -1548,7 +1550,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
 //                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
+//                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
                 || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
@@ -1563,7 +1565,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1]=5;
                     WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
-                    iWBStatus = 20;  // Warten bis Neustart
+                    iWBStatus = 10;  // Warten bis Neustart
                 }}
     }
         }}
