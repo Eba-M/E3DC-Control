@@ -175,7 +175,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
     static float lowpp;
     time_t  rawtime;
     time(&rawtime);
-    int x1,x2,x3;
+    int x1,x2,x3,x4;
     int Minuten = rawtime%(24*3600)/60;
 
 //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
@@ -189,6 +189,7 @@ int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumpt
  */
     if (w.size() == 0) return 0; // Preisvector ist leer
     fstrompreis = w[0].pp;
+    ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
     int taglaenge = sunset-sunrise;
     int tagoffset = 12*60-taglaenge;
     tagoffset = tagoffset/2;
@@ -266,9 +267,13 @@ if (mode == 0) // Standardmodus
                 int hi = h1;
                 while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
                     if (h1>l1)
-                        {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(h1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
                     else
-                        {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(l1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
                 }
                     // Wenn das neue Low ein Preispeak ist, dann weitersuchen
 //                if ((w[0].pp*aufschlag+Diff)<w[l1].pp)
@@ -277,14 +282,30 @@ if (mode == 0) // Standardmodus
     // Überprüfen ob Entladen werden kann
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
+                x3 = Lowprice(0, w.size()-1, w[0].pp);   // bis zum high suchen
+                x4 = Highprice(0,w.size()-1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-                if ((x2>0)&&(x2*fConsumption>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
-                    (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                float SollSoc = x2*fConsumption;
+                float SollSoc2 = fSoC;
+                for (int j=0;j<w.size();j++) // Simulation
+                {
+                    if (w[j].pp < w[0].pp&&SollSoc2<0) break; // war schon überzogen Abruch
+                    if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
+                    if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - fConsumption;
+                    if (SollSoc2 > fmaxSoC-1||SollSoc2<ladeleistung*-1) break;
+                }
+                if (SollSoc2 < 0){
+                    SollSoc2 = fSoC-SollSoc2;
+                    if (SollSoc2 > SollSoc)
+                        SollSoc = SollSoc2;}
+                if (SollSoc > fmaxSoC-1) SollSoc = fmaxSoC-1;
+                if ((SollSoc>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
+                    ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
                     return 2;}
                 else
-                    if (x2*fConsumption>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
+                    if (SollSoc>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
             } else
                 do
                     if (h1>l1)
@@ -296,15 +317,25 @@ if (mode == 0) // Standardmodus
 
         } else l1 = w.size()-1;
     // Überprüfen ob entladen werden kann
-        x1 = Highprice(0,w.size(),w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+        x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
 //            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
 //                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
             return 1;
         x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-        if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (w[0].pp>w[l1].pp*aufschlag+Diff)
             return 1;
+        if (SucheDiff(0, aufschlag,Diff)) // Wenn das nächste Low ein Nachladepunkt ist, überprüfen ob entladen werden kann
+        {
+            while (l1>h1)
+             if (not (SucheDiff(l1, aufschlag,Diff))) break;
+            x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (w[0].pp>w[l1].pp*aufschlag+Diff)
+                return 1;
+            
+        }
         return 0;  // kein Ergebniss gefunden
 
     }
@@ -350,6 +381,11 @@ int ladedauer = 4;
         bis = bis*1000;
     }
     
+    while ((not simu)&&w.size()>0&&(w[0].hh+3600<rawtime))
+        w.erase(w.begin());
+
+
+    
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12)))
     {
         oldhour = ptm->tm_hour;
@@ -362,13 +398,6 @@ int ladedauer = 4;
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
     sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-        if (w.size() > 12)
-        {
-            if (w[0].hh+3600<rawtime)
-                w.erase(w.begin());
-            
-        }
-        else
             if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
 //                fp = fopen("debug.out","w");
@@ -409,11 +438,7 @@ int ladedauer = 4;
 
     }
 
-    
-    
-    if ((not simu)&&(w[0].hh+3600<rawtime)&&w.size()>0)
-        w.erase(w.begin());
-
+        
     
     if (simu)
     { // simulation ausführen
@@ -596,9 +621,14 @@ int ladedauer = 4;
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
         if ((j==0)||(j>0&&ptm->tm_mday!=ptm_alt))
-        fprintf(fp,"am %i.%i. um %i:00 zu %.2fct/kWh; ",ptm->tm_mday,ptm->tm_mon+1,ptm->tm_hour,ch[j].pp/10);
-        else
-        fprintf(fp,"um %i:00 zu %.2fct/kWh; ",ptm->tm_hour,ch[j].pp/10);
+// Datum und Reihenfolge ausgeben
+        {
+            if (j%2==1) fprintf(fp,"\n");
+            fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
+        }
+            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp/10);
+        if (ch.size() < 10||j%2==1)
+            fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
     }
     fprintf(fp,"%s\n",ptm->tm_zone);

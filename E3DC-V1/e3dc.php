@@ -17,23 +17,25 @@ if ($myfile)
         $myfile = fopen($datei,"r") ;
         $zeile = fgets($myfile);
         if  (! feof($myfile))    $zeile2 = fgets($myfile);
-        fclose($myfile);
-        if  (empty($zeile3))
-        {
-                echo "Es ist keine Ladung geplant<br>";
-        }
-        if  ($zeile3 == "1")
-        {
-                echo "Die neue Ladedauer beträgt eine  Stunde<br>";
-                echo "die geplante Ladezeit ist " . $zeile2 . " Börsenpreis<br>";
-        }
-        if  ( $zeile3 > "1")
-        {
-                echo "Die neue Ladedauer beträgt " . $zeile3 .  " Stunden<br>";
-                echo "die geplante Ladezeiten sind " . $zeile2 . " Börsenpreis<br>";
-        }
-}
+    if ($zeile<"1")
+    {
+            echo "es wurden keine Ladezeiten geplant<br>";
+    }
+    else
+    {
+            if ($zeile<"2")
+                    echo "Die neue  Ladedauer beträgt eine  Stunde<br>";
+            if ($zeile >= "2")
+                    echo "Die geplante  Ladedauer beträgt " . $zeile .  " Stunden<br>";
+            if (! empty($zeile2))
+                    echo "die geplante Ladezeiten sind:<br><br> " . $zeile2 ."<br>";
+            while  (! feof($myfile))
+                    {$zeile2 = fgets($myfile);
+                    echo $zeile2 ."<br>";}
+            fclose($myfile);
 
+    }
+}
 ?>
 <html>
  <head>

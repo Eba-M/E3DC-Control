@@ -223,7 +223,7 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
 int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
-
+    if (iWBStatus<12)
     iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -269,7 +269,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
 int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
-
+    if (iWBStatus<12)
     iWBStatus=12;
     
     // The root container is create with the TAG ID 0 which is not used by any device.
@@ -389,7 +389,7 @@ bool GetConfig()
         e3dc_config.wbminSoC = 10;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
-        e3dc_config.aWATTar = false;
+        e3dc_config.aWATTar = 0;
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
@@ -496,9 +496,11 @@ bool GetConfig()
                     else if((strcmp(var, "htsun") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.htsun = true;
-                    else if((strcmp(var, "aWATTar") == 0)&&
-                            (strcmp(value, "true") == 0))
-                        e3dc_config.aWATTar = true;
+                    else if(strcmp(var, "aWATTar") == 0)
+                    {if (strcmp(value, "true") == 0)
+                                 e3dc_config.aWATTar = 1;
+                        else
+                                 e3dc_config.aWATTar = atoi(value);}
                     else if(strcmp(var, "Avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
                     else if(strcmp(var, "AWDiff") == 0)
@@ -625,7 +627,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             case 1: ret = 1;
         }
 
-        if  (ret == 2)
+        if  ((ret == 2)&&(e3dc_config.aWATTar==1))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            printf("Netzladen an");
@@ -705,7 +707,8 @@ bDischarge = false;
         { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
                     iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
-                    iLMStatus = -7;
+//                    iLMStatus = -7;
+                    iLMStatus = 7;
                     printf("Batterie laden zulassen ");
 //                    return 0;
                 }   else
@@ -728,7 +731,8 @@ bDischarge = false;
     //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
     //                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
                  printf("Entladen starten ");
-                 iLMStatus = -7;
+//                iLMStatus = -7;
+                iLMStatus = 7;
 //                return 0;
         }
 
@@ -835,7 +839,7 @@ bDischarge = false;
                 printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
         
-    printf("E3DC: %s", asctime(ts));
+    printf("E3DC: %i:%i:%i\n",hh,mm,ss);
 
     
     int iPower = 0;
@@ -1380,7 +1384,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
-                    if (not(bWBmaxLadestrom))
+//                    if (not(bWBmaxLadestrom))
                     {
                         bWBmaxLadestrom = true;
                         WBchar6[1] = 32;
@@ -1399,19 +1403,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             {
                 bWBZeitsteuerung = false;
                 for (int j = 0; j < ch.size(); j++ )
-                    if ((ch[j].hh% (24*3600)/3600)==hh){
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
                 if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten
-                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||(bWBLademodus != bWBLademodusSave))
+                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                     {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
-                    bWBLademodus = bWBLademodusSave;
+                    bWBLademodus = true;
 //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
                     WBchar6[0] = 1;            // Sonnenmodus
 //                    if (not(bWBmaxLadestrom)){
                         WBchar6[1] = 31;       // fest auf Automatik einstellen
 //                    } else WBchar6[1] = 32;
-
+                    bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
                     if (bWBCharge)
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
@@ -1531,6 +1535,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                createRequestWBData2(frameBuffer);
 
                 createRequestWBData(frameBuffer);
+                if (WBchar6[1]==6)
+                    iWBStatus = 30;
                 WBChar_alt = WBchar6[1];
 
             } else
@@ -1544,7 +1550,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 || (fAvPower_Grid>400)          // Hohem Netzbezug
                                                 // Bei Speicher < 94%
 //                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
+//                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
                 || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
                 if ((WBchar6[1] > 5)&&bWBLademodus)
@@ -1559,7 +1565,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1]=5;
                     WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
-                    iWBStatus = 20;  // Warten bis Neustart
+                    iWBStatus = 10;  // Warten bis Neustart
                 }}
     }
         }}
@@ -2842,6 +2848,7 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
+        if (e3dc_config.aWATTar) aWATTar(ch);
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
