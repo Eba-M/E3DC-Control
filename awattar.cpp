@@ -326,7 +326,7 @@ if (mode == 0) // Standardmodus
         if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (w[0].pp>w[l1].pp*aufschlag+Diff)
             return 1;
-        if (SucheDiff(0, aufschlag,Diff)) // Wenn das nächste Low ein Nachladepunkt ist, überprüfen ob entladen werden kann
+        if (SucheDiff(h1, aufschlag,Diff)) // Wenn das nächste Low ein Nachladepunkt ist, überprüfen ob entladen werden kann
         {
             while (l1>h1)
              if (not (SucheDiff(l1, aufschlag,Diff))) break;
