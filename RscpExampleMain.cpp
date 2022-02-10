@@ -1377,6 +1377,24 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
+// Überprüfen ob auf Sonne und Auto eingestellt ist,
+// falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
+                if ((not bWBLademodus||bWBmaxLadestrom)&&e3dc_config.aWATTar)
+                {
+                    sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
+                    WriteLog();
+
+                    bWBLademodus = true;
+                    WBchar6[0] = 1;            // Sonnenmodus
+                    WBchar6[1] = 31;       // fest auf Automatik einstellen
+                    bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
+                    if (bWBCharge)
+                    WBchar6[4] = 1; // Laden stoppen
+                    createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+                    WBchar6[4] = 0; // Toggle aus
+                    iWBStatus = 30;
+                    return(0);
+                }
                 for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
                     if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
                         bWBZeitsteuerung = true;
