@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Eberhard Mayer on 26.11.21.
+//  Version 16.2.2022
 //  Copyright © 2021 Eberhard Mayer. All rights reserved.
 //  
 
@@ -154,7 +155,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     ptm = gmtime (&rawtime);
     }
     else rawtime = bis;
-    int zeit, ret=0;
+    int zeit, ret=-1;
     for (int j = 0; ((j < w.size())&&(w[j].hh<rawtime)); j++ )
     {
 // Suchen nach Hoch und Tiefs
@@ -306,36 +307,34 @@ if (mode == 0) // Standardmodus
                     return 2;}
                 else
                     if (SollSoc>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
-            } else
-                do
-                    if (h1>l1)
-                        {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
-                    else
-                        {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
-                while (l1 > h1);
-//            while ((l1 > h1)||(low2.pp<w[l1].pp));
-
-        } else l1 = w.size()-1;
+            }
+        }
     // Überprüfen ob entladen werden kann
         x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-//            if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
-//                if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
             return 1;
-        x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+        if (taglaenge > 600) {
+            x2 = SuchePos(sunrise+120);
+            if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
+            x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
+        }
         if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if (w[0].pp>w[l1].pp*aufschlag+Diff)
             return 1;
-        if (SucheDiff(h1, aufschlag,Diff)) // Wenn das nächste Low ein Nachladepunkt ist, überprüfen ob entladen werden kann
+// suche über den gesamten Bereich
+        SucheDiff(0, aufschlag,Diff);
+        do
         {
-            while (l1>h1)
-             if (not (SucheDiff(l1, aufschlag,Diff))) break;
             x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (w[0].pp>w[l1].pp*aufschlag+Diff)
                 return 1;
-            
+            if (h1>l1)
+                {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+            else
+                {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
         }
+        while (l1 < w.size());
+        
         return 0;  // kein Ergebniss gefunden
 
     }
