@@ -661,7 +661,7 @@ if (                             // Das Entladen aus dem Speicher
     || (ret==1) // Rückgabewert aus CheckaWattar
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
-        (fht<fBatt_SOC)        // Wenn der SoC > der berechneten Reserve liegt
+        (fht<fBatt_SOC&& not e3dc_config.aWATTar)        // Wenn der SoC > der berechneten Reserve liegt
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
