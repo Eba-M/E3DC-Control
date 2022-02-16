@@ -22,7 +22,7 @@
 //typedef struct {int hh; float pp;}watt_s;
 
 static time_t tm_Wallbox_dt = 0;
-static watt_s ww;
+static watt_s ww,ww1,ww2;
 static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
@@ -313,13 +313,6 @@ if (mode == 0) // Standardmodus
         x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             return 1;
-        if (taglaenge > 600) {
-            x2 = SuchePos(sunrise+120);
-            if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
-            x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
-        }
-        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
 // suche über den gesamten Bereich
         SucheDiff(0, aufschlag,Diff);
         do
@@ -334,6 +327,15 @@ if (mode == 0) // Standardmodus
                 {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
         }
         while (l1 < w.size());
+
+        if (taglaenge > 600) {
+            x2 = SuchePos(sunrise+120);
+            if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
+            x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
+        
+            if (float(fSoC-fmaxSoC/2-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            return 1;
+        }
         
         return 0;  // kein Ergebniss gefunden
 
@@ -360,7 +362,7 @@ bool simu = false;
 int ladedauer = 4;
     time_t rawtime;
     struct tm * ptm;
-    float pp;
+//    float pp;
     FILE * fp;
     char line[256];
     time(&rawtime);
@@ -590,7 +592,7 @@ int ladedauer = 4;
     // ersten wert hinzufügen
     
  
-        pp = -1000;
+        ww1.pp = -1000;
         ch.clear();
  
     for (int l = 0;(l < ladedauer)&&(l< w.size()); l++)
@@ -599,14 +601,15 @@ int ladedauer = 4;
 
         for (int j = 0; j < w.size(); j++ )
         {
-            
-            if ((w[j].pp>pp)&&(w[j].pp<ww.pp)&&(w[j].hh>=von)&&(w[j].hh<=bis))
+            ww2=w[j];
+            if ((w[j].pp>ww1.pp||(w[j].pp==ww1.pp&&w[j].hh>ww1.hh))
+                &&(w[j].pp<ww.pp||(w[j].pp==ww.pp&&w[j].hh<ww.hh))&&(w[j].hh>=von)&&(w[j].hh<=bis))
             {
                 ww =  w[j];
             }
         }
         ch.push_back(ww);
-        pp = ww.pp;
+        ww1=ww;
         long erg = 24*3600;
     }
     fp = fopen("e3dc.wallbox.txt","w");
