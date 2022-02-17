@@ -333,7 +333,8 @@ if (mode == 0) // Standardmodus
             if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
-            if (float(fSoC-fmaxSoC/2-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+//            if (float(fSoC-fmaxSoC/2-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+                if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
             return 1;
         }
         
