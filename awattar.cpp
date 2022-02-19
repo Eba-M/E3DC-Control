@@ -245,7 +245,7 @@ if (mode == 0) // Standardmodus
     if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
     {
     // testroutine neue auswertung
-        if (low2.pp == 0)
+/*        if (low2.pp == 0)
         {
             low2.pp = (Diff+Diff*aufschlag);
             if (SucheDiff(0, aufschlag,Diff))
@@ -253,8 +253,39 @@ if (mode == 0) // Standardmodus
             if (low2.pp > (Diff+Diff*aufschlag))
                 low2.pp = (Diff+Diff*aufschlag);
         } // ist low vorbelegt?
+*/
 
+// Überprüfen ob entladen werden kann
+            x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+                return 1;
 
+// suche über den gesamten Bereich
+            SucheDiff(0, aufschlag,Diff);
+            do
+            {
+                x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+                if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+                if (w[0].pp>w[l1].pp*aufschlag+Diff)
+                    return 1;
+                if (h1>l1)
+                    {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                else
+                    {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
+            }
+            while (l1 < w.size());
+/*
+            if (taglaenge > 600)
+            {
+                x2 = SuchePos(sunrise+120);
+                if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
+                x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
+            
+            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            return 1;
+            }
+*/
+        
         if (SucheDiff(0, aufschlag,Diff))
         {
             if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
@@ -309,35 +340,16 @@ if (mode == 0) // Standardmodus
                     if (SollSoc>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
             }
         }
-    // Überprüfen ob entladen werden kann
-        x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
-// suche über den gesamten Bereich
-        SucheDiff(0, aufschlag,Diff);
-        do
+        if (taglaenge > 600)
         {
-            x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if (w[0].pp>w[l1].pp*aufschlag+Diff)
-                return 1;
-            if (h1>l1)
-                {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
-            else
-                {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
-        }
-        while (l1 < w.size());
-
-        if (taglaenge > 600) {
             x2 = SuchePos(sunrise+120);
             if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
-//            if (float(fSoC-fmaxSoC/2-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-                if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
+        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+        return 1;
         }
-        
+
         return 0;  // kein Ergebniss gefunden
 
     }
