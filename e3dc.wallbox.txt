@@ -1,7 +1,0 @@
-4
-am 17.2.
-1. um 12:00 zu 6.506ct/kWh  
-2. um 13:00 zu 3.598ct/kWh  
-3. um 14:00 zu 4.268ct/kWh  
-4. um 23:00 zu 6.304ct/kWh  
-CET
