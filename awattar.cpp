@@ -312,10 +312,15 @@ if (mode == 0) // Standardmodus
 //                if (w[0].pp<w[l1].pp)
 //                    SucheDiff(h1, aufschlag,Diff);
     // Überprüfen ob Entladen werden kann
+// Vor Sonnenaufgang?
+/*                if (taglaenge > 600) {
+                x2 = SuchePos(sunrise+120);
+                if (x2<0) x2 = SuchePos(sunrise+24*60+120);
+                if (x2<l1&&x2>=0) l1 = x2;
+                }
+ */
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
-                x3 = Lowprice(0, w.size()-1, w[0].pp);   // bis zum high suchen
-                x4 = Highprice(0,w.size()-1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc = x2*fConsumption;
@@ -337,7 +342,7 @@ if (mode == 0) // Standardmodus
                 {   low2 = w[0];
                     return 2;}
                 else
-                    if (SollSoc>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
+                    if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
         if (taglaenge > 600)

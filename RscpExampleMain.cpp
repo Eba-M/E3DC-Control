@@ -78,6 +78,7 @@ static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistu
 
 int sunriseAt;  // Sonnenaufgang
 int sunsetAt;   // Sonnenuntergang
+SunriseCalc * location;
 std::vector<watt_s> ch;  //charge hour
 
 FILE * pFile;
@@ -616,6 +617,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1)
     {
+        sunriseAt = location->sunrise();
+        sunsetAt = location->sunset();
+
         int ret; // Steuerung Netzladen = 2, Entladen = 1
         ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis); // Ladeleistung in %
  
@@ -2855,7 +2859,7 @@ static int iEC = 0;
         iEC++; // Schleifenzähler erhöhen
         ptm = gmtime(&t);
 //      Berechne Sonnenaufgang-/untergang
-        SunriseCalc *location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+        location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
         location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
         sunriseAt = location->sunrise();
         sunsetAt = location->sunset();
