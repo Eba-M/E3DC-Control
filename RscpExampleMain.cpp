@@ -1310,12 +1310,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
-
+                int x1,x2,x3,x4,x5;
+               
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
                 if (iRefload > iMaxBattLade) iRefload = iMaxBattLade;
 // iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 
+                x1 = iPower_Bat - iRefload;
+                x2 = fAvBatterie900- iRefload;
+                x3 = fAvBatterie- iRefload;
+
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
 //              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden

@@ -312,13 +312,13 @@ if (mode == 0) // Standardmodus
 //                if (w[0].pp<w[l1].pp)
 //                    SucheDiff(h1, aufschlag,Diff);
     // Überprüfen ob Entladen werden kann
-// Vor Sonnenaufgang?
-/*                if (taglaenge > 600) {
+// Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
+               if (taglaenge > 600) {
                 x2 = SuchePos(sunrise+120);
                 if (x2<0) x2 = SuchePos(sunrise+24*60+120);
                 if (x2<l1&&x2>=0) l1 = x2;
                 }
- */
+
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
@@ -349,6 +349,7 @@ if (mode == 0) // Standardmodus
         {
             x2 = SuchePos(sunrise+120);
             if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
+            if (x2<0) x2 = w.size()-1;
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
         if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
