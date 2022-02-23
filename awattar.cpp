@@ -314,8 +314,8 @@ if (mode == 0) // Standardmodus
     // Überprüfen ob Entladen werden kann
 // Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
                if (taglaenge > 600) {
-                x2 = SuchePos(sunrise+120);
-                if (x2<0) x2 = SuchePos(sunrise+24*60+120);
+                x2 = SuchePos(sunrise+180);
+                if (x2<0) x2 = SuchePos(sunrise+24*60+180);
                 if (x2<l1&&x2>=0) l1 = x2;
                 }
 

@@ -617,6 +617,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     // Die Notstromreserve im System ist davon unberührt
     if (iLMStatus == 1)
     {
+//        if (sunsetAt-sunriseAt<600)
+        location->date(1900+ts->tm_year, ts->tm_mon+1,ts->tm_mday,  0);
         sunriseAt = location->sunrise();
         sunsetAt = location->sunset();
 
