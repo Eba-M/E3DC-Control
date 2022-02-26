@@ -1882,7 +1882,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     }
     case TAG_EMS_POWER_PV: {    // response for TAG_EMS_REQ_POWER_PV
         int32_t iPower = protocol->getValueAsInt32(response);
-        printf("\nEMS PV %i", iPower);
+        printf("EMS PV %i", iPower);
         iPower_PV = iPower;
         iPower_PV_E3DC = iPower;
         break;
@@ -1910,7 +1910,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         iPowerBalance = iPowerBalance- iPower_PV + iPower_Bat - iPower;
         printf(" grid %i", iPower);
         printf(" E3DC %i ", -iPowerBalance - int(fPower_WB));
-        printf(" # %i\n", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
+        printf(" # %i", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
+        printf("%c[K\n", 27 );
+
         break;
     }
     case TAG_EMS_POWER_ADD: {    // response for TAG_EMS_REQ_POWER_ADD
@@ -1974,7 +1976,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             }
             case TAG_BAT_CURRENT: {    // response for TAG_BAT_REQ_CURRENT
                 float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
-                printf(" %0.1f A\n", fVoltage);
+                printf(" %0.1f A", fVoltage);
+                printf("%c[K\n", 27 );
+
                 break;
             }
             case TAG_BAT_STATUS_CODE: {    // response for TAG_BAT_REQ_STATUS_CODE
@@ -2029,7 +2033,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
                         if ((fPower2+fPower3)||0){
                         printf("%0.1f W %0.1f W ", fPower2, fPower3);
-                        printf(" # %0.1f W \n", fPower1+fPower2+fPower3);
+                        printf(" # %0.1f W ", fPower1+fPower2+fPower3);
+                        printf("%c[K\n", 27 );
+
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
                                 sprintf(buffer,"openWB/set/evu/APhase1 -m %0.1f",float(fPower1/fL1V));
@@ -2183,7 +2189,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                 else if (container[n].tag == TAG_PVI_VALUE)
                                                 {
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
-                                                    if (index == 0) printf("\n");
+                                                    if (index == 0)    printf("%c[K\n", 27 );
                                                     fGesPower = fGesPower + fPower;
                                                     printf("AC%u %0.0fW", index, fPower);
 
@@ -2833,6 +2839,8 @@ static void mainLoop(void)
 //                printf("%c[2J", 27 );
                 printf("%c[H", 27 );
                 printf("Request cyclic example data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+                printf("%c[K\n", 27 );
+
 
 //                if (e3dc_config.debug) printf ("start receiveLoop");
                 receiveLoop(bStopExecution);
