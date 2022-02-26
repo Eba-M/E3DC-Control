@@ -1619,6 +1619,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
     if(iAuthenticated == 0)
     
     {
+        printf("%c[2J", 27 );
         printf("\nRequest authentication\n");
         // authentication request
         SRscpValue authenContainer;

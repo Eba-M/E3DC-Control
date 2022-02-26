@@ -274,17 +274,6 @@ if (mode == 0) // Standardmodus
                     {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
             }
             while (l1 < w.size());
-/*
-            if (taglaenge > 600)
-            {
-                x2 = SuchePos(sunrise+120);
-                if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
-                x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
-            
-            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
-            }
-*/
         
         if (SucheDiff(0, aufschlag,Diff))
         {
