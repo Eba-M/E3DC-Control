@@ -1848,7 +1848,6 @@ if (e3dc_config.wallbox)
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
     protocol.destroyValueData(rootValue);
-    printf("%c[H", 27 );
     printf("\nRequest cyclic example data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
 
     return 0;
@@ -2831,6 +2830,9 @@ static void mainLoop(void)
             else {
                 // go into receive loop and wait for response
                 sleep(1);
+                printf("%c[2J", 27 );
+                printf("%c[H", 27 );
+
 //                if (e3dc_config.debug) printf ("start receiveLoop");
                 receiveLoop(bStopExecution);
 //                if (e3dc_config.debug) printf ("end receiveLoop");
