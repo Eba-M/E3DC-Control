@@ -541,7 +541,7 @@ time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamisch
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
-    printf("\n");
+    printf("%c[K\n", 27 );
     tm *ts;
     ts = gmtime(&tE3DC);
     hh = t % (24*3600)/3600;
@@ -847,7 +847,8 @@ bDischarge = false;
                 printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
         
-    printf("E3DC: %i:%i:%i\n",hh,mm,ss);
+    printf("E3DC: %i:%i:%i",hh,mm,ss);
+    printf("%c[K\n", 27 );
 
     
     int iPower = 0;
@@ -1060,11 +1061,13 @@ bDischarge = false;
     if (not bDischarge) printf("halt ");
     printf("BattL %i ",iBattLoad);
     printf("iLMSt %i ",iLMStatus);
-    printf("Rsv %0.1f%%\n",fht);
+    printf("Rsv %0.1f%%",fht);
+    printf("%c[K\n", 27 );
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));
-    printf(" yd %0.0004fkWh\n",(fSavedyesderday/3600000));
+    printf(" yd %0.0004fkWh",(fSavedyesderday/3600000));
+    printf("%c[K\n", 27 );
 
     char buffer [500];
 //    sprintf(buffer,"echo $PATH");
@@ -1600,7 +1603,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }}
-    printf("\nAVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
+    printf("%c[K\n", 27 );
+    printf("AVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
     printf(" iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
@@ -2081,7 +2085,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_VOLTAGE_L3: {              // response for TAG_PM_REQ_L3
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
-                        printf(" %0.1f V\n", fPower);
+                        printf(" %0.1f V", fPower);
+                        printf("%c[K\n", 27 );
                         fL3V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase3 -m %0.1f",float(fPower));
                         MQTTsend(buffer);
