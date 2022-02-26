@@ -765,7 +765,7 @@ bDischarge = false;
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     if (e3dc_config.aWATTar) printf("%.2f",fstrompreis);
-    printf("\n");
+    printf("%c[K\n", 27 );
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     if (t < tLadezeitende3) {
@@ -2830,7 +2830,7 @@ static void mainLoop(void)
             else {
                 // go into receive loop and wait for response
                 sleep(1);
-                printf("%c[2J", 27 );
+//                printf("%c[2J", 27 );
                 printf("%c[H", 27 );
                 printf("Request cyclic example data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
 
