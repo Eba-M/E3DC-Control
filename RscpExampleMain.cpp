@@ -1067,7 +1067,7 @@ bDischarge = false;
     if (e3dc_config.wallbox)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));
     printf(" yd %0.0004fkWh",(fSavedyesderday/3600000));
-    printf("%c[K\n", 27 );
+    printf("%c[J", 27 );
 
     char buffer [500];
 //    sprintf(buffer,"echo $PATH");
@@ -2394,7 +2394,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     bWBLademodus = bWBSonne;
 //                                    WBchar6[0]=WBchar[0];
                                     WBchar6[0]=2+bWBSonne;
-                                    printf(" \nWB: Modus %02X ",uint8_t(cWBALG));
+                                    printf("%c[K\n", 27 );
+                                    printf("WB: Modus %02X ",uint8_t(cWBALG));
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
