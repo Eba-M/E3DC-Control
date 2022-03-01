@@ -40,7 +40,7 @@
 		EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Aktuelles und Versioneninfo"; path = "../Aktuelles und Versioneninfo"; sourceTree = "<group>"; };
 		EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Beschreibung_Parameter; path = ../Beschreibung_Parameter; sourceTree = "<group>"; };
 		EF0F3E8F275C3EB70083A8EE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; };
-		EF0F3E90275C3EB70083A8EE /* E3DC-V1 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "E3DC-V1"; sourceTree = "<group>"; };
+		EF0F3E90275C3EB70083A8EE /* E3DC-V1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "E3DC-V1"; sourceTree = "<group>"; };
 		EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RscpExampleMain.cpp; path = ../RscpExampleMain.cpp; sourceTree = "<group>"; };
 		EF0F3E92275C3EB70083A8EE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = E3DC_CONF.h; path = ../E3DC_CONF.h; sourceTree = "<group>"; };

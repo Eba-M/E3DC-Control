@@ -1502,8 +1502,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "409"
-            endingLineNumber = "409"
+            startingLineNumber = "410"
+            endingLineNumber = "410"
             landmarkName = "aWATTar(ch)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1566,8 +1566,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
+            startingLineNumber = "330"
+            endingLineNumber = "330"
             landmarkName = "CheckaWATTar(sunrise, sunset, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1614,8 +1614,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "344"
-            endingLineNumber = "344"
+            startingLineNumber = "345"
+            endingLineNumber = "345"
             landmarkName = "CheckaWATTar(sunrise, sunset, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1793,6 +1793,22 @@
             startingLineNumber = "2184"
             endingLineNumber = "2184"
             landmarkName = "handleResponseValue(protocol, response)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "61E2DB9E-9AD0-4337-A4AC-720FA4CDF8E0"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../awattar.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "318"
+            endingLineNumber = "318"
+            landmarkName = "CheckaWATTar(sunrise, sunset, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

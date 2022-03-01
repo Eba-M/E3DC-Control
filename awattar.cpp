@@ -302,10 +302,11 @@ if (mode == 0) // Standardmodus
 //                    SucheDiff(h1, aufschlag,Diff);
     // Überprüfen ob Entladen werden kann
 // Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
-               if (taglaenge > 600) {
-                x2 = SuchePos(sunrise+180);
-                if (x2<0) x2 = SuchePos(sunrise+24*60+180);
-                if (x2<l1&&x2>=0) l1 = x2;
+                x3 = w.size();
+                if (taglaenge > 600) {
+                x3 = SuchePos(sunrise+120);
+                if (x3<0) x3 = SuchePos(sunrise+24*60+120);
+                if (x3<l1&&x3>=0) l1 = x3;
                 }
 
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
@@ -314,7 +315,7 @@ if (mode == 0) // Standardmodus
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc = x2*fConsumption;
                 float SollSoc2 = fSoC;
-                for (int j=0;j<w.size();j++) // Simulation
+                for (int j=0;j<x3;j++) // Simulation
                 {
                     if (w[j].pp < w[0].pp&&SollSoc2<0) break; // war schon überzogen Abruch
                     if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
