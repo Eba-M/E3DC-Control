@@ -1864,7 +1864,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "D821D4CD-8358-4AD2-9628-AE00E05021CF"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../RscpExampleMain.cpp"
@@ -1872,6 +1872,22 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1395"
             endingLineNumber = "1395"
+            landmarkName = "WBProcess(frameBuffer)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9E4726BF-0A13-4584-AEA6-E0F7D42741C6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../RscpExampleMain.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1394"
+            endingLineNumber = "1394"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
