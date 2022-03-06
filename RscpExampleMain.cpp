@@ -591,7 +591,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     float fLadeende2 = e3dc_config.ladeende2;
     float fLadeende3 = e3dc_config.unload;
 
-    if (cos((ts->tm_yday+9)*2*3.14/365) > 0)
+    if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
     fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
@@ -606,8 +606,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
-//    float fht = e3dc_config.ht * cos((ts->tm_yday+9)*2*3.14/365);
-    float fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
+    float fht;
+//    fht = cos((ts->tm_yday+9)*2*3.14/365);
+    fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
     // HT Endeladeleistung freigeben
     // Mo-Fr wird während der Hochtarif der Speicher zwischen hton und htoff endladen
@@ -1404,8 +1405,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[0] = 1;            // Sonnenmodus
                     WBchar6[1] = 31;       // fest auf Automatik einstellen
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-                    if (bWBCharge)
-                    WBchar6[4] = 1; // Laden stoppen
+//                    if (bWBCharge)
+//                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
@@ -1509,7 +1510,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WriteLog();
             };
             
-        if ( (fPower_WB == 0) &&bWBLademodus)
+        if ( (fPower_WB == 0) &&bWBLademodus&&bWBConnect)
 //            bWBLademodus = Sonne
              { // Wallbox lädt nicht
             if ((not bWBmaxLadestrom)&&(iWBStatus==1))
