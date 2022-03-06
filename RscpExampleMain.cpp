@@ -1374,8 +1374,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
-
-            if ((not(bWBZeitsteuerung))&&(bWBConnect)&&e3dc_config.aWATTar>0) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
+            
+            if (e3dc_config.aWATTar>0)
+            if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
 // Überprüfen ob auf Sonne und Auto eingestellt ist,
 // falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
