@@ -1541,7 +1541,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
-            if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
+            int icurrent = WBchar[2];  //Ausgangsstromstärke
+                if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
             else
                 if ((iWBMinimumPower == 0) ||
                     (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
@@ -1552,10 +1553,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int X1 = 3; X1 < 20; X1++)
                     
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
-                WBchar[2] = WBchar6[1];
+//                WBchar[2] = WBchar6[1];
+                if (icurrent == 6&&WBchar6[1]>16)
+                    WBchar6[1] = 16;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-
+                if (icurrent == 6)
+                iWBStatus = 30;
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
 
              } else
