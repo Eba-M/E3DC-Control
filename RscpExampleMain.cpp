@@ -359,6 +359,7 @@ bool GetConfig()
         e3dc_config.ext1 = false;
         e3dc_config.ext2 = false;
         e3dc_config.ext3 = false;
+        e3dc_config.ext4 = false;
         e3dc_config.ext7 = false;
         sprintf(e3dc_config.logfile,"logfile");
         sprintf(e3dc_config.openWBhost,"%s",OPENWB);
@@ -432,6 +433,9 @@ bool GetConfig()
                     else if((strcmp(var, "ext3") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext3 = true;
+                    else if((strcmp(var, "ext4") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.ext4 = true;
                     else if((strcmp(var, "ext7") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext7 = true;
@@ -1451,21 +1455,24 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[1] = 31;       // fest auf Automatik einstellen
 //                    } else WBchar6[1] = 32;
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-                    if (bWBCharge)
-                    WBchar6[4] = 1; // Laden stoppen
+// Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
+//                    if (bWBCharge)
+//                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
                     return(0);
-                    } else
+                    }
+/*                    else
                     if (bWBCharge)                     // Laden stoppen
-                    {WBchar6[4] = 1; // Laden stoppen
+                    {
+                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
                     return(0);
                     }
-                }
+*/                }
 
             };
             
@@ -1756,9 +1763,9 @@ if (e3dc_config.ext3)
             protocol.appendValue(&rootValue, PMContainer);
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PMContainer);
-        // EXTERNER ZÄHLER 7
+        // EXTERNER ZÄHLER 4
         protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
-        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)7);
+        protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)4);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
         protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
@@ -1766,6 +1773,20 @@ if (e3dc_config.ext3)
         //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
         //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
         // append sub-container to root container
+if (e3dc_config.ext4)
+                    protocol.appendValue(&rootValue, PMContainer);
+                // free memory of sub-container as it is now copied to rootValue
+                protocol.destroyValueData(PMContainer);
+                // EXTERNER ZÄHLER 7
+                protocol.createContainerValue(&PMContainer, TAG_PM_REQ_DATA);
+                protocol.appendValue(&PMContainer, TAG_PM_INDEX, (uint8_t)7);
+                protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L1);
+                protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L2);
+                protocol.appendValue(&PMContainer, TAG_PM_REQ_POWER_L3);
+                //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L1);
+                //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L2);
+                //        protocol.appendValue(&PMContainer, TAG_PM_REQ_VOLTAGE_L3);
+                // append sub-container to root container
 if (e3dc_config.ext7)
         protocol.appendValue(&rootValue, PMContainer);
         // free memory of sub-container as it is now copied to rootValue
