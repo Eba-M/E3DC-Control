@@ -2449,7 +2449,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                         
                                         if  (WBchar[2]==8)
                                         GetConfig();
-                                        if  (WBchar[2]==9)
+/*                                        if  (WBchar[2]==9)
                                         {
                                             e3dc_config.ladeschwelle = 100;
                                             e3dc_config.ladeende = 100;
@@ -2463,13 +2463,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                         
                                         bWBChanged = true;
                                         
-
+*/
                                         }
-                                
+
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
                                     printf(" Ladestrom %u/%uA ",iWBSoll,WBchar[2]);
+                                    printf("%c[K", 27 );
                                     break;
                                 }
                                     
