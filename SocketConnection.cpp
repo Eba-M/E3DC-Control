@@ -119,6 +119,60 @@ int SocketConnect(const char *cpIpAddress, int iPort) {
     return iSocket;
 }
 
+int SocketConnect_noblock(const char *cpIpAddress, int iPort) {
+
+    unsigned char ucBuffer[sizeof(struct in6_addr)];
+
+    if(inet_pton(AF_INET, cpIpAddress, ucBuffer) <= 0) {
+        printf("IP address %s cannot be converted.\n", cpIpAddress);
+        return -1;
+    }
+
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(iPort);
+    server_addr.sin_addr = *((struct in_addr *) ucBuffer);
+
+    int iSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(iSocket < 0) {
+        printf("Cannot create socket. Error %i errno %i.\n", iSocket, errno);
+        return iSocket;
+    }
+
+    // 3 secs receive timeout setup
+    struct timeval tv;
+    tv.tv_sec = 3;
+    tv.tv_usec = 0;
+    setsockopt(iSocket, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *) &tv, sizeof(struct timeval));
+    // send time out should never occur on normal OS configurations but just in case set the timeout to 5 seconds
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+    setsockopt(iSocket, SOL_SOCKET, SO_SNDTIMEO, (struct timeval *) &tv, sizeof(struct timeval));
+
+    int enable = 1;
+    setsockopt(iSocket, IPPROTO_TCP, TCP_NODELAY, (char *) &enable, sizeof(enable));
+
+    long save_fd = fcntl( iSocket, F_GETFL );
+    save_fd |= O_NONBLOCK;
+    fcntl( iSocket, F_SETFL, save_fd );
+
+    // wait 3 seconds for connection to get ready
+    int iRetries = 3;
+    if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
+        printf("Cannot connect to server. errno %i.\n", errno);
+        sleep(1);
+//        if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
+//            printf("Cannot connect to server. errno %i.\n", errno);
+            if (errno =! 36) {
+            close(iSocket);
+                return -1;}
+//            }
+    }
+
+    return iSocket;
+}
+
 void SocketClose(int iSocket)
 {
     // sanity check
