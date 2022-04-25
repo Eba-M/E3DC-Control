@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "A2022.03.12.2" //aktuelle Version vom 13.3.2022
+#define VERSION "B2022.04.25.0" //aktuelle Version vom 25.4.2025
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -37,15 +37,17 @@
 //const int cLadeende = LADEENDE;     // Lade-Schwelle des überwachten Ladens
 typedef struct {
     char server_ip[20];
-    uint32_t  server_port;
+    char BWWP_ip[20];
+    uint32_t  server_port,BWWP_port;
     char e3dc_user[128];
     char e3dc_password[128];
     char aes_password[128];
     char logfile[128],conffile[128];
     char openWBhost[128];
-    bool wallbox,ext1,ext2,ext3,ext7,debug,htsat,htsun,openWB;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
+    int32_t wallbox,BWWP_Power;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag;
     

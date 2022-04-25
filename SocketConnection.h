@@ -9,6 +9,7 @@
  */
 
 int SocketConnect(const char *cpIpAddress, int iPort);
+int SocketConnect_noblock(const char *cpIpAddress, int iPort);
 void SocketClose(int iSocket);
 int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength);
 int SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength);
