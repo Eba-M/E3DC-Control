@@ -10,5 +10,31 @@
             </PersistentString>
          </PersistentStrings>
       </ContextState>
+      <ContextState
+         contextName = "iRelayEin(char const*):RscpExampleMain.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "GetConfig():RscpExampleMain.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "WBProcess(SRscpFrameBuffer*):RscpExampleMain.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "x2">
+            </PersistentString>
+            <PersistentString
+               value = "x1">
+            </PersistentString>
+            <PersistentString
+               value = "x3">
+            </PersistentString>
+            <PersistentString
+               value = "ret">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "iRelayEin():RscpExampleMain.cpp">
+      </ContextState>
    </ContextStates>
 </VariablesViewState>

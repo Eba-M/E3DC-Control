@@ -428,6 +428,10 @@ bool GetConfig()
                            (strcmp(value, "true") == 0)
                         e3dc_config.wallbox = 0;
                     else
+                        if
+                           (strcmp(value, "false") == 0)
+                        e3dc_config.wallbox = -1;
+                    else
                         e3dc_config.wallbox = atoi(value);}
                   else if((strcmp(var, "openWB") == 0)&&
                             (strcmp(value, "true") == 0))
@@ -991,7 +995,7 @@ bDischarge = false;
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
         
-    if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&(bWBStopped||(iWBStatus>1))&&(e3dc_config.wbmode>1)
+    if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
           ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
         &&
@@ -1297,6 +1301,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     {
         int iRefload,iPower=0;
 // Ermitteln der tatsächlichen maximalen Speicherladeleistung
+        
         if ((fAvPower_Grid < -100)&&(fPower_Grid<-150))
         { if ((iMaxBattLade*.02) > 50)
                 iMaxBattLade = iMaxBattLade*.98;
@@ -1305,6 +1310,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iMaxBattLade = iPower_Bat;
         if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
+// Morgens soll die volle Leistung zur Verfügung stehen
+//        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
+        if (iMaxBattLade < iPower_Bat*-1&&fBatt_SOC<e3dc_config.ladeende) iMaxBattLade = iPower_Bat*-1;
+        
 
 //        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
 //            iRefload = iMaxBattLade;
@@ -1405,6 +1414,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //              entladen
                 
                 idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
+// falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
+                if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
 // Berücksichtigung des SoC
                 if (fBatt_SOC < 15)
                     idynPower = idynPower*(fBatt_SOC - 5)/10;
