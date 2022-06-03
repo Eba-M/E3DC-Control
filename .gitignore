@@ -1,1 +1,5 @@
 E3DC-V1/E3DC-V1.xcodeproj/project.xcworkspace/xcuserdata/eberhardmayer.xcuserdatad/UserInterfaceState.xcuserstate
+.vscode
+e3dc.config.txt
+*.code-workspace
+E3DC-Control
