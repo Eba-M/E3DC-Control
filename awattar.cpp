@@ -407,13 +407,13 @@ int ladedauer = 4;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-    sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
+    sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%li&end=%li'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
             if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
 //                fp = fopen("debug.out","w");
 //                fprintf(fp,"%s",line);
 //                fclose(fp);
-                system(line);
+                int res = system(line);
                 // Einlesen der letzten aWATTar Datei
                         if (not simu)
                         {
@@ -547,7 +547,7 @@ int ladedauer = 4;
             vergleich = vergleich + fConsumption;
             wertvergleich= wertvergleich + fConsumption * w[0].pp/1000;
 
-        printf("%i %0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",w[0].hh%(24*3600)/3600 ,fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
+        printf("%li %0.3f geladen %0.3f entladen %0.3f direkt %0.3f average %0.3f vergleich %0.3f %0.4f\n",w[0].hh%(24*3600)/3600 ,fSoC,wertgeladen/geladen,wertentladen/entladen,wertdirekt/direkt,(wertgeladen+wertdirekt)/(geladen+direkt),wertvergleich/vergleich,w[0].pp/1000);
         w.erase(w.begin());
     }// fConsumption }
         while (w.size()>0);
@@ -584,7 +584,7 @@ int ladedauer = 4;
     fp = fopen("e3dc.wallbox.txt","r");
     if (fp)
     {
-        (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
+        char * res = (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
         ladedauer = atoi(line);
         fclose(fp);
     };

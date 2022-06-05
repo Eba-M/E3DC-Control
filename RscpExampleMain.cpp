@@ -89,7 +89,7 @@ int WriteLog()
 {
   static time_t t,t_alt = 0;
     int day,hour;
-    char fname[127];
+    char fname[256];
     time(&t);
     FILE *fp;
     struct tm * ptm;
@@ -122,10 +122,10 @@ return(0);
 int MQTTsend(char buffer[127])
 
 {
-    char cbuf[127];
+    char cbuf[768];
     if (e3dc_config.openWB) {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", e3dc_config.openWBhost,buffer);
-        system(cbuf);
+        int ret = system(cbuf);
     }
     return(0);
 }
@@ -345,7 +345,7 @@ bool GetConfig()
     if(fp) {
 
         FILE *sfp;
-        char fbuf[127];
+        char fbuf[255];
         bool bf;
         sprintf(fbuf,"%s.check",e3dc_config.conffile);
         sfp = fopen(fbuf, "w");
@@ -1125,7 +1125,7 @@ bDischarge = false;
 //            if (iE3DC_Req_Load > iPower_Bat)
            if (abs(iE3DC_Req_Load) > 100)
               iLMStatus = -7;
-            sprintf(Log,"CPS %s %0.02f %i %i% 0.02f 0.02f 0.02f", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
+            sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
             WriteLog();
 
 }
@@ -2981,7 +2981,7 @@ static int iEC = 0;
  struct tm * ptm;
 
     // endless application which re-connections to server on connection lost
-    system("pwd");
+    int res = system("pwd");
     if (GetConfig())
         while(iEC < 10)
     {
