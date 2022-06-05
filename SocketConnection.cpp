@@ -164,7 +164,7 @@ int SocketConnect_noblock(const char *cpIpAddress, int iPort) {
         sleep(1);
 //        if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
 //            printf("Cannot connect to server. errno %i.\n", errno);
-            if (errno =! 36) {
+            if (errno != 36) {
             close(iSocket);
                 return -1;}
 //            }
@@ -203,7 +203,7 @@ int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength)
     return iSentBytes;
 }
 
-long SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength)
+int SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength)
 {
     // sanity check
     if(iSocket < 0) {
