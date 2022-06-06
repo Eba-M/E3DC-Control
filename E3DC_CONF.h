@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "A2022.05.30.0" //aktuelle Version vom 26.5.2022
+#define VERSION "B2022.06.06.0" //aktuelle Version vom 26.5.2022
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -25,6 +25,7 @@
 #define MINIMUMLADELEISTUNG  500 // immer > MINIMUMLADELEISTUNG
 #define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
 #define WRLEISTUNG 12000 // maximale Ladeleistung
+#define WBMAXLADESTROM 31 // maximale Ladestrom der Wallbox
 
 #define SPEICHERGROESSE 13.8 // nutzbare Kapazität des S10 Speichers
 #define WINTERMINIMUM   11.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht
@@ -45,7 +46,7 @@ typedef struct {
     char logfile[128],conffile[128];
     char openWBhost[128];
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB;
-    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar;
+    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     int32_t wallbox,BWWP_Power;
     float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,

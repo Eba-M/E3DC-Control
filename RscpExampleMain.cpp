@@ -378,6 +378,7 @@ bool GetConfig()
         e3dc_config.ladeschwelle = LADESCHWELLE;
         e3dc_config.ladeende = LADEENDE;
         e3dc_config.ladeende2 = LADEENDE2;
+        e3dc_config.wbmaxladestrom = WBMAXLADESTROM;
         e3dc_config.unload = 100;
         e3dc_config.ht = 0;
         e3dc_config.htsat = false;
@@ -495,6 +496,8 @@ bool GetConfig()
                         e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "wbminlade") == 0)
                         e3dc_config.wbminlade = atoi(value);
+                    else if(strcmp(var, "wbmaxladestrom") == 0)
+                        e3dc_config.wbmaxladestrom = atoi(value);
                     else if(strcmp(var, "wbminSoC") == 0)
                         e3dc_config.wbminSoC = atof(value);
                     else if(strcmp(var, "hoehe") == 0)
@@ -1008,6 +1011,8 @@ bDischarge = false;
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
+    if (iPower > iBattLoad)
+        iLMStatus = 1;
     if (iLMStatus == 1)
     {
         
@@ -1178,7 +1183,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 /*   Steuerung der Wallbox
 */
     const int cMinimumladestand = 15;
-    const int iMaxcurrent=31;
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
@@ -1282,7 +1286,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
         WBchar6[1]=WBchar[2];
 
-        if ((WBchar[2]==32)||(WBchar[2]==30))
+        if ((WBchar[2]==e3dc_config.wbmaxladestrom)||(WBchar[2]==30))
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
             bWBLademodusSave = bWBSonne;    //Sonne = true
@@ -1484,7 +1488,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                     bWBLademodus = true;
                     WBchar6[0] = 1;            // Sonnenmodus
-                    WBchar6[1] = 31;       // fest auf Automatik einstellen
+                    WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
 //                    if (bWBCharge)
 //                    WBchar6[4] = 1; // Laden stoppen
@@ -1503,7 +1507,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    if (not(bWBmaxLadestrom))
                     {
                         bWBmaxLadestrom = true;
-                        WBchar6[1] = 32;
+                        WBchar6[1] = e3dc_config.wbmaxladestrom;
                     }
                     if (bWBStopped)
                     WBchar6[4] = 1; // Laden starten
@@ -1529,7 +1533,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
                     WBchar6[0] = 1;            // Sonnenmodus
 //                    if (not(bWBmaxLadestrom)){
-                        WBchar6[1] = 31;       // fest auf Automatik einstellen
+                        WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
 //                    } else WBchar6[1] = 32;
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
 // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
@@ -1557,8 +1561,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
             if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
 //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
-            if ((WBchar6[1]<32)&&(fBatt_SOC>(cMinimumladestand+2))) {
-                WBchar6[1]=32;
+            if ((WBchar6[1]<e3dc_config.wbmaxladestrom)&&(fBatt_SOC>(cMinimumladestand+2))) {
+                WBchar6[1]=e3dc_config.wbmaxladestrom;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
                 }
@@ -1632,11 +1636,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
                      iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
             if  ((iAvalPower>=(iWBMinimumPower/6))&&
-                (WBchar6[1]<iMaxcurrent)){
+                (WBchar6[1]<e3dc_config.wbmaxladestrom-1)){
                 WBchar6[1]++;
                 for (int X1 = 3; X1 < 20; X1++)
                     
-                if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<iMaxcurrent)) WBchar6[1]++; else break;
+                if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<e3dc_config.wbmaxladestrom-1)) WBchar6[1]++; else break;
 //                WBchar[2] = WBchar6[1];
                 if (icurrent == 6&&WBchar6[1]>16)
                     WBchar6[1] = 16;
@@ -2508,14 +2512,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBStopped ) printf(" gestoppt");
 
 //                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
-                                    if (WBchar[2]==32) {
+                                    if (WBchar[2]==e3dc_config.wbmaxladestrom) {
                                         bWBmaxLadestrom=true;
                                     }
 //                                    if ((WBchar[2]==30)&&(iWBSoll!=30)) {
 //                                        bWBmaxLadestrom=true;
 //                                    }
 //                                if  ((WBchar[2]==31)&&(iWBSoll!=31)) {
-                                    if  (WBchar[2]==31) {
+                                    if  (WBchar[2]==e3dc_config.wbmaxladestrom-1) {
                                         bWBmaxLadestrom=false;
                                     }
                                     if ((int(WBchar[2])!=iWBIst)&&(iWBStatus==1))
