@@ -410,9 +410,9 @@ int ladedauer = 4;
     sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%li&end=%li'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
             if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
-//                fp = fopen("debug.out","w");
-//                fprintf(fp,"%s",line);
-//                fclose(fp);
+                fp = fopen("debug.out","w");
+                fprintf(fp,"%s",line);
+                fclose(fp);
                 int res = system(line);
                 // Einlesen der letzten aWATTar Datei
                         if (not simu)
