@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2022.06.06.2" //aktuelle Version vom 26.5.2022
+#define VERSION "B2022.06.07.0" //aktuelle Version vom 2.7.2022
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -25,7 +25,7 @@
 #define MINIMUMLADELEISTUNG  500 // immer > MINIMUMLADELEISTUNG
 #define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
 #define WRLEISTUNG 12000 // maximale Ladeleistung
-#define WBMAXLADESTROM 31 // maximale Ladestrom der Wallbox
+#define WBMAXLADESTROM 32 // maximale Ladestrom der Wallbox
 
 #define SPEICHERGROESSE 13.8 // nutzbare Kapazität des S10 Speichers
 #define WINTERMINIMUM   11.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht

@@ -75,7 +75,7 @@ static bool bWBStopped;  // Laden angehalten x40
 static bool bWBmaxLadestrom,bWBmaxLadestromSave; // Ladestrom der Wallbox per App eingestellt.; 32=ON 31 = OFF
 static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
-
+float_t WWTemp; // Warmwassertemperatur
 int sunriseAt;  // Sonnenaufgang
 int sunsetAt;   // Sonnenuntergang
 SunriseCalc * location;
@@ -560,11 +560,76 @@ const char * relay_ip;
 static std::vector<uint8_t> send;
 static std::vector<uint8_t> receive;
 int iPort = e3dc_config.BWWP_port;
+typedef struct {
+    uint16_t Tid; //transaktion_ID
+    uint16_t Pid; //Protokoll_ID
+    uint16_t Mlen; //Msglength
+    uint8_t Dev;  //Geräte_ID
+    uint8_t Fcd;  //Function Code
+    uint16_t Reg; //Register
+    uint16_t Count; //Number Register
+    char data[197];
+}Modbus_send;
+typedef struct {
+    uint16_t Tid; //transaktion_ID
+    uint16_t Pid; //Protokoll_ID
+    uint16_t Mlen; //Msglength
+    uint8_t Dev;  //Geräte_ID
+    uint8_t Fcd;  //Function Code
+    uint16_t Reg; // Content Register
+    uint16_t Count; //anzahl Register
 
+}Modbus_receive;
 
+int iModbusTCP()
+{
+// jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
+    static bool brequest = false;
+    static time_t tlast = 0;
+    time_t now;
+    time(&now);
+    char server_ip[16];
+    Modbus_send Msend;
+    if (not brequest&&(now-tlast)>60)
+    {
+        sprintf(server_ip,"192.168.178.23");
+        isocket = SocketConnect(server_ip, 502);
+        if (isocket > 0)
+        {
+            brequest = true;
+            tlast = now;
+            send.resize(12);
+            receive.resize(15);
+        
+            int Temp;
+
+            Msend.Tid = 1*256;
+            Msend.Pid = 0;
+            Msend.Mlen = 6*256;
+            Msend.Dev = 1;
+            Msend.Fcd = 3;
+            Msend.Reg = 60*256;
+            Msend.Count = 1*256;
+            memcpy(&send[0],&Msend,send.size());
+            SocketSendData(isocket,&send[0],send.size());
+        }
+        
+    } else
+        if (brequest)
+        {
+            iLength = SocketRecvData(isocket,&receive[0],receive.size());
+            if (iLength > 0)
+            {
+            WWTemp = float(receive[9]*256+receive[10])/10;
+            SocketClose(isocket);
+            brequest = false;
+            }
+        }
+    return iLength;
+}
 int iRelayEin(const char * cmd)
 {
-  if (isocket >= 0)
+//    if (isocket >= 0&&int32_t(e3dc_config.BWWP_ip)>0);
   {
     relay_ip = e3dc_config.BWWP_ip;
     int iPort = e3dc_config.BWWP_port;
@@ -1011,7 +1076,7 @@ bDischarge = false;
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
-    if (iPower > iBattLoad)
+    if (iPower > iBattLoad&&iLMStatus < 4)
         iLMStatus = 1;
     if (iLMStatus == 1)
     {
@@ -1418,6 +1483,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //              entladen
                 
                 idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
+                idynPower = iPower_Bat-fPower_Grid*2 + (e3dc_config.maximumLadeleistung*.9 - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
 // falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
                 if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
 // Berücksichtigung des SoC
@@ -2970,6 +3036,14 @@ static void mainLoop(void)
 }
 int main(int argc, char *argv[])
 {
+/*
+    static int ret = -1;
+    while (true)
+    {
+        ret = iModbusTCP();
+        sleep(1);
+    }
+ */
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
