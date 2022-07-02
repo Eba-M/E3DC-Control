@@ -1076,8 +1076,8 @@ bDischarge = false;
 
 //        if (((abs( int(iPower - iPower_Bat)) > 30)||(t%3600==0))&&(iLMStatus == 1))
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
-    if (iPower > iBattLoad&&iLMStatus < 4)
-        iLMStatus = 1;
+//    if (iPower > iBattLoad&&iLMStatus < 3)
+//        iLMStatus = 1;
     if (iLMStatus == 1)
     {
         
