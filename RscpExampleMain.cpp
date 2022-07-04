@@ -76,6 +76,7 @@ static bool bWBmaxLadestrom,bWBmaxLadestromSave; // Ladestrom der Wallbox per Ap
 static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller Ladestrom
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 float_t WWTemp; // Warmwassertemperatur
+static float fht; // Reserve aus ht berechnet
 int sunriseAt;  // Sonnenaufgang
 int sunsetAt;   // Sonnenuntergang
 SunriseCalc * location;
@@ -718,7 +719,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
 
-    float fht;
+   
 //    fht = cos((ts->tm_yday+9)*2*3.14/365);
     fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
@@ -739,7 +740,6 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 Steuerung eines 2 Kanal relais für die Ansteuerung einer BWWP mit 500W Aufnahmeleistung
 Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
-*/
 // Einschaltkriterien der BWWP
         static int iChannel1 = -1;
         static time_t twbtime = 0;
@@ -765,7 +765,10 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
             iChannel1 = iRelayEin("21");
             twbtime = tE3DC;
         }
-        int ret; // Steuerung Netzladen = 2, Entladen = 1
+ */
+
+ 
+    int ret; // Steuerung Netzladen = 2, Entladen = 1
         ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
@@ -1477,7 +1480,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-//              Wenn iRefload > e3dc_config.wbminlade darf weiter entladen werden
+//              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
 //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
 //              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
 //              entladen
@@ -1487,14 +1490,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
                 if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
 // Berücksichtigung des SoC
-                if (fBatt_SOC < 15)
-                    idynPower = idynPower*(fBatt_SOC - 5)/10;
+                if (fBatt_SOC < (fht+15))
+                    idynPower = idynPower*(fht+10-fBatt_SOC)/10; // wenn fht < fBatt_Soc idynPower = 0
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
-                    if (iRefload<iMaxBattLade)
+//                    if (iRefload<iMaxBattLade)
                      iPower = idynPower;
-                    else
+//                    else
                       if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
                           }
@@ -1521,7 +1524,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
         iAvalPower = iAvalPower + iPower/iAvalPowerCount;
 
-        if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100)
+        if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
 
         
