@@ -1518,7 +1518,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
 
 // im Sonnenmodus nur bei PV-Produktion regeln
-        
+
+        if (iPower_PV_E3DC > e3dc_config.wrleistung)
+            iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
         
         if (iAvalPowerCount < 3) iAvalPowerCount++;
         iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
