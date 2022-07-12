@@ -1519,9 +1519,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 // im Sonnenmodus nur bei PV-Produktion regeln
 
-        if (iPower_PV_E3DC > e3dc_config.wrleistung)
+        if (iPower_PV_E3DC > e3dc_config.wrleistung){
             iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
-        
+            if (fPower_Grid < 100 && iPower > fPower_Grid*-1) // Netzbezug, verfügbare Leistung reduzieren
+                iPower = fPower_Grid*-1;
+            if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
+            iPower = fPower_Grid*-3;
+        }
         if (iAvalPowerCount < 3) iAvalPowerCount++;
         iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
         iAvalPower = iAvalPower + iPower/iAvalPowerCount;
