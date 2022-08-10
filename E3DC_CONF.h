@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2022.07.12.0" //aktuelle Version vom 12.7.2022
+#define VERSION "B2022.08.08.0" //aktuelle Version vom 12.7.2022
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 

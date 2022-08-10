@@ -1137,7 +1137,9 @@ bDischarge = false;
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
                                 static int iLastReq;
-                                if (((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))
+                                if ((((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))||
+// Wenn ein negativer Wert angefordert wird und die Batterie stärker entladen wird sowie aus dem Netz > 100W Strom bezogen wird wird der Freilauf eingeschaltet
+                                    (iE3DC_Req_Load<0&&((iPower_Bat+100)<iE3DC_Req_Load||fPower_Grid>100)))
 // Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
 // und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
 // war, bleibt der Freilauf erhalten

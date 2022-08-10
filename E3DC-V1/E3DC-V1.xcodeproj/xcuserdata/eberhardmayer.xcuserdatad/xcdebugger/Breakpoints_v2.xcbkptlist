@@ -46,8 +46,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1766"
-            endingLineNumber = "1766"
+            startingLineNumber = "1768"
+            endingLineNumber = "1768"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2576"
-            endingLineNumber = "2576"
+            startingLineNumber = "2578"
+            endingLineNumber = "2578"
             landmarkName = "handleResponseValue(protocol, response)"
             landmarkType = "9">
          </BreakpointContent>
@@ -382,8 +382,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1823"
-            endingLineNumber = "1823"
+            startingLineNumber = "1825"
+            endingLineNumber = "1825"
             landmarkName = "createRequestExample(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -398,8 +398,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1488"
-            endingLineNumber = "1488"
+            startingLineNumber = "1490"
+            endingLineNumber = "1490"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -446,8 +446,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1481"
-            endingLineNumber = "1481"
+            startingLineNumber = "1483"
+            endingLineNumber = "1483"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -462,8 +462,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1376"
-            endingLineNumber = "1376"
+            startingLineNumber = "1378"
+            endingLineNumber = "1378"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -478,8 +478,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1505"
-            endingLineNumber = "1505"
+            startingLineNumber = "1507"
+            endingLineNumber = "1507"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -494,8 +494,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1386"
-            endingLineNumber = "1386"
+            startingLineNumber = "1388"
+            endingLineNumber = "1388"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -510,8 +510,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1387"
-            endingLineNumber = "1387"
+            startingLineNumber = "1389"
+            endingLineNumber = "1389"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -686,8 +686,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1455"
-            endingLineNumber = "1455"
+            startingLineNumber = "1457"
+            endingLineNumber = "1457"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -702,8 +702,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1393"
-            endingLineNumber = "1393"
+            startingLineNumber = "1395"
+            endingLineNumber = "1395"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -718,8 +718,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1472"
-            endingLineNumber = "1472"
+            startingLineNumber = "1474"
+            endingLineNumber = "1474"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -734,8 +734,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1529"
-            endingLineNumber = "1529"
+            startingLineNumber = "1531"
+            endingLineNumber = "1531"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -766,8 +766,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1552"
-            endingLineNumber = "1552"
+            startingLineNumber = "1554"
+            endingLineNumber = "1554"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -782,8 +782,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1554"
-            endingLineNumber = "1554"
+            startingLineNumber = "1556"
+            endingLineNumber = "1556"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -878,8 +878,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3052"
-            endingLineNumber = "3052"
+            startingLineNumber = "3054"
+            endingLineNumber = "3054"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
          </BreakpointContent>
@@ -990,8 +990,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1509"
-            endingLineNumber = "1509"
+            startingLineNumber = "1511"
+            endingLineNumber = "1511"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1006,8 +1006,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1636"
-            endingLineNumber = "1636"
+            startingLineNumber = "1638"
+            endingLineNumber = "1638"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1022,8 +1022,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1508"
-            endingLineNumber = "1508"
+            startingLineNumber = "1510"
+            endingLineNumber = "1510"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1038,8 +1038,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1496"
-            endingLineNumber = "1496"
+            startingLineNumber = "1498"
+            endingLineNumber = "1498"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1054,8 +1054,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1493"
-            endingLineNumber = "1493"
+            startingLineNumber = "1495"
+            endingLineNumber = "1495"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1070,8 +1070,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1537"
-            endingLineNumber = "1537"
+            startingLineNumber = "1539"
+            endingLineNumber = "1539"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1086,8 +1086,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1499"
-            endingLineNumber = "1499"
+            startingLineNumber = "1501"
+            endingLineNumber = "1501"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1102,8 +1102,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1522"
-            endingLineNumber = "1522"
+            startingLineNumber = "1524"
+            endingLineNumber = "1524"
             landmarkName = "WBProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1118,9 +1118,25 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1523"
-            endingLineNumber = "1523"
+            startingLineNumber = "1525"
+            endingLineNumber = "1525"
             landmarkName = "WBProcess(frameBuffer)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6CE3FD07-C2C0-4329-8DBE-FE0D65656E1F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../RscpExampleMain.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1137"
+            endingLineNumber = "1137"
+            landmarkName = "LoadDataProcess(frameBuffer)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
