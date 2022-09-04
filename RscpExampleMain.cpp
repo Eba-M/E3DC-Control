@@ -1474,20 +1474,21 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
                 if (iRefload > iMaxBattLade) iRefload = iMaxBattLade;
 // iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
+                
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 
                 x1 = iPower_Bat - iRefload;
                 x2 = fAvBatterie900- iRefload;
                 x3 = fAvBatterie- iRefload;
 
-                idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
+                idynPower = (iRefload*2 - e3dc_config.wbminlade - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
 //              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
 //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
 //              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
 //              entladen
                 
-                idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
+//                idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
                 idynPower = iPower_Bat-fPower_Grid*2 + (e3dc_config.maximumLadeleistung*.9 - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
 // falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
                 if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
@@ -1498,7 +1499,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
 //                    if (iRefload<iMaxBattLade)
-                     iPower = idynPower;
+//                    iPower = iPower + idynPower;
+                    iPower = idynPower;
 //                    else
                       if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
@@ -1507,7 +1509,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
+                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC||iRefload<e3dc_config.wbminlade))
                 {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2;
                  iPower = iPower +(iPower_Bat-fPower_Grid*2);
                  iPower = iPower - e3dc_config.maximumLadeleistung/4;
@@ -1723,7 +1725,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1] = 16;
                 createRequestWBData(frameBuffer);
                 WBChar_alt = WBchar6[1];
-                if (icurrent == 6)
+                if (icurrent <= 16)
                 iWBStatus = 30;
                 // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
 
