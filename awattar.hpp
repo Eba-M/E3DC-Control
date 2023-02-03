@@ -21,7 +21,7 @@ typedef struct {time_t hh; float pp;}watt_s;
 // std::vector<watt_s> ch;  //charge hour
 
 
-void aWATTar(std::vector<watt_s> &ch);
-int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis);
+void aWATTar(std::vector<watt_s> &ch, int32_t Land);
+int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag);
 // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 

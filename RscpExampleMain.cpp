@@ -77,7 +77,7 @@ static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller L
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 float_t WWTemp; // Warmwassertemperatur
 static float fht; // Reserve aus ht berechnet
-int sunriseAt;  // Sonnenaufgang
+int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
 int sunsetAt;   // Sonnenuntergang
 SunriseCalc * location;
 std::vector<watt_s> ch;  //charge hour
@@ -393,9 +393,13 @@ bool GetConfig()
         e3dc_config.wbminSoC = 10;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
+        e3dc_config.wintertag = 600;
         e3dc_config.aWATTar = 0;
+        e3dc_config.AWLand = 1;   // 1 = DE 2 = AT
+        e3dc_config.AWMWSt = -1;   // 19 = DE 20 = AT
+        e3dc_config.AWNebenkosten = -1;
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
-        e3dc_config.AWDiff = 100;   // Differenzsockel in €/MWh
+        e3dc_config.AWDiff = -1;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
         e3dc_config.AWtest = 0;
         e3dc_config.BWWP_Power = 0;
@@ -505,6 +509,8 @@ bool GetConfig()
                         e3dc_config.hoehe = atof(value);
                     else if(strcmp(var, "laenge") == 0)
                         e3dc_config.laenge = atof(value);
+                    else if(strcmp(var, "AWTag") == 0)
+                        e3dc_config.wintertag = atof(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -522,12 +528,22 @@ bool GetConfig()
                                  e3dc_config.aWATTar = 1;
                         else
                                  e3dc_config.aWATTar = atoi(value);}
+                    else if((strcmp(var, "AWLand") == 0)&&
+                            (strcmp(value, "AT") == 0))   // AT = 2
+                        e3dc_config.AWLand = 2;
+                    else if((strcmp(var, "AWLand") == 0)&&
+                            (strcmp(value, "DE") == 0))   // DE = 1
+                        e3dc_config.AWLand = 1;
                     else if(strcmp(var, "Avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
-                    else if(strcmp(var, "AWDiff") == 0)
-                        e3dc_config.AWDiff = atof(value)*10; // % der SoC
+//                    else if(strcmp(var, "AWDiff") == 0)
+//                        e3dc_config.AWDiff = atof(value)*10; // % der SoC
                     else if(strcmp(var, "AWAufschlag") == 0)
-                        e3dc_config.AWAufschlag = 1 + atof(value)/100; // % der SoC
+                        e3dc_config.AWAufschlag = 1 + atof(value)/100;
+                    else if(strcmp(var, "AWNebenkosten") == 0)
+                        e3dc_config.AWNebenkosten = atof(value);
+                    else if(strcmp(var, "AWMWSt") == 0)
+                        e3dc_config.AWMWSt = atof(value);
                     else if(strcmp(var, "AWtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
                     else
@@ -547,7 +563,18 @@ bool GetConfig()
     //        printf("aes_password %s\n",e3dc_config.aes_password);
             fclose(fp);
             fclose(sfp);
+        if ((e3dc_config.AWNebenkosten > 0)&&(e3dc_config.AWDiff<0))
+        e3dc_config.AWDiff = e3dc_config.AWNebenkosten * (e3dc_config.AWAufschlag-1);
         }
+        if (e3dc_config.AWMWSt<0)
+        {
+            if (e3dc_config.AWLand <= 1)
+                e3dc_config.AWMWSt = 19;
+            else
+                e3dc_config.AWMWSt = 20;
+            
+        }
+                
 
     if ((!fp)||not (fpread)) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
     return fpread;
@@ -769,7 +796,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
  
     int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis); // Ladeleistung in %
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis, e3dc_config.wintertag); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
         {
@@ -910,7 +937,7 @@ bDischarge = false;
     printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
-    if (e3dc_config.aWATTar) printf("%.2f",fstrompreis);
+    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten);
     printf("%c[K\n", 27 );
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -957,6 +984,9 @@ bDischarge = false;
 // Berechnen der Ladeleistung bis zum nächstliegenden Zeitpunkt
                 
         iFc = (fLadeende - fBatt_SOC)*e3dc_config.speichergroesse*10*3600;
+// Latenzbereich bis 0.5% des SoC berücksichtigen
+         if ((fLadeende - fBatt_SOC) > -0.6 && (fLadeende - fBatt_SOC) < 0 && iFc < 0)
+            iFc = 0;
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
           iFc = iFc / (300);
@@ -2982,7 +3012,7 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
             if (e3dc_config.aWATTar)
-            aWATTar(ch); // im Master nicht aufrufen
+            aWATTar(ch,e3dc_config.AWLand); // im Master nicht aufrufen
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
@@ -3080,6 +3110,8 @@ static int iEC = 0;
         ptm = gmtime(&t);
 //      Berechne Sonnenaufgang-/untergang
         location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+        location->date(1900+ptm->tm_year, 12,21,  0); // Wintersonnewende
+        sunriseWSW = location->sunrise();
         location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
         sunriseAt = location->sunrise();
         sunsetAt = location->sunset();
@@ -3092,7 +3124,7 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-        if (e3dc_config.aWATTar) aWATTar(ch);
+        if (e3dc_config.aWATTar) aWATTar(ch, e3dc_config.AWLand);
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {

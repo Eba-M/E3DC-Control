@@ -167,7 +167,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -303,7 +303,8 @@ if (mode == 0) // Standardmodus
     // Überprüfen ob Entladen werden kann
 // Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
                 x3 = w.size()-1;
-                if (taglaenge > 600) {
+// Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
+                if (taglaenge > Wintertag) {
                 x3 = SuchePos(sunrise+120);
                 if (x3<0) x3 = SuchePos(sunrise+24*60+120);
                 if (x3<l1&&x3>=0) l1 = x3;
@@ -326,7 +327,7 @@ if (mode == 0) // Standardmodus
                     SollSoc2 = fSoC-SollSoc2;
                     if (SollSoc2 > SollSoc)
                         SollSoc = SollSoc2;}
-                if (SollSoc > fmaxSoC-1) SollSoc = fmaxSoC-1;
+                if (SollSoc > (fmaxSoC-1)) SollSoc = fmaxSoC-1;
                 if ((SollSoc>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
                     ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
@@ -335,10 +336,15 @@ if (mode == 0) // Standardmodus
                     if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
-        if (taglaenge > 600)
+        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
         {
-            x2 = SuchePos(sunrise+120);
-            if (x2 <0) x2 = SuchePos(sunrise+24*60+120);
+//            int offset = taglaenge - (taglaenge - Wintertag)*5;
+            float offset = 24*60 - sunrise; // Zeitraum bis Tagesende
+//            offset = float(taglaenge)/720;
+            offset = offset - offset*float(taglaenge-Wintertag)/120;
+            if (offset < 120) offset = 120;
+            x2 = SuchePos(sunrise+offset);
+            if (x2 <0) x2 = SuchePos(sunrise+24*60+offset);
             if (x2<0) x2 = w.size()-1;
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
@@ -355,7 +361,7 @@ if (mode == 0) // Standardmodus
             
             
             
-void aWATTar(std::vector<watt_s> &ch)
+void aWATTar(std::vector<watt_s> &ch, int32_t Land)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -407,8 +413,10 @@ int ladedauer = 4;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-
+if (Land == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
+if (Land == 2)
+        sprintf(line,"curl -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
         if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
                 fp = fopen("debug.out","w");
@@ -504,7 +512,7 @@ int ladedauer = 4;
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(0,0,fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis);
+            ret = CheckaWATTar(0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;
