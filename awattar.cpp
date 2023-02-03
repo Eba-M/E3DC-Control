@@ -361,7 +361,7 @@ if (mode == 0) // Standardmodus
             
             
             
-void aWATTar(std::vector<watt_s> &ch, int32_t Land)
+void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -646,7 +646,7 @@ if (Land == 2)
             if (j%2==1) fprintf(fp,"\n");
             fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
         }
-            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp/10);
+            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+MWSt)/1000+Nebenkosten);
         if (ch.size() < 10||j%2==1)
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
