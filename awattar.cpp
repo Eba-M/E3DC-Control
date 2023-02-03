@@ -343,8 +343,10 @@ if (mode == 0) // Standardmodus
 //            offset = float(taglaenge)/720;
             offset = offset - offset*float(taglaenge-Wintertag)/120;
             if (offset < 120) offset = 120;
-            x2 = SuchePos(sunrise+offset);
-            if (x2 <0) x2 = SuchePos(sunrise+24*60+offset);
+            x2 = SuchePos(sunrise+120); // Suchen bis 2h nach Sonnenaufgang
+            if (x2<0) x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
+            else
+            x2 = SuchePos(sunrise+offset); // suchen war erfolgreich - suche verlängern bis offset
             if (x2<0) x2 = w.size()-1;
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
