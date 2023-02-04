@@ -112,7 +112,7 @@ void SucheHT(int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Seku
 
     return;
 }
-bool SucheDiff(int ab, float aufschlag,int Diff)  // ab = Index bis Diff zwischen high und low erreicht
+bool SucheDiff(int ab, float aufschlag,float Diff)  // ab = Index bis Diff zwischen high und low erreicht
 {
     high = w[ab];
     low = w[ab];
@@ -261,7 +261,7 @@ if (mode == 0) // Standardmodus
                 return 1;
 
 // suche über den gesamten Bereich
-            SucheDiff(0, aufschlag,Diff);
+            x1 = SucheDiff(0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
             do
             {
                 x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
@@ -305,8 +305,11 @@ if (mode == 0) // Standardmodus
                 x3 = w.size()-1;
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
                 if (taglaenge > Wintertag) {
-                x3 = SuchePos(sunrise+120);
-                if (x3<0) x3 = SuchePos(sunrise+24*60+120);
+                    float offset = 24*60 - sunrise; // Zeitraum bis Tagesende
+                    offset = offset - offset*float(taglaenge-Wintertag)/120;
+                    if (offset < 120) offset = 120;
+                    x3 = SuchePos(sunrise+120);
+                if (x3<0) x3 = SuchePos(sunrise+24*60+offset);
                 if (x3<l1&&x3>=0) l1 = x3;
                 }
 
@@ -338,9 +341,7 @@ if (mode == 0) // Standardmodus
         }
         if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
         {
-//            int offset = taglaenge - (taglaenge - Wintertag)*5;
             float offset = 24*60 - sunrise; // Zeitraum bis Tagesende
-//            offset = float(taglaenge)/720;
             offset = offset - offset*float(taglaenge-Wintertag)/120;
             if (offset < 120) offset = 120;
             x2 = SuchePos(sunrise+120); // Suchen bis 2h nach Sonnenaufgang

@@ -536,8 +536,8 @@ bool GetConfig()
                         e3dc_config.AWLand = 1;
                     else if(strcmp(var, "Avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
-//                    else if(strcmp(var, "AWDiff") == 0)
-//                        e3dc_config.AWDiff = atof(value)*10; // % der SoC
+                    else if(strcmp(var, "AWDiff") == 0)
+                        e3dc_config.AWDiff = atof(value)*10; // % der SoC
                     else if(strcmp(var, "AWAufschlag") == 0)
                         e3dc_config.AWAufschlag = 1 + atof(value)/100;
                     else if(strcmp(var, "AWNebenkosten") == 0)
@@ -564,7 +564,7 @@ bool GetConfig()
             fclose(fp);
             fclose(sfp);
         if ((e3dc_config.AWNebenkosten > 0)&&(e3dc_config.AWDiff<0))
-        e3dc_config.AWDiff = e3dc_config.AWNebenkosten * (e3dc_config.AWAufschlag-1);
+        e3dc_config.AWDiff = (e3dc_config.AWNebenkosten * (e3dc_config.AWAufschlag-1)*10);
         }
         if (e3dc_config.AWMWSt<0)
         {
