@@ -563,9 +563,6 @@ bool GetConfig()
     //        printf("aes_password %s\n",e3dc_config.aes_password);
             fclose(fp);
             fclose(sfp);
-        if ((e3dc_config.AWNebenkosten > 0)&&(e3dc_config.AWDiff<0))
-        e3dc_config.AWDiff = (e3dc_config.AWNebenkosten * (e3dc_config.AWAufschlag-1)*10);
-        }
         if (e3dc_config.AWMWSt<0)
         {
             if (e3dc_config.AWLand <= 1)
@@ -574,7 +571,10 @@ bool GetConfig()
                 e3dc_config.AWMWSt = 20;
             
         }
-                
+        if ((e3dc_config.AWNebenkosten > 0)&&(e3dc_config.AWDiff<0))
+        e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
+    }
+
 
     if ((!fp)||not (fpread)) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
     return fpread;
