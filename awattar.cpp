@@ -309,8 +309,13 @@ if (mode == 0) // Standardmodus
                     offset = offset - offset*float(taglaenge-Wintertag)/120;
                     if (offset < 120) offset = 120;
                     x3 = SuchePos(sunrise+120);
-                if (x3<0) x3 = SuchePos(sunrise+24*60+offset);
-                if (x3<l1&&x3>=0) l1 = x3;
+                if (x3<0)
+                    x3 = SuchePos(sunrise+24*60+offset);
+                else
+                    x3 = SuchePos(sunrise+offset);
+//                    x3 = w.size()-1;
+
+                    if (x3<l1&&x3>=0) l1 = x3;
                 }
 
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
@@ -345,7 +350,7 @@ if (mode == 0) // Standardmodus
             offset = offset - offset*float(taglaenge-Wintertag)/120;
             if (offset < 120) offset = 120;
             x2 = SuchePos(sunrise+120); // Suchen bis 2h nach Sonnenaufgang
-            if (x2<0) x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
+            if (x2<0) x2 = SuchePos(sunrise+24*60+120); // Nein suchen nächsten Tag bis offset
             else
             x2 = SuchePos(sunrise+offset); // suchen war erfolgreich - suche verlängern bis offset
             if (x2<0) x2 = w.size()-1;

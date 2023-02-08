@@ -887,10 +887,10 @@ bDischarge = false;
         if (not bDischarge) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
                 {
-                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
+//                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
 //                    iLMStatus = -7;
-                    iLMStatus = 7;
-                    printf("Batterie laden zulassen ");
+//                    iLMStatus = 7;
+//                    printf("Batterie laden zulassen ");
 //                    return 0;
                 }   else
 //                if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))&&((fPower_WB==0)||(iPower_PV<100))) // Entladen zulassen wenn WB geladen wird
