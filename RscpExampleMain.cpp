@@ -814,7 +814,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
             iLMStatus = -7;
             bDischargeDone = false;
             return 0;
-        }  ret = 1;
+        } else if (ret == 2) ret = 0;
        
         ts = gmtime(&tE3DC);
 
