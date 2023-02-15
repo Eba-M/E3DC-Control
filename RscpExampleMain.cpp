@@ -806,7 +806,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
             case 1: ret = 1;
         }
 
-        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&(fPower_Grid>100)&&(iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2))
+        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&(fPower_Grid>100)&&(iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            printf("Netzladen an");
