@@ -176,6 +176,9 @@ int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC
     static float lowpp;
     time_t  rawtime;
     time(&rawtime);
+    struct tm * ptm;
+    ptm = gmtime (&rawtime);
+
     int x1,x2,x3,x4;
     int Minuten = rawtime%(24*3600)/60;
 
@@ -304,18 +307,16 @@ if (mode == 0) // Standardmodus
 // Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
                 x3 = w.size()-1;
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
+
+
                 if (taglaenge > Wintertag) {
-                    float offset = 24*60 - sunrise; // Zeitraum bis Tagesende
-                    offset = offset - offset*float(taglaenge-Wintertag)/120;
+                    float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
+                    offset = pow(offset,4)*(24*60-sunrise);
                     if (offset < 120) offset = 120;
-                    x3 = SuchePos(sunrise+120);
+                    x3 = SuchePos(sunrise+offset);
                 if (x3<0)
                     x3 = SuchePos(sunrise+24*60+offset);
-                else
-                    x3 = SuchePos(sunrise+offset);
-//                    x3 = w.size()-1;
-
-                    if (x3<l1&&x3>=0) l1 = x3;
+                if (x3<l1&&x3>=0) l1 = x3;
                 }
 
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
@@ -346,13 +347,11 @@ if (mode == 0) // Standardmodus
         }
         if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
         {
-            float offset = 24*60 - sunrise; // Zeitraum bis Tagesende
-            offset = offset - offset*float(taglaenge-Wintertag)/120;
+            float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
+            offset = pow(offset,4)*(24*60-sunrise);
             if (offset < 120) offset = 120;
-            x2 = SuchePos(sunrise+120); // Suchen bis 2h nach Sonnenaufgang
-            if (x2<0) x2 = SuchePos(sunrise+24*60+120); // Nein suchen nächsten Tag bis offset
-            else
-            x2 = SuchePos(sunrise+offset); // suchen war erfolgreich - suche verlängern bis offset
+            x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
+            if (x2<0) x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
             if (x2<0) x2 = w.size()-1;
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
