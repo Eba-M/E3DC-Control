@@ -309,9 +309,10 @@ if (mode == 0) // Standardmodus
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
 
 
-                if (taglaenge > Wintertag) {
+                if (taglaenge > Wintertag)
+                {
                     float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
-                    offset = pow(offset,4)*(24*60-sunrise);
+                    offset = pow(offset,3.5)*(24*60-sunrise);
                     if (offset < 120) offset = 120;
                     x3 = SuchePos(sunrise+offset);
                 if (x3<0)
@@ -348,7 +349,7 @@ if (mode == 0) // Standardmodus
         if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
         {
             float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
-            offset = pow(offset,4)*(24*60-sunrise);
+            offset = pow(offset,3.5)*(24*60-sunrise);
             if (offset < 120) offset = 120;
             x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
             if (x2<0) x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
