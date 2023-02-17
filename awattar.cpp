@@ -315,7 +315,7 @@ if (mode == 0) // Standardmodus
                     offset = pow(offset,3.5)*(24*60-sunrise);
                     if (offset < 120) offset = 120;
                     x3 = SuchePos(sunrise+offset);
-                if (x3<0)
+                if ((x3<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
                     x3 = SuchePos(sunrise+24*60+offset);
                 if (x3<l1&&x3>=0) l1 = x3;
                 }
@@ -352,7 +352,8 @@ if (mode == 0) // Standardmodus
             offset = pow(offset,3.5)*(24*60-sunrise);
             if (offset < 120) offset = 120;
             x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
-            if (x2<0) x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
+            if ((x2<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
+                x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
             if (x2<0) x2 = w.size()-1;
             x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
         
