@@ -343,7 +343,8 @@ if (mode == 0) // Standardmodus
                 {   low2 = w[0];
                     return 2;}
                 else
-                    if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+                    if ((SollSoc)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+//                if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
         if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
