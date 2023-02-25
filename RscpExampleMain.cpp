@@ -3019,7 +3019,7 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
             if (e3dc_config.aWATTar)
-            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWLand,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
