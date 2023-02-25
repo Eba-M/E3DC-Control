@@ -3132,7 +3132,7 @@ static int iEC = 0;
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
         if (e3dc_config.aWATTar)
-            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWLand,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
