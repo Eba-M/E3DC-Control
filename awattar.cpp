@@ -656,7 +656,7 @@ if (Land == 2)
             if (j%2==1) fprintf(fp,"\n");
             fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
         }
-            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+MWSt)/1000+Nebenkosten);
+        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+MWSt)/1000+Nebenkosten);
         if (ch.size() < 10||j%2==1)
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
