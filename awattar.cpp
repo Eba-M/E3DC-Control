@@ -308,23 +308,31 @@ if (mode == 0) // Standardmodus
                 x3 = w.size()-1;
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
 
-
-                if (taglaenge > Wintertag)
+                float offset;
+                float SollSoc = 0;
+//                if (taglaenge > Wintertag)
                 {
-                    float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
+                    offset = (cos((ptm->tm_yday+9)*2*3.14/365));
                     offset = pow(offset,3.5)*(24*60-sunrise);
-                    if (offset < 120) offset = 120;
+                    if (offset < 90) offset = 90;
                     x3 = SuchePos(sunrise+offset);
                 if ((x3<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
                     x3 = SuchePos(sunrise+24*60+offset);
                 if (x3<l1&&x3>=0) l1 = x3;
+// SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
+                if (w[0].pp*aufschlag+Diff<w[x3+1].pp)
+                    {
+                        SollSoc = ((sunrise+int(offset))%60);
+                        SollSoc = SollSoc/60;
+                        SollSoc = SollSoc*fConsumption;
+                    }
                 }
 
                 x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
                 x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-                float SollSoc = x2*fConsumption;
+                SollSoc = SollSoc+x2*fConsumption;
                 float SollSoc2 = fSoC;
                 for (int j=0;j<=x3;j++) // Simulation
                 {
@@ -347,18 +355,26 @@ if (mode == 0) // Standardmodus
 //                if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
-        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
+//        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
         {
             float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
             offset = pow(offset,3.5)*(24*60-sunrise);
-            if (offset < 120) offset = 120;
+            if (offset < 90) offset = 90;
             x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
             if ((x2<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
                 x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
             if (x2<0) x2 = w.size()-1;
-            x1 = Highprice(0,x2,w[0].pp);  // nächster Nachladepunkt überprüfen
-        
-        if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            x1 = Highprice(0,x2,w[0].pp);  // Anzahl höhere Preise ermitteln
+            x3 = Highprice(0,x2+1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+            float SollSoc = 0;
+            SollSoc = x1*fConsumption;
+            if (x3>x1)  // SollSoC minutengenau berechnen
+            {
+                SollSoc = ((sunrise+int(offset))%60);
+                SollSoc = SollSoc/60;
+                SollSoc = SollSoc*fConsumption+x1*fConsumption;
+            }
+        if (float(fSoC-SollSoc) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
         return 1;
         }
 

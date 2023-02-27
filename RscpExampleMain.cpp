@@ -849,7 +849,7 @@ if (                             // Das Entladen aus dem Speicher
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) Einspeisesitutaton dann darf entladen werden
-    (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& (fAvPower_Grid60 < -100))
+    (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& ((fAvPower_Grid60 < -100)||fAvBatterie>0))
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
