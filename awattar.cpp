@@ -315,12 +315,14 @@ if (mode == 0) // Standardmodus
                     offset = (cos((ptm->tm_yday+9)*2*3.14/365));
                     offset = pow(offset,3.5)*(24*60-sunrise);
                     if (offset < 90) offset = 90;
-                    x3 = SuchePos(sunrise+offset);
-                if ((x3<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
-                    x3 = SuchePos(sunrise+24*60+offset);
-                if (x3<l1&&x3>=0) l1 = x3;
-// SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
-                if (w[0].pp*aufschlag+Diff<w[x3+1].pp)
+                    if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
+                        x3 = SuchePos(sunrise+offset+60); // eine Stunde weiter suhen
+                    else
+                        x3 = SuchePos(sunrise+25*60+offset);
+                    if (x3<l1&&x3>=0) l1 = x3;
+                    x3--;
+                    // SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
+                if (w[0].pp*aufschlag+Diff<w[l1].pp)
                     {
                         SollSoc = ((sunrise+int(offset))%60);
                         SollSoc = SollSoc/60;
@@ -360,14 +362,21 @@ if (mode == 0) // Standardmodus
             float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
             offset = pow(offset,3.5)*(24*60-sunrise);
             if (offset < 90) offset = 90;
-            x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
-            if ((x2<0)||w.size()>24) // wenn die börsenkurse vom nächsten Tag da sind, suchfenster erweitern
-                x2 = SuchePos(sunrise+24*60+offset); // Nein suchen nächsten Tag bis offset
+            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
+                x2 = SuchePos(sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
+            else
+                x2 = SuchePos(sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
             if (x2<0) x2 = w.size()-1;
-            x1 = Highprice(0,x2,w[0].pp);  // Anzahl höhere Preise ermitteln
-            x3 = Highprice(0,x2+1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
-            float SollSoc = 0;
-            SollSoc = x1*fConsumption;
+
+            x3 = Highprice(0,x2,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+
+            if (x2 > 0)
+            {
+                x1 = Highprice(0,x2-1,w[0].pp);  // Anzahl höhere Preise ermitteln
+            }
+            else
+                x1 = 0;
+            float SollSoc = x1*fConsumption;
             if (x3>x1)  // SollSoC minutengenau berechnen
             {
                 SollSoc = ((sunrise+int(offset))%60);
