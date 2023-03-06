@@ -30,8 +30,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "263"
-            endingLineNumber = "263"
+            startingLineNumber = "270"
+            endingLineNumber = "270"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
+            startingLineNumber = "269"
+            endingLineNumber = "269"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -110,8 +110,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "386"
-            endingLineNumber = "386"
+            startingLineNumber = "393"
+            endingLineNumber = "393"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -222,8 +222,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "195"
-            endingLineNumber = "195"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -798,8 +798,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
+            startingLineNumber = "209"
+            endingLineNumber = "209"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -814,8 +814,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "451"
-            endingLineNumber = "451"
+            startingLineNumber = "458"
+            endingLineNumber = "458"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -830,8 +830,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "492"
+            endingLineNumber = "492"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -846,8 +846,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "625"
-            endingLineNumber = "625"
+            startingLineNumber = "632"
+            endingLineNumber = "632"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -862,8 +862,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "453"
-            endingLineNumber = "453"
+            startingLineNumber = "460"
+            endingLineNumber = "460"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1294,8 +1294,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194"
+            startingLineNumber = "201"
+            endingLineNumber = "201"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1310,8 +1310,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "308"
-            endingLineNumber = "308"
+            startingLineNumber = "315"
+            endingLineNumber = "315"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1326,8 +1326,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "360"
-            endingLineNumber = "360"
+            startingLineNumber = "367"
+            endingLineNumber = "367"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1358,8 +1358,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "452"
-            endingLineNumber = "452"
+            startingLineNumber = "459"
+            endingLineNumber = "459"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1390,8 +1390,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "399"
-            endingLineNumber = "399"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1406,8 +1406,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "408"
-            endingLineNumber = "408"
+            startingLineNumber = "415"
+            endingLineNumber = "415"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1422,8 +1422,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "691"
-            endingLineNumber = "691"
+            startingLineNumber = "698"
+            endingLineNumber = "698"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1454,8 +1454,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "346"
-            endingLineNumber = "346"
+            startingLineNumber = "353"
+            endingLineNumber = "353"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1470,8 +1470,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "684"
-            endingLineNumber = "684"
+            startingLineNumber = "691"
+            endingLineNumber = "691"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1486,8 +1486,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "668"
-            endingLineNumber = "668"
+            startingLineNumber = "675"
+            endingLineNumber = "675"
             landmarkName = "aWATTar(ch, Land, MWSt, Nebenkosten)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1502,8 +1502,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
             landmarkName = "SuchePos(bis)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1518,8 +1518,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "356"
-            endingLineNumber = "356"
+            startingLineNumber = "363"
+            endingLineNumber = "363"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1534,8 +1534,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "135"
-            endingLineNumber = "135"
+            startingLineNumber = "142"
+            endingLineNumber = "142"
             landmarkName = "SucheDiff(ab, aufschlag, Diff)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1550,8 +1550,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
             landmarkName = "SucheDiff(ab, aufschlag, Diff)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1630,8 +1630,8 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "248"
-            endingLineNumber = "248"
+            startingLineNumber = "255"
+            endingLineNumber = "255"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1694,9 +1694,25 @@
             filePath = "../awattar.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "327"
-            endingLineNumber = "327"
+            startingLineNumber = "334"
+            endingLineNumber = "334"
             landmarkName = "CheckaWATTar(sunrise, sunset, sunriseWSW, fSoC, fmaxSoC, fConsumption, Diff, aufschlag, ladeleistung, mode, fstrompreis, Wintertag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "04AA083C-FD14-40C4-A5D2-274468E4F44D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../awattar.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "48"
+            endingLineNumber = "48"
+            landmarkName = "CheckWallbox()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

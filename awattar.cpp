@@ -43,14 +43,21 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
  */
 {
     struct stat stats;
-    time_t  tm_dt;
+     time_t  tm,tm_dt;
+     time(&tm);
      stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
-    if (tm_dt==tm_Wallbox_dt)
+     tm = (tm - tm_dt)/3600;
+    if (tm >= 24) tm_Wallbox_dt = tm_dt;
+    if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
+    {
         return false;
+    }
     else
-        {tm_Wallbox_dt = tm_dt;
-            return true;}
+    {
+        tm_Wallbox_dt = tm_dt;
+        return true;
+    }
 }
 
 int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit > preis
@@ -319,8 +326,8 @@ if (mode == 0) // Standardmodus
                         x3 = SuchePos(sunrise+offset+60); // eine Stunde weiter suhen
                     else
                         x3 = SuchePos(sunrise+25*60+offset);
-                    if (x3<l1&&x3>=0) l1 = x3;
                     x3--;
+                    if (x3<l1&&x3>=0) l1 = x3;
                     // SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
                 if (w[0].pp*aufschlag+Diff<w[l1].pp)
                     {
