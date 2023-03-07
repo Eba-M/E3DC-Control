@@ -326,7 +326,8 @@ if (mode == 0) // Standardmodus
                         x3 = SuchePos(sunrise+offset+60); // eine Stunde weiter suhen
                     else
                         x3 = SuchePos(sunrise+25*60+offset);
-                    x3--;
+                    if (x3 > 0)
+                        x3--;
                     if (x3<l1&&x3>=0) l1 = x3;
                     // SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
                 if (w[0].pp*aufschlag+Diff<w[l1].pp)
