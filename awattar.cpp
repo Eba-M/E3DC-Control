@@ -356,7 +356,7 @@ if (mode == 0) // Standardmodus
                     if (SollSoc2 > SollSoc)
                         SollSoc = SollSoc2;}
                 if (SollSoc > (fmaxSoC-1)) SollSoc = fmaxSoC-1;
-                if ((SollSoc>fSoC)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
+                if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
                     return 2;}

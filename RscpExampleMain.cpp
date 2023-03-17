@@ -620,8 +620,11 @@ int iModbusTCP()
     Modbus_send Msend;
     if (not brequest&&(now-tlast)>60)
     {
-        sprintf(server_ip,"192.168.178.23");
-        isocket = SocketConnect(server_ip, 502);
+        if (isocket < 0)
+        {
+            sprintf(server_ip,"192.168.178.80");
+            isocket = SocketConnect(server_ip, 502);
+        }
         if (isocket > 0)
         {
             brequest = true;
@@ -635,9 +638,11 @@ int iModbusTCP()
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
             Msend.Dev = 1;
-            Msend.Fcd = 3;
-            Msend.Reg = 60*256;
-            Msend.Count = 1*256;
+//            Msend.Fcd = 3; // Funktioncode
+            Msend.Fcd = 6; // Funktioncode
+            Msend.Reg = 32*256;  // Adresse Register
+//            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
+            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
             memcpy(&send[0],&Msend,send.size());
             SocketSendData(isocket,&send[0],send.size());
         }
@@ -648,8 +653,12 @@ int iModbusTCP()
             iLength = SocketRecvData(isocket,&receive[0],receive.size());
             if (iLength > 0)
             {
-            WWTemp = float(receive[9]*256+receive[10])/10;
-            SocketClose(isocket);
+            if (receive[7]==3)
+                WWTemp = float(receive[9]*256+receive[10])/10;
+            else
+                WWTemp = float(receive[10]*256+receive[11])/10;
+
+//                SocketClose(isocket);
             brequest = false;
             }
         }
@@ -850,6 +859,7 @@ if (                             // Das Entladen aus dem Speicher
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
     (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& ((fAvPower_Grid60 < -100)||fAvBatterie>0))
+    || (e3dc_config.aWATTar&&iBattLoad<100) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
@@ -3093,7 +3103,7 @@ int main(int argc, char *argv[])
         ret = iModbusTCP();
         sleep(1);
     }
- */
+*/
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
