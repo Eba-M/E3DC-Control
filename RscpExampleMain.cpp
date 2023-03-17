@@ -51,6 +51,7 @@ static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; /
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static int32_t iPower_PV, iPower_PV_E3DC;
+static int32_t iAvalPower = 0;
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
@@ -859,7 +860,7 @@ if (                             // Das Entladen aus dem Speicher
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
     (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& ((fAvPower_Grid60 < -100)||fAvBatterie>0))
-    || (e3dc_config.aWATTar&&iBattLoad<100) // Es wird nicht mehr geladen
+    || (e3dc_config.aWATTar&&(iBattLoad<100||iAvalPower>0)) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
@@ -1301,7 +1302,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     static uint8_t WBChar_alt = 0;
-    static int32_t iWBMinimumPower,iAvalPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
+    static int32_t iWBMinimumPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
     static bool bWBLademodusSave,bWBZeitsteuerung;
