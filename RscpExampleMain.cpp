@@ -394,7 +394,6 @@ bool GetConfig()
         e3dc_config.wbminSoC = 10;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
-        e3dc_config.wintertag = 600;
         e3dc_config.aWATTar = 0;
         e3dc_config.AWLand = 1;   // 1 = DE 2 = AT
         e3dc_config.AWMWSt = -1;   // 19 = DE 20 = AT
@@ -402,6 +401,7 @@ bool GetConfig()
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = -1;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
+        e3dc_config.AWTagoffset = 90;
         e3dc_config.AWtest = 0;
         e3dc_config.BWWP_Power = 0;
         e3dc_config.BWWP_port = 6722;
@@ -510,8 +510,8 @@ bool GetConfig()
                         e3dc_config.hoehe = atof(value);
                     else if(strcmp(var, "laenge") == 0)
                         e3dc_config.laenge = atof(value);
-                    else if(strcmp(var, "AWTag") == 0)
-                        e3dc_config.wintertag = atof(value); // max länge eines Wintertages
+                    else if(strcmp(var, "AWTagoffset") == 0)
+                        e3dc_config.AWTagoffset = atoi(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -806,7 +806,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
  
     int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis, e3dc_config.wintertag); // Ladeleistung in %
+        ret =  CheckaWATTar(sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis, e3dc_config.AWTagoffset); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
         {
@@ -860,7 +860,7 @@ if (                             // Das Entladen aus dem Speicher
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
     (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& ((fAvPower_Grid60 < -100)||fAvBatterie>0))
-    || (e3dc_config.aWATTar&&(iBattLoad<100||iAvalPower>0)) // Es wird nicht mehr geladen
+    || (e3dc_config.aWATTar&&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){

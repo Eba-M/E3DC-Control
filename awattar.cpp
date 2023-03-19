@@ -174,7 +174,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -264,6 +264,14 @@ if (mode == 0) // Standardmodus
                 low2.pp = (Diff+Diff*aufschlag);
         } // ist low vorbelegt?
 */
+        float offset;
+        float SollSoc = 0;
+//                if (taglaenge > Wintertag)
+            offset = (cos((ptm->tm_yday+9)*2*3.14/365));
+//            offset = (cos((69)*2*3.14/365));
+            if (offset > 0)
+            offset = pow(abs(offset),3.5)*(24*60-sunrise);
+            if (offset < ioffset) offset = ioffset;
 
 // Überprüfen ob entladen werden kann
             x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -314,14 +322,7 @@ if (mode == 0) // Standardmodus
 // Vor Sonnenaufgang? Bei Taglänge > 10h wird nur noch die Morgenspitze berücksichtigt
                 x3 = w.size()-1;
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
-
-                float offset;
-                float SollSoc = 0;
-//                if (taglaenge > Wintertag)
                 {
-                    offset = (cos((ptm->tm_yday+9)*2*3.14/365));
-                    offset = pow(offset,3.5)*(24*60-sunrise);
-                    if (offset < 90) offset = 90;
                     if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
                         x3 = SuchePos(sunrise+offset+60); // eine Stunde weiter suhen
                     else
@@ -369,7 +370,7 @@ if (mode == 0) // Standardmodus
         {
             float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
             offset = pow(offset,3.5)*(24*60-sunrise);
-            if (offset < 90) offset = 90;
+            if (offset < ioffset) offset = ioffset;
             if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
                 x2 = SuchePos(sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
             else
