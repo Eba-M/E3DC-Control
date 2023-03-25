@@ -383,19 +383,14 @@ if (mode == 0) // Standardmodus
             if (x2<0) x2 = w.size()-1;
 
             x3 = Highprice(0,x2,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+            x1 = Highprice(0,x2+1,w[0].pp);  // Anzahl höhere Preise ermitteln
 
-            if (x2 > 0)
-            {
-                x1 = Highprice(0,x2-1,w[0].pp);  // Anzahl höhere Preise ermitteln
-            }
-            else
-                x1 = 0;
-            SollSoc = x1*fConsumption;
-            if (x3>x1)  // SollSoC minutengenau berechnen
+            SollSoc = x3*fConsumption;
+            if (x1>x3)  // SollSoC minutengenau berechnen
             {
                 SollSoc = ((sunrise+int(offset))%60);
                 SollSoc = SollSoc/60;
-                SollSoc = SollSoc*fConsumption+x1*fConsumption;
+                SollSoc = SollSoc*fConsumption+x3*fConsumption;
             }
         if (float(fSoC-SollSoc) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
         return 1;
