@@ -371,12 +371,12 @@ if (mode == 0) // Standardmodus
 //            float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
 //            offset = pow(offset,3.5)*(24*60-sunrise);
 //            if (offset < ioffset) offset = ioffset;
-            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset-ioffset/2))
-                x2 = SuchePos(sunrise+offset-ioffset/2); // Suchen bis 2h nach Sonnenaufgang
+            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
+                x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
             else
             {
-                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                    x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
+                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset+ioffset/2))
+                    x2 = SuchePos(sunrise+offset+ioffset/2); // Suchen bis 2h nach Sonnenaufgang
                 else
                     x2 = SuchePos(sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
             }
