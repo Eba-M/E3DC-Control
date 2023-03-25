@@ -356,6 +356,9 @@ bool GetConfig()
         stat(e3dc_config.conffile,&stats);
         tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
+        strcpy(e3dc_config.server_ip, "0.0.0.0");
+        strcpy(e3dc_config.heizstab_ip, "0.0.0.0");
+        strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.ext1 = false;
@@ -417,6 +420,10 @@ bool GetConfig()
                     if(strcmp(var, "server_ip") == 0)
                         strcpy(e3dc_config.server_ip, value);
                     else if(strcmp(var, "BWWP_ip") == 0)
+                        strcpy(e3dc_config.BWWP_ip, value);
+                    else if(strcmp(var, "heizung_ip") == 0)
+                        strcpy(e3dc_config.BWWP_ip, value);
+                    else if(strcmp(var, "heizstab_ip") == 0)
                         strcpy(e3dc_config.BWWP_ip, value);
                     else if(strcmp(var, "server_port") == 0)
                         e3dc_config.server_port = atoi(value);
@@ -665,6 +672,60 @@ int iModbusTCP()
         }
     return iLength;
 }
+int iModbusTCP_Heizstab()
+{
+// Alle 10 sec wird der neue wert an den heizstab geschickt
+    static bool brequest = false;
+    static time_t tlast = 0;
+    time_t now;
+    time(&now);
+    char server_ip[16];
+    Modbus_send Msend;
+    if (not brequest&&(now-tlast)>60)
+    {
+        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0))
+        {
+            isocket = SocketConnect(e3dc_config.heizstab_ip, 502);
+            if (isocket > 0)
+            {
+                brequest = true;
+                tlast = now;
+                send.resize(12);
+                receive.resize(15);
+            }
+
+            Msend.Tid = 1*256;
+            Msend.Pid = 0;
+            Msend.Mlen = 6*256;
+            Msend.Dev = 1;
+//            Msend.Fcd = 3; // Funktioncode
+            Msend.Fcd = 6; // Funktioncode
+            Msend.Reg =  (1000%256)*256 + (1000/256);  // Adresse Register Leistung heizstab
+//            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
+            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
+            memcpy(&send[0],&Msend,send.size());
+            SocketSendData(isocket,&send[0],send.size());
+        }
+        
+    } else
+        if (brequest)
+        {
+            iLength = SocketRecvData(isocket,&receive[0],receive.size());
+            if (iLength > 0)
+            {
+            if (receive[7]==3)
+                WWTemp = float(receive[9]*256+receive[10])/10;
+            else
+                WWTemp = float(receive[10]*256+receive[11])/10;
+
+//                SocketClose(isocket);
+            brequest = false;
+            }
+        }
+    return iLength;
+}
+
+
 int iRelayEin(const char * cmd)
 {
 //    if (isocket >= 0&&int32_t(e3dc_config.BWWP_ip)>0);
@@ -1570,6 +1631,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
 
 // im Sonnenmodus nur bei PV-Produktion regeln
+        if (iPower > e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid)
+            iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
 
         if (iPower_PV_E3DC > e3dc_config.wrleistung){
             iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
