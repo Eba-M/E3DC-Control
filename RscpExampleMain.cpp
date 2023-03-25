@@ -1631,11 +1631,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
 
 // im Sonnenmodus nur bei PV-Produktion regeln
-        if (iPower > e3dc_config.maximumLadeleistung*.9-iPower_Bat-fPower_Grid)
-            iPower = e3dc_config.maximumLadeleistung*.9-iPower_Bat-fPower_Grid;
+        if (iPower > e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
+            iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         
-        if (iPower < -e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid)
-            iPower = -e3dc_config.maximumLadeleistung*.9+iPower_Bat+fPower_Grid;
+//        if (iPower < -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
+//            iPower = -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
 
 
         if (iPower_PV_E3DC > e3dc_config.wrleistung){
