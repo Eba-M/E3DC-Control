@@ -371,19 +371,21 @@ if (mode == 0) // Standardmodus
 //            float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
 //            offset = pow(offset,3.5)*(24*60-sunrise);
 //            if (offset < ioffset) offset = ioffset;
-            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                x2 = SuchePos(sunrise+offset); // Suchen bis 2h nach Sonnenaufgang
+            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset-ioffset/2))
+                x2 = SuchePos(sunrise+offset+60-ioffset/2); // Suchen bis 2h nach Sonnenaufgang
             else
             {
-                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset+ioffset/2))
-                    x2 = SuchePos(sunrise+offset+ioffset/2); // Suchen bis 2h nach Sonnenaufgang
+                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
+                    x2 = SuchePos(sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
                 else
                     x2 = SuchePos(sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
             }
             if (x2<0) x2 = w.size()-1;
-
-            x3 = Highprice(0,x2,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
-            x1 = Highprice(0,x2+1,w[0].pp);  // Anzahl höhere Preise ermitteln
+            if (x2 > 0)
+                x3 = Highprice(0,x2-1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+            else
+                x3=0;
+            x1 = Highprice(0,x2,w[0].pp);  // Anzahl höhere Preise ermitteln
 
             SollSoc = x3*fConsumption;
             if (x1>x3)  // SollSoC minutengenau berechnen
