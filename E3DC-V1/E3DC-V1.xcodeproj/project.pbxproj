@@ -52,7 +52,7 @@
 		EF0F3EA027713F610083A8EE /* index.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
 		EF0F3EA12771402B0083A8EE /* e3dc.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = e3dc.php; sourceTree = "<group>"; };
 		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
-		EFD3BE2929D82B5D00CB73CB /* avl_array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = avl_array.h; sourceTree = "<group>"; };
+		EFD3BE2A29E00C1E00CB73CB /* avl_array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = avl_array.h; path = ../avl_array.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,11 +69,11 @@
 		EF7AB47B275C2C75004CC034 = {
 			isa = PBXGroup;
 			children = (
+				EFD3BE2A29E00C1E00CB73CB /* avl_array.h */,
 				EF0F3E94275C3EB70083A8EE /* AES.cpp */,
 				EF0F3E8B275C3EB60083A8EE /* AES.h */,
 				EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */,
 				EF0F3E96275C3EB70083A8EE /* awattar.cpp */,
-				EFD3BE2929D82B5D00CB73CB /* avl_array.h */,
 				EF0F3EA027713F610083A8EE /* index.php */,
 				EF0F3EA12771402B0083A8EE /* e3dc.php */,
 				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
