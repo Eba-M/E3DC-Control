@@ -12,6 +12,7 @@
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
 #include "awattar.hpp"
+#include "avl_array.h"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -82,6 +83,9 @@ int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
 int sunsetAt;   // Sonnenuntergang
 SunriseCalc * location;
 std::vector<watt_s> ch;  //charge hour
+
+avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Einträgen
+
 
 FILE * pFile;
 e3dc_config_t e3dc_config;
@@ -422,9 +426,9 @@ bool GetConfig()
                     else if(strcmp(var, "BWWP_ip") == 0)
                         strcpy(e3dc_config.BWWP_ip, value);
                     else if(strcmp(var, "heizung_ip") == 0)
-                        strcpy(e3dc_config.BWWP_ip, value);
+                        strcpy(e3dc_config.heizung_ip, value);
                     else if(strcmp(var, "heizstab_ip") == 0)
-                        strcpy(e3dc_config.BWWP_ip, value);
+                        strcpy(e3dc_config.heizstab_ip, value);
                     else if(strcmp(var, "server_port") == 0)
                         e3dc_config.server_port = atoi(value);
                     else if(strcmp(var, "e3dc_user") == 0)
@@ -672,28 +676,33 @@ int iModbusTCP()
         }
     return iLength;
 }
-int iModbusTCP_Heizstab()
+int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
 {
 // Alle 10 sec wird der neue wert an den heizstab geschickt
+    static int isocket = -1;
     static bool brequest = false;
     static time_t tlast = 0;
     time_t now;
     time(&now);
     char server_ip[16];
     Modbus_send Msend;
+    static int iPower_Heizstab = 0;
     if (not brequest&&(now-tlast)>60)
     {
         if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0))
         {
             isocket = SocketConnect(e3dc_config.heizstab_ip, 502);
-            if (isocket > 0)
-            {
+        }
+        if (isocket > 0)
+        {
                 brequest = true;
                 tlast = now;
                 send.resize(12);
                 receive.resize(15);
-            }
 
+            iPower_Heizstab = iPower_Heizstab + ireq_power;
+            if (iPower_Heizstab < 0) iPower_Heizstab = 0;
+            if (iPower_Heizstab > 1000) iPower_Heizstab = 1000;
             Msend.Tid = 1*256;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
@@ -702,9 +711,9 @@ int iModbusTCP_Heizstab()
             Msend.Fcd = 6; // Funktioncode
             Msend.Reg =  (1000%256)*256 + (1000/256);  // Adresse Register Leistung heizstab
 //            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
-            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
+            Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
-            SocketSendData(isocket,&send[0],send.size());
+//            SocketSendData(isocket,&send[0],send.size());
         }
         
     } else
@@ -714,15 +723,15 @@ int iModbusTCP_Heizstab()
             if (iLength > 0)
             {
             if (receive[7]==3)
-                WWTemp = float(receive[9]*256+receive[10])/10;
+                iPower_Heizstab  = float(receive[9]*256+receive[10]);
             else
-                WWTemp = float(receive[10]*256+receive[11])/10;
+                iPower_Heizstab  = float(receive[10]*256+receive[11]);
 
 //                SocketClose(isocket);
-            brequest = false;
             }
+            brequest = false;
         }
-    return iLength;
+    return iPower_Heizstab;
 }
 
 
@@ -752,6 +761,9 @@ int iRelayEin(const char * cmd)
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
+    static int iLeistungHeizstab = 0;
+    static int ireq_Heistab;
+
     printf("%c[K\n", 27 );
     tm *ts;
     ts = gmtime(&tE3DC);
@@ -920,7 +932,7 @@ if (                             // Das Entladen aus dem Speicher
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
-    (e3dc_config.aWATTar&&(fht < fBatt_SOC)&& ((fAvPower_Grid60 < -100)||fAvBatterie>0))
+    (e3dc_config.aWATTar&& iPower_PV > 100 &&((fAvPower_Grid60 < -100)||fAvBatterie>0)) // Bei Solarertrag vorübergehend Entladen freigeben
     || (e3dc_config.aWATTar&&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
@@ -1245,6 +1257,12 @@ bDischarge = false;
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
+// Überschussleistung an Heizstab, wenn vorhanden
+// iBattLoad-iPower_Bat die angeforderte Batterieladeleistung sollte angeforderten Batterieladeeistung entsprechen
+//
+                                ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
+                                iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
+                                
                                 static int iLastReq;
                                 if ((((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))||
 // Wenn ein negativer Wert angefordert wird und die Batterie stärker entladen wird sowie aus dem Netz > 100W Strom bezogen wird wird der Freilauf eingeschaltet
@@ -1321,7 +1339,9 @@ bDischarge = false;
     printf("BattL %i ",iBattLoad);
     printf("iLMSt %i ",iLMStatus);
     printf("Rsv %0.1f%%",fht);
-    printf("%c[K\n", 27 );
+    if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
+        printf(" %i %i",ireq_Heistab,iLeistungHeizstab);
+        printf("%c[K\n", 27 );
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox>=0)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));

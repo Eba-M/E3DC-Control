@@ -356,7 +356,8 @@ if (mode == 0) // Standardmodus
                     SollSoc2 = fSoC-SollSoc2;
                     if (SollSoc2 > SollSoc)
                         SollSoc = SollSoc2;}
-                if (SollSoc > (fmaxSoC-1)) SollSoc = fmaxSoC-1;
+                if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset)&&(SollSoc > (fmaxSoC-1)))
+                    SollSoc = fmaxSoC-1;  //tagsüber laden auf Reserve beschränken
                 if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
