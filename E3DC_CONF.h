@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2023.04.08.0" //aktuelle Version vom 2.3.2023
+#define VERSION "B2023.04.09.0" //aktuelle Version vom 9.4.2023
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -41,7 +41,7 @@ typedef struct {
     char heizstab_ip[20]; // Heizstab
     char heizung_ip[20];  // oekofen
     char BWWP_ip[20];
-    uint32_t  server_port,BWWP_port;
+    uint32_t  server_port,heizstab_port,BWWP_port;
     char e3dc_user[128];
     char e3dc_password[128];
     char aes_password[128];

@@ -362,6 +362,7 @@ bool GetConfig()
         char var[128], value[128], line[256];
         strcpy(e3dc_config.server_ip, "0.0.0.0");
         strcpy(e3dc_config.heizstab_ip, "0.0.0.0");
+        e3dc_config.heizstab_port = 502;
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
@@ -429,6 +430,8 @@ bool GetConfig()
                         strcpy(e3dc_config.heizung_ip, value);
                     else if(strcmp(var, "heizstab_ip") == 0)
                         strcpy(e3dc_config.heizstab_ip, value);
+                    else if(strcmp(var, "heizstab_port") == 0)
+                        e3dc_config.heizstab_port = atoi(value);
                     else if(strcmp(var, "server_port") == 0)
                         e3dc_config.server_port = atoi(value);
                     else if(strcmp(var, "e3dc_user") == 0)
@@ -687,22 +690,23 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
     char server_ip[16];
     Modbus_send Msend;
     static int iPower_Heizstab = 0;
-    if (not brequest&&(now-tlast)>60)
+    if ((now-tlast)>5)
     {
-        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0))
+        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0)
+
         {
-            isocket = SocketConnect(e3dc_config.heizstab_ip, 502);
+            isocket = SocketConnect(e3dc_config.heizstab_ip, e3dc_config.heizstab_port);
         }
         if (isocket > 0)
         {
-                brequest = true;
+//                brequest = true;
                 tlast = now;
                 send.resize(12);
                 receive.resize(15);
 
             iPower_Heizstab = iPower_Heizstab + ireq_power;
             if (iPower_Heizstab < 0) iPower_Heizstab = 0;
-            if (iPower_Heizstab > 1000) iPower_Heizstab = 1000;
+            if (iPower_Heizstab > 3600) iPower_Heizstab = 3600;
             Msend.Tid = 1*256;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
@@ -713,6 +717,9 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
             SocketSendData(isocket,&send[0],send.size());
+            if (iPower_Heizstab==0)
+                SocketClose(isocket);
+
         }
         
     } else
@@ -1254,6 +1261,11 @@ bDischarge = false;
                             iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             if (iE3DC_Req_Load >e3dc_config.maximumLadeleistung)
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
+// Testen Heizstab
+//                            ireq_Heistab++;
+//                            iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
+
+                            
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
 // Überschussleistung an Heizstab, wenn vorhanden
