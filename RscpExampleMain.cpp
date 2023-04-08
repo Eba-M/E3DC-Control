@@ -707,13 +707,12 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
             Msend.Dev = 1;
-//            Msend.Fcd = 3; // Funktioncode
             Msend.Fcd = 6; // Funktioncode
             Msend.Reg =  (1000%256)*256 + (1000/256);  // Adresse Register Leistung heizstab
 //            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
             Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
-//            SocketSendData(isocket,&send[0],send.size());
+            SocketSendData(isocket,&send[0],send.size());
         }
         
     } else
