@@ -692,10 +692,11 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
     static int iPower_Heizstab = 0;
     if ((now-tlast)>5)
     {
-        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0)
+        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0&&(now-tlast>3600))
 
         {
             isocket = SocketConnect(e3dc_config.heizstab_ip, e3dc_config.heizstab_port);
+            tlast = now;
         }
         if (isocket > 0)
         {
@@ -706,7 +707,7 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
 
             iPower_Heizstab = iPower_Heizstab + ireq_power;
             if (iPower_Heizstab < 0) iPower_Heizstab = 0;
-            if (iPower_Heizstab > 3600) iPower_Heizstab = 3600;
+            if (iPower_Heizstab > 10000) iPower_Heizstab = ireq_power;
             Msend.Tid = 1*256;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
