@@ -53,6 +53,7 @@ static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
+static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
@@ -692,7 +693,7 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
     static int iPower_Heizstab = 0;
     if ((now-tlast)>5)
     {
-        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0&&(now-tlast>3600))
+        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0&&(now-tlast>600))
 
         {
             isocket = SocketConnect(e3dc_config.heizstab_ip, e3dc_config.heizstab_port);
@@ -717,28 +718,14 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
 //            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
             Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
-            SocketSendData(isocket,&send[0],send.size());
-            if (iPower_Heizstab==0)
+            if (SocketSendData(isocket,&send[0],send.size())<0||(iPower_Heizstab==0))
                 SocketClose(isocket);
 
         }
         
     } else
-        if (brequest)
-        {
-            iLength = SocketRecvData(isocket,&receive[0],receive.size());
-            if (iLength > 0)
-            {
-            if (receive[7]==3)
-                iPower_Heizstab  = float(receive[9]*256+receive[10]);
-            else
-                iPower_Heizstab  = float(receive[10]*256+receive[11]);
-
-//                SocketClose(isocket);
-            }
-            brequest = false;
-        }
-    return iPower_Heizstab;
+        iPower_Heizstab  = isocket;
+            return iPower_Heizstab;
 }
 
 
@@ -1273,6 +1260,8 @@ bDischarge = false;
 // iBattLoad-iPower_Bat die angeforderte Batterieladeleistung sollte angeforderten Batterieladeeistung entsprechen
 //
                                 ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
+                                if (fAvPower_Grid60 < -50&&fPower_Grid <-50)
+                                    ireq_Heistab = iPower_Bat - fPower_Grid -50;
                                 iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
                                 
                                 static int iLastReq;
@@ -1397,7 +1386,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
-    static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
     static bool bWBLademodusSave,bWBZeitsteuerung;
 
 /*
