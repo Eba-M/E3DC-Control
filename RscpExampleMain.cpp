@@ -720,8 +720,11 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
             if (SocketSendData(isocket,&send[0],send.size())<0||(iPower_Heizstab==0))
+            {
                 SocketClose(isocket);
-            
+                if (isocket >= 0) isocket = -2;
+                iPower_Heizstab = isocket;
+            }
         }
         
         else
