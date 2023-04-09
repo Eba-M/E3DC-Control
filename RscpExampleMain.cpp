@@ -708,7 +708,8 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             
             iPower_Heizstab = iPower_Heizstab + ireq_power;
             if (iPower_Heizstab < 0) iPower_Heizstab = 0;
-            if (iPower_Heizstab > 10000) iPower_Heizstab = ireq_power;
+            if (iPower_Heizstab > 3000) iPower_Heizstab = 3000;
+//            if (iPower_Heizstab > 10000) iPower_Heizstab = ireq_power;
             Msend.Tid = 1*256;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
