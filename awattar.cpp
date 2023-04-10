@@ -433,7 +433,7 @@ int ladedauer = 4;
     time(&rawtime);
     ptm = gmtime (&rawtime);
 
-    int64_t von, bis;
+    long long unsigned int von, bis;
     if (simu)
     {
         von = (rawtime-30*24*3600)*1000;
