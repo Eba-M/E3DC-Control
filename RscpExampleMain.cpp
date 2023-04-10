@@ -701,7 +701,7 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
         {
             isocket = SocketConnect(e3dc_config.heizstab_ip, e3dc_config.heizstab_port);
             if (isocket < 0) // wenn der socket nicht verfügbar, eine Stunde warten
-            tlast = now + 600;
+            tlast = now + 60;
         }
         if (isocket > 0)
         {
@@ -710,7 +710,7 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             send.resize(12);
             receive.resize(15);
             
-            if (maxpower < 0) // ermitteln maximale Leistung
+            if (maxpower <= 0) // ermitteln maximale Leistung
             {
                 Msend.Tid = 1*256;
                 Msend.Pid = 0;
@@ -738,6 +738,7 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             
             iPower_Heizstab = iPower_Heizstab + ireq_power;
             if (iPower_Heizstab < 0) iPower_Heizstab = 0;
+            if (maxpower < 3000) maxpower = 3000;
             if (iPower_Heizstab > maxpower) iPower_Heizstab = maxpower;
 //            if (iPower_Heizstab > 10000) iPower_Heizstab = ireq_power;
             Msend.Tid = 1*256;
@@ -749,7 +750,8 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             //            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
             Msend.Count = (iPower_Heizstab%256)*256+ (iPower_Heizstab/256); // Leistung setzen
             memcpy(&send[0],&Msend,send.size());
-            if (SocketSendData(isocket,&send[0],send.size())<0||(iPower_Heizstab==0))
+            iLength = (SocketSendData(isocket,&send[0],send.size()));
+            if (iLength <=0||(iPower_Heizstab==0))
             {
                 SocketClose(isocket);
                 if (isocket >= 0) isocket = -2;
