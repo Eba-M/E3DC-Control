@@ -628,6 +628,7 @@ typedef struct {
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
+    static int isocket = -1;
     static bool brequest = false;
     static time_t tlast = 0;
     time_t now;
@@ -654,11 +655,11 @@ int iModbusTCP()
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
             Msend.Dev = 1;
-//            Msend.Fcd = 3; // Funktioncode
-            Msend.Fcd = 6; // Funktioncode
-            Msend.Reg = 32*256;  // Adresse Register
-//            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
-            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
+            Msend.Fcd = 3; // Funktioncode
+//            Msend.Fcd = 6; // Funktioncode
+            Msend.Reg = 2*256;  // Adresse Register // Aussentemperatur
+            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
+//            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
             memcpy(&send[0],&Msend,send.size());
             SocketSendData(isocket,&send[0],send.size());
         }
@@ -686,18 +687,21 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
     static int isocket = -1;
     static bool brequest = false;
     static time_t tlast = 0;
+    static int maxpower = -1;
     time_t now;
     time(&now);
     char server_ip[16];
     Modbus_send Msend;
     static int iPower_Heizstab = 0;
+        
     if ((now-tlast)>5)
     {
-        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0&&(now-tlast>600))
+        if ((isocket < 0)&&(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)&&ireq_power>0&&(now-tlast>10))
             
         {
             isocket = SocketConnect(e3dc_config.heizstab_ip, e3dc_config.heizstab_port);
-            tlast = now;
+            if (isocket < 0) // wenn der socket nicht verfügbar, eine Stunde warten
+            tlast = now + 600;
         }
         if (isocket > 0)
         {
@@ -706,9 +710,35 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
             send.resize(12);
             receive.resize(15);
             
+            if (maxpower < 0) // ermitteln maximale Leistung
+            {
+                Msend.Tid = 1*256;
+                Msend.Pid = 0;
+                Msend.Mlen = 6*256;
+                Msend.Dev = 1;
+                Msend.Fcd = 3; // Funktioncode auslesen
+//                Msend.Fcd = 6; // Funktioncode
+                Msend.Reg =  (1014%256)*256 + (1014/256);  // Adresse Register Leistung heizstab
+                Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
+                memcpy(&send[0],&Msend,send.size());
+                SocketSendData(isocket,&send[0],send.size());
+                sleep(0.1);
+// Auslesen der maximalen Leistung
+            
+                iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (iLength > 0)
+                {
+                    if (receive[7]==3)
+                    {
+                        maxpower = receive[9]*256+receive[10];
+                    }
+                }
+            }
+
+            
             iPower_Heizstab = iPower_Heizstab + ireq_power;
             if (iPower_Heizstab < 0) iPower_Heizstab = 0;
-            if (iPower_Heizstab > 3000) iPower_Heizstab = 3000;
+            if (iPower_Heizstab > maxpower) iPower_Heizstab = maxpower;
 //            if (iPower_Heizstab > 10000) iPower_Heizstab = ireq_power;
             Msend.Tid = 1*256;
             Msend.Pid = 0;
@@ -807,7 +837,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 #
     
     
-    
+//    iModbusTCP();
+//    iModbusTCP();
+//    iModbusTCP_Heizstab(300);
+//    iModbusTCP_Heizstab(400);
+//    iModbusTCP_Heizstab(500);
+
     
     float fLadeende = e3dc_config.ladeende;
     float fLadeende2 = e3dc_config.ladeende2;
