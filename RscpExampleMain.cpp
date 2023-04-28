@@ -380,6 +380,7 @@ bool GetConfig()
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
         e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
         e3dc_config.maximumLadeleistung = MAXIMUMLADELEISTUNG;
+        e3dc_config.powerfaktor = POWERFAKTOR;
         e3dc_config.wrleistung = WRLEISTUNG;
         e3dc_config.speichergroesse = SPEICHERGROESSE;
         e3dc_config.winterminimum = WINTERMINIMUM;
@@ -487,6 +488,8 @@ bool GetConfig()
                         e3dc_config.obererLadekorridor = atoi(value);
                     else if(strcmp(var, "minimumLadeleistung") == 0)
                         e3dc_config.minimumLadeleistung = atoi(value);
+                    else if(strcmp(var, "Powerfaktor") == 0)
+                        e3dc_config.powerfaktor = atof(value);
                     else if(strcmp(var, "maximumLadeleistung") == 0)
                         e3dc_config.maximumLadeleistung = atoi(value);
                     else if(strcmp(var, "wrleistung") == 0)
@@ -589,6 +592,9 @@ bool GetConfig()
         }
         if ((e3dc_config.AWNebenkosten > 0)&&(e3dc_config.AWDiff<0))
         e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
+        if (e3dc_config.powerfaktor < 0)
+            e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
+            
     }
 
 
@@ -968,7 +974,7 @@ if (                             // Das Entladen aus dem Speicher
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
-    (e3dc_config.aWATTar&& iPower_PV > 100 &&((fAvPower_Grid60 < -100)||fAvBatterie>0)) // Bei Solarertrag vorübergehend Entladen freigeben
+    (e3dc_config.aWATTar&& iPower_PV > 100 &&((fAvPower_Grid60 < -100)||fAvBatterie>0||fAvBatterie900>0)) // Bei Solarertrag vorübergehend Entladen freigeben
     || (e3dc_config.aWATTar&&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
@@ -1129,7 +1135,7 @@ bDischarge = false;
                iFc = (iFc+e3dc_config.untererLadekorridor);
             else
               iFc = 0;
-          iFc = iFc*(float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
+          iFc = iFc*e3dc_config.powerfaktor;
           if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung;
           if (abs(iFc) > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
           if (abs(iFc) < e3dc_config.minimumLadeleistung) iFc = 0;
@@ -1681,7 +1687,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
                 if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
-                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2;
+                {iPower = e3dc_config.maximumLadeleistung*(100+fBatt_SOC-e3dc_config.wbminSoC)/120;
                  iPower = iPower +(iPower_Bat-fPower_Grid*2);
                  iPower = iPower - e3dc_config.maximumLadeleistung/4;
                     

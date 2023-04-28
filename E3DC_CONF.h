@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2023.04.10.0" //aktuelle Version vom 10.4.2023
+#define VERSION "B2023.04.28.0" //aktuelle Version vom 10.4.2023
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -20,9 +20,10 @@
 #define LADESCHWELLE 50;     // bis zur dieser Schwelle wird geladen bevor die Regelung beginnt
 #define LADEENDE 80;         // Zielwert bis Ende Regelung, dannach wird Ladung auf Landeende2 weiter geregelt und dann ab SOMMERLADEENDE freigegeben
 #define LADEENDE2 93;
-#define UNTERERLADEKORRIDOR  900 // die Ladeleistung soll zwischen dem unteren und
-#define OBERERLADEKORRIDOR  1500 // oberere Ladeleistung liegen, jedoch
-#define MINIMUMLADELEISTUNG  500 // immer > MINIMUMLADELEISTUNG
+#define UNTERERLADEKORRIDOR  100 // die Ladeleistung soll zwischen dem unteren und
+#define OBERERLADEKORRIDOR  2000 // oberere Ladeleistung liegen, jedoch
+#define MINIMUMLADELEISTUNG  100 // immer > MINIMUMLADELEISTUNG
+#define POWERFAKTOR          -1  // Verstärkungsfaktor 
 #define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
 #define WRLEISTUNG 12000 // maximale Ladeleistung
 #define WBMAXLADESTROM 32 // maximale Ladestrom der Wallbox
@@ -51,7 +52,7 @@ typedef struct {
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     int32_t wallbox,BWWP_Power,AWLand,AWTagoffset;
-    float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,
+    float_t speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt;
     
     
