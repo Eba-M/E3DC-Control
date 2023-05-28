@@ -1264,9 +1264,9 @@ bDischarge = false;
 // -iPower_Bat + int32_t(fPower_Grid)
                 if (iLMStatus == 1) {
 // Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
-// Danach wird nur bis auf ladeende2 entladen.
-                     if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
-                     iPower = 0;
+// Danach wird nur bis auf ladeende2 entladen.  #Funktion entfernt 28.5.23
+//                     if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
+//                     iPower = 0;
 // Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
 //                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
 //                 iPower = e3dc_config.maximumLadeleistung*-1;
