@@ -145,7 +145,7 @@ Sobald der Raspberry Pi hochgefahren ist, können Sie sich mit ssh pi@raspberry
     htsat = true              
     // Hochtarif Samstag
     htsun = true              
-    // Hochtourig Sonntag
+    // Hochtarif Sonntag
     debug = false
     // Zusätzliche debug informationenin eine logfile ausgeben
     logfile = logfile
