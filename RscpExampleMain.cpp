@@ -974,7 +974,9 @@ if (                             // Das Entladen aus dem Speicher
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
     ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
-    (e3dc_config.aWATTar&& iPower_PV > 100 &&((fAvPower_Grid60 < -100)||fAvBatterie>0||fAvBatterie900>0)) // Bei Solarertrag vorübergehend Entladen freigeben
+// bei negativen Börsenpreisen nach Nebenkosten darf aus dem Netz bezogen werden
+    (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)>0
+        &&((fAvPower_Grid60 < -100)||fAvBatterie>0||fAvBatterie900>0)) // Bei Solarertrag vorübergehend Entladen freigeben
     || (e3dc_config.aWATTar&&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
@@ -1573,14 +1575,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         {
             case 1:
 //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+fPower_WB;
-              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
-              if (fPower_WB > 1000)
-                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-              else
-                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
- 
-              if ((iPower <  iWBMinimumPower*-1)&&(WBchar[2] == 6))
-                {iPower = -20000;
+              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500; // Schon 500W früher einschalten
+//                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
+                if (fPower_WB > 1000)
+//                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
+                    iPower = iPower+iWBMinimumPower/6;
+                else
+//                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
+                    iPower = iPower+iWBMinimumPower;
+
+                if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == 6)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
+                {//iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
                     {iWBStatus = 29;
