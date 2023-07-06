@@ -1579,10 +1579,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000)
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = iPower+iWBMinimumPower/6;
+                    iPower = iPower-iPower_Bat+iWBMinimumPower/6;
                 else
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
-                    iPower = iPower+iWBMinimumPower;
+                    iPower = iPower-iPower_Bat+iWBMinimumPower;
 
                 if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == 6)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
                 {//iPower = -20000;
