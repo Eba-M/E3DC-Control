@@ -1691,15 +1691,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
-                if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
-                {iPower = e3dc_config.maximumLadeleistung*(100+fBatt_SOC-e3dc_config.wbminSoC)/120;
-                 iPower = iPower +(iPower_Bat-fPower_Grid*2);
-                 iPower = iPower - e3dc_config.maximumLadeleistung/4;
+               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
+                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2; // bis > 2% uber MinSoC volle Entladung
+                 if (iPower > e3dc_config.maximumLadeleistung)
+                     iPower = e3dc_config.maximumLadeleistung*.9;
+                    iPower = iPower +(iPower_Bat-fPower_Grid*2);
                     
                 }
                 if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                     iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
-
                           break;
         }
 
