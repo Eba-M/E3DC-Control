@@ -1552,7 +1552,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
-        int iRefload,iPower=0;
+        int iRefload=0,iPower=0;
 // Ermitteln der tatsächlichen maximalen Speicherladeleistung
         
         if ((fAvPower_Grid < -100)&&(fPower_Grid<-150))
@@ -1691,7 +1691,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
-               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > float(e3dc_config.wbminSoC)))
+               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
                 {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2; // bis > 2% uber MinSoC volle Entladung
                  if (iPower > e3dc_config.maximumLadeleistung)
                      iPower = e3dc_config.maximumLadeleistung*.9;
