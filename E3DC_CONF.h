@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2023.07.24.0" //aktuelle Version 
+#define VERSION "B2023.08.29.0" //aktuelle Version 
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -32,7 +32,7 @@
 #define WINTERMINIMUM   11.5 // Uhrzeit (als Dezimalwert) bis zu dieser Uhrzeit wird das Laden überwacht
 #define SOMMERMAXIMUM   14.5 // alle Zeiten in GMT = MEZ Winterzeit - 1
 #define SOMMERLADEENDE  18.5 // alle Zeiten in GMT = MEZ Winterzeit - 1
-#define EINSPEISELIMIT   6.9 // maximal erlaubte Einspeiseleistung in kW
+#define EINSPEISELIMIT   30  // maximal erlaubte Einspeiseleistung in kW
 
 
 //const int cLadeschwelle = LADESCHWELLE; // Minimum Lade-Schwelle wird bevorzugt der E3DC-Speicher geladen

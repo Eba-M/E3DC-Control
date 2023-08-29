@@ -47,7 +47,7 @@ static uint8_t ucDecryptionIV[AES_BLOCK_SIZE];
 // static int32_t iPower_Grid;
 static uint8_t iCurrent_WB;
 static uint8_t iCurrent_Set_WB;
-static float fPower_Grid;
+static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
@@ -55,6 +55,7 @@ static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
+static float fPower_Bat;
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
 static int32_t iBattLoad;
@@ -1276,7 +1277,13 @@ bDischarge = false;
                  tE3DC_alt = t;
 
                         {
-                        if ((iPower<e3dc_config.maximumLadeleistung)&&(iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
+                        if ((iPower<e3dc_config.maximumLadeleistung)&&
+                            ((iPower > iPower_Bat)||
+//                             ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)) && fPower_WB < 1))
+                            ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))))
+                            )
+// Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
+// Wenn über der Wallbox geladen wird, Freilauf beenden
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                         {if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
 // es liegt Netzbezug vor und System war nicht im Freilauf
@@ -1553,7 +1560,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
         int iRefload=0,iPower=0;
-// Ermitteln der tatsächlichen maximalen Speicherladeleistung
+        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
+
+        // Ermitteln der tatsächlichen maximalen Speicherladeleistung
         
         if ((fAvPower_Grid < -100)&&(fPower_Grid<-150))
         { if ((iMaxBattLade*.02) > 50)
@@ -1624,8 +1633,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower_Bat-iMaxBattLade;
                     else
                     iPower = iPower_Bat-iBattLoad;
+
                  }}
                 }
+                    idynPower = (iRefload - (fAvBatterie900+fAvBatterie))*-2;
+                    if (idynPower < 0)
+                        iPower = idynPower;
               break;
             case 3:
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
@@ -1676,7 +1689,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
 // Berücksichtigung des SoC
                 if (fBatt_SOC < (fht+15))
-                    idynPower = idynPower*(fht+10-fBatt_SOC)/10; // wenn fht < fBatt_Soc idynPower = 0
+                    idynPower = idynPower*fBatt_SOC/100; // wenn fht < fBatt_Soc idynPower = 0
 // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
@@ -1691,8 +1704,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
 // Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
-               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > e3dc_config.wbminSoC))
-                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)/2; // bis > 2% uber MinSoC volle Entladung
+               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC-1.0)))
+                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)*(fBatt_SOC-e3dc_config.wbminSoC)*
+                    (fBatt_SOC-e3dc_config.wbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
                  if (iPower > e3dc_config.maximumLadeleistung)
                      iPower = e3dc_config.maximumLadeleistung*.9;
                     iPower = iPower +(iPower_Bat-fPower_Grid*2);
@@ -2176,6 +2190,24 @@ if (e3dc_config.ext7)
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(PVIContainer);
 
+        // request DCDC information
+
+        SRscpValue DCDCContainer;
+
+        protocol.createContainerValue(&DCDCContainer, TAG_DCDC_REQ_DATA);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_INDEX, (uint8_t)0);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_BAT);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_BAT);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_BAT);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_DCL);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_DCL);
+        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_DCL);
+        
+        // append sub-container to root container
+        protocol.appendValue(&rootValue, DCDCContainer);
+        // free memory of sub-container as it is now copied to rootValue
+        protocol.destroyValueData(DCDCContainer);
+
 
         // request Wallbox information
 
@@ -2325,6 +2357,68 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             printf("L1 is %i W\n", iPower);
             break;
     }
+    case TAG_DCDC_DATA: {        // resposne for TAG_DCDC_REQ_DATA
+        uint8_t ucBatteryIndex = 0;
+        std::vector<SRscpValue> batteryData = protocol->getValueAsContainer(response);
+        for(size_t i = 0; i < batteryData.size(); ++i) {
+            if(batteryData[i].dataType == RSCP::eTypeError) {
+                // handle error for example access denied errors
+                uint32_t uiErrorCode = protocol->getValueAsUInt32(&batteryData[i]);
+                printf("Tag 0x%08X received error code %u.\n", batteryData[i].tag, uiErrorCode);
+                return -1;
+            }
+            // check each battery sub tag
+            switch(batteryData[i].tag) {
+                case TAG_DCDC_INDEX: {
+                    ucBatteryIndex = protocol->getValueAsUChar8(&batteryData[i]);
+                    printf("%c[K\n", 27 ); // neue Zeile
+                    printf("DCDC ");
+                    break;
+                }
+                case TAG_DCDC_U_BAT: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
+                    float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fV ", fVoltage);
+                    break;
+                }
+                case TAG_DCDC_I_BAT: {    // response for TAG_BAT_REQ_CURRENT
+                    float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fA ", fCurrent);
+
+                    break;
+                }
+                case TAG_DCDC_P_BAT: {    // response for TAG_BAT_REQ_CURRENT
+                    float fPower = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fW ", fPower);
+
+                    break;
+                }
+                case TAG_DCDC_U_DCL: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
+                    float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fV ", fVoltage);
+                    break;
+                }
+                case TAG_DCDC_I_DCL: {    // response for TAG_BAT_REQ_CURRENT
+                    float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fA ", fCurrent);
+
+                    break;
+                }
+                case TAG_DCDC_P_DCL: {    // response for TAG_BAT_REQ_CURRENT
+                    float fPower = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf(" %0.02fW ", fPower);
+
+                    break;
+                }
+
+                default:
+                    // default behaviour
+                    printf("Unknown DCDC tag %08X\n", response->tag);
+                    break;
+                }
+            }
+            protocol->destroyValueData(batteryData);
+            break;
+    }
    case TAG_BAT_DATA: {        // resposne for TAG_BAT_REQ_DATA
         uint8_t ucBatteryIndex = 0;
         std::vector<SRscpValue> batteryData = protocol->getValueAsContainer(response);
@@ -2353,8 +2447,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 break;
             }
             case TAG_BAT_CURRENT: {    // response for TAG_BAT_REQ_CURRENT
-                float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
-                printf(" %0.1f A", fVoltage);
+                float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
+                fPower_Bat = fVoltage*fCurrent;
+                printf(" %0.02f A %0.02f W", fCurrent,fPower_Bat);
                 printf("%c[K\n", 27 );
 
                 break;

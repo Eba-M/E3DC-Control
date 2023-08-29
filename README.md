@@ -100,10 +100,15 @@ wurzelzaehler = 0
 // 6 = externer Wurzelzähler
 einspeiselimit = 7.0 
 // 70% Einspeisegrenze bei z.B. 10kWp
-untererLadekorridor = 500  
-obererLadekorridor = 1500  
+// untererLadekorridor = 500  
+// obererLadekorridor = 1500  
 // bei der PRO wird 4500 empfohlen
-minimumLadeleistung = 300
+// minimumLadeleistung = 300 
+
+// der Powerfaktor ersetzt die Angabe von untererLadekorridor, obererLadekorridor, minimumLadeleistung
+
+Powerfaktor = 1.5
+
 maximumLadeleistung = 3000  
 // 1500 bei mini, 3000 E12 und 9000/1200 PRO
 wrleistung = 12000          
