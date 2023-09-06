@@ -1256,13 +1256,7 @@ bDischarge = false;
             if ((iDiffLadeleistung < 0 )||(abs(iBattLoad)<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if (abs(iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
-/*            if (iLMStatus == 1) {
-                iBattLoad = iPower;
-                tE3DC_alt = t;
-            ControlLoadData2(frameBuffer,(iBattLoad+iDiffLadeleistung));
-            iLMStatus = 7;
-            }
-*/
+
 // Steuerung direkt über vorgabe der Batterieladeleistung
 // -iPower_Bat + int32_t(fPower_Grid)
                 if (iLMStatus == 1) {
@@ -1278,8 +1272,8 @@ bDischarge = false;
 
                         {
                         if ((iPower<e3dc_config.maximumLadeleistung)&&
-                            ((iPower > iPower_Bat)||
-//                             ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)) && fPower_WB < 1))
+                            (
+//                             (iPower > iPower_Bat)||
                             ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))))
                             )
 // Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
@@ -1322,9 +1316,20 @@ bDischarge = false;
                                 iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
                                 
                                 static int iLastReq;
-                                if ((((iE3DC_Req_Load_alt) >=  (e3dc_config.maximumLadeleistung-1))&&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1)))||
+                                if (
+                                    (
+                                     ((iE3DC_Req_Load_alt) >=(e3dc_config.maximumLadeleistung-1))
+                                     &&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1))
+                                     )
+                                    ||
 // Wenn ein negativer Wert angefordert wird und die Batterie stärker entladen wird sowie aus dem Netz > 100W Strom bezogen wird wird der Freilauf eingeschaltet
-                                    (iE3DC_Req_Load<0&&((iPower_Bat+100)<iE3DC_Req_Load||fPower_Grid>100)))
+                                    (iE3DC_Req_Load<0&&
+                                     (
+                                      (
+                                       ((iPower_Bat+100)<iE3DC_Req_Load&& fPower_Grid>-100)||
+                                      fPower_Grid>100)
+                                     )
+                                    ))
 // Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
 // und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
 // war, bleibt der Freilauf erhalten
