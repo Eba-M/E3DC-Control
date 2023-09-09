@@ -1651,6 +1651,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                idynPower = idynPower- iRefload;
 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
+                if (iPower > iPower_Bat) iPower = iPower_Bat;
                 break;
             case 4:
 // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
@@ -1659,7 +1660,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
               iPower = iPower + idynPower;
-                
+                if (iPower > iPower_Bat) iPower = iPower_Bat;
+
               break;
                 case 5:
                 case 6:
