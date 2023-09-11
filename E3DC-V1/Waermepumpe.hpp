@@ -15,5 +15,6 @@
 #include <vector>
 #endif /* Waermepumpe_hpp */
 
-typedef struct {time_t hh; float temp; int sky; float uvi;} wetter_s; // timestamp, Temperatur, %Bewölkung, UV-Index
-int call_wp;
+
+;
+int mecall_wp;

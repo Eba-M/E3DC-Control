@@ -30,8 +30,8 @@
 // Der Prozess call_wp wird beim Starten des des Programms und dann zu jeder vollen Stunden aufgerufen
 // Es werden aus Wettervorhersagen und den Strompreisen den Wärmebedarf der nächsten 48h ermittelt
 // und die Steuerzeiten der WP bis zum Ende der nächsten Preisperiode der EPEX.
-
-int call_wp
+typedef struct {time_t hh; float temp; int sky; float uvi;} wetter_s;
+int mecall_wp
 {
     static std::vector<wetter_s> wetter; // Stundenwerte der Börsenstrompreise
     FILE * fp;

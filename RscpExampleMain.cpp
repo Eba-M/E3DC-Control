@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
+#include "Testfile.hpp"
 #include "RscpProtocol.h"
 #include "RscpTags.h"
 #include "SocketConnection.h"
@@ -12,8 +13,8 @@
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
 #include "awattar.hpp"
-#include "Waermepumpe.hpp"
 #include "avl_array.h"
+#include "Waermepumpe.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -3278,8 +3279,10 @@ static void mainLoop(void)
         if(iAuthenticated == 1) {
             if (e3dc_config.aWATTar)
             aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            test;
+            static int a = 1;
             if (e3dc_config.WP)
-            int ret = call_wp;
+            int ret = mecall_wp;
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
