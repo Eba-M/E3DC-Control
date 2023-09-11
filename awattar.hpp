@@ -18,7 +18,8 @@
 #endif /* aWATTar_hpp */
 
 typedef struct {time_t hh; float pp;}watt_s;
-// std::vector<watt_s> ch;  //charge hour
+// std::vector<watt_s> ch;    // charge hour
+static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
 
 
 void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten);

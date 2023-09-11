@@ -51,6 +51,8 @@
 		EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SocketConnection.cpp; path = ../SocketConnection.cpp; sourceTree = "<group>"; };
 		EF0F3EA027713F610083A8EE /* index.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
 		EF0F3EA12771402B0083A8EE /* e3dc.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = e3dc.php; sourceTree = "<group>"; };
+		EF4F8A5E2AAF108800EC65EE /* Waermepumpe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Waermepumpe.cpp; sourceTree = "<group>"; };
+		EF4F8A5F2AAF108800EC65EE /* Waermepumpe.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Waermepumpe.hpp; sourceTree = "<group>"; };
 		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFD3BE2A29E00C1E00CB73CB /* avl_array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = avl_array.h; path = ../avl_array.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -74,6 +76,8 @@
 				EF0F3E8B275C3EB60083A8EE /* AES.h */,
 				EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */,
 				EF0F3E96275C3EB70083A8EE /* awattar.cpp */,
+				EF4F8A5E2AAF108800EC65EE /* Waermepumpe.cpp */,
+				EF4F8A5F2AAF108800EC65EE /* Waermepumpe.hpp */,
 				EF0F3EA027713F610083A8EE /* index.php */,
 				EF0F3EA12771402B0083A8EE /* e3dc.php */,
 				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
@@ -131,7 +135,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					EF7AB483275C2C75004CC034 = {
 						CreatedOnToolsVersion = 13.0;
@@ -208,6 +212,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -267,6 +272,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -288,7 +294,9 @@
 		EF7AB48C275C2C75004CC034 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = HS23W2A9N9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -298,7 +306,9 @@
 		EF7AB48D275C2C75004CC034 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = HS23W2A9N9;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

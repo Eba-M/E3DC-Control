@@ -26,8 +26,7 @@ static watt_s ww,ww1,ww2;
 static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
-static std::vector<watt_s> w;
-static std::vector<watt_s> weather; // wetterdaten
+
 static watt_s high;
 static watt_s high2;
 static watt_s low;

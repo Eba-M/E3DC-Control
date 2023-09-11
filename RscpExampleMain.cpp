@@ -12,6 +12,7 @@
 #include "E3DC_CONF.h"
 #include "SunriseCalc.hpp"
 #include "awattar.hpp"
+#include "Waermepumpe.hpp"
 #include "avl_array.h"
 //#include "MQTTClient.h"
 //#include "json.hpp"
@@ -368,6 +369,7 @@ bool GetConfig()
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
+        e3dc_config.WP = false;
         e3dc_config.ext1 = false;
         e3dc_config.ext2 = false;
         e3dc_config.ext3 = false;
@@ -460,6 +462,9 @@ bool GetConfig()
                   else if((strcmp(var, "openWB") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.openWB = true;
+                  else if((strcmp(var, "WP") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.WP = true;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -3273,6 +3278,8 @@ static void mainLoop(void)
         if(iAuthenticated == 1) {
             if (e3dc_config.aWATTar)
             aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            if (e3dc_config.WP)
+            int ret = call_wp;
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
