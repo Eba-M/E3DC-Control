@@ -14,6 +14,7 @@
 		EF0F3E9D275C3EB70083A8EE /* AES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E94275C3EB70083A8EE /* AES.cpp */; };
 		EF0F3E9E275C3EB70083A8EE /* awattar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E96275C3EB70083A8EE /* awattar.cpp */; };
 		EF0F3E9F275C3EB70083A8EE /* SocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */; };
+		EF762C8D2AAFAFE7009A6FC6 /* Waermepumpe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF762C8B2AAFAFE7009A6FC6 /* Waermepumpe.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,9 +30,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		EF0895272AAF5139007AEE46 /* E3DC-V1 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "E3DC-V1"; sourceTree = "<group>"; };
-		EF0895282AAF51B4007AEE46 /* Testfile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Testfile.cpp; sourceTree = "<group>"; };
-		EF0895292AAF51B4007AEE46 /* Testfile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Testfile.hpp; sourceTree = "<group>"; };
 		EF0F3E7E275C3EB60083A8EE /* SocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SocketConnection.h; path = ../SocketConnection.h; sourceTree = "<group>"; };
 		EF0F3E7F275C3EB60083A8EE /* RscpTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RscpTags.h; path = ../RscpTags.h; sourceTree = "<group>"; };
 		EF0F3E80275C3EB60083A8EE /* SunriseCalc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SunriseCalc.hpp; path = ../SunriseCalc.hpp; sourceTree = "<group>"; };
@@ -43,7 +41,6 @@
 		EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Aktuelles und Versioneninfo"; path = "../Aktuelles und Versioneninfo"; sourceTree = "<group>"; };
 		EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Beschreibung_Parameter; path = ../Beschreibung_Parameter; sourceTree = "<group>"; };
 		EF0F3E8F275C3EB70083A8EE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; };
-		EF0F3E90275C3EB70083A8EE /* E3DC-V1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "E3DC-V1"; sourceTree = "<group>"; };
 		EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RscpExampleMain.cpp; path = ../RscpExampleMain.cpp; sourceTree = "<group>"; };
 		EF0F3E92275C3EB70083A8EE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = E3DC_CONF.h; path = ../E3DC_CONF.h; sourceTree = "<group>"; };
@@ -54,8 +51,8 @@
 		EF0F3E98275C3EB70083A8EE /* SocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SocketConnection.cpp; path = ../SocketConnection.cpp; sourceTree = "<group>"; };
 		EF0F3EA027713F610083A8EE /* index.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
 		EF0F3EA12771402B0083A8EE /* e3dc.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = e3dc.php; sourceTree = "<group>"; };
-		EF4F8A5E2AAF108800EC65EE /* Waermepumpe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Waermepumpe.cpp; sourceTree = "<group>"; };
-		EF4F8A5F2AAF108800EC65EE /* Waermepumpe.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Waermepumpe.hpp; sourceTree = "<group>"; };
+		EF762C8B2AAFAFE7009A6FC6 /* Waermepumpe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Waermepumpe.cpp; sourceTree = "<group>"; };
+		EF762C8C2AAFAFE7009A6FC6 /* Waermepumpe.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Waermepumpe.hpp; sourceTree = "<group>"; };
 		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFD3BE2A29E00C1E00CB73CB /* avl_array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = avl_array.h; path = ../avl_array.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,21 +76,17 @@
 				EF0F3E8B275C3EB60083A8EE /* AES.h */,
 				EF0F3E8D275C3EB70083A8EE /* Aktuelles und Versioneninfo */,
 				EF0F3E96275C3EB70083A8EE /* awattar.cpp */,
-				EF0895272AAF5139007AEE46 /* E3DC-V1 */,
-				EF4F8A5E2AAF108800EC65EE /* Waermepumpe.cpp */,
-				EF0895282AAF51B4007AEE46 /* Testfile.cpp */,
-				EF0895292AAF51B4007AEE46 /* Testfile.hpp */,
-				EF4F8A5F2AAF108800EC65EE /* Waermepumpe.hpp */,
 				EF0F3EA027713F610083A8EE /* index.php */,
 				EF0F3EA12771402B0083A8EE /* e3dc.php */,
 				EF0F3E97275C3EB70083A8EE /* awattar.hpp */,
 				EF0F3E8E275C3EB70083A8EE /* Beschreibung_Parameter */,
 				EF0F3E93275C3EB70083A8EE /* E3DC_CONF.h */,
-				EF0F3E90275C3EB70083A8EE /* E3DC-V1 */,
 				EF0F3E8C275C3EB60083A8EE /* e3dc.config.txt.template */,
 				EF0F3E8F275C3EB70083A8EE /* Makefile */,
 				EF0F3E92275C3EB70083A8EE /* README.md */,
 				EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */,
+				EF762C8B2AAFAFE7009A6FC6 /* Waermepumpe.cpp */,
+				EF762C8C2AAFAFE7009A6FC6 /* Waermepumpe.hpp */,
 				EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */,
 				EF0F3E95275C3EB70083A8EE /* RscpProtocol.h */,
 				EF0F3E7F275C3EB60083A8EE /* RscpTags.h */,
@@ -171,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF762C8D2AAFAFE7009A6FC6 /* Waermepumpe.cpp in Sources */,
 				EF0F3E9F275C3EB70083A8EE /* SocketConnection.cpp in Sources */,
 				EF0F3E9B275C3EB70083A8EE /* Makefile in Sources */,
 				EF0F3E99275C3EB70083A8EE /* RscpProtocol.cpp in Sources */,

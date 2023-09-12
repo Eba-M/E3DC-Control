@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
-#include "Testfile.hpp"
 #include "RscpProtocol.h"
 #include "RscpTags.h"
 #include "SocketConnection.h"
@@ -1164,8 +1163,8 @@ bDischarge = false;
             else
                 printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
-        
-    printf("E3DC: %i:%i:%i",hh,mm,ss);
+
+    printf("E3DC: %i:%i:%i %.2f ",hh,mm,ss,fatemp);
     printf("%c[K\n", 27 );
 
     
@@ -3277,12 +3276,12 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
-            if (e3dc_config.aWATTar)
+           if (e3dc_config.aWATTar)
             aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
-            test;
-            static int a = 1;
+//            test;
+            
             if (e3dc_config.WP)
-            int ret = mecall_wp;
+              mewp(fatemp);
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
