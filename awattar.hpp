@@ -21,8 +21,15 @@ typedef struct {time_t hh; float pp;}watt_s;
 // std::vector<watt_s> ch;    // charge hour
 static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
 
+static float fatemp;
+typedef struct {time_t hh; float temp; int sky; float uvi;}wetter_s;
 
 void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten);
 int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag);
+
+
 // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+
+float mewp(float &fatemp);
+
 

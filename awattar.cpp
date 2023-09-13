@@ -8,6 +8,7 @@
 //  
 
 #include "awattar.hpp"
+
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,76 @@ static watt_s high2;
 static watt_s low;
 static watt_s low2;
 static int l1 = 0, l2 = 0, h1 = 0, h2 = 0;
+
+static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
+static wetter_s wet;
+static int woldhour = -1;
+
+float mewp(float &fatemp)
+
+
+
+    {
+    float ftemp=0;
+    time_t rawtime;
+    struct tm * ptm;
+    time(&rawtime);
+    ptm = gmtime (&rawtime);
+
+    if (ptm->tm_hour!=woldhour)
+    {
+        woldhour = ptm->tm_hour;
+        //    /*{
+        FILE * fp;
+        char line[256];
+        
+        
+        
+        sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=615b8016556d12f6b2f1ed40f5ab0eee&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out");
+        int res = system(line);
+        fp = fopen("wetter.out","r");
+        
+        if(fp)
+        {
+            wetter.clear();
+            fatemp = 0;
+            
+            while (fgets(line, sizeof(line), fp))
+            {
+                
+                wet.hh = atol(line);
+                if (fgets(line, sizeof(line), fp))
+                {
+                    wet.temp = atof(line);
+                    ftemp = ftemp + wet.temp;
+                } else break;
+                if (fgets(line, sizeof(line), fp))
+                {
+                    wet.sky = atoi(line);
+                } else break;
+                if (fgets(line, sizeof(line), fp))
+                {
+                    wet.uvi = atof(line);
+                } else break;
+                
+                wetter.push_back(wet);
+            }
+            
+            fclose(fp);
+            ftemp = ftemp / 48;
+            fatemp = ftemp;
+            
+            
+            }
+    }
+    
+    //     */
+    //    return 1;
+    return fatemp;
+
+};
+
+
 
 bool CheckWallbox()
 /*
