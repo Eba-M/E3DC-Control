@@ -51,6 +51,8 @@
 		EF0F3EA027713F610083A8EE /* index.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
 		EF0F3EA12771402B0083A8EE /* e3dc.php */ = {isa = PBXFileReference; lastKnownFileType = text.script.php; path = e3dc.php; sourceTree = "<group>"; };
 		EF762C942AB2074E009A6FC6 /* .gitignore.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = .gitignore.md; sourceTree = "<group>"; };
+		EF762C952AB20D01009A6FC6 /* Waermepumpe.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Waermepumpe.hpp; path = ../Waermepumpe.hpp; sourceTree = "<group>"; };
+		EF762C962AB20D01009A6FC6 /* Waermepumpe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Waermepumpe.cpp; path = ../Waermepumpe.cpp; sourceTree = "<group>"; };
 		EF7AB484275C2C75004CC034 /* E3DC-V1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "E3DC-V1"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFD3BE2A29E00C1E00CB73CB /* avl_array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = avl_array.h; path = ../avl_array.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -85,6 +87,8 @@
 				EF0F3E91275C3EB70083A8EE /* RscpExampleMain.cpp */,
 				EF762C942AB2074E009A6FC6 /* .gitignore.md */,
 				EF0F3E89275C3EB60083A8EE /* RscpProtocol.cpp */,
+				EF762C962AB20D01009A6FC6 /* Waermepumpe.cpp */,
+				EF762C952AB20D01009A6FC6 /* Waermepumpe.hpp */,
 				EF0F3E95275C3EB70083A8EE /* RscpProtocol.h */,
 				EF0F3E7F275C3EB60083A8EE /* RscpTags.h */,
 				EF0F3E87275C3EB60083A8EE /* RscpTypes.h */,

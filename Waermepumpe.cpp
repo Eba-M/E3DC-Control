@@ -7,7 +7,7 @@
 
 
 #include "Waermepumpe.hpp"
-//#include "awattar.hpp"
+#include "awattar.hpp"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
