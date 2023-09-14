@@ -36,7 +36,8 @@ static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 static wetter_s ww;
 static int oldhour = -1;
 // static float ftemp;
-void mewp(float &fatemp) {
+float mewp() {
+    float temp;
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -58,7 +59,7 @@ void mewp(float &fatemp) {
      if(fp)
      {
          wetter.clear();
-         fatemp = 0;
+         temp = 0;
          
          while (fgets(line, sizeof(line), fp))
          {
@@ -67,7 +68,7 @@ void mewp(float &fatemp) {
              if (fgets(line, sizeof(line), fp))
              {
                  ww.temp = atof(line);
-                 fatemp = fatemp + ww.temp;
+                 temp = temp + ww.temp;
              } else break;
              if (fgets(line, sizeof(line), fp))
              {
@@ -82,13 +83,13 @@ void mewp(float &fatemp) {
          }
          
          fclose(fp);
-         fatemp = fatemp / 48;
+         temp = temp / 48;
          
          
          
         }
     }
 //     */
-//    return 1;
+    return temp;
 };
 

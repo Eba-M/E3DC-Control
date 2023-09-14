@@ -1665,7 +1665,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
               iPower = iPower + idynPower;
-                if (iPower > iPower_Bat) iPower = iPower_Bat;
+                
+            if (iPower > iPower_Bat+fPower_Grid*-1) iPower = iPower_Bat+fPower_Grid*-1;
 
               break;
                 case 5:
@@ -3281,8 +3282,8 @@ static void mainLoop(void)
 //            test;
 
             
-//            if (e3dc_config.WP)
-//              mewp(fatemp);
+            if (e3dc_config.WP)
+            fatemp = mewp();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
