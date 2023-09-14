@@ -1666,7 +1666,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
               iPower = iPower + idynPower;
-                if (iPower > iPower_Bat) iPower = iPower_Bat;
+                if (iPower > iPower_Bat+fPower_Grid*-1) iPower = iPower_Bat+fPower_Grid*-1;
 
               break;
                 case 5:
@@ -3281,8 +3281,8 @@ static void mainLoop(void)
             aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
 //            test;
             
-//            if (e3dc_config.WP)
-//              mewp(fatemp);
+            if (e3dc_config.WP)
+              mewp(fatemp);
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
