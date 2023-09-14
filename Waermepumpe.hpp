@@ -15,8 +15,7 @@
 #include <errno.h>
 #include <vector>
 #endif /* Waermepumpe_hpp */
-static float fatemp;
+static float faatemp;
 float mewp();
-typedef struct {time_t hh; float temp; int sky; float uvi;}wetter_s;
 
 

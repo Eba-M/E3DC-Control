@@ -1668,6 +1668,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
             if (iPower > iPower_Bat+fPower_Grid*-1) iPower = iPower_Bat+fPower_Grid*-1;
 
+                
               break;
                 case 5:
                 case 6:
