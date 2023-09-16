@@ -84,18 +84,14 @@ void mewp(float &fatemp) {
          }
          
          fclose(fp);
-/*       Test zur Abfrage des Tesmota Relais
          fatemp = fatemp / 48;
          
-<<<<<<< HEAD
-         FILE *fp;
-=======
          /*       Test zur Abfrage des Tesmota Relais
 
           FILE *fp;
->>>>>>> 4bae943 (Abfrage der Heizungstemperaturen per Modbus/TCP)
-         int WP_status,status;
-         char path[PATH_MAX];
+
+          int WP_status,status;
+          char path[PATH_MAX];
 
 
          fp = popen("mosquitto_sub -h 192.168.178.54 -t stat/tasmota/POWER4 -W 1 -C 1", "r");
