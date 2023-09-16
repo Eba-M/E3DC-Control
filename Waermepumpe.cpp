@@ -32,6 +32,8 @@
 // Es werden aus Wettervorhersagen und den Strompreisen den Wärmebedarf der nächsten 48h ermittelt
 // und die Steuerzeiten der WP bis zum Ende der nächsten Preisperiode der EPEX.
 
+
+
 static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 static wetter_s ww;
 static int oldhour = -1;
@@ -82,7 +84,27 @@ void mewp(float &fatemp) {
          }
          
          fclose(fp);
+/*       Test zur Abfrage des Tesmota Relais
          fatemp = fatemp / 48;
+         
+         FILE *fp;
+         int WP_status,status;
+         char path[PATH_MAX];
+
+
+         fp = popen("mosquitto_sub -h 192.168.178.54 -t stat/tasmota/POWER4 -W 1 -C 1", "r");
+         if (fp == NULL)
+           
+         WP_status = 0;
+         while (fgets(path, PATH_MAX, fp) != NULL)
+         if (strcmp(path, "ON"))
+             WP_status = 1;
+
+
+         status = pclose(fp);
+
+*/
+         
          
          
          

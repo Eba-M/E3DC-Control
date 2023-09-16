@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
+#include <array>
 #include "RscpProtocol.h"
 #include "RscpTags.h"
 #include "SocketConnection.h"
@@ -635,63 +636,96 @@ typedef struct {
     uint8_t Fcd;  //Function Code
     uint16_t Reg; // Content Register
     uint16_t Count; //anzahl Register
-
+    char data[197];
 }Modbus_receive;
+
+std::array<int, 19> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,101,102};
+static int x1 = 0;
+static int temp[oekofen.size()];
 
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
     static int isocket = -1;
+    static int tn = 1;
     static bool brequest = false;
     static time_t tlast = 0;
     time_t now;
     time(&now);
     char server_ip[16];
     Modbus_send Msend;
-    if (not brequest&&(now-tlast)>60)
+    if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket < 0)
         {
-            sprintf(server_ip,"192.168.178.80");
+            sprintf(server_ip,e3dc_config.heizung_ip);
             isocket = SocketConnect(server_ip, 502);
         }
-        if (isocket > 0)
+        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
             brequest = true;
             tlast = now;
             send.resize(12);
-            receive.resize(15);
-        
-            int Temp;
+            receive.resize(125);
+            
+            
+            if (x1 >= oekofen.size())
+                x1 = 0;
+            
+// Ermitteln ober mehrere Register zusammen abgefragt werden können
+            Msend.Count = 1;
+             while ((x1 + Msend.Count< oekofen.size()) &&
+                 (oekofen[x1+Msend.Count-1]+1 == oekofen[x1+Msend.Count]))
+                {
+                    Msend.Count++;
+                }
 
-            Msend.Tid = 1*256;
+
+            Msend.Tid = (tn*256+tn/256);
+            tn++;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
-            Msend.Dev = 1;
+            Msend.Dev = 255;
             Msend.Fcd = 3; // Funktioncode
-//            Msend.Fcd = 6; // Funktioncode
-            Msend.Reg = 2*256;  // Adresse Register // Aussentemperatur
-            Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
-//            Msend.Count = 232*256; // Anzahl Register // 22.6° setzen
-            memcpy(&send[0],&Msend,send.size());
-            SocketSendData(isocket,&send[0],send.size());
+            //            Msend.Fcd = 6; // Funktioncode
+            Msend.Reg = oekofen[x1]*256;  // Adresse Register // Aussentemperatur
+            Msend.Count = Msend.Count*256; // Anzahl Register
+            int size = send.size();
+            size = 12;
+            memcpy(&send[0],&Msend,size);
+            iLength = SocketSendData(isocket,&send[0],send.size());
+            iLength = SocketRecvData(isocket,&receive[0],receive.size());
         }
         
-    } else
-        if (brequest)
-        {
-            iLength = SocketRecvData(isocket,&receive[0],receive.size());
-            if (iLength > 0)
+        else
+            if (brequest)
             {
-            if (receive[7]==3)
-                WWTemp = float(receive[9]*256+receive[10])/10;
-            else
-                WWTemp = float(receive[10]*256+receive[11])/10;
-
-//                SocketClose(isocket);
-            brequest = false;
-            }
-        }
+                if (iLength <= 0)
+                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (iLength > 0)
+                {
+                    int x2 = 9;
+                    if (receive[7]==3)
+                    while (x2 < iLength)
+                    {    temp[x1] = (receive[x2]*256+receive[x2+1]);
+                        WWTemp = float(receive[x2]*256+receive[x2+1])/10;
+                        x1++;x2++;x2++;
+                    }
+                    else
+                        WWTemp = float(receive[10]*256+receive[11])/10;
+                    
+                    //                SocketClose(isocket);
+                    SocketClose(isocket);
+                    isocket = -1;
+                    brequest = false;
+                } else
+                    if (iLength == 0)
+                    {
+                        SocketClose(isocket);
+                        isocket = -1;
+                        brequest = false;
+                    }
+            }}
     return iLength;
 }
 int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
@@ -1167,8 +1201,16 @@ bDischarge = false;
 
     printf("E3DC: %i:%i:%i %.2f ",hh,mm,ss,fatemp);
     printf("%c[K\n", 27 );
-
     
+    // Temperaturen der oekofen ausgeben
+    if (strcmp(e3dc_config.heizung_ip,"")>0)
+    {
+        printf("oekofen AT %i HK1 %i %i %i %i %i %i ",temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]);
+        printf("HK2 %i %i %i %i %i %i PU %i %i %i"
+               ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12],temp[13],temp[14],temp[15]);
+        printf(" %i K: %i %i ",temp[16],temp[17],temp[18]);
+        printf("%c[K\n", 27 );
+    }
     int iPower = 0;
     if (iLMStatus == 0){
         iLMStatus = 5;
@@ -3282,7 +3324,9 @@ static void mainLoop(void)
 //            test;
             
             if (e3dc_config.WP)
-              mewp(fatemp);
+              mewp(fatemp);       // Ermitteln Wetterdaten
+            if (strcmp(e3dc_config.heizung_ip,"") >  0)
+              iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             
@@ -3356,7 +3400,7 @@ int main(int argc, char *argv[])
         ret = iModbusTCP();
         sleep(1);
     }
-*/
+ */
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
