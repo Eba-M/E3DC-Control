@@ -4,3 +4,5 @@ e3dc.config.txt
 e3dc.config.txt.check
 *.code-workspace
 E3DC-Control
+E3DC-V1/awattar.out
+E3DC-V1/debug.out
