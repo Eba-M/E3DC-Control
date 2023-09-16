@@ -1206,9 +1206,16 @@ bDischarge = false;
     if (strcmp(e3dc_config.heizung_ip,"")>0)
     {
         printf("oekofen AT %i HK1 %i %i %i %i %i %i ",temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]);
+<<<<<<< HEAD
         printf("HK2 %i %i %i %i %i %i PU %i %i %i"
                ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12],temp[13],temp[14],temp[15]);
         printf(" %i K: %i %i ",temp[16],temp[17],temp[18]);
+=======
+        printf("HK2 %i %i %i %i %i %i"
+               ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
+        printf("%c[K\n", 27 );
+        printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
+>>>>>>> 4bae943 (Abfrage der Heizungstemperaturen per Modbus/TCP)
         printf("%c[K\n", 27 );
     }
     int iPower = 0;
@@ -3325,7 +3332,11 @@ static void mainLoop(void)
             
             if (e3dc_config.WP)
               mewp(fatemp);       // Ermitteln Wetterdaten
+<<<<<<< HEAD
             if (strcmp(e3dc_config.heizung_ip,"") >  0)
+=======
+            if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
+>>>>>>> 4bae943 (Abfrage der Heizungstemperaturen per Modbus/TCP)
               iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);

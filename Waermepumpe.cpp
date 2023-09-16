@@ -87,7 +87,13 @@ void mewp(float &fatemp) {
 /*       Test zur Abfrage des Tesmota Relais
          fatemp = fatemp / 48;
          
+<<<<<<< HEAD
          FILE *fp;
+=======
+         /*       Test zur Abfrage des Tesmota Relais
+
+          FILE *fp;
+>>>>>>> 4bae943 (Abfrage der Heizungstemperaturen per Modbus/TCP)
          int WP_status,status;
          char path[PATH_MAX];
 
