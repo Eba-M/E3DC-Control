@@ -1,0 +1,7 @@
+4
+am 14.9.
+1. um 12:00 zu 25.009ct/kWh  
+2. um 13:00 zu 24.820ct/kWh  
+3. um 14:00 zu 24.639ct/kWh  
+4. um 15:00 zu 24.824ct/kWh  
+CEST
