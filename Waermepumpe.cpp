@@ -35,7 +35,12 @@
 
 
 static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
-static wetter_s ww;
+static wetter_s we;
+static float fusspunkt = 28; // Fusspunkt bei 15°
+static float heizlast = 30;  // Heizlast  bei -15°
+static float endpunkt = 40;  // Endpunkt bei -15°
+static float absolutenull = 273; // absoluter Nullpunkt 0K
+static float cop,wm,wp;
 static int oldhour = -1;
 // static float ftemp;
 void mewp(float &fatemp) {
@@ -65,22 +70,29 @@ void mewp(float &fatemp) {
          while (fgets(line, sizeof(line), fp))
          {
              
-             ww.hh = atol(line);
+             we.hh = atol(line);
              if (fgets(line, sizeof(line), fp))
              {
-                 ww.temp = atof(line);
-                 fatemp = fatemp + ww.temp;
+                 we.temp = atof(line);
+                 fatemp = fatemp + we.temp;
+                 if (we.temp < 15)
+                 {
+                     float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
+                     float f2 = ((absolutenull+we.temp)/f1)*.5; // COP
+                     float f3 = (15-we.temp)*heizlast/30;
+                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                 }
              } else break;
              if (fgets(line, sizeof(line), fp))
              {
-                 ww.sky = atoi(line);
+                 we.sky = atoi(line);
              } else break;
              if (fgets(line, sizeof(line), fp))
              {
-                 ww.uvi = atof(line);
+                 we.uvi = atof(line);
              } else break;
              
-             wetter.push_back(ww);
+             wetter.push_back(we);
          }
          
          fclose(fp);

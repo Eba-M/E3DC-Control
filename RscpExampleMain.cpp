@@ -389,8 +389,11 @@ bool GetConfig()
         e3dc_config.wrleistung = WRLEISTUNG;
         e3dc_config.speichergroesse = SPEICHERGROESSE;
         e3dc_config.winterminimum = WINTERMINIMUM;
+        e3dc_config.RB = -1;
         e3dc_config.sommermaximum = SOMMERMAXIMUM;
+        e3dc_config.RE = -1;
         e3dc_config.sommerladeende = SOMMERLADEENDE;
+        e3dc_config.LE = -1;
         e3dc_config.einspeiselimit = EINSPEISELIMIT;
         e3dc_config.ladeschwelle = LADESCHWELLE;
         e3dc_config.ladeende = LADEENDE;
@@ -506,10 +509,16 @@ bool GetConfig()
                         e3dc_config.speichergroesse = atof(value);
                     else if(strcmp(var, "winterminimum") == 0)
                         e3dc_config.winterminimum = atof(value);
+                    else if(strcmp(var, "RB") == 0)
+                        e3dc_config.RB = atof(value);
                     else if(strcmp(var, "sommermaximum") == 0)
                         e3dc_config.sommermaximum = atof(value);
+                    else if(strcmp(var, "RE") == 0)
+                        e3dc_config.RE = atof(value);
                     else if(strcmp(var, "sommerladeende") == 0)
                         e3dc_config.sommerladeende = atof(value);
+                    else if(strcmp(var, "LE") == 0)
+                        e3dc_config.LE = atof(value);
                     else if(strcmp(var, "einspeiselimit") == 0)
                         e3dc_config.einspeiselimit = atof(value);
                     else if(strcmp(var, "ladeschwelle") == 0)
@@ -590,6 +599,13 @@ bool GetConfig()
     //        printf("aes_password %s\n",e3dc_config.aes_password);
             fclose(fp);
             fclose(sfp);
+/*        if (e3dc_config.RB < 0)
+            e3dc_config.RB = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2);
+        if (e3dc_config.RE < 0)
+            (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2);
+        if (e3dc_config.LE < 0)
+            (e3dc_config.LE = e3dc_config.sommerladeende);
+*/
         if (e3dc_config.AWMWSt<0)
         {
             if (e3dc_config.AWLand <= 1)
@@ -904,8 +920,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    if (e3dc_config.RE > 0)
+        cLadezeitende1 = (e3dc_config.RE*60+(sunsetAt+sunriseAt)/2)/2*60;
+// Regelende
     int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
+    if (e3dc_config.LE > 0)
+    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60;
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
+    if (e3dc_config.RB > 0)
+    cLadezeitende3 = (e3dc_config.RB*60+(sunsetAt+sunriseAt)/2)/2*60;
 
     int32_t tZeitgleichung;
     tLadezeitende1 = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -1202,16 +1225,6 @@ bDischarge = false;
     printf("E3DC: %i:%i:%i %.2f ",hh,mm,ss,fatemp);
     printf("%c[K\n", 27 );
     
-    // Temperaturen der oekofen ausgeben
-    if (strcmp(e3dc_config.heizung_ip,"")>0)
-    {
-        printf("oekofen AT %i HK1 %i %i %i %i %i %i ",temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]);
-        printf("HK2 %i %i %i %i %i %i"
-               ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
-        printf("%c[K\n", 27 );
-        printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
-        printf("%c[K\n", 27 );
-    }
     int iPower = 0;
     if (iLMStatus == 0){
         iLMStatus = 5;
@@ -1451,8 +1464,20 @@ bDischarge = false;
     printf("BattL %i ",iBattLoad);
     printf("iLMSt %i ",iLMStatus);
     printf("Rsv %0.1f%%",fht);
+    // Temperaturen der oekofen ausgeben
+    if (strcmp(e3dc_config.heizung_ip,"0.0.0.0")!=0)
+    {
+        printf("%c[K\n", 27 );
+        printf("oekofen AT %i HK1 %i %i %i %i %i %i ",temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]);
+        printf("HK2 %i %i %i %i %i %i"
+               ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
+        printf("%c[K\n", 27 );
+        printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
+        
+    }
+
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
-        printf(" %i %i",ireq_Heistab,iLeistungHeizstab);
+        printf("Heizstab %i %i",ireq_Heistab,iLeistungHeizstab);
         printf("%c[K\n", 27 );
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox>=0)
