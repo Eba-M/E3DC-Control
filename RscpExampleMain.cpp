@@ -919,21 +919,29 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
-    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
-    if (e3dc_config.RE > 0)
-        cLadezeitende1 = (e3dc_config.RE*60+(sunsetAt+sunriseAt)/2)/2*60;
 // Regelende
-    int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
-    if (e3dc_config.LE > 0)
-    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60;
-    int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
-    if (e3dc_config.RB > 0)
-    cLadezeitende3 = (e3dc_config.RB*60+(sunsetAt+sunriseAt)/2)/2*60;
-
-    int32_t tZeitgleichung;
+    int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     tLadezeitende1 = cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    if (e3dc_config.RE > 0)
+    {        cLadezeitende1 = (e3dc_config.RE*60+(sunsetAt+sunriseAt)/2)/2*60;
+        // Regelende
+        tLadezeitende1 =         cLadezeitende1+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.RE*60-(sunsetAt+sunriseAt)/2)/2)*60;
+    }
+// Ladeende
+    int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
+    if (e3dc_config.LE > 0)
+    {    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60;
+        tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.LE*60-(sunsetAt+sunriseAt)/2)/2)*60;
+    }
+// Regelbeginn
+    int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
+    if (e3dc_config.RB > 0)
+    {    cLadezeitende3 = (e3dc_config.RB*60+(sunsetAt+sunriseAt)/2)/2*60;
+        tLadezeitende3 = cLadezeitende3+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.RB*60-(sunsetAt+sunriseAt)/2)/2)*60;
+    }
+    int32_t tZeitgleichung;
 
    
 //    fht = cos((ts->tm_yday+9)*2*3.14/365);

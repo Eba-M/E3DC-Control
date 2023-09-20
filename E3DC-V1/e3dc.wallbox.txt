@@ -1,0 +1,9 @@
+76
+am 20.9.
+1. um 11:00 zu 14.144ct/kWh  2. um 12:00 zu 13.754ct/kWh  
+3. um 13:00 zu 13.515ct/kWh  4. um 14:00 zu 13.586ct/kWh  
+5. um 15:00 zu 13.908ct/kWh  6. um 16:00 zu 14.618ct/kWh  
+7. um 17:00 zu 24.672ct/kWh  8. um 18:00 zu 30.649ct/kWh  
+9. um 19:00 zu 37.457ct/kWh  10. um 20:00 zu 28.716ct/kWh  
+11. um 21:00 zu 25.491ct/kWh  12. um 22:00 zu 24.403ct/kWh  
+13. um 23:00 zu 23.215ct/kWh  CEST
