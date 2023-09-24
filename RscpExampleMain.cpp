@@ -864,12 +864,16 @@ int tasmotastatus(int ch)
      int WP_status,status;
      char path[PATH_MAX];
     fp == NULL;
-    sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1",e3dc_config.mqtt_ip,ch);
+    sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
     fp = popen(buf, "r");
-    WP_status = 0;
+    WP_status = 2;
     while (fgets(path, PATH_MAX, fp) != NULL)
-    if (strcmp(path, "ON")==0)
+    {
+        if (strcmp(path,"ON\n")==0)
         WP_status = 1;
+        if (strcmp(path,"OFF\n")==0)
+        WP_status = 0;
+    }
     status = pclose(fp);
     return WP_status;
 }
@@ -1528,7 +1532,8 @@ bDischarge = false;
                ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
         printf("%c[K\n", 27 );
         printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
-        
+        if (tasmota_status[3] == 0) printf("OFF ");
+        if (tasmota_status[3] == 1) printf("ON ");
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
