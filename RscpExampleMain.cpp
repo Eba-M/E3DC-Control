@@ -130,14 +130,16 @@ int WriteLog()
 return(0);
 }
 
-int MQTTsend(char buffer[127])
+int MQTTsend(char host[20],char buffer[127])
 
 {
     char cbuf[768];
-    if (e3dc_config.openWB) {
-        sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", e3dc_config.openWBhost,buffer);
+    if (strcmp(host,"0.0.0.0")!=0) //gültige hostadresse
+    {
+        sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
         int ret = system(cbuf);
-    }
+        return ret;
+    } else
     return(0);
 }
 int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
@@ -369,6 +371,8 @@ bool GetConfig()
         strcpy(e3dc_config.heizstab_ip, "0.0.0.0");
         e3dc_config.heizstab_port = 502;
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
+        strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
+        strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.WP = false;
@@ -378,7 +382,6 @@ bool GetConfig()
         e3dc_config.ext4 = false;
         e3dc_config.ext7 = false;
         sprintf(e3dc_config.logfile,"logfile");
-        sprintf(e3dc_config.openWBhost,"%s",OPENWB);
         e3dc_config.debug = false;
         e3dc_config.wurzelzaehler = 0;
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
@@ -450,8 +453,10 @@ bool GetConfig()
                         strcpy(e3dc_config.e3dc_password, value);
                     else if(strcmp(var, "aes_password") == 0)
                         strcpy(e3dc_config.aes_password, value);
-                    else if(strcmp(var, "openWBhost") == 0)
-                        strcpy(e3dc_config.openWBhost, value);
+                    else if(strcmp(var, "openWB_ip") == 0)
+                        strcpy(e3dc_config.openWB_ip, value);
+                    else if(strcmp(var, "mqtt_ip") == 0)
+                        strcpy(e3dc_config.mqtt_ip, value);
                     else if(strcmp(var, "wurzelzaehler") == 0)
                         e3dc_config.wurzelzaehler = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -701,7 +706,7 @@ int iModbusTCP()
             tn++;
             Msend.Pid = 0;
             Msend.Mlen = 6*256;
-            Msend.Dev = 255;
+            Msend.Dev = 1;  // Devadr. 1 oder 255
             Msend.Fcd = 3; // Funktioncode
             //            Msend.Fcd = 6; // Funktioncode
             Msend.Reg = oekofen[x1]*256;  // Adresse Register // Aussentemperatur
@@ -849,14 +854,56 @@ int iRelayEin(const char * cmd)
   }
     return receive[0];
 }
+static int tasmota_status[4]={2,2,2,2};
+int tasmotastatus(int ch)
+{
+//           Test zur Abfrage des Tesmota Relais
 
-        
+     FILE *fp;
+    char buf[127];
+     int WP_status,status;
+     char path[PATH_MAX];
+    fp == NULL;
+    sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1",e3dc_config.mqtt_ip,ch);
+    fp = popen(buf, "r");
+    WP_status = 0;
+    while (fgets(path, PATH_MAX, fp) != NULL)
+    if (strcmp(path, "ON")==0)
+        WP_status = 1;
+    status = pclose(fp);
+    return WP_status;
+}
+int tasmotaon(int ch)
+{
+    char buf[127];
+    sprintf(buf,"cmnd/tasmota/POWER%i -m 1",ch);
+    MQTTsend(e3dc_config.mqtt_ip,buf);
+    tasmota_status[ch-1] = 1;
+    return 0;
+}
+int tasmotaoff(int ch)
+{
+    char buf[127];
+    sprintf(buf,"cmnd/tasmota/POWER%i -m 0",ch);
+    MQTTsend(e3dc_config.mqtt_ip,buf);
+    tasmota_status[ch-1] = 0;
+    return 0;
+}
 
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
     static int ireq_Heistab;
+if (tasmota_status[3] > 1)
+    tasmota_status[3] = tasmotastatus(4);
+ 
+    if (tasmota_status[3]>=1&&temp[13]>420)
+    {
+        tasmotaoff(4);
+    } else if
+        (tasmota_status[3]==0&&temp[13]>0&&temp[13]<400)
+        tasmotaon(4);
 
     printf("%c[K\n", 27 );
     tm *ts;
@@ -1504,19 +1551,19 @@ bDischarge = false;
 
         
     sprintf(buffer,"openWB/set/evu/W -m %0i",int(fPower_Grid));
-    MQTTsend(buffer);
+    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"openWB/set/pv/W -m %0i",iPower_PV*-1);
-    MQTTsend(buffer);
+    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"echo %0.1f > /var/www/html/openWB/ramdisk/llaktuell",fPower_WB);
 //    system(buffer);
 
     sprintf(buffer,"openWB/set/Housebattery/W -m %0i",iPower_Bat);
-    MQTTsend(buffer);
+    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"openWB/set/Housebattery/%%Soc -m %0i",int(fBatt_SOC));
-    MQTTsend(buffer);
+    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
 //    system(buffer);
@@ -2601,11 +2648,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
                                 sprintf(buffer,"openWB/set/evu/APhase1 -m %0.1f",float(fPower1/fL1V));
-                                MQTTsend(buffer);
+                                MQTTsend(e3dc_config.openWB_ip,buffer);
                             sprintf(buffer,"openWB/set/evu/APhase2 -m %0.1f",float(fPower2/fL2V));
-                            MQTTsend(buffer);
+                            MQTTsend(e3dc_config.openWB_ip,buffer);
                             sprintf(buffer,"openWB/set/evu/APhase3 -m %0.1f",float(fPower3/fL3V));
-                            MQTTsend(buffer);
+                            MQTTsend(e3dc_config.openWB_ip,buffer);
 
                             fPower_Grid = fPower1+fPower2+fPower3;
                             if (iAvPower_GridCount<3600)
@@ -2629,7 +2676,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf(" %0.1f V", fPower);
                         fL1V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase1 -m %0.1f",float(fPower));
-                        MQTTsend(buffer);
+                        MQTTsend(e3dc_config.openWB_ip,buffer);
 
                         break;
                     }
@@ -2638,7 +2685,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf(" %0.1f V", fPower);
                         fL2V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase2 -m %0.1f",float(fPower));
-                        MQTTsend(buffer);
+                        MQTTsend(e3dc_config.openWB_ip,buffer);
                         break;
                     }
                     case TAG_PM_VOLTAGE_L3: {              // response for TAG_PM_REQ_L3
@@ -2647,7 +2694,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf("%c[K\n", 27 );
                         fL3V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase3 -m %0.1f",float(fPower));
-                        MQTTsend(buffer);
+                        MQTTsend(e3dc_config.openWB_ip,buffer);
                         break;
                     }
                         // ...

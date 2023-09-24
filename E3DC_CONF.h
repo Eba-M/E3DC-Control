@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2023.09.20.0" //aktuelle Version 
+#define VERSION "B2023.09.24.0" //aktuelle Version 
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -13,8 +13,6 @@
 #endif /* E3DC_CONF_h */
 // Konfigurationsdatei
 #define CONF_FILE "e3dc.config.txt"
-#define OPENWB "localhost"
-
 #define WURZELZAEHLER 0;     // 0 = interner Zähler 6 = externer Zähler
 
 #define LADESCHWELLE 50;     // bis zur dieser Schwelle wird geladen bevor die Regelung beginnt
@@ -41,13 +39,14 @@ typedef struct {
     char server_ip[20];
     char heizstab_ip[20]; // Heizstab
     char heizung_ip[20];  // oekofen
+    char mqtt_ip[20];  // MQTT
     char BWWP_ip[20];
     uint32_t  server_port,heizstab_port,BWWP_port;
     char e3dc_user[128];
     char e3dc_password[128];
     char aes_password[128];
     char logfile[128],conffile[128];
-    char openWBhost[128];
+    char openWB_ip[20];
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
