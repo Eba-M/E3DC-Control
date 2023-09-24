@@ -862,12 +862,12 @@ int tasmotastatus(int ch)
      FILE *fp;
     char buf[127];
      int WP_status,status;
-     char path[PATH_MAX];
+     char path[1024];
     fp == NULL;
     sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
     fp = popen(buf, "r");
     WP_status = 2;
-    while (fgets(path, PATH_MAX, fp) != NULL)
+    while (fgets(path, 1024, fp) != NULL)
     {
         if (strcmp(path,"ON\n")==0)
         WP_status = 1;
