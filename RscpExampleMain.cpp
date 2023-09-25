@@ -632,7 +632,7 @@ bool GetConfig()
 }
 
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
-static int isocket = 0;
+static int isocket = -1;
 long iLength;
 const char * relay_ip;
 //const char * cmd;
@@ -647,7 +647,8 @@ typedef struct {
     uint8_t Fcd;  //Function Code
     uint16_t Reg; //Register
     uint16_t Count; //Number Register
-    char data[197];
+    uint16_t Value; //Wert
+    char data[195];
 }Modbus_send;
 typedef struct {
     uint16_t Tid; //transaktion_ID
@@ -663,16 +664,59 @@ typedef struct {
 std::array<int, 19> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,101,102};
 static int x1 = 0;
 static int temp[oekofen.size()];
+static int tasmota_status[4]={2,2,2,2};
+static uint8_t tn = 1;
 
+int iModbusTCP_Set(int reg,int val,int tac)
+{
+    send.resize(12);
+    receive.resize(125);
+
+    Modbus_send Msend;
+    Msend.Tid = (tn*256+reg);
+    tn++;
+    Msend.Pid = 0;
+    Msend.Mlen = 6*256;
+    Msend.Dev = 1;  // Devadr. 1 oder 255
+    Msend.Fcd = 6; // Funktioncode
+    //            Msend.Fcd = 6; // Funktioncode
+    Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
+    Msend.Count = val*256; // Inhalt    int size = send.size();
+    memcpy(&send[0],&Msend,send.size());
+    iLength = SocketSendData(isocket,&send[0],send.size());
+    iLength = SocketRecvData(isocket,&receive[0],receive.size());
+
+    return iLength;
+}
+int iModbusTCP_Get(int reg,int val,int tac)
+{
+    send.resize(12);
+    receive.resize(1024);
+
+    Modbus_send Msend;
+    Msend.Tid = (tn*256+tac);
+    tn++;
+    Msend.Pid = 0;
+    Msend.Mlen = 6*256;
+    Msend.Dev = 1;  // Devadr. 1 oder 255
+    Msend.Fcd = 3; // Funktioncode
+    //            Msend.Fcd = 6; // Funktioncode
+    Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
+    Msend.Count = val*256; // Inhalt    int size = send.size();
+    memcpy(&send[0],&Msend,send.size());
+    iLength = SocketSendData(isocket,&send[0],send.size());
+    iLength = SocketRecvData(isocket,&receive[0],receive.size());
+
+    return iLength;
+}
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
-    static int isocket = -1;
-    static int tn = 1;
     static bool brequest = false;
     static time_t tlast = 0;
     time_t now;
     time(&now);
+    static int  ret = 0;
     char server_ip[16];
     Modbus_send Msend;
     if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
@@ -682,42 +726,44 @@ int iModbusTCP()
             sprintf(server_ip,e3dc_config.heizung_ip);
             isocket = SocketConnect(server_ip, 502);
         }
-        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
+        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
         {
             brequest = true;
             tlast = now;
             send.resize(12);
-            receive.resize(125);
+            receive.resize(1024);
             
             
-            if (x1 >= oekofen.size())
-                x1 = 0;
-            
-// Ermitteln ober mehrere Register zusammen abgefragt werden können
-            Msend.Count = 1;
-             while ((x1 + Msend.Count< oekofen.size()) &&
-                 (oekofen[x1+Msend.Count-1]+1 == oekofen[x1+Msend.Count]))
+            if (temp[13] > 0) // Temperatur Puffer gesetzt?
+            {
+                if (tasmota_status[0]==1&&temp[1]==0&&ret==0)
                 {
-                    Msend.Count++;
+                    ret = iModbusTCP_Set(oekofen[1],1,1); //FBH?
+                    ret = iModbusTCP_Get(11,1,1); //FBH?
                 }
-
-
-            Msend.Tid = (tn*256+tn/256);
-            tn++;
-            Msend.Pid = 0;
-            Msend.Mlen = 6*256;
-            Msend.Dev = 1;  // Devadr. 1 oder 255
-            Msend.Fcd = 3; // Funktioncode
-            //            Msend.Fcd = 6; // Funktioncode
-            Msend.Reg = oekofen[x1]*256;  // Adresse Register // Aussentemperatur
-            Msend.Count = Msend.Count*256; // Anzahl Register
-            int size = send.size();
-            size = 12;
-            memcpy(&send[0],&Msend,size);
-            iLength = SocketSendData(isocket,&send[0],send.size());
-            iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (tasmota_status[0]==1&&temp[7]==0&&ret==0)
+                {
+                    ret = iModbusTCP_Set(31,1,7); //HZK?
+                    ret = iModbusTCP_Get(31,1,7); //HZK?
+                }
+                if (tasmota_status[0]==0&&temp[1]==1&&ret==0)
+                {
+                    ret = iModbusTCP_Set(11,0,1); //FBH?
+                    ret = iModbusTCP_Get(11,1,1); //FBH?
+                }
+                if (tasmota_status[0]==0&&temp[7]==1&&ret==0)
+                {
+                    ret = iModbusTCP_Set(31,0,7); //HZK?
+                    ret = iModbusTCP_Get(31,1,7); //HZK?
+                }
+            }
+            {
+                
+                {
+                    iLength = iModbusTCP_Get(2,102,0); // Alle Register auf einmal abfragen
+                }
+            }
         }
-        
         else
             if (brequest)
             {
@@ -726,12 +772,20 @@ int iModbusTCP()
                 if (iLength > 0)
                 {
                     int x2 = 9;
+                    int x3 = 0;
+                    x1 = oekofen[receive[0]]; // Startregister
+//                    x3 = x1;
                     if (receive[7]==3)
-                    while (x2 < iLength)
-                    {    temp[x1] = (receive[x2]*256+receive[x2+1]);
-                        WWTemp = float(receive[x2]*256+receive[x2+1])/10;
-                        x1++;x2++;x2++;
-                    }
+                        while (x2 < iLength)
+                        {
+                            if (oekofen[x3] == x1) // suchen der gewünschten register
+                            {
+                                temp[x3] = (receive[x2]*256+receive[x2+1]);
+                                x3++;
+                            }
+                            WWTemp = float(receive[x2]*256+receive[x2+1])/10;
+                            x1++;x2++;x2++;
+                        }
                     else
                         WWTemp = float(receive[10]*256+receive[11])/10;
                     
@@ -854,7 +908,6 @@ int iRelayEin(const char * cmd)
   }
     return receive[0];
 }
-static int tasmota_status[4]={2,2,2,2};
 int tasmotastatus(int ch)
 {
 //           Test zur Abfrage des Tesmota Relais
@@ -899,7 +952,18 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
     static int ireq_Heistab;
-if (tasmota_status[3] > 1)
+    static int ich_Tasmota = 0;
+    static time_t tasmotatime = 0;
+    time (&t);
+    if (t-tasmotatime>10)
+    {
+        tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
+        ich_Tasmota++;
+        if (ich_Tasmota > 3) ich_Tasmota = 0;
+        tasmotatime = t;
+            
+    }
+    if (tasmota_status[3] > 1)
     tasmota_status[3] = tasmotastatus(4);
  
     if (tasmota_status[3]>=1&&temp[13]>420)
@@ -908,6 +972,10 @@ if (tasmota_status[3] > 1)
     } else if
         (tasmota_status[3]==0&&temp[13]>0&&temp[13]<400)
         tasmotaon(4);
+    
+    
+    
+    
 
     printf("%c[K\n", 27 );
     tm *ts;
