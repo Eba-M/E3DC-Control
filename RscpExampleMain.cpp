@@ -725,6 +725,7 @@ int iModbusTCP()
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
             isocket = SocketConnect(server_ip, 502);
+            ret = 0;
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
         {
@@ -736,25 +737,25 @@ int iModbusTCP()
             
             if (temp[13] > 0) // Temperatur Puffer gesetzt?
             {
-                if (tasmota_status[0]==1&&temp[1]==0&&ret==0)
+                if (tasmota_status[0]==1&&temp[1]==0)
                 {
-                    ret = iModbusTCP_Set(oekofen[1],1,1); //FBH?
-                    ret = iModbusTCP_Get(11,1,1); //FBH?
+                    iLength  = iModbusTCP_Set(oekofen[1],1,1); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (tasmota_status[0]==1&&temp[7]==0&&ret==0)
+                if (tasmota_status[0]==1&&temp[7]==0)
                 {
-                    ret = iModbusTCP_Set(31,1,7); //HZK?
-                    ret = iModbusTCP_Get(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Set(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (tasmota_status[0]==0&&temp[1]==1&&ret==0)
+                if (tasmota_status[0]==0&&temp[1]==1)
                 {
-                    ret = iModbusTCP_Set(11,0,1); //FBH?
-                    ret = iModbusTCP_Get(11,1,1); //FBH?
+                    iLength  = iModbusTCP_Set(11,0,1); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (tasmota_status[0]==0&&temp[7]==1&&ret==0)
+                if (tasmota_status[0]==0&&temp[7]==1)
                 {
-                    ret = iModbusTCP_Set(31,0,7); //HZK?
-                    ret = iModbusTCP_Get(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Set(31,0,7); //HZK?
+                    iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
             }
             {
