@@ -910,25 +910,29 @@ int iRelayEin(const char * cmd)
 }
 int tasmotastatus(int ch)
 {
-//           Test zur Abfrage des Tesmota Relais
-
-     FILE *fp;
-    char buf[127];
-     int WP_status,status;
-     char path[1024];
-    fp == NULL;
-    sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
-    fp = popen(buf, "r");
-    WP_status = 2;
-    while (fgets(path, 1024, fp) != NULL)
+    //           Test zur Abfrage des Tesmota Relais
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
-        if (strcmp(path,"ON\n")==0)
-        WP_status = 1;
-        if (strcmp(path,"OFF\n")==0)
-        WP_status = 0;
-    }
-    status = pclose(fp);
-    return WP_status;
+        
+        FILE *fp;
+        char buf[127];
+        int WP_status,status;
+        char path[1024];
+        fp == NULL;
+        sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
+        fp = popen(buf, "r");
+        WP_status = 2;
+        while (fgets(path, 1024, fp) != NULL)
+        {
+            if (strcmp(path,"ON\n")==0)
+                WP_status = 1;
+            if (strcmp(path,"OFF\n")==0)
+                WP_status = 0;
+        }
+        status = pclose(fp);
+        return WP_status;
+}
+    return 0;
 }
 int tasmotaon(int ch)
 {
@@ -955,24 +959,26 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
     time (&t);
-    if (t-tasmotatime>10)
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
-        tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
-        ich_Tasmota++;
-        if (ich_Tasmota > 3) ich_Tasmota = 0;
-        tasmotatime = t;
+        if (t-tasmotatime>10)
+        {
+            tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
+            ich_Tasmota++;
+            if (ich_Tasmota > 3) ich_Tasmota = 0;
+            tasmotatime = t;
             
+        }
+        if (tasmota_status[3] > 1)
+            tasmota_status[3] = tasmotastatus(4);
+        
+        if (tasmota_status[3]>=1&&temp[13]>420)
+        {
+            tasmotaoff(4);
+        } else if
+            (tasmota_status[3]==0&&temp[13]>0&&temp[13]<400)
+            tasmotaon(4);
     }
-    if (tasmota_status[3] > 1)
-    tasmota_status[3] = tasmotastatus(4);
- 
-    if (tasmota_status[3]>=1&&temp[13]>420)
-    {
-        tasmotaoff(4);
-    } else if
-        (tasmota_status[3]==0&&temp[13]>0&&temp[13]<400)
-        tasmotaon(4);
-    
     
     
     
