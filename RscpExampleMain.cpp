@@ -1270,7 +1270,7 @@ bDischarge = false;
     printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
-    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten);
+    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten));
     printf("%c[K\n", 27 );
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -1869,7 +1869,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
               iPower = iPower + idynPower;
-//                if (iPower > iPower_Bat+fPower_Grid*-1.5) iPower = iPower_Bat+fPower_Grid*-1.5;
+//                if (iPower > iPower_Bat+fPower_Grid*-3) iPower = iPower_Bat+fPower_Grid*-3;
 
               break;
                 case 5:
