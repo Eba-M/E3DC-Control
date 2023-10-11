@@ -54,6 +54,7 @@ static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
+static float fDCDC = 0; // Strommenge mit rechnen
 static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
@@ -330,7 +331,7 @@ static float fBatt_SOC, fBatt_SOC_alt;
 static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
-static time_t t = 0;
+static time_t t,t_alt;
 static time_t tm_CONF_dt;
 static bool bCheckConfig;
 bool CheckConfig()
@@ -960,6 +961,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
     time (&t);
+    fDCDC = fDCDC + fCurrent*(t-t_alt);
+    t_alt = t;
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
         if (t-tasmotatime>10)
@@ -2597,8 +2600,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     break;
                 }
                 case TAG_DCDC_I_BAT: {    // response for TAG_BAT_REQ_CURRENT
-                    float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fA ", fCurrent);
+                   fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
+//                    fDCDC = fDCDC + fCurrent;
+                    printf(" %0.02fA  %0.04fAh ", fCurrent, fDCDC/3600);
 
                     break;
                 }
@@ -3574,6 +3578,8 @@ int main(int argc, char *argv[])
 
 static int iEC = 0;
  time(&t);
+    t_alt = t;
+
  struct tm * ptm;
 
     // endless application which re-connections to server on connection lost
