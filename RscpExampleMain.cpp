@@ -131,6 +131,23 @@ int WriteLog()
 return(0);
 }
 
+int WriteSoC()
+{
+    char fname[256];
+    sprintf(fname,"soc.txt");
+
+    FILE *fp;
+        fp = fopen(fname,"a");       // altes logfile löschen
+    if(!fp)
+        fp = fopen(fname, "w");
+    if(fp)
+    {
+        fprintf(fp,"%s\n",Log);
+        fclose(fp);
+    }
+return(0);
+}
+
 int MQTTsend(char host[20],char buffer[127])
 
 {
@@ -952,7 +969,10 @@ int tasmotaoff(int ch)
     tasmota_status[ch-1] = 0;
     return 0;
 }
-
+typedef struct {
+    time_t t;
+    float fah, fsoc, fvoltage, fcurrent;
+}soc_t;
 
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
@@ -960,8 +980,51 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static int ireq_Heistab;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
+    static soc_t high,low;
+    static int itag = 24*3600;
+    
+// Speicher SoC selbst berechnen
+// Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
+    
     time (&t);
     fDCDC = fDCDC + fCurrent*(t-t_alt);
+    if (fDCDC > high.fsoc) {
+        high.fah = fDCDC;
+        high.fsoc = fBatt_SOC;
+        high.fvoltage = fVoltage;
+        high.fcurrent = fCurrent;
+        high.t = t;
+    };
+    if (fDCDC < low.fsoc) {
+        low.fah = fDCDC;
+        low.fsoc = fBatt_SOC;
+        low.fvoltage = fVoltage;
+        low.fcurrent = fCurrent;
+        low.t = t;
+    };
+// Bei Sonnenaufgang werden die Ausgangswerte neu gesetzt
+    if (t % itag >= sunriseAt&&t_alt%itag < sunriseAt)
+        {
+            high.fsoc = fDCDC;
+            high.fvoltage = fVoltage;
+            high.fcurrent = fCurrent;
+            high.t = t;
+        }
+    // Bei Sonnenuntergang werden High/Low in die Datei fortgeschrieben
+        if ((t % itag >= sunsetAt&&t_alt%itag < sunsetAt)||t % 3600 == 0)
+        {
+            tm *ts;
+            soc_t *p;
+            p=&high;
+            ts = gmtime(&p->t);
+            sprintf(Log,"Hoch Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
+            WriteSoC();
+            p=&low;
+            ts = gmtime(&p->t);
+            sprintf(Log,"Tief Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA\n",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
+            WriteSoC();
+
+        }
     t_alt = t;
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
@@ -1231,7 +1294,7 @@ bDischarge = false;
                 }   else
 //                if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))&&((fPower_WB==0)||(iPower_PV<100))) // Entladen zulassen wenn WB geladen wird
 //                    if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
-                    if (((iPower_Bat < -100)||((iPower_Bat<=0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
+                    if (fBatt_SOC>0&&((iPower_Bat < -100)||((iPower_Bat<=0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
                     {
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
@@ -2596,36 +2659,36 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 }
                 case TAG_DCDC_U_BAT: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
                     float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fV ", fVoltage);
+                    printf("%0.02fV ", fVoltage);
                     break;
                 }
                 case TAG_DCDC_I_BAT: {    // response for TAG_BAT_REQ_CURRENT
                    fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
 //                    fDCDC = fDCDC + fCurrent;
-                    printf(" %0.02fA  %0.04fAh ", fCurrent, fDCDC/3600);
+                    printf("%0.02fA %0.04fAh ", fCurrent, fDCDC/3600);
 
                     break;
                 }
                 case TAG_DCDC_P_BAT: {    // response for TAG_BAT_REQ_CURRENT
                     float fPower = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fW ", fPower);
+                    printf("%0.02fW ", fPower);
 
                     break;
                 }
                 case TAG_DCDC_U_DCL: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
                     float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fV ", fVoltage);
+                    printf("%0.02fV ", fVoltage);
                     break;
                 }
                 case TAG_DCDC_I_DCL: {    // response for TAG_BAT_REQ_CURRENT
                     float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fA ", fCurrent);
+                    printf("%0.02fA ", fCurrent);
 
                     break;
                 }
                 case TAG_DCDC_P_DCL: {    // response for TAG_BAT_REQ_CURRENT
                     float fPower = protocol->getValueAsFloat32(&batteryData[i]);
-                    printf(" %0.02fW ", fPower);
+                    printf("%0.02fW ", fPower);
 
                     break;
                 }
@@ -2662,7 +2725,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 break;
             }
             case TAG_BAT_MODULE_VOLTAGE: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
-                float fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
+                fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
                 printf(" %0.1f V ", fVoltage);
                 break;
             }
