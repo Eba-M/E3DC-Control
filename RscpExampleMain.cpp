@@ -1004,7 +1004,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         low.t = t;
     };
 // Bei Sonnenaufgang werden die Ausgangswerte neu gesetzt
-    if (t % itag >= sunriseAt&&t_alt%itag < sunriseAt)
+    if (t % itag >= sunriseAt*60&&t_alt%itag < sunriseAt*60)
         {
             high.fah = fDCDC;
             high.fsoc = fBatt_SOC;
