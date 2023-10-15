@@ -1029,7 +1029,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             sprintf(Log,"Tief Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA\n",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
 
-            if (t % itag >= sunsetAt&&t_alt%itag < sunsetAt)
+            if (t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)
                 low.fah = fDCDC;
 
         }
