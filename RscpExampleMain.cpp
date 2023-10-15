@@ -1011,7 +1011,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             high.t = t;
         }
     // Bei Sonnenuntergang werden High/Low in die Datei fortgeschrieben
-        if ((t % itag >= sunsetAt&&t_alt%itag < sunsetAt)||t % 3600 == 0)
+        if ((t % itag >= sunsetAt&&t_alt%itag < sunsetAt)||(t_alt % 3600 > t % 3600))
         {
             tm *ts;
             soc_t *p;
@@ -1023,6 +1023,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             ts = gmtime(&p->t);
             sprintf(Log,"Tief Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA\n",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
+
+            if (t % itag >= sunsetAt&&t_alt%itag < sunsetAt)
+                low.fsoc = fDCDC;
 
         }
     t_alt = t;
