@@ -982,20 +982,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static time_t tasmotatime = 0;
     static soc_t high,low;
     static int itag = 24*3600;
+    int x1,x2;
     
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
     
     time (&t);
     fDCDC = fDCDC + fCurrent*(t-t_alt);
-    if (fDCDC > high.fsoc) {
+    if (fDCDC > high.fah) {
         high.fah = fDCDC;
         high.fsoc = fBatt_SOC;
         high.fvoltage = fVoltage;
         high.fcurrent = fCurrent;
         high.t = t;
     };
-    if (fDCDC < low.fsoc) {
+    if (fDCDC < low.fah) {
         low.fah = fDCDC;
         low.fsoc = fBatt_SOC;
         low.fvoltage = fVoltage;
@@ -1012,7 +1013,10 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             high.t = t;
         }
     // Bei Sonnenuntergang werden High/Low in die Datei fortgeschrieben
-        if ((t % itag >= sunsetAt&&t_alt%itag < sunsetAt)||(t_alt % 3600 > t % 3600))
+    x1 = t % itag;
+    x2 = t_alt % itag;
+
+        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
         {
             tm *ts;
             soc_t *p;
