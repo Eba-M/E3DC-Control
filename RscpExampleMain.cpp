@@ -1005,7 +1005,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei Sonnenaufgang werden die Ausgangswerte neu gesetzt
     if (t % itag >= sunriseAt&&t_alt%itag < sunriseAt)
         {
-            high.fsoc = fDCDC;
+            high.fah = fDCDC;
+            high.fsoc = fBatt_SOC;
             high.fvoltage = fVoltage;
             high.fcurrent = fCurrent;
             high.t = t;
@@ -1025,7 +1026,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             WriteSoC();
 
             if (t % itag >= sunsetAt&&t_alt%itag < sunsetAt)
-                low.fsoc = fDCDC;
+                low.fah = fDCDC;
 
         }
     t_alt = t;
