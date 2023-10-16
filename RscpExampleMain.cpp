@@ -1020,7 +1020,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     x2 = t_alt % itag;
 
         if (e3dc_config.soc >=0)
-//        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
+        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
         {
             tm *ts;
             soc_t *p;
