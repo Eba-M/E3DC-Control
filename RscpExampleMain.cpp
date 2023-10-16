@@ -444,6 +444,7 @@ bool GetConfig()
         e3dc_config.AWtest = 0;
         e3dc_config.BWWP_Power = 0;
         e3dc_config.BWWP_port = 6722;
+        e3dc_config.soc = -1;
 
 
         bf = true;
@@ -572,6 +573,8 @@ bool GetConfig()
                         e3dc_config.AWTagoffset = atoi(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
+                    else if(strcmp(var, "soc") == 0)
+                        e3dc_config.soc = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
                         e3dc_config.hton = atof(value)*3600; // in Sekunden
                     else if(strcmp(var, "htoff") == 0)
@@ -1016,17 +1019,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     x1 = t % itag;
     x2 = t_alt % itag;
 
-        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
+        if (e3dc_config.soc >=0)
+//        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
         {
             tm *ts;
             soc_t *p;
             p=&high;
-            ts = gmtime(&p->t);
-            sprintf(Log,"Hoch Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
+            ts = gmtime(&t);
+            sprintf(Log,"Hoch %2i.%2i.%2i %2i:%2i Time %2i:%2i:%2i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+                int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
+                    p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
             p=&low;
-            ts = gmtime(&p->t);
-            sprintf(Log,"Tief Time %s %0.04fAh SoC %0.04f %0.04fV %0.04fA\n",strtok(asctime(ts),"\n"),p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
+            sprintf(Log,"Tief %2i.%2i.%2i %2i:%2i Time %2i:%2i:%2i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+                int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
+                    p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
 
             if (t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)
