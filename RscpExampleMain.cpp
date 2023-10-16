@@ -1026,16 +1026,16 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             soc_t *p;
             p=&high;
             ts = gmtime(&t);
-            sprintf(Log,"Hoch %2i.%2i.%2i %2i:%2i Time %2i:%2i:%2i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+            sprintf(Log,"Hoch %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
                 int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
             p=&low;
-            sprintf(Log,"Tief %2i.%2i.%2i %2i:%2i Time %2i:%2i:%2i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+            sprintf(Log,"Tief %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
                 int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
-
+            
             if (t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)
                 low.fah = fDCDC;
 
