@@ -1020,7 +1020,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     x2 = t_alt % itag;
 
         if (e3dc_config.soc >=0)
-        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||(t_alt % 3600 > t % 3600))
+        if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||
+            (t % itag >= sunriseAt*60&&t_alt%itag < sunriseAt*60)||
+            (e3dc_config.soc >0 &&t_alt % (60*e3dc_config.soc) > t % (60*e3dc_config.soc)))
         {
             tm *ts;
             soc_t *p;
@@ -1309,7 +1311,7 @@ bDischarge = false;
                 }   else
 //                if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))&&((fPower_WB==0)||(iPower_PV<100))) // Entladen zulassen wenn WB geladen wird
 //                    if (((iPower_Bat < -100)||((iPower_Bat==0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
-                    if (fBatt_SOC>0&&((iPower_Bat < -100)||((iPower_Bat<=0)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
+                    if (fBatt_SOC>0&&((iPower_Bat < -100)||((iPower_Bat<=100)&&(fPower_Grid>100)))) // Entladen zulassen wenn WB
                     {
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
