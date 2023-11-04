@@ -6,7 +6,7 @@
 //
 
 
-#include "Waermepumpe.hpp"
+//#include "myHeader.h"
 #include "awattar.hpp"
 #include <sys/stat.h>
 #include <stdio.h>
@@ -34,16 +34,19 @@
 
 
 
-static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 static wetter_s we;
 static float fusspunkt = 28; // Fusspunkt bei 15°
-static float heizlast = 30;  // Heizlast  bei -15°
+
 static float endpunkt = 40;  // Endpunkt bei -15°
 static float absolutenull = 273; // absoluter Nullpunkt 0K
 static float cop,wm,wp;
 static int oldhour = -1;
+
+
 // static float ftemp;
-void mewp(float &fatemp) {
+//mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
+
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int sunrise, e3dc_config_t e3dc) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -58,7 +61,7 @@ void mewp(float &fatemp) {
 
 
      
-     sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=615b8016556d12f6b2f1ed40f5ab0eee&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out");
+     sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=615b8016556d12f6b2f1ed40f5ab0eee&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
      int res = system(line);
      fp = fopen("wetter.out","r");
      
@@ -66,6 +69,8 @@ void mewp(float &fatemp) {
      {
          wetter.clear();
          fatemp = 0;
+         int x1 = 0;
+         int x3 = 0;
          
          while (fgets(line, sizeof(line), fp))
          {
@@ -74,13 +79,21 @@ void mewp(float &fatemp) {
              if (fgets(line, sizeof(line), fp))
              {
                  we.temp = atof(line);
+                 we.kosten = 0;
                  fatemp = fatemp + we.temp;
-                 if (we.temp < 15)
+                 if (we.temp < 20)
                  {
                      float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
                      float f2 = ((absolutenull+we.temp)/f1)*.5; // COP
-                     float f3 = (15-we.temp)*heizlast/30;
+                     float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
+//                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                     if (f3 > e3dc.WPLeistung) f3 = e3dc.WPLeistung;
                      float f4 = f3/f2; // benötigte elektrische Leistung;
+                     we.kosten = f4/e3dc.speichergroesse*100;
+                     if ((w.size()>0)&&x1<=w.size())
+                         if (we.hh == w[x1].hh){
+                             w[x1].wpbedarf = we.kosten;
+                         }
                  }
              } else break;
              if (fgets(line, sizeof(line), fp))
@@ -93,11 +106,72 @@ void mewp(float &fatemp) {
              } else break;
              
              wetter.push_back(we);
+             x1++;
          }
          
          fclose(fp);
          fatemp = fatemp / 48;
+// Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
+// die Laufdauer der Wärmepumpe vor
+// Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
+// bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
+         float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24;
+         int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
+         heizbegin = sunrise + 120;
+         heizende = (heizbegin + heizdauer)%(24*60);
+         int w1 = 0;
+         while (wetter[w1].hh < w[0].hh&&x1<wetter.size()) w1++;
          
+         if (heizdauer < 12*60)
+         for (int j=0;j<w.size();j++)
+         {
+             int minuten = (w[j].hh%(24*3600))/60 ;
+             if (wetter[j].hh == w[j].hh)
+             if (
+                 (heizbegin > heizende)
+                 &&
+                 ((w[j].hh%(24*3600))/60 < heizbegin)
+                 &&
+                 ((w[j].hh%(24*3600))/60 > heizende)
+                 )
+                 
+                 w[j].wpbedarf = 0;
+             if
+                 (heizbegin < heizende)
+ 
+                 if
+                 (((w[j].hh%(24*3600))/60 < heizbegin)
+                 ||
+                 ((w[j].hh%(24*3600))/60 > heizende)
+                 )
+                 
+                 w[j].wpbedarf = 0;
+
+             if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
+             {
+                 float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
+                 float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
+                 float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
+//                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                 float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
+                 float f5 = w[j].wpbedarf;
+                 f5 = f4/e3dc.speichergroesse*100;
+                 wetter[w1+j].kosten = f5;
+                 w[j].wpbedarf = f5;
+             }
+
+             
+}
+ 
+         fp = fopen("awattardebug.out","w");
+         for (int j = 0;j<w.size();j++)
+             fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",(w[j].hh%(24*3600)/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
+         fclose(fp);
+
+             
+         
+
+
          /*       Test zur Abfrage des Tesmota Relais
 
           FILE *fp;

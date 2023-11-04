@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <array>
+#include <cctype>
 #include "RscpProtocol.h"
 #include "RscpTags.h"
 #include "SocketConnection.h"
@@ -15,7 +16,6 @@
 #include "SunriseCalc.hpp"
 #include "awattar.hpp"
 #include "avl_array.h"
-#include "Waermepumpe.hpp"
 //#include "MQTTClient.h"
 //#include "json.hpp"
 
@@ -89,6 +89,7 @@ int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
 int sunsetAt;   // Sonnenuntergang
 SunriseCalc * location;
 std::vector<watt_s> ch;  //charge hour
+// std::vector<watt_s> w1;
 
 avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Einträgen
 
@@ -391,6 +392,7 @@ bool GetConfig()
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
+        memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.WP = false;
@@ -445,6 +447,10 @@ bool GetConfig()
         e3dc_config.BWWP_Power = 0;
         e3dc_config.BWWP_port = 6722;
         e3dc_config.soc = -1;
+        e3dc_config.WPHeizlast = -1;
+        e3dc_config.WPLeistung = -1;
+        e3dc_config.WPHeizgrenze = -1;
+
 
 
         bf = true;
@@ -454,9 +460,11 @@ bool GetConfig()
                 memset(var, 0, sizeof(var));
                 memset(value, 0, sizeof(value));
                 if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
+                    for (int i = 0; i < strlen(var); i++)
+                    var[i] = tolower(var[i]);
                     if(strcmp(var, "server_ip") == 0)
                         strcpy(e3dc_config.server_ip, value);
-                    else if(strcmp(var, "BWWP_ip") == 0)
+                    else if(strcmp(var, "bwwp_ip") == 0)
                         strcpy(e3dc_config.BWWP_ip, value);
                     else if(strcmp(var, "heizung_ip") == 0)
                         strcpy(e3dc_config.heizung_ip, value);
@@ -472,10 +480,20 @@ bool GetConfig()
                         strcpy(e3dc_config.e3dc_password, value);
                     else if(strcmp(var, "aes_password") == 0)
                         strcpy(e3dc_config.aes_password, value);
-                    else if(strcmp(var, "openWB_ip") == 0)
+                    else if(strcmp(var, "openwb_ip") == 0)
                         strcpy(e3dc_config.openWB_ip, value);
                     else if(strcmp(var, "mqtt_ip") == 0)
                         strcpy(e3dc_config.mqtt_ip, value);
+                    else if(strcmp(var, "forecast1") == 0)
+                        strcpy(e3dc_config.Forecast[0], value);
+                    else if(strcmp(var, "forecast2") == 0)
+                        strcpy(e3dc_config.Forecast[1], value);
+                    else if(strcmp(var, "forecast3") == 0)
+                        strcpy(e3dc_config.Forecast[2], value);
+                    else if(strcmp(var, "forecast4") == 0)
+                        strcpy(e3dc_config.Forecast[3], value);
+                    else if(strcmp(var, "openweathermap") == 0)
+                        strcpy(e3dc_config.openweathermap, value);
                     else if(strcmp(var, "wurzelzaehler") == 0)
                         e3dc_config.wurzelzaehler = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -488,10 +506,10 @@ bool GetConfig()
                         e3dc_config.wallbox = -1;
                     else
                         e3dc_config.wallbox = atoi(value);}
-                  else if((strcmp(var, "openWB") == 0)&&
+                  else if((strcmp(var, "openwb") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.openWB = true;
-                  else if((strcmp(var, "WP") == 0)&&
+                  else if((strcmp(var, "wp") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WP = true;
                     else if((strcmp(var, "ext1") == 0)&&
@@ -517,15 +535,15 @@ bool GetConfig()
 
                         
                     }
-                    else if(strcmp(var, "untererLadekorridor") == 0)
+                    else if(strcmp(var, "untererladekorridor") == 0)
                         e3dc_config.untererLadekorridor = atoi(value);
-                    else if(strcmp(var, "obererLadekorridor") == 0)
+                    else if(strcmp(var, "obererladekorridor") == 0)
                         e3dc_config.obererLadekorridor = atoi(value);
-                    else if(strcmp(var, "minimumLadeleistung") == 0)
+                    else if(strcmp(var, "minimumladeleistung") == 0)
                         e3dc_config.minimumLadeleistung = atoi(value);
-                    else if(strcmp(var, "Powerfaktor") == 0)
+                    else if(strcmp(var, "powerfaktor") == 0)
                         e3dc_config.powerfaktor = atof(value);
-                    else if(strcmp(var, "maximumLadeleistung") == 0)
+                    else if(strcmp(var, "maximumladeleistung") == 0)
                         e3dc_config.maximumLadeleistung = atoi(value);
                     else if(strcmp(var, "wrleistung") == 0)
                         e3dc_config.wrleistung = atoi(value);
@@ -533,15 +551,21 @@ bool GetConfig()
                         e3dc_config.speichergroesse = atof(value);
                     else if(strcmp(var, "winterminimum") == 0)
                         e3dc_config.winterminimum = atof(value);
-                    else if(strcmp(var, "RB") == 0)
+                    else if(strcmp(var, "wpheizlast") == 0)
+                        e3dc_config.WPHeizlast = atof(value);
+                    else if(strcmp(var, "wpheizgrenze") == 0)
+                        e3dc_config.WPHeizgrenze = atof(value);
+                    else if(strcmp(var, "wpleistung") == 0)
+                        e3dc_config.WPLeistung = atof(value);
+                    else if(strcmp(var, "rb") == 0)
                         e3dc_config.RB = atof(value);
                     else if(strcmp(var, "sommermaximum") == 0)
                         e3dc_config.sommermaximum = atof(value);
-                    else if(strcmp(var, "RE") == 0)
+                    else if(strcmp(var, "re") == 0)
                         e3dc_config.RE = atof(value);
                     else if(strcmp(var, "sommerladeende") == 0)
                         e3dc_config.sommerladeende = atof(value);
-                    else if(strcmp(var, "LE") == 0)
+                    else if(strcmp(var, "le") == 0)
                         e3dc_config.LE = atof(value);
                     else if(strcmp(var, "einspeiselimit") == 0)
                         e3dc_config.einspeiselimit = atof(value);
@@ -563,13 +587,13 @@ bool GetConfig()
                         e3dc_config.wbminlade = atoi(value);
                     else if(strcmp(var, "wbmaxladestrom") == 0)
                         e3dc_config.wbmaxladestrom = atoi(value);
-                    else if(strcmp(var, "wbminSoC") == 0)
+                    else if(strcmp(var, "wbminsoc") == 0)
                         e3dc_config.wbminSoC = atof(value);
                     else if(strcmp(var, "hoehe") == 0)
                         e3dc_config.hoehe = atof(value);
                     else if(strcmp(var, "laenge") == 0)
                         e3dc_config.laenge = atof(value);
-                    else if(strcmp(var, "AWTagoffset") == 0)
+                    else if(strcmp(var, "awtagoffset") == 0)
                         e3dc_config.AWTagoffset = atoi(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
@@ -585,28 +609,28 @@ bool GetConfig()
                     else if((strcmp(var, "htsun") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.htsun = true;
-                    else if(strcmp(var, "aWATTar") == 0)
+                    else if(strcmp(var, "awattar") == 0)
                     {if (strcmp(value, "true") == 0)
                                  e3dc_config.aWATTar = 1;
                         else
                                  e3dc_config.aWATTar = atoi(value);}
-                    else if((strcmp(var, "AWLand") == 0)&&
-                            (strcmp(value, "AT") == 0))   // AT = 2
+                    else if((strcmp(var, "awLand") == 0)&&
+                            (strcmp(value, "at") == 0))   // AT = 2
                         e3dc_config.AWLand = 2;
-                    else if((strcmp(var, "AWLand") == 0)&&
-                            (strcmp(value, "DE") == 0))   // DE = 1
+                    else if((strcmp(var, "awland") == 0)&&
+                            (strcmp(value, "de") == 0))   // DE = 1
                         e3dc_config.AWLand = 1;
-                    else if(strcmp(var, "Avhourly") == 0)
+                    else if(strcmp(var, "avhourly") == 0)
                         e3dc_config.Avhourly = atof(value); // % der SoC
-                    else if(strcmp(var, "AWDiff") == 0)
+                    else if(strcmp(var, "awdiff") == 0)
                         e3dc_config.AWDiff = atof(value)*10; // % der SoC
-                    else if(strcmp(var, "AWAufschlag") == 0)
+                    else if(strcmp(var, "awaufschlag") == 0)
                         e3dc_config.AWAufschlag = 1 + atof(value)/100;
-                    else if(strcmp(var, "AWNebenkosten") == 0)
+                    else if(strcmp(var, "awnebenkosten") == 0)
                         e3dc_config.AWNebenkosten = atof(value);
-                    else if(strcmp(var, "AWMWSt") == 0)
+                    else if(strcmp(var, "awmwst") == 0)
                         e3dc_config.AWMWSt = atof(value);
-                    else if(strcmp(var, "AWtest") == 0)
+                    else if(strcmp(var, "awtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
                     else
                         bf = false;
@@ -644,7 +668,10 @@ bool GetConfig()
         e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
         if (e3dc_config.powerfaktor < 0)
             e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
-            
+        if (e3dc_config.aWATTar > 0) {
+// wenn awattar dann hton/htoff deaktivieren
+            e3dc_config.htoff = e3dc_config.hton++;
+        }
     }
 
 
@@ -685,7 +712,6 @@ typedef struct {
 std::array<int, 19> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,101,102};
 static int x1 = 0;
 static int temp[oekofen.size()];
-static int tasmota_status[4]={2,2,2,2};
 static uint8_t tn = 1;
 
 int iModbusTCP_Set(int reg,int val,int tac)
@@ -754,16 +780,17 @@ int iModbusTCP()
             tlast = now;
             send.resize(12);
             receive.resize(1024);
-            
+  
+// Heizkreise schalten in Abhängigkeit vom EVU und Status des jeweiligen heizkreis
             
             if (temp[13] > 0) // Temperatur Puffer gesetzt?
             {
-                if (tasmota_status[0]==1&&temp[1]==0)
+                if (tasmota_status[0]==1&&temp[1]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(oekofen[1],1,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (tasmota_status[0]==1&&temp[7]==0)
+                if (tasmota_status[0]==1&&temp[7]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
@@ -1202,7 +1229,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
  
     int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,1,fstrompreis, e3dc_config.AWTagoffset); // Ladeleistung in %
+        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis, e3dc_config.AWTagoffset); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
         {
@@ -3565,11 +3592,11 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
            if (e3dc_config.aWATTar)
-            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config); // im Master nicht aufrufen
 //            test;
             
             if (e3dc_config.WP)
-              mewp(fatemp);       // Ermitteln Wetterdaten
+              mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
@@ -3686,7 +3713,7 @@ static int iEC = 0;
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
         if (e3dc_config.aWATTar)
-            aWATTar(ch,e3dc_config.AWLand,e3dc_config.AWMWSt,e3dc_config.AWNebenkosten); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {

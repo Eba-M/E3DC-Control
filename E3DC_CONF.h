@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "B2023.10.21.0" //aktuelle Version
+#define VERSION "C2023.11.04.0" //aktuelle Version für dynamische Tarife und WP-Betrieb
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -35,6 +35,7 @@
 
 //const int cLadeschwelle = LADESCHWELLE; // Minimum Lade-Schwelle wird bevorzugt der E3DC-Speicher geladen
 //const int cLadeende = LADEENDE;     // Lade-Schwelle des überwachten Ladens
+/*
 typedef struct {
     char server_ip[20];
     char heizstab_ip[20]; // Heizstab
@@ -47,12 +48,15 @@ typedef struct {
     char aes_password[128];
     char logfile[128],conffile[128];
     char openWB_ip[20];
+    std::string Forcast[3]; // 4 Elemente
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     int32_t wallbox,BWWP_Power,AWLand,AWTagoffset,soc;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
-    hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt;
+    hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt,
+    WPHeizlast,WPHeizgrenze,WPLeistung;
     
     
 }e3dc_config_t;
+*/

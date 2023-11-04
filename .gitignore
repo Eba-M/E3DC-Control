@@ -11,3 +11,5 @@ E3DC-V1/e3dc.wallbox.txt
 E3DC-V1/soc.txt
 wetter.out
 soc.txt
+E3DC-V1/forecast.json
+E3DC-V1/awattardebug.out

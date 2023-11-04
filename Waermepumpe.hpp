@@ -9,14 +9,17 @@
 #ifndef Waermepumpe_hpp
 #define Waermepumpe_hpp
 
+// #include "myHeader.h
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <vector>
+
 #endif /* Waermepumpe_hpp */
-static float fatemp;
-void mewp(float &fatemp);
-typedef struct {time_t hh; float temp; int sky; float uvi;}wetter_s;
+
+//static float fatemp;
+//void mewp(float &fatemp);
+//typedef struct {time_t hh; float temp; int sky; float uvi;float kosten;}wetter_s;
 
 

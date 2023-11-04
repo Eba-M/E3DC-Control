@@ -8,6 +8,7 @@
 //  
 
 #include "awattar.hpp"
+#include "E3DC_CONF.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +60,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
     }
 }
 
-int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit > preis
+int Highprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahle Einträge mit > preis
 {                                            // l1 = erste position h1 = letzte Position
     int x1 = 0;
     for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
@@ -69,7 +70,32 @@ int Highprice(int ab,int bis,float preis)    // Anzahle Einträge mit > preis
     }
     return x1;
 }
-int Lowprice(int ab,int bis,float preis)    // Anzahle Einträge mit < Preisf
+float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahle Einträge mit > preis
+{                                            // l1 = erste position h1 = letzte Position
+    float x1 = 0;
+    float x2 = 0;
+    float x3 = 0;
+    for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
+    {
+        x3 = w[j].hourly + w[j].wpbedarf - w[j].solar;;
+        // Suchen nach Hoch und Tiefs
+        if (w[j].pp > preis) {
+            if (x3 > 0)
+            {
+                if (x2 > 0 && x2>x3)    // Konnte schon nachgeladen werden, dann vom bedarf abziehen.
+                    x2 = x2 - x3;       // mit Solaretrag verrechnen
+                else
+                    x1 = x1 + x3;
+            }
+            else
+                x2 = x2 - x3;
+        } else
+            if (x3 < 0)                 // PV Überschuss ?
+                x2 = x2 - x3;
+    }
+    return x1;
+}
+int Lowprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahle Einträge mit < Preisf
 {                                            // l1 = erste position h1 = letzte Position
     int x1 = 0;
     for (int j = ab; j <= bis; j++ )
@@ -80,7 +106,7 @@ int Lowprice(int ab,int bis,float preis)    // Anzahle Einträge mit < Preisf
     return x1;
 }
 
-void SucheHT(int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Sekunden seit 1970
+void SucheHT(std::vector<watt_s> &w,int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Sekunden seit 1970
 {
     time_t  rawtime;
     struct tm * ptm;
@@ -118,7 +144,7 @@ void SucheHT(int ab,long bis)  // ab = Index bis zeitangabe in Minuten oder Seku
 
     return;
 }
-bool SucheDiff(int ab, float aufschlag,float Diff)  // ab = Index bis Diff zwischen high und low erreicht
+bool SucheDiff(std::vector<watt_s> &w,int ab, float aufschlag,float Diff)  // ab = Index bis Diff zwischen high und low erreicht
 {
     high = w[ab];
     low = w[ab];
@@ -145,7 +171,7 @@ bool SucheDiff(int ab, float aufschlag,float Diff)  // ab = Index bis Diff zwisc
 }
 
 
-int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Zeitpunkt oder Sekunden nach 1970
+int SuchePos(std::vector<watt_s> &w,int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Zeitpunkt oder Sekunden nach 1970
 {
     time_t  rawtime;
     struct tm * ptm;
@@ -173,7 +199,7 @@ int SuchePos(int bis)  // ab = Index bis zeitangabe in Minuten Suchen nach dem Z
     return ret;
 }
 
-int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -207,51 +233,98 @@ int CheckaWATTar(int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC
 
 if (mode == 0) // Standardmodus
 {
-// testroutine neue auswertung
-    if (low2.pp == 0)
-    {
-        if (SucheDiff(0, aufschlag,Diff))
-            low2 = w[l1];
-        else
-            low2.pp = (Diff+Diff*aufschlag);
-    } // ist low vorbelegt?
+    float offset;
+    float SollSoc = 0;
 
+// Überprüfen ob entladen werden kann
+        fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+        if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+            return 1;
 
-    if (SucheDiff(0, aufschlag,Diff))
+// suche über den gesamten Bereich
+        x1 = SucheDiff(w,0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
+        do
+        {
+            fConsumption = fHighprice(w,0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+            if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
+            if (w[0].pp>w[l1].pp*aufschlag+Diff)
+                return 1;
+            if (h1>l1)
+                {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
+            else
+                {if (not (SucheDiff(w,l1, aufschlag,Diff))) break;} // suche low nach einem high
+        }
+        while (l1 < w.size());
+    
+    if (SucheDiff(w,0, aufschlag,Diff))
     {
         if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
         {
             int lw = l1;
             do
-            if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
+            if (not (SucheDiff(w,h1, aufschlag,Diff))) break; // suche low nach einem high
             while (h1 > l1);
-            // Überprüfen ob Entladen werden kann
-            x1 = Lowprice(0, h1, w[0].pp);   // bis zum high suchen
-            x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
+// suche das nächste low
+            // suchen nach dem low before next high das low muss niedriger als das akutelle sein
+            int hi = h1;
+            while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
+                if (h1>l1)
+                {if (not (SucheDiff(w,h1, aufschlag,Diff))) {
+                    l1 = w.size()-1;
+                    break;}} // suche low nach einem high
+                else
+                {if (not (SucheDiff(w,l1, aufschlag,Diff))) {
+                    l1 = w.size()-1;
+                    break;}} // suche low nach einem high
+            }
+// Überprüfen ob Entladen werden kann
+            x3 = w.size()-1;
+            x1 = Lowprice(w,0, hi, w[0].pp);   // bis zum high suchen
+            SollSoc = fHighprice(w,0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                             // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
-//            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-            if ((x2>0)&&        // es gibt mind. einen Wert mit dem nötigen aufschlag+Diff
-                (((fSoC < (fmaxSoC-1))&&((lw==0)||(fmaxSoC-1-fSoC)>x1*ladeleistung*.9))&&(fSoC<fmaxSoC-1)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+// Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+            float SollSoc2 = fSoC;
+            for (int j=0;j<=x3;j++) // Simulation
+            {
+                if (w[j].pp < w[0].pp&&SollSoc2<0) break; // war schon überzogen Abruch
+                if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
+                if (w[j].pp > w[0].pp*aufschlag+Diff) 
+                    SollSoc2 = SollSoc2 - w[j].hourly-w[j].wpbedarf+w[j].solar;
+                if (SollSoc2 > 90||SollSoc2<ladeleistung*-1) break;
+                if (SollSoc2 > SollSoc) SollSoc = SollSoc2;
+            }
+            if (SollSoc2 < 0){
+                SollSoc2 = fSoC-SollSoc2;
+                if (SollSoc2 > SollSoc)
+                    SollSoc = SollSoc2;}
+            if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
+                SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
+            if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
+                ((lw==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             {   low2 = w[0];
                 return 2;}
-            else if (x2>0) return 0; // Nicht entladen da die Preisdifferenz zur Spitze zu groß
-        } else
-            do
-            if (not (SucheDiff(l1, aufschlag,Diff))) break; // suche high nach einem low
-            while (l1 > h1);
-
+            else
+                if ((SollSoc)>fSoC-1) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+//                if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+        }
     }
-// Überprüfen ob entladen werden kann
-    x1 = Highprice(0,l1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-//    printf("%0.02f %0.02f %0.02f %0.02f \n",(fSoC-x1*fConsumption),w[0].pp,w[l1].pp*aufschlag+Diff,low2.pp*aufschlag+Diff);
-    if (float(fSoC-x1*fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-//        if ((w[0].pp>w[l1].pp*aufschlag+Diff)||(w[0].pp>low2.pp*aufschlag+Diff))
-            if ((w[0].pp>w[l1].pp*aufschlag+Diff)) // Nur das folgende Tief zum Entladen berücksichtigen
-        return 1;
+//        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
+    {
+            fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+
+        
+    if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+    return 1;
+    }
+
     return 0;  // kein Ergebniss gefunden
 
+
+return 0;
+
 }
-    if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
+
+if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
     {
     // testroutine neue auswertung
 /*        if (low2.pp == 0)
@@ -273,43 +346,43 @@ if (mode == 0) // Standardmodus
             if (offset < ioffset) offset = ioffset;
 
 // Überprüfen ob entladen werden kann
-            x1 = Highprice(0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-            if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+            fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+            if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
                 return 1;
 
 // suche über den gesamten Bereich
-            x1 = SucheDiff(0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
+            x1 = SucheDiff(w,0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
             do
             {
-                x1 = Highprice(0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
-                if (float(fSoC-x1*fConsumption) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+                fConsumption = fHighprice(w,0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+                if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[0].pp>w[l1].pp*aufschlag+Diff)
                     return 1;
                 if (h1>l1)
-                    {if (not (SucheDiff(h1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
                 else
-                    {if (not (SucheDiff(l1, aufschlag,Diff))) break;} // suche low nach einem high
+                    {if (not (SucheDiff(w,l1, aufschlag,Diff))) break;} // suche low nach einem high
             }
             while (l1 < w.size());
         
-        if (SucheDiff(0, aufschlag,Diff))
+        if (SucheDiff(w,0, aufschlag,Diff))
         {
             if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
             {
                 int lw = l1;
                 do
-                if (not (SucheDiff(h1, aufschlag,Diff))) break; // suche low nach einem high
+                if (not (SucheDiff(w,h1, aufschlag,Diff))) break; // suche low nach einem high
                 while (h1 > l1);
 // suche das nächste low
                 // suchen nach dem low before next high das low muss niedriger als das akutelle sein
                 int hi = h1;
                 while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
                     if (h1>l1)
-                    {if (not (SucheDiff(h1, aufschlag,Diff))) {
+                    {if (not (SucheDiff(w,h1, aufschlag,Diff))) {
                         l1 = w.size()-1;
                         break;}} // suche low nach einem high
                     else
-                    {if (not (SucheDiff(l1, aufschlag,Diff))) {
+                    {if (not (SucheDiff(w,l1, aufschlag,Diff))) {
                         l1 = w.size()-1;
                         break;}} // suche low nach einem high
                 }
@@ -323,9 +396,9 @@ if (mode == 0) // Standardmodus
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
                 {
                     if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                        x3 = SuchePos(sunrise+offset+60); // eine Stunde weiter suhen
+                        x3 = SuchePos(w,sunrise+offset+60); // eine Stunde weiter suhen
                     else
-                        x3 = SuchePos(sunrise+25*60+offset);
+                        x3 = SuchePos(w,sunrise+25*60+offset);
                     if (x3 > 0)
                         x3--;
                     if (x3<l1&&x3>=0) l1 = x3;
@@ -334,21 +407,21 @@ if (mode == 0) // Standardmodus
                     {
                         SollSoc = ((sunrise+int(offset))%60);
                         SollSoc = SollSoc/60;
-                        SollSoc = SollSoc*fConsumption;
+                        SollSoc = SollSoc*(w[l1].hourly+w[l1].wpbedarf);
                     }
                 }
 
-                x1 = Lowprice(0, hi, w[0].pp);   // bis zum high suchen
-                x2 = Highprice(0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
+                x1 = Lowprice(w,0, hi, w[0].pp);   // bis zum high suchen
+                fConsumption = fHighprice(w,0,l1,w[0].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
                                                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
     //            if (((fSoC < (x2*fConsumption+5))&&((l1==0)||(x2*fConsumption-fSoC)>x1*23))&&(fSoC<fmaxSoC-1))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-                SollSoc = SollSoc+x2*fConsumption;
+                SollSoc = SollSoc+fConsumption;
                 float SollSoc2 = fSoC;
                 for (int j=0;j<=x3;j++) // Simulation
                 {
                     if (w[j].pp < w[0].pp&&SollSoc2<0) break; // war schon überzogen Abruch
                     if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
-                    if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - fConsumption;
+                    if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - w[j].hourly-w[j].wpbedarf;
                     if (SollSoc2 > fmaxSoC-1||SollSoc2<ladeleistung*-1) break;
                 }
                 if (SollSoc2 < 0){
@@ -358,11 +431,11 @@ if (mode == 0) // Standardmodus
                 if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset)&&(SollSoc > (fmaxSoC-1)))
                     SollSoc = fmaxSoC-1;  //tagsüber laden auf Reserve beschränken
                 if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
-                    ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                    ((lw==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[0];
                     return 2;}
                 else
-                    if ((SollSoc)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+                    if ((SollSoc)>fSoC-1) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
 //                if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
@@ -372,32 +445,32 @@ if (mode == 0) // Standardmodus
 //            offset = pow(offset,3.5)*(24*60-sunrise);
 //            if (offset < ioffset) offset = ioffset;
             if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise))  // bis Sonnenaufgang
-                x2 = SuchePos(sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
+                x2 = SuchePos(w,sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
             else
             {
                 if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+ioffset)) // Zwischen Sonnenaufgang + offset entladen generell freigegben
                     return 1; // Suchen bis 2h nach Sonnenaufgang
                 else
                     if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                        x2 = SuchePos(sunrise+offset+60);
+                        x2 = SuchePos(w,sunrise+offset+60);
                     else
-                        x2 = SuchePos(sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
+                        x2 = SuchePos(w,sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
             }
             if (x2<0) x2 = w.size()-1;
             if (x2 > 0)
-                x3 = Highprice(0,x2-1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+                fConsumption = fHighprice(w,0,x2-1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
             else
                 x3=0;
-            x1 = Highprice(0,x2,w[0].pp);  // Anzahl höhere Preise ermitteln
 
-            SollSoc = x3*fConsumption;
-            if (x1>x3)  // SollSoC minutengenau berechnen
+            
+            SollSoc = fHighprice(w,0,x2,w[0].pp);  // Anzahl höhere Preise ermitteln
+            if (SollSoc>fConsumption)  // SollSoC minutengenau berechnen
             {
                 SollSoc = ((sunrise+int(offset))%60);
                 SollSoc = SollSoc/60;
-                SollSoc = SollSoc*fConsumption+x3*fConsumption;
+                SollSoc = SollSoc*(w[x2].hourly+w[x2].wpbedarf)+fConsumption;
             }
-        if (float(fSoC-SollSoc) >= 0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-SollSoc) >=0) // x1 Anzahl der Einträge mit höheren Preisen
         return 1;
         }
 
@@ -408,9 +481,79 @@ if (mode == 0) // Standardmodus
 }
 
             
+void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
+
+
+{
+    FILE * fp;
+    char line[256];
+    int x3,x2;
+    char value[256];
+    char var[256];
+    strcpy(var,e3dc_config.Forecast[anlage]);
+    sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds' | jq .result | jq .watt_hours_period > forecast.json",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage]);
+
+    int res = system(line);
+    
+    fp = fopen("forecast.json","r");
+    if(fp)
+    {
+        int w1 = 0;
+        while (fgets(line, sizeof(line), fp))
+        {
+            int x1 = 0;
+            int x2,x3;
+            int len = strlen(line);
+            if (strlen(line) > 20)
+            {
+                memset(var, 0, sizeof(var));
+                memset(value, 0, sizeof(value));
+                for(int j = 0;j<len&&x1==0;j++)
+                {
+                    if (line[j]=='"') x1=j;
+                }
+                x2=0;
+                for(int j=x1+1;j<len&&x2==0;j++)
+                {
+                    if (line[j]=='"') x2=j;
+                }
+                memcpy(&var,&line[x1+1],x2-x1-1);
+                x1=0;
+                for(int j=x2;j<len&&x1==0;j++)
+                {
+                    if (line[j]==':') x1=j;
+                }
+                x3=0;
+                for(int j=x1;j<len&&x3==0;j++)
+                {
+                    if (line[j]==','||line[j]=='\n') x3=j;
+                }
+                memcpy(&value,&line[x1+1],x3-x1-1);
+                
+                x1 = atoi(var);
+                x2 = atoi(value);
+                {
+                    int time = w[w1].hh;
+                    while (w[w1].hh<x1&&w1<w.size())
+                        w1++;
+                    
+                    
+                    if (w[w1].hh == x1)
+                    {
+                        if (anlage == 0)
+                            w[w1].solar = atof(value)/e3dc_config.speichergroesse/10;
+                        else
+                            w[w1].solar = w[w1].solar + atof(value)/e3dc_config.speichergroesse/10;
+                        w1++;
+                    }
+                }
+            }
+        }
+    };
+};
             
-            
-void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
+//void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t e3dc_config)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -424,13 +567,37 @@ void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
 bool simu = false;
 //    simu = true;
 int ladedauer = 4;
+    float strombedarf[24];
     time_t rawtime;
     struct tm * ptm;
 //    float pp;
     FILE * fp;
     char line[256];
+    int x3,x2;
+    char value[256];
+    char var[256];
+    
+
+    
+    fp = fopen("e3dc.hourly.txt","r");
+
     time(&rawtime);
     ptm = gmtime (&rawtime);
+// Tagesverbrauchsprofil aus e3dc.config.txt AWhourly vorbelegen
+    for (int j1 = 0;j1<24;j1++) {
+        strombedarf[j1] = e3dc_config.Avhourly;
+    }
+// Tagesverbrauchsprofil einlesen.
+    while (fgets(line, sizeof(line), fp))
+    {
+        
+        sscanf(line, "%s %s", var, value);
+        sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+        x2 = atoi(var);
+        if (x2>=0&&x2<24)
+        strombedarf[x2] = atof(value);
+    }
+        fclose(fp);
 
     int64_t von, bis;
     if (simu)
@@ -462,9 +629,9 @@ int ladedauer = 4;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-if (Land == 1)
+if (e3dc_config.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-if (Land == 2)
+if (e3dc_config.AWLand == 2)
         sprintf(line,"curl -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
         if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
@@ -490,15 +657,24 @@ if (Land == 2)
                                 if (fgets(line, sizeof(line), fp))
                                 {
                                     ww.pp = atof(line);
-
+                                    x2 =ww.hh%(24*3600);
+                                    x2 = x2/3600;
+                                    ww.hourly = strombedarf[ww.hh%(24*3600)/3600];
+                                    ww.solar = 0;
                                     if ((simu)||(ww.hh+3600>rawtime))
                                         w.push_back(ww);
                                 } else break;
                             }
 
                             fclose(fp);
+                            
+                            for (int j=0;(strlen(e3dc_config.Forecast[j])>0)&&j<4;j++)
+                                forecast(w, e3dc_config, j);
+
+
 
                         };
+
                     }
 
             }
@@ -561,7 +737,7 @@ if (Land == 2)
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600);
+            ret = CheckaWATTar(w,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;
@@ -695,7 +871,7 @@ if (Land == 2)
             if (j%2==1) fprintf(fp,"\n");
             fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
         }
-        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+MWSt)/1000+Nebenkosten);
+        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+e3dc_config.AWMWSt)/1000+e3dc_config.AWNebenkosten);
         if (ch.size() < 10||j%2==1)
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
