@@ -10,6 +10,8 @@
 #include "awattar.hpp"
 #include "E3DC_CONF.h"
 #include <sys/stat.h>
+#include <cstring>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
