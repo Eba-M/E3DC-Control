@@ -521,7 +521,9 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
                 {
                     if (line[j]=='"') x2=j;
                 }
-                memcpy(&var,&line[x1+1],x2-x1-1);
+                x3 = x2-x1-1;
+                if (x3 < sizeof(line))
+                memcpy(&var,&line[x1+1],x3);
                 x1=0;
                 for(int j=x2;j<len&&x1==0;j++)
                 {
