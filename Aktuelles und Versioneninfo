@@ -1,3 +1,85 @@
+Version C2023.11.04.0
+
+Neue Version für dynamische Stromtarife und Wärmepumpenbetrieb.
+
+Die neue Beta - Version enthält die umfangreichsten Änderungen und Erweiterungen seit langem,
+Daher ist der Status "BETA" auch gerechtfertigt, da nicht sichergestellt werden kann, das alle Funktion schon optimal ablaufen, da besteht sicherlich nocht viel Optimierungspotential.
+
+Zum Ersten vorne hinweg - die bei den Parametern zu beachtende Groß- und Kleinschreibung fällt weg.
+Die Parameter können beliebig geschrieben werden, intern werden alle auf Kleinbuchstaben konvertiert und dann erst zugeordnet.
+
+Die Erweiterungen:
+
+
+Völlig neu ist die Aufnahme von 2 Wetterportalen, dem Forecast.Solar und dem openweathermap.org.
+
+In der dunklen Jahreszeit muss man, besonders bei Wärmepumpenbetrieb davon ausgehen, dass die gespeicherte Energie im Speicher nicht lange ausreicht und man regelmäßig in der Nacht ( und auch tagsüber) aus dem Netz zu günstigen Preisen nachgeladen werden muss.
+
+Um das optimaler zu gestalten wurde auch eine neue Datei zum Verbrauchsprofile eingeführt.
+In der 
+
+e3dc.hourly.txt
+
+16 4
+17 4
+18 5
+
+Können abweichend zum Parameter Avhourly = 4.  // 4% des Speichers
+Weitere Stundenbereiche definiert werden. Nicht belegte Stundenzeiten werden weiterhin mit Avhourly vorgelegt.
+
+Aus dem Wetterportal werden die Vorhersagen für die PV-Anlage zur Ermittlung des Tagesertrages herangenommen, um den Strombedarf und damit das Laden aus dem Netz steuern.
+Dazu können bis zu 4 Ausrichtungen der PV-Anlage angegeben werden.
+
+Forecast1 = 45/70/12
+Forecast2 = 45/-20/10
+Forecast3 = 45/-90/38
+
+Der erste Parameter bestimmt die Dachneigung, der 2. Parameter die Himmelsrichtung 0° ist Süden
+Der 3. Parameter zeigt die installierte PV-Leistung der jeweiligen Ausrichtung an. Open ist meine 50kWp Anlage beschrieben.
+
+Openweathermap = 615b8016123123556d12f6b2f1ed40f5
+
+Aus dem openweatermap.org werden u.A. die Temperaturvorhersage herangezogen, um die Leistungsaufnahme der Wärmepumpe grob berechnen zu können. Jeder muss sich dafür bei openweathermap.org kostenfrei registrieren, der obige Code ist ungültig.
+
+Die Angabe von
+
+hoehe = 50.652526
+laenge = 10.708570
+
+ist dafür in jedem Falle notwendig.
+
+WPHeizlast = 30
+WpHeizgrenze = 15
+WPLeistung = 10
+
+Mein Haus hat eine Heizlast von 30kW bei 15° NAT,
+Bei Temperaturen unter 15° wird die WP betrieben, welche eine thermische Leistung von 10kW hat.
+
+ML1 10500 RQ 10500 GMT 11:29 ZG 989 E3DC: 16:15:1 8.75 
+
+Die 8.75° der nächsten 48h bedeutet für mich eine Heizleistung von durchgehend 6,25kW oder 1,2-1,5kW Strombedarf.
+
+Für den einen oder anderen noch verborgenen Fehler/Unzulänglichkeit möchte ich mich vorab entschuldigen und hoffe auf Eure Unterstützung bei der weiteren Optimierung
+
+In der Datei
+
+awattardebug.out
+
+Kann man die zur Steuerung ermittelten Daten sehen.
+
+13 30.79 4.00 8.72 7.99
+14 42.69 4.00 8.76 5.81
+15 40.00 4.00 8.84 2.72
+16 48.76 4.00 8.96 0.00
+
+Um 13Uhr (14 Uhr MEZ) kostet die MWh an der EPEX €30.79
+4% Hausverbrauch 8.72% WP-Verbrauch 7,99% Solarertrag
+
+Viel Spass
+
+
+
+
 Version 2020.9.23.0
 
 Steuerung Wallbox
