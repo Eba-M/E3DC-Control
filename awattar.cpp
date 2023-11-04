@@ -15,6 +15,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include <math.h>
+#include <array>
+#include <cctype>
 #include <time.h>
 #include <array>
 #include <algorithm>

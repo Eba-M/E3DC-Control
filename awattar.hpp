@@ -8,12 +8,21 @@
 
 #ifndef awattar_hpp
 #define awattar_hpp
-#include "E3DC_CONF.h"
+
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
+#include <math.h>
+#include <array>
+#include <cctype>
+#include <time.h>
+#include <array>
+#include <algorithm>
 #include <vector>
+
+
 // #include "Waermepumpe.hpp"
 
 
