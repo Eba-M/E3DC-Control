@@ -671,7 +671,8 @@ bool GetConfig()
         if (e3dc_config.aWATTar > 0) {
 // wenn awattar dann hton/htoff deaktivieren
             e3dc_config.htoff = e3dc_config.hton++;
-        }
+            e3dc_config.htsat = false;
+            e3dc_config.htsun = false;        }
     }
 
 

@@ -38,6 +38,22 @@ static watt_s low;
 static watt_s low2;
 static int l1 = 0, l2 = 0, h1 = 0, h2 = 0;
 
+bool Checkfile(char myfile[20],int minuten)
+{
+    struct stat stats;
+     time_t  tm,tm_dt;
+     time(&tm);
+     if (stat(myfile,&stats)==0)
+     {
+         tm_dt = *(&stats.st_mtime);
+         tm = (tm - tm_dt);
+         if (tm >0 && tm < 3600)
+             return false;  // zu jung
+         else
+             return true;
+     } else return true;    // nicht vorhanden
+};
+
 bool CheckWallbox()
 /*
 Mit dieser Funktion wird überprüft, ob die Wallbox für das Laden zu
@@ -49,7 +65,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
     struct stat stats;
      time_t  tm,tm_dt;
      time(&tm);
-     stat("e3dc.wallbox.txt",&stats);
+     stat("wallbox.out",&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt)/3600;
     if (tm >= 24) tm_Wallbox_dt = tm_dt;
@@ -295,7 +311,7 @@ if (mode == 0) // Standardmodus
                 if (w[j].pp > w[0].pp*aufschlag+Diff) 
                     SollSoc2 = SollSoc2 - w[j].hourly-w[j].wpbedarf+w[j].solar;
                 if (SollSoc2 > 90||SollSoc2<ladeleistung*-1) break;
-                if (SollSoc2 > SollSoc) SollSoc = SollSoc2;
+//                if (SollSoc2 > SollSoc) SollSoc = SollSoc2;
             }
             if (SollSoc2 < 0){
                 SollSoc2 = fSoC-SollSoc2;
@@ -494,10 +510,17 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
     int x3,x2;
     char value[256];
     char var[256];
-    strcpy(var,e3dc_config.Forecast[anlage]);
-    sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds' | jq .result | jq .watt_hours_period > forecast.json",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage]);
+    sprintf(var,"forecast%i.json",anlage);
+    if (Checkfile(var,59))
+    sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds'| jq . > %s",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage],var);
 
     int res = system(line);
+
+    sprintf(line,"jq .result %s| jq .watt_hours_period > forecast.json",var);
+
+     res = system(line);
+
+    
     
     fp = fopen("forecast.json","r");
     if(fp)
@@ -585,7 +608,6 @@ int ladedauer = 4;
     
 
     
-    fp = fopen("e3dc.hourly.txt","r");
 
     time(&rawtime);
     ptm = gmtime (&rawtime);
@@ -594,6 +616,9 @@ int ladedauer = 4;
         strombedarf[j1] = e3dc_config.Avhourly;
     }
 // Tagesverbrauchsprofil einlesen.
+
+    fp = fopen("e3dc.hourly.txt","r");
+    if (fp)
     while (fgets(line, sizeof(line), fp))
     {
         
