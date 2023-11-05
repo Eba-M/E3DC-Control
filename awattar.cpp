@@ -582,7 +582,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t e3dc_config)
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc_config)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -616,7 +616,7 @@ int ladedauer = 4;
         strombedarf[j1] = e3dc_config.Avhourly;
     }
 // Tagesverbrauchsprofil einlesen.
-
+    printf("e3ec.hourly");
     fp = fopen("e3dc.hourly.txt","r");
     if (fp)
     while (fgets(line, sizeof(line), fp))
@@ -660,6 +660,8 @@ int ladedauer = 4;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
+printf("GET api.awattar");
+
 if (e3dc_config.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
 if (e3dc_config.AWLand == 2)
@@ -677,7 +679,8 @@ if (e3dc_config.AWLand == 2)
 //                        else
 //            fp = fopen("awattar.out.txt","r");
 //                            fp = fopen("awattar.out","r");
-                        if(fp)
+
+                            if(fp)
                         {
                             w.clear();
 

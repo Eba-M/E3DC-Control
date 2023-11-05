@@ -64,7 +64,7 @@ static int tasmota_status[4]={2,2,2,2};
 static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
 static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int sunrise, e3dc_config_t e3dc);
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t e3dc_config);
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc_config);
 
 int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag);
 
