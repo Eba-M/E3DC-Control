@@ -531,7 +531,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
             int x1 = 0;
             int x2,x3;
             int len = strlen(line);
-            if (strlen(line) > 20)
+            if (strlen(line) > 10)
             {
                 memset(var, 0, sizeof(var));
                 memset(value, 0, sizeof(value));
