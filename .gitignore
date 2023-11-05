@@ -12,4 +12,8 @@ E3DC-V1/soc.txt
 wetter.out
 soc.txt
 E3DC-V1/forecast.json
+E3DC-V1/forecast0.json
+E3DC-V1/forecast1.json
+E3DC-V1/forecast2.json
+E3DC-V1/forecast3.json
 E3DC-V1/awattardebug.out

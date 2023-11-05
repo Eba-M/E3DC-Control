@@ -528,7 +528,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
         int w1 = 0;
         while (fgets(line, sizeof(line), fp))
         {
-            int x1 = 0;
+            long x1 = 0;
             int x2,x3;
             int len = strlen(line);
             if (strlen(line) > 10)
@@ -559,10 +559,10 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
                 }
                 memcpy(&value,&line[x1+1],x3-x1-1);
                 
-                x1 = atoi(var);
+                x1 = atol(var);
                 x2 = atoi(value);
                 {
-                    int time = w[w1].hh;
+                    time_t time = w[w1].hh;
                     while (w[w1].hh<x1&&w1<w.size())
                         w1++;
                     
