@@ -65,7 +65,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
     struct stat stats;
      time_t  tm,tm_dt;
      time(&tm);
-     stat("wallbox.out",&stats);
+     stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt)/3600;
     if (tm >= 24) tm_Wallbox_dt = tm_dt;
