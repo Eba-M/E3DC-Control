@@ -47,7 +47,7 @@ bool Checkfile(char myfile[20],int minuten)
      {
          tm_dt = *(&stats.st_mtime);
          tm = (tm - tm_dt);
-         if (tm >0 && tm < 3600)
+         if (tm >0 && tm < minuten*60)
              return false;  // zu jung
          else
              return true;
@@ -511,14 +511,14 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
     char value[256];
     char var[256];
     sprintf(var,"forecast%i.json",anlage);
-    if (Checkfile(var,59))
-    sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds'| jq . > %s",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage],var);
-
-    int res = system(line);
-
+    if (Checkfile(var,59)){
+        sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds'| jq . > %s",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage],var);
+        
+        int res = system(line);
+    }
     sprintf(line,"jq .result %s| jq .watt_hours_period > forecast.json",var);
 
-     res = system(line);
+     int res = system(line);
 
     
     
@@ -616,7 +616,7 @@ int ladedauer = 4;
         strombedarf[j1] = e3dc_config.Avhourly;
     }
 // Tagesverbrauchsprofil einlesen.
-    printf("e3ec.hourly");
+    printf("e3ec.hourly\n");
     fp = fopen("e3dc.hourly.txt","r");
     if (fp)
     while (fgets(line, sizeof(line), fp))
@@ -660,7 +660,7 @@ int ladedauer = 4;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-printf("GET api.awattar");
+printf("GET api.awattar\n");
 
 if (e3dc_config.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
