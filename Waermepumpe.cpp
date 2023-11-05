@@ -46,13 +46,13 @@ static int oldhour = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int sunrise, e3dc_config_t e3dc) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int sunrise, e3dc_config_t &e3dc) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
     ptm = gmtime (&rawtime);
 
-    if (ptm->tm_hour!=oldhour)
+    if (ptm->tm_hour!=oldhour && strlen(e3dc.openweathermap)>0)
     {
         oldhour = ptm->tm_hour;
 //    /*{
@@ -61,7 +61,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
 
 
      
-     sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=615b8016556d12f6b2f1ed40f5ab0eee&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
+     sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=%s&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
      int res = system(line);
      fp = fopen("wetter.out","r");
      

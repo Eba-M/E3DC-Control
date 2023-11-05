@@ -605,47 +605,13 @@ int ladedauer = 4;
     int x3,x2;
     char value[256];
     char var[256];
-    
+    int64_t von, bis;
 
     
 
     time(&rawtime);
     ptm = gmtime (&rawtime);
 // Tagesverbrauchsprofil aus e3dc.config.txt AWhourly vorbelegen
-    for (int j1 = 0;j1<24;j1++) {
-        strombedarf[j1] = e3dc_config.Avhourly;
-    }
-// Tagesverbrauchsprofil einlesen.
-    printf("e3ec.hourly\n");
-    fp = fopen("e3dc.hourly.txt","r");
-    if (fp)
-    while (fgets(line, sizeof(line), fp))
-    {
-        
-        sscanf(line, "%s %s", var, value);
-        sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
-        x2 = atoi(var);
-        if (x2>=0&&x2<24)
-        strombedarf[x2] = atof(value);
-    }
-        fclose(fp);
-
-    int64_t von, bis;
-    if (simu)
-    {
-        von = (rawtime-30*24*3600)*1000;
-        bis = rawtime*1000;
-    } else
-    {
-        von = rawtime-rawtime%3600;
-        von = von*1000;
-        bis = rawtime-rawtime%(24*3600);
-        bis = (bis + 48*3600);
-        bis = bis*1000;
-    }
-    
-    while ((not simu)&&w.size()>0&&(w[0].hh+3600<rawtime))
-        w.erase(w.begin());
 
 
     
@@ -653,7 +619,41 @@ int ladedauer = 4;
     {
         oldhour = ptm->tm_hour;
 
+        for (int j1 = 0;j1<24;j1++) {
+            strombedarf[j1] = e3dc_config.Avhourly;
+        }
+    // Tagesverbrauchsprofil einlesen.
+    //    printf("e3ec.hourly\n");
+        fp = fopen("e3dc.hourly.txt","r");
+        if (fp)
+        while (fgets(line, sizeof(line), fp))
+        {
+            
+            sscanf(line, "%s %s", var, value);
+            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+            x2 = atoi(var);
+            if (x2>=0&&x2<24)
+            strombedarf[x2] = atof(value);
+        }
+            fclose(fp);
+
         
+        if (simu)
+        {
+            von = (rawtime-30*24*3600)*1000;
+            bis = rawtime*1000;
+        } else
+        {
+            von = rawtime-rawtime%3600;
+            von = von*1000;
+            bis = rawtime-rawtime%(24*3600);
+            bis = (bis + 48*3600);
+            bis = bis*1000;
+        }
+        
+        while ((not simu)&&w.size()>0&&(w[0].hh+3600<rawtime))
+            w.erase(w.begin());
+
         
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp%86400000/3600000, .marketprice'> awattar.out");
 //    if (ptm->tm_hour%3 == 0) // Alle 3 Stunden
