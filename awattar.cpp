@@ -643,6 +643,7 @@ int ladedauer = 4;
                 if (atof(value) < 100)
             strombedarf[x2] = atof(value);
         }
+        if (fp)
             fclose(fp);
         printf("e3ec.hourly done\n");
 
