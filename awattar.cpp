@@ -110,8 +110,11 @@ float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahl
             else
                 x2 = x2 - x3;
         } else
-            if (x3 < 0)                 // PV Überschuss ?
+            if (x3 < 0)
+            {              // PV Überschuss ?
                 x2 = x2 - x3;
+                if (x2 > 100) x2 = 100;
+            }
     }
     return x1;
 }
@@ -310,7 +313,7 @@ if (mode == 0) // Standardmodus
                 if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
                 if (w[j].pp > w[0].pp*aufschlag+Diff) 
                     SollSoc2 = SollSoc2 - w[j].hourly-w[j].wpbedarf+w[j].solar;
-                if (SollSoc2 > 90||SollSoc2<ladeleistung*-1) break;
+                if (SollSoc2 > 95||SollSoc2<ladeleistung*-1) break;
 //                if (SollSoc2 > SollSoc) SollSoc = SollSoc2;
             }
             if (SollSoc2 < 0){
@@ -319,13 +322,14 @@ if (mode == 0) // Standardmodus
                     SollSoc = SollSoc2;}
             if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
+            if (SollSoc > 95) SollSoc = 95;
             if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                 ((lw==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             {   low2 = w[0];
                 return 2;}
             else
-                if ((SollSoc)>fSoC-1) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
-//                if ((SollSoc+1)>fSoC) return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+//                if ((SollSoc)>fSoC-1) 
+                    return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
         }
     }
 //        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
@@ -582,7 +586,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc_config)
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -606,6 +610,8 @@ int ladedauer = 4;
     char value[256];
     char var[256];
     int64_t von, bis;
+//    e3dc_config_t e3dc;
+    
 
     
 
@@ -620,22 +626,25 @@ int ladedauer = 4;
         oldhour = ptm->tm_hour;
 
         for (int j1 = 0;j1<24;j1++) {
-            strombedarf[j1] = e3dc_config.Avhourly;
+            strombedarf[j1] = e3dc.Avhourly;
         }
     // Tagesverbrauchsprofil einlesen.
-    //    printf("e3ec.hourly\n");
+        printf("e3ec.hourly\n");
         fp = fopen("e3dc.hourly.txt","r");
         if (fp)
         while (fgets(line, sizeof(line), fp))
         {
-            
+            memset(var, 0x00, sizeof(var));
+            memset(value, 0x00, sizeof(value));
             sscanf(line, "%s %s", var, value);
-            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+//            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
             x2 = atoi(var);
             if (x2>=0&&x2<24)
+                if (atof(value) < 100)
             strombedarf[x2] = atof(value);
         }
             fclose(fp);
+        printf("e3ec.hourly done\n");
 
         
         if (simu)
@@ -662,9 +671,9 @@ int ladedauer = 4;
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 printf("GET api.awattar\n");
 
-if (e3dc_config.AWLand == 1)
+if (e3dc.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-if (e3dc_config.AWLand == 2)
+if (e3dc.AWLand == 2)
         sprintf(line,"curl -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
         if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
             {
@@ -702,8 +711,8 @@ if (e3dc_config.AWLand == 2)
 
                             fclose(fp);
                             
-                            for (int j=0;(strlen(e3dc_config.Forecast[j])>0)&&j<4;j++)
-                                forecast(w, e3dc_config, j);
+                            for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
+                                forecast(w, e3dc, j);
 
 
 
@@ -905,7 +914,7 @@ if (e3dc_config.AWLand == 2)
             if (j%2==1) fprintf(fp,"\n");
             fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
         }
-        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+e3dc_config.AWMWSt)/1000+e3dc_config.AWNebenkosten);
+        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
         if (ch.size() < 10||j%2==1)
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
