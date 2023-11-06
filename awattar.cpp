@@ -221,6 +221,117 @@ int SuchePos(std::vector<watt_s> &w,int bis)  // ab = Index bis zeitangabe in Mi
     ptm = gmtime (&rawtime);
     return ret;
 }
+int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufschlag, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+
+// Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
+{
+    // Ermitteln Stundenanzahl
+    // Analyseergebnisse in die Datei schreiben
+    static float lowpp;
+    time_t  rawtime;
+    time(&rawtime);
+    struct tm * ptm;
+    ptm = gmtime (&rawtime);
+    
+    int x1,x2,x3,x4;
+    int Minuten = rawtime%(24*3600)/60;
+    float fConsumption;
+    
+    //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
+    /*
+     if (Minuten%60<1)
+     return 1;  else // Zu testzwecken erst eine Minute Entladen erlauben
+     {
+     if (Minuten%60<6)
+     return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
+     }
+     */
+    
+    {
+        float offset;
+        float SollSoc = 0;
+        
+        // Überprüfen ob entladen werden kann
+        fConsumption = fHighprice(w,h,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
+        if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+            return 1;
+        
+        // suche über den gesamten Bereich
+        x1 = SucheDiff(w,h, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
+        do
+        {
+            fConsumption = fHighprice(w,h,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+            if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
+                if (w[h].pp>w[l1].pp*aufschlag+Diff)
+                    return 1;
+            if (h1>l1)
+            {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
+            else
+            {if (not (SucheDiff(w,l1, aufschlag,Diff))) break;} // suche low nach einem high
+        }
+        while (l1 < w.size());
+        
+        if (SucheDiff(w,h, aufschlag,Diff))
+        {
+            if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
+            {
+                int lw = l1;
+                do
+                    if (not (SucheDiff(w,h1, aufschlag,Diff))) break; // suche low nach einem high
+                while (h1 > l1);
+                // suche das nächste low
+                // suchen nach dem low before next high das low muss niedriger als das akutelle sein
+                int hi = h1;
+                while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
+                    if (h1>l1)
+                    {if (not (SucheDiff(w,h1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
+                    else
+                    {if (not (SucheDiff(w,l1, aufschlag,Diff))) {
+                        l1 = w.size()-1;
+                        break;}} // suche low nach einem high
+                }
+                // Überprüfen ob Entladen werden kann
+                x3 = w.size()-1;
+                x1 = Lowprice(w,h, hi, w[h].pp);   // bis zum high suchen
+                x2 = Lowprice(w,h, w.size()-1, w[h].pp);   // bis zum high suchen
+
+                SollSoc = fHighprice(w,h,l1,w[h].pp*aufschlag+Diff);  // Preisspitzen, es muss mindestens eine vorliegen
+                // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
+                // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                float SollSoc2 = fHighprice(w,h,w.size()-1,w[h].pp*aufschlag+Diff);
+                SollSoc = SollSoc +fSoC;
+                if (x2 == 0) // keine weiteren Lows
+                    SollSoc = SollSoc2 +fSoC;
+                if (SollSoc > 95) SollSoc = 95;
+                if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
+                    ((x1==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                {   low2 = w[h];
+                    fSoC = fSoC + ladeleistung;
+                    if (fSoC > SollSoc-1)
+                        (fSoC = SollSoc-1);
+                    return 2;}
+                else
+                    //                if ((SollSoc)>fSoC-1)
+                    return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+            }
+        }
+        //        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
+        {
+            fConsumption = fHighprice(w,h,w.size()-1,w[h].pp);  // folgender Preis höher, dann anteilig berücksichtigen
+            
+            
+            if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+                return 1;
+        }
+        
+        return 0;  // kein Ergebniss gefunden
+        
+        
+        return 0;
+        
+    }}
 
 int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
@@ -586,7 +697,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc)
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -631,22 +742,21 @@ int ladedauer = 4;
     // Tagesverbrauchsprofil einlesen.
         printf("e3ec.hourly\n");
         fp = fopen("e3dc.hourly.txt","r");
-        if (fp)
-        while (fgets(line, sizeof(line), fp))
-        {
-            memset(var, 0x00, sizeof(var));
-            memset(value, 0x00, sizeof(value));
-            sscanf(line, "%s %s", var, value);
-//            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
-            x2 = atoi(var);
-            if (x2>=0&&x2<24)
-                if (atof(value) < 100)
-            strombedarf[x2] = atof(value);
-        }
-        if (fp)
+        if (fp){
+            while (fgets(line, sizeof(line), fp))
+            {
+                memset(var, 0x00, sizeof(var));
+                memset(value, 0x00, sizeof(value));
+                sscanf(line, "%s %s", var, value);
+                //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+                x2 = atoi(var);
+                if (x2>=0&&x2<24)
+                    if (atof(value) < 100)
+                        strombedarf[x2] = atof(value);
+            }
             fclose(fp);
-        printf("e3ec.hourly done\n");
-
+            printf("e3ec.hourly done\n");
+        }
         
         if (simu)
         {
@@ -726,7 +836,7 @@ if (e3dc.AWLand == 2)
 
     }
 
-        
+
     
     if (simu)
     { // simulation ausführen

@@ -670,7 +670,7 @@ bool GetConfig()
             e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
         if (e3dc_config.aWATTar > 0) {
 // wenn awattar dann hton/htoff deaktivieren
-            e3dc_config.htoff = e3dc_config.hton++;
+            e3dc_config.htoff = e3dc_config.hton+1;
             e3dc_config.htsat = false;
             e3dc_config.htsun = false;        }
     }
@@ -3593,11 +3593,11 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
            if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config,fBatt_SOC); // im Master nicht aufrufen
 //            test;
             
             if (e3dc_config.WP)
-              mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
+              mewp(w,wetter,fatemp,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
@@ -3713,8 +3713,10 @@ static int iEC = 0;
         // connect to server
         printf("Program Start Version:%s\n",VERSION);
         printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
+        GetConfig();
+        printf("GetConfig done");
         if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config,fBatt_SOC); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
