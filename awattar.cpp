@@ -309,8 +309,8 @@ int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufsc
                     ((x1==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {   low2 = w[h];
                     fSoC = fSoC + ladeleistung;
-                    if (fSoC > SollSoc-1)
-                        (fSoC = SollSoc-1);
+                    if (fSoC > SollSoc-0.5)
+                        (fSoC = SollSoc-0.5);
                     return 2;}
                 else
                     //                if ((SollSoc)>fSoC-1)

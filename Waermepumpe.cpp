@@ -177,17 +177,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
              soc_alt = soc;
              int ret = SimuWATTar(w ,j ,soc ,e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
              if (ret == 0) {
-                 fprintf(fp,"%i %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,0);
+                 fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,0.0);
              } else
                  if (ret == 1) {
                      soc = soc - w[j].hourly - w[j].wpbedarf + w[j].solar;
                      if (soc > 100) soc = 100;
-                     fprintf(fp,"%i %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,- w[j].hourly - w[j].wpbedarf + w[j].solar);
+                     fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,- w[j].hourly - w[j].wpbedarf + w[j].solar);
 
                  } else
                      if (ret == 2) {
                 
-                         fprintf(fp,"%i %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,soc-soc_alt);
+                         fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,(soc-soc_alt));
 
                      }
              
