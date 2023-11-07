@@ -166,7 +166,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
 
              
 }
-         while (w.size()>0&&(w[0].hh+3600)<rawtime)
+         while (w.size()>0&&(w[0].hh+3540)<=rawtime)  // eine Minute vorher löschen
              w.erase(w.begin());
 
          fp = fopen("awattardebug.out","w");

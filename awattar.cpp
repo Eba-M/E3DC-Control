@@ -300,9 +300,10 @@ int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufsc
                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
                 // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc2 = fHighprice(w,h,w.size()-1,w[h].pp*aufschlag+Diff);
-                SollSoc = SollSoc +fSoC;
-                if (x2 == 0) // keine weiteren Lows
-                    SollSoc = SollSoc2 +fSoC;
+//                SollSoc = SollSoc +fSoC;
+                if (x2 == x1) // keine weiteren Lows
+//                    SollSoc = SollSoc2 +fSoC;
+                SollSoc = SollSoc2;
                 if (SollSoc > 95) SollSoc = 95;
                 if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
@@ -418,9 +419,12 @@ if (mode == 0) // Standardmodus
 
             if (x1==x3) {
                 if (SollSoc2>SollSoc)
-                    SollSoc = SollSoc2 + fSoC;
-            } else
-                SollSoc = SollSoc + fSoC;
+//                    SollSoc = SollSoc2 + fSoC;
+                SollSoc = SollSoc2;
+
+            } 
+//            else
+//                SollSoc = SollSoc + fSoC;
 
             if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
@@ -710,7 +714,7 @@ int ladedauer = 4;
     time(&rawtime);
     ptm = gmtime (&rawtime);
 // alte Einträge > 1h löschen
-    while ((not simu)&&w.size()>0&&(w[0].hh+3600<rawtime))
+    while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
         w.erase(w.begin());
 
 // Tagesverbrauchsprofil aus e3dc.config.txt AWhourly vorbelegen
