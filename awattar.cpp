@@ -427,7 +427,7 @@ if (mode == 0) // Standardmodus
                 if (SollSoc2 > 95||SollSoc2<ladeleistung*-1) break;
 //                if (SollSoc2 > SollSoc) SollSoc = SollSoc2;
             }
-            SollSoc = SollSoc + fSoC;
+//            SollSoc = SollSoc + fSoC;
             if (SollSoc2 < 0){
                 SollSoc2 = fSoC-SollSoc2;
                 if (SollSoc2 > SollSoc)
