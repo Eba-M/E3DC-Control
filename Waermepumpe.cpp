@@ -166,7 +166,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
 
              
 }
-         
+         while (w.size()>0&&(w[0].hh+3600)<rawtime)
+             w.erase(w.begin());
+
          fp = fopen("awattardebug.out","w");
          for (int j = 0;j<w.size();j++)
              fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",(w[j].hh%(24*3600)/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
