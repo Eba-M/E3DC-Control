@@ -178,10 +178,6 @@ int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) 
     protocol.appendValue(&rootValue, PMContainer);
     // free memory of sub-container as it is now copied to rootValue
     protocol.destroyValueData(PMContainer);
- 
-    
-    
-    
     // create buffer frame to send data to the S10
     protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
     // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
@@ -1285,8 +1281,8 @@ if (                             // Das Entladen aus dem Speicher
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
 // bei negativen Börsenpreisen nach Nebenkosten darf aus dem Netz bezogen werden
     (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)>0
-        &&((fAvPower_Grid60 < -100)||fAvBatterie>0||fAvBatterie900>0)) // Bei Solarertrag vorübergehend Entladen freigeben
-    || (e3dc_config.aWATTar&&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
+        &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
+    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
@@ -1329,7 +1325,7 @@ bDischarge = false;
 // printf("ret %i",ret);
 //        if (ret<2)
         if (not bDischarge) // Entladen soll unterdrückt werden
-        { if ((fPower_Grid < -100)&&(iPower_Bat==0))  // es wird eingespeist Entladesperre solange aufheben
+        { if ((fPower_Grid < -100)&&(iPower_Bat>=-100)&&(iPower_Bat<=100))  // es wird eingespeist Entladesperre solange aufheben
                 {
 //                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
 //                    iLMStatus = -7;
@@ -1350,7 +1346,7 @@ bDischarge = false;
                 }
         }
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&(iPower_Bat ==0)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&(iPower_Bat < 100)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
     //                if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
@@ -3593,7 +3589,7 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
            if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config,fBatt_SOC); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config,fBatt_SOC);
 //            test;
             
             if (e3dc_config.WP)
