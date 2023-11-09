@@ -341,7 +341,8 @@ int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
 }
 
 
-static float fBatt_SOC, fBatt_SOC_alt;
+static float fBatt_SOC = -1;
+static float fBatt_SOC_alt;
 static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
 static int32_t iDiffLadeleistung, iDiffLadeleistung2;
 static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
@@ -1282,7 +1283,8 @@ if (                             // Das Entladen aus dem Speicher
 // bei negativen Börsenpreisen nach Nebenkosten darf aus dem Netz bezogen werden
     (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)>0
         &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
-    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0))) // Es wird nicht mehr geladen
+// in Ausnahmefällen das Entladen zulassen obwohl Stop gesetzt wurde
+//    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0&&fAvBatterie>100))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
@@ -3592,7 +3594,7 @@ static void mainLoop(void)
             aWATTar(ch,w,e3dc_config,fBatt_SOC);
 //            test;
             
-            if (e3dc_config.WP)
+//            if (e3dc_config.WP)
               mewp(w,wetter,fatemp,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();

@@ -53,7 +53,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
     time(&rawtime);
     ptm = gmtime (&rawtime);
 
-    if (oldhour < 0 && soc<=0) {
+    if (oldhour < 0 && soc<0) {
         return;
     }
     if (ptm->tm_hour!=oldhour && strlen(e3dc.openweathermap)>0)
@@ -63,7 +63,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
      FILE * fp;
      char line[256];
 
-
+        if (strlen(e3dc.openweathermap)>0)
+        {
      
      sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=%s&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
      int res = system(line);
@@ -90,7 +91,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
                      float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
                      float f2 = ((absolutenull+we.temp)/f1)*.5; // COP
                      float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
-//                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                     //                     float f4 = f3/f2; // benötigte elektrische Leistung;
                      if (f3 > e3dc.WPLeistung) f3 = e3dc.WPLeistung;
                      float f4 = f3/f2; // benötigte elektrische Leistung;
                      we.kosten = f4/e3dc.speichergroesse*100;
@@ -115,10 +116,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
          
          fclose(fp);
          fatemp = fatemp / 48;
-// Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
-// die Laufdauer der Wärmepumpe vor
-// Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
-// bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
+         if (e3dc.WPLeistung>0) {
+         // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
+         // die Laufdauer der Wärmepumpe vor
+         // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
+         // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
          float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24;
          int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
          heizbegin = sunrise + 120;
@@ -127,45 +129,46 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
          while (wetter[w1].hh < w[0].hh&&x1<wetter.size()) w1++;
          
          if (heizdauer < 12*60)
-         for (int j=0;j<w.size();j++)
-         {
-             int minuten = (w[j].hh%(24*3600))/60 ;
-             if (wetter[j].hh == w[j].hh)
-             if (
-                 (heizbegin > heizende)
-                 &&
-                 ((w[j].hh%(24*3600))/60 < heizbegin)
-                 &&
-                 ((w[j].hh%(24*3600))/60 > heizende)
-                 )
-                 
-                 w[j].wpbedarf = 0;
-             if
-                 (heizbegin < heizende)
- 
-                 if
-                 (((w[j].hh%(24*3600))/60 < heizbegin)
-                 ||
-                 ((w[j].hh%(24*3600))/60 > heizende)
-                 )
-                 
-                 w[j].wpbedarf = 0;
-
-             if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
+             for (int j=0;j<w.size();j++)
              {
-                 float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
-                 float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
-                 float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
-//                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                 float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
-                 float f5 = w[j].wpbedarf;
-                 f5 = f4/e3dc.speichergroesse*100;
-                 wetter[w1+j].kosten = f5;
-                 w[j].wpbedarf = f5;
+                 int minuten = (w[j].hh%(24*3600))/60 ;
+                 if (wetter[j].hh == w[j].hh)
+                     if (
+                         (heizbegin > heizende)
+                         &&
+                         ((w[j].hh%(24*3600))/60 < heizbegin)
+                         &&
+                         ((w[j].hh%(24*3600))/60 > heizende)
+                         )
+                         
+                         w[j].wpbedarf = 0;
+                 if
+                     (heizbegin < heizende)
+                     
+                     if
+                         (((w[j].hh%(24*3600))/60 < heizbegin)
+                          ||
+                          ((w[j].hh%(24*3600))/60 > heizende)
+                          )
+                         
+                         w[j].wpbedarf = 0;
+                 
+                 if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
+                 {
+                     float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
+                     float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
+                     float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
+                     //                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                     float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
+                     float f5 = w[j].wpbedarf;
+                     f5 = f4/e3dc.speichergroesse*100;
+                     wetter[w1+j].kosten = f5;
+                     w[j].wpbedarf = f5;
+                 }
+                 
              }
-
-             
-}
+        }
+     }
          while (w.size()>0&&(w[0].hh+3540)<=rawtime)  // eine Minute vorher löschen
              w.erase(w.begin());
 
@@ -173,13 +176,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
          for (int j = 0;j<w.size();j++)
              fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",(w[j].hh%(24*3600)/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
          fprintf(fp,"\n Simulation \n\n");
+         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
          for (int j = 0;j<w.size();j++)
          {
              soc_alt = soc;
              int ret = SimuWATTar(w ,j ,soc ,e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
-             if (ret == 0) {
-                 fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,0.0);
+             if (ret == 0) 
+             { if ((w[j].hourly - w[j].wpbedarf + w[j].solar) > 0)
+                 soc = soc - w[j].hourly - w[j].wpbedarf + w[j].solar;
+                 fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc,(soc-soc_alt));
              } else
                  if (ret == 1) {
                      soc = soc - w[j].hourly - w[j].wpbedarf + w[j].solar;
