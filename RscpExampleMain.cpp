@@ -1244,6 +1244,8 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
             iLMStatus = -7;
             bDischargeDone = false;
+            fAvBatterie=0;
+            fAvBatterie900=100;
             return 0;
         } else
         {

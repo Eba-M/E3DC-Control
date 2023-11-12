@@ -259,7 +259,7 @@ int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufsc
         x1 = SucheDiff(w,h, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
         do
         {
-            fConsumption = fHighprice(w,h,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
+            fConsumption = fHighprice(w,h,l1,w[h].pp);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
                     return 1;
@@ -422,12 +422,12 @@ if (mode == 0) // Standardmodus
 
             if (x1==x3) {
                 if (SollSoc2>SollSoc)
-                    SollSoc = SollSoc2 + fSoC;
-//                SollSoc = SollSoc2;
+//                    SollSoc = SollSoc2 + fSoC;
+                SollSoc = SollSoc2;
 
             } 
-            else
-                SollSoc = SollSoc + fSoC;
+//            else
+//                SollSoc = SollSoc + fSoC;
 
             if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
