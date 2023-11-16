@@ -87,6 +87,10 @@ float_t WWTemp; // Warmwassertemperatur
 static float fht; // Reserve aus ht berechnet
 int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
 int sunsetAt;   // Sonnenuntergang
+// in der Simulation wird der höchste Peakwert hochgerechnet
+// 
+int forecastpeaktime;  //
+float forecastpeak;    //
 SunriseCalc * location;
 std::vector<watt_s> ch;  //charge hour
 // std::vector<watt_s> w1;
@@ -443,6 +447,8 @@ bool GetConfig()
         e3dc_config.AWtest = 0;
         e3dc_config.BWWP_Power = 0;
         e3dc_config.BWWP_port = 6722;
+        e3dc_config.BWWPein = 0;
+        e3dc_config.BWWPaus = 0;
         e3dc_config.soc = -1;
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
@@ -554,6 +560,10 @@ bool GetConfig()
                         e3dc_config.WPHeizgrenze = atof(value);
                     else if(strcmp(var, "wpleistung") == 0)
                         e3dc_config.WPLeistung = atof(value);
+                    else if(strcmp(var, "bwwpein") == 0)
+                        e3dc_config.BWWPein = atof(value);
+                    else if(strcmp(var, "bwwpaus") == 0)
+                        e3dc_config.BWWPaus = atof(value);
                     else if(strcmp(var, "rb") == 0)
                         e3dc_config.RB = atof(value);
                     else if(strcmp(var, "sommermaximum") == 0)
@@ -1081,11 +1091,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (tasmota_status[3] > 1)
             tasmota_status[3] = tasmotastatus(4);
         
-        if (tasmota_status[3]>=1&&temp[13]>420)
+        if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
         } else if
-            (tasmota_status[3]==0&&temp[13]>0&&temp[13]<400)
+            (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
             tasmotaon(4);
     }
     
