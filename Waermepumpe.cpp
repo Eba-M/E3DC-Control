@@ -56,7 +56,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
     if (oldhour < 0 && soc<0) {
         return;
     }
-    if (ptm->tm_hour!=oldhour && strlen(e3dc.openweathermap)>0)
+    if (ptm->tm_hour!=oldhour)
     {
         oldhour = ptm->tm_hour;
 //    /*{
@@ -65,111 +65,115 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
 
         if (strlen(e3dc.openweathermap)>0)
         {
-     
-     sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=%s&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
-     int res = system(line);
-     fp = fopen("wetter.out","r");
-     
-     if(fp)
-     {
-         wetter.clear();
-         fatemp = 0;
-         int x1 = 0;
-         int x3 = 0;
-         
-         while (fgets(line, sizeof(line), fp))
-         {
-             
-             we.hh = atol(line);
-             if (fgets(line, sizeof(line), fp))
-             {
-                 we.temp = atof(line);
-                 we.kosten = 0;
-                 fatemp = fatemp + we.temp;
-                 if (we.temp < 20)
-                 {
-                     float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
-                     float f2 = ((absolutenull+we.temp)/f1)*.5; // COP
-                     float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
-                     //                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                     if (f3 > e3dc.WPLeistung) f3 = e3dc.WPLeistung;
-                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                     we.kosten = f4/e3dc.speichergroesse*100;
-                     if ((w.size()>0)&&x1<=w.size())
-                         if (we.hh == w[x1].hh){
-                             w[x1].wpbedarf = we.kosten;
-                         }
-                 }
-             } else break;
-             if (fgets(line, sizeof(line), fp))
-             {
-                 we.sky = atoi(line);
-             } else break;
-             if (fgets(line, sizeof(line), fp))
-             {
-                 we.uvi = atof(line);
-             } else break;
-             
-             wetter.push_back(we);
-             x1++;
-         }
-         
-         fclose(fp);
-         fatemp = fatemp / 48;
-         if (e3dc.WPLeistung>0) {
-         // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
-         // die Laufdauer der Wärmepumpe vor
-         // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
-         // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
-         float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24;
-         int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
-         heizbegin = sunrise + 120;
-         heizende = (heizbegin + heizdauer)%(24*60);
-         int w1 = 0;
-         if (wetter.size()>0)
-         while (wetter[w1].hh < w[0].hh&&x1<wetter.size()) w1++;
-         
-         if (heizdauer < 12*60)
-             for (int j=0;j<w.size();j++)
-             {
-                 int minuten = (w[j].hh%(24*3600))/60 ;
-                 if (wetter[j].hh == w[j].hh)
-                     if (
-                         (heizbegin > heizende)
-                         &&
-                         ((w[j].hh%(24*3600))/60 < heizbegin)
-                         &&
-                         ((w[j].hh%(24*3600))/60 > heizende)
-                         )
-                         
-                         w[j].wpbedarf = 0;
-                 if
-                     (heizbegin < heizende)
-                     
-                     if
-                         (((w[j].hh%(24*3600))/60 < heizbegin)
-                          ||
-                          ((w[j].hh%(24*3600))/60 > heizende)
-                          )
-                         
-                         w[j].wpbedarf = 0;
-                 
-                 if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
-                 {
-                     float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
-                     float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
-                     float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
-                     //                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                     float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
-                     float f5 = w[j].wpbedarf;
-                     f5 = f4/e3dc.speichergroesse*100;
-                     wetter[w1+j].kosten = f5;
-                     w[j].wpbedarf = f5;
-                 }
-                 
-             }
-        }
-     }
+            
+            sprintf(line,"curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.252526&lon=10.308570&appid=%s&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.openweathermap);
+            int res = system(line);
+            fp = fopen("wetter.out","r");
+            
+            if(fp)
+            {
+                wetter.clear();
+                fatemp = 0;
+                int x1 = 0;
+                int x3 = 0;
+                
+                while (fgets(line, sizeof(line), fp))
+                {
+                    
+                    we.hh = atol(line);
+                    if (fgets(line, sizeof(line), fp))
+                    {
+                        we.temp = atof(line);
+                        we.kosten = 0;
+                        fatemp = fatemp + we.temp;
+                        if (we.temp < 20)
+                        {
+                            float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
+                            float f2 = ((absolutenull+we.temp)/f1)*.5; // COP
+                            float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
+                            //                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                            if (f3 > e3dc.WPLeistung) f3 = e3dc.WPLeistung;
+                            float f4 = f3/f2; // benötigte elektrische Leistung;
+                            we.kosten = f4/e3dc.speichergroesse*100;
+                            if ((w.size()>0)&&x1<=w.size())
+                                if (we.hh == w[x1].hh){
+                                    w[x1].wpbedarf = we.kosten;
+                                }
+                        }
+                    } else break;
+                    if (fgets(line, sizeof(line), fp))
+                    {
+                        we.sky = atoi(line);
+                    } else break;
+                    if (fgets(line, sizeof(line), fp))
+                    {
+                        we.uvi = atof(line);
+                    } else break;
+                    
+                    wetter.push_back(we);
+                    x1++;
+                }
+                
+                fclose(fp);
+                fatemp = fatemp / 48;
+            }
+            {
+                if (e3dc.WPLeistung>0) {
+                    // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
+                    // die Laufdauer der Wärmepumpe vor
+                    // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
+                    // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
+                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24;
+                    int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
+                    heizbegin = sunrise + 120;
+                    heizende = (heizbegin + heizdauer)%(24*60);
+                    int w1 = 0;
+                    int x1 = 0;
+                    if (wetter.size()>0&&w.size()>0)
+                        while (wetter[w1].hh < w[0].hh&&x1<wetter.size()) w1++;
+                    
+                    if (heizdauer < 12*60)
+                        for (int j=0;j<w.size();j++)
+                        {
+                            int minuten = (w[j].hh%(24*3600))/60 ;
+                            if (wetter[j].hh == w[j].hh)
+                                if (
+                                    (heizbegin > heizende)
+                                    &&
+                                    ((w[j].hh%(24*3600))/60 < heizbegin)
+                                    &&
+                                    ((w[j].hh%(24*3600))/60 > heizende)
+                                    )
+                                    
+                                    w[j].wpbedarf = 0;
+                            if
+                                (heizbegin < heizende)
+                                
+                                if
+                                    (((w[j].hh%(24*3600))/60 < heizbegin)
+                                     ||
+                                     ((w[j].hh%(24*3600))/60 > heizende)
+                                     )
+                                    
+                                    w[j].wpbedarf = 0;
+                            
+                            if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
+                            {
+                                float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
+                                float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
+                                float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
+                                //                     float f4 = f3/f2; // benötigte elektrische Leistung;
+                                float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
+                                float f5 = w[j].wpbedarf;
+                                f5 = f4/e3dc.speichergroesse*100;
+                                wetter[w1+j].kosten = f5;
+                                w[j].wpbedarf = f5;
+                            }
+                            
+                        }
+                }
+            }}
+        {
          while (w.size()>0&&(w[0].hh+3540)<=rawtime)  // eine Minute vorher löschen
              w.erase(w.begin());
 

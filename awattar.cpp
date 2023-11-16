@@ -311,7 +311,7 @@ int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufsc
                     if ((SollSoc-fSoC)>ladeleistung)
                         fSoC = fSoC + ladeleistung;
                     else
-                        fSoC = SollSoc;
+                        fSoC = SollSoc-0.1;
 //                    if (fSoC > SollSoc-0.5)
 //                        (fSoC = SollSoc-0.5);
                     return 2;}
@@ -360,7 +360,7 @@ int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, f
             return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
     }
  */
-    if (w.size() == 0) return 0; // Preisvector ist leer
+    if (w.size() == 0) return 1; // Preisvector ist leer
     fstrompreis = w[0].pp;
     ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
     int taglaenge = sunset-sunrise;
@@ -742,7 +742,7 @@ int ladedauer = 4;
                 sscanf(line, "%s %s", var, value);
                 //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
                 x2 = atoi(var);
-                if (x2>=0&&x2<24)
+                if (x2>=0&&x2<24&&strlen(var)>0)
                     if (atof(value) < 100)
                         strombedarf[x2] = atof(value);
             }
@@ -811,18 +811,15 @@ if (e3dc.AWLand == 2)
                             }
 
                             fclose(fp);
-                            
-                            for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
-                                forecast(w, e3dc, j);
-
-
 
                         };
-
-                    }
+                        }
 
             }
-//    system ("pwd");
+
+        
+        for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
+            forecast(w, e3dc, j);
 
     }
 
