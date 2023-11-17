@@ -1444,8 +1444,11 @@ bDischarge = false;
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
           iFc = iFc / (300);
-// weniger als 1h vor Ladeende Angleichung der Ladeleistung an die nächste Ladeperiode
-          if ((tLadezeitende-t) < 3600) // weniger als 1h vor Ladeende
+// weniger als 2h vor Ladeende2 Angleichung der Ladeleistung an die nächste Ladeperiode
+// Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
+
+// weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
+          if ((tLadezeitende-t) < 3600||(tLadezeitende2-t) < 7200)
           {
               if (iMinLade2 > iFc){
                   iFc = (iFc + iMinLade2)/2;
