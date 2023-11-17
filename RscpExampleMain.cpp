@@ -1444,8 +1444,16 @@ bDischarge = false;
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
           iFc = iFc / (300);
-          if (iFc > e3dc_config.maximumLadeleistung)
-              iMinLade = e3dc_config.maximumLadeleistung;
+// weniger als 1h vor Ladeende Angleichung der Ladeleistung an die nächste Ladeperiode
+          if ((tLadezeitende-t) < 3600) // weniger als 1h vor Ladeende
+          {
+              if (iMinLade2 > iFc){
+                  iFc = (iFc + iMinLade2)/2;
+                  if (iFc < iMinLade2/2)
+                      iFc = iMinLade2/2;
+              }}
+        if (iFc > e3dc_config.maximumLadeleistung)
+        iMinLade = e3dc_config.maximumLadeleistung;
           else
           iMinLade = iFc;
 //        iFc = (iFc-900)*5;
