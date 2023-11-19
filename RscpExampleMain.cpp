@@ -1295,8 +1295,11 @@ if (                             // Das Entladen aus dem Speicher
 // bei negativen Börsenpreisen nach Nebenkosten darf aus dem Netz bezogen werden
     (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)<0
         &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
+// Entladen nach Laden kurzzeitig erlauben
+    ||
+    (e3dc_config.aWATTar&& iPower_PV > 100  &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
 // in Ausnahmefällen das Entladen zulassen obwohl Stop gesetzt wurde
-    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&iAvalPower>0&&fAvBatterie>100))) // Es wird nicht mehr geladen
+    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&(iAvalPower>0&&fAvBatterie>100)))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
