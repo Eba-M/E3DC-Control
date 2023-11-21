@@ -42,6 +42,7 @@ static float endpunkt = 40;  // Endpunkt bei -15°
 static float absolutenull = 273; // absoluter Nullpunkt 0K
 static float cop,wm,wp;
 static int oldhour = -1;
+static int oldwsize = -1;
 
 
 // static float ftemp;
@@ -56,9 +57,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
     if (oldhour < 0 && soc<0) {
         return;
     }
-    if (ptm->tm_hour!=oldhour)
+// Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
+    if (ptm->tm_hour!=oldhour||w.size()>oldwsize)
     {
         oldhour = ptm->tm_hour;
+        oldwsize = w.size();
 //    /*{
      FILE * fp;
      char line[256];
@@ -86,7 +89,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
                         we.temp = atof(line);
                         we.kosten = 0;
                         fatemp = fatemp + we.temp;
-                        if (we.temp < 20)
+                        if (we.temp < 20&&e3dc.WPLeistung>0)
                         {
                             float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
                             float f2 = ((absolutenull+we.temp)/f1)*.5; // COP

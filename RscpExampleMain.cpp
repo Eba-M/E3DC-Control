@@ -1297,7 +1297,7 @@ if (                             // Das Entladen aus dem Speicher
         &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
 // Entladen nach Laden kurzzeitig erlauben
     ||
-    (e3dc_config.aWATTar&& iPower_PV > 100  &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
+    (e3dc_config.aWATTar&& iPower_PV > 100  &&((fAvPower_Grid60 < -100)||(fAvBatterie+fAvBatterie900)>100)) // Bei Solarertrag vorübergehend Entladen freigeben
 // in Ausnahmefällen das Entladen zulassen obwohl Stop gesetzt wurde
     || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&(iAvalPower>0&&fAvBatterie>100)))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
@@ -1730,6 +1730,7 @@ bDischarge = false;
     printf("AVB %0.1f %0.1f ",fAvBatterie,fAvBatterie900);
     printf("DisC %i ",iDischarge);
     if (not bDischarge) printf("halt ");
+//    printf("ret %i ",ret);
     printf("BattL %i ",iBattLoad);
     printf("iLMSt %i ",iLMStatus);
     printf("Rsv %0.1f%%",fht);
