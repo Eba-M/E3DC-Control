@@ -266,7 +266,7 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
         do
         {
             fConsumption = fHighprice(w,h,l1,w[h].pp);  // nächster Nachladepunkt überprüfen
-            if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
                 {
                     fSoC = fConsumption;
