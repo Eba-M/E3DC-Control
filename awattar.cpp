@@ -252,10 +252,13 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
         
         // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,h,w.size()-1,w[h].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-fConsumption - anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
-            fSoC = fSoC + anforderung;
-            return 1;
+            if (float(fSoC-fConsumption + anforderung) >=0)
+            {
+                fSoC = fSoC + anforderung;
+                return 1;
+            }
         }
         
         // suche über den gesamten Bereich
