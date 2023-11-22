@@ -220,7 +220,7 @@ int SuchePos(std::vector<watt_s> &w,int bis)  // ab = Index bis zeitangabe in Mi
     ptm = gmtime (&rawtime);
     return ret;
 }
-int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufschlag, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,float Diff,float aufschlag, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -252,9 +252,9 @@ int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float Diff,float aufsc
         
         // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,h,w.size()-1,w[h].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-fConsumption - anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
-            fSoC = fConsumption;
+            fSoC = fSoC + anforderung;
             return 1;
         }
         

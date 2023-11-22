@@ -52,6 +52,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
+    float anforderung;
     ptm = gmtime (&rawtime);
 
     if (oldhour < 0 && soc<0) {
@@ -189,15 +190,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,int 
          for (int j = 0;j<w.size();j++)
          {
              soc_alt = soc;
-             int ret = SimuWATTar(w ,j ,soc ,e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
-             if (ret == 0) 
+             anforderung = (w[j].solar - w[j].hourly - w[j].wpbedarf );
+             int ret = SimuWATTar(w ,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
+             if (ret == 0)
              { if ((w[j].solar - w[j].hourly - w[j].wpbedarf ) > 0)
                  soc = soc - w[j].hourly - w[j].wpbedarf + w[j].solar;
                  if (soc > 100) soc = 100;
                  fprintf(fp,"%li %0.2f %0.2f %0.2f \n",(w[j].hh%(24*3600)/3600),w[j].pp,soc_alt,(soc-soc_alt));
              } else
                  if (ret == 1) {
-                     int soc2 = soc_alt - w[j].hourly - w[j].wpbedarf + w[j].solar;
+                     float soc2 = soc_alt - w[j].hourly - w[j].wpbedarf + w[j].solar;
                      if (soc<soc2)
                          soc = soc2;
                      if (soc > 100) soc = 100;
