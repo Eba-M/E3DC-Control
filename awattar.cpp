@@ -369,7 +369,7 @@ int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, f
             return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
     }
  */
-    if (w.size() == 0) return 1; // Preisvector ist leer
+    if (w.size() == 0) return 0; // Preisvector ist leer
     fstrompreis = w[0].pp;
     ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
     int taglaenge = sunset-sunrise;
