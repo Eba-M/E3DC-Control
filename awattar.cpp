@@ -106,13 +106,21 @@ float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahl
                 else
                     x1 = x1 + x3;
             }
-            else
+            else 
+            {
                 x2 = x2 - x3;
+// Highpricesuche abbrechen
+                if (x2 > 100)
+                return x1;
+                    
+            }
         } else
             if (x3 < 0)
             {              // PV Überschuss ?
                 x2 = x2 - x3;
                 if (x2 > 100) x2 = 100;
+// Wenn der Speicher voll ist, kann abgebrochen werden?
+                return x1;
             }
     }
     return x1;
