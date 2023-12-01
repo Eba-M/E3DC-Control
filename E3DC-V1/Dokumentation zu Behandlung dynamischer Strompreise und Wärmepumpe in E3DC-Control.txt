@@ -1,0 +1,145 @@
+Integration Wärmepumpen-Heizung in E3DC-Control bei Verwendung von dynamischen Börsenstromtarifen.
+
+Der Verbrauch einer WP ist im Winter so hoch, dass dieser Verbraucher im bisherigen empirischen Ansatz nicht mehr sinnvoll darzustellen ist.
+
+Deswegen wurde eine neuer Ansatz gewählt, der auch Wetterdaten und PV-Prognosedaten einbezieht.
+
+Neue Parameter für dynamischen Börsenstromtarifen:
+
+Forecast1..4 = 45/90/12
+
+Der erste Wert beschreibt die Dachneigung hier 45°, der zweite Wert die Ausrichtung hier 90° also Westen, (Süden = 0°)  der dritte Wert die installierte Modulleistung in diesem Falle 12kWp.
+
+Damit lassen sich bis zu 4 Anlagen mit unterschiedlichen Ausrichtungen definieren.
+
+Die letzten Forecast Dateien finden sich im Verzeichnis und werden stündlich überschrieben.
+
+Mit einer neuen Parameterdatei 
+
+e3dc.hourly.txt
+
+Kann man eine eigene Verlaufskurve des Grundverbrauches hinterlegen. Damit wird der Parameter
+
+Avhourly = 
+
+Nur noch als Vorgabgewert herangezogen, wenn keine Stundenwerte hinterlegt sind.
+
+Aufbau der Datei:
+
+Erster Wert Stunde (UTC) zweiter Wert Verbrauch in kWh z.B.
+
+6 4.5
+
+Um 7 Uhr Winterzeit werden 4.5% des Speichers als Verbrauch hinterlegt
+
+Awdebug = true // Erstellen der awattardebug.out Datei 
+
+Neue Datei awattardebug.out
+Eigentlich nur zur internen Zwecken zur Plausibilitätüberprüfung der Prognosemodelle erstellt, lassen sich aber damit auch die Planungsdaten darstellen und mit der Simulation auch der Regelansatz anzeigen.
+Im ersten Teil werden die Planungsdaten angezeigt
+
+8 222.63 5.00 5.54 6.29
+9 215.37 5.00 5.67 6.68
+10 213.52 4.00 5.73 6.41
+11 197.09 4.00 5.74 6.52
+12 175.19 3.00 5.73 6.20
+13 174.32 3.00 5.80 5.58
+14 184.40 3.00 6.00 4.34
+ 
+Erste Spalte Stunde (UTC), zweite Spalte Börsenpreis an der EPEX in €/MWh
+Alle folgenden Angaben in % der Speichergröße
+Dritte Spalte Grundverbrauch aus Avhourly und 3dc.hourly.txt
+Vierte Spalte Berechneter Verbrauch der Wärmepumpe -1, wenn keine Wärmepumpe vorhanden
+Letzte Spalte voraussichtliche PV-Ertrag
+
+Mit diesen Grunddaten wird dann eine Simulation bis zum Ende des nächsten Börsentag (EPEX) durchgeführt.
+
+Simulation
+
+21 124.72 42.29 0.00
+22 113.79 42.29 0.00
+23 106.91 42.29 0.00
+0 102.63 42.29 0.00
+1 99.10 42.29 0.00
+2 95.88 42.29 45.00
+3 96.07 87.29 7.61
+4 102.31 94.90 0.00
+5 120.03 94.90 0.00
+6 152.11 94.90 -6.43
+7 203.46 88.47 -11.87
+8 222.63 76.61 -8.69
+9 215.37 67.92 -6.50
+10 213.52 61.42 -4.21
+11 197.09 57.21 -3.81
+12 175.19 53.40 -3.03
+13 174.32 50.37 -3.58
+14 184.40 46.78 -5.01
+15 200.05 41.78 -7.56
+16 230.69 34.22 -10.91
+17 199.16 23.31 -11.07
+18 168.56 12.24 -12.24
+19 142.37 0.00 -0.00
+20 125.13 0.00 0.00
+
+Die erste Spalte ist die Stunde (UTC) die zweiter der Börsenpreis 
+die dritte Spalte der SoC zu Beginn der Stunde
+Die vierte Spalte die erwartete Veränderung des SoC durch Laden/Entlanden des Speichers
+
+Im Beispiel ist der Speicher ist bereits zu 42.29% geladen
+Bis um 2:00 wird nicht entladen, da hierfür der Abstand zum geringsten Börsenpreis um 2:00 noch zu gering ist.
+Um 2:00 wird der Speicher mit 45% geladen. Die % Angabe hängt von der Speichergröße und der möglichen Ladeleistung ab.
+Ab 6:00 wird entladen, trotz Vorgabe von 5% + 6.85% werden nur 6,43% entladen, da der letzte Entladevorgang um 18:00 bei höheren Börsenpreis von 168.56 mit 12.24% vorrangig abgedeckt wird 
+Und damit der Speicher voraussichtlich leer sein wird.
+
+WP = true
+
+Wärmepumpenbetrieb berücksichtigen
+
+Openweathermap = 615b801651254656d12f6b2f1ed40f5ab
+
+Um den Wärmebedarf der Wärmepumpe berechnen zu können wird die Prognose der Aussentemperaturen der nächsten 48h benötigt. Diese stellt uns openweathermap.org zur Verfügung. Aus den Daten werden die aktuellen AT genommen sowie die Durschnittstempeeratur der nächsten 2 Tage ermittelt.
+Man muss sich allerdings registrieren lassen, der Datenabruf selbst ist bislang kostenfrei
+
+WPHeizlast = 30 // bei -15°
+
+Heizlast des Hauses bei -15°
+
+WpHeizgrenze = 15 // Start Wärmepumpenbetrieb
+
+Bei Temperaturen < 15° wird mit der Berechnung begonnen.
+
+WPLeistung = 10
+
+Thermische Leistung der Wärmepumpe hier 10kW
+
+WPmin = 0.7 kW
+
+Minimale Leistungsaufnahme der Wärmepumpe
+
+WPmax = 4 kW
+
+Maximale Leistungsaufnahme der Wärmepumpe
+Zusammen mit dem errechneten COP z.B. von 2,5
+Kann die WP noch ihre 10kW Wärmeleistung erreichen.
+Fällt die Temperatur weiter Job, muss die
+
+WPEHZ = 9 kW
+
+Elektrische Zusatzheizung = Heizstab einspringen, hier sind es mal 9kW
+
+Damit kann die elektrische Leistung bei sehr tiefen Temperaturen bestimmt werden.
+Max. wäre in diesem Beispiel 13kW möglich. Die thermische Leistung dürfte dann insgesamt bei
+-15° um die 17kW liegen, zu wenig für die angenommene Heizlast von 30kW
+
+Daher wird ein zusätzlicher Wärmeerzeuger benötigt
+
+WPZWE = 7 // kWh Preis des ZWE = zusätzlicher wärmeerzeuger
+
+Hier ein Pelletskessel, der Brennstoffkosten von 7ct/kWh hat. (Bei 3ct/kg / 4,5kWh/kg = 6,7ct/kWh)
+Damit ist in meinem Fall die WP nur bei AT > 5 (COP = 4) und Strompreisen < 28ct/kWh gegenüber
+dem Pelletskessel zu betreiben. 
+ 
+
+
+
+

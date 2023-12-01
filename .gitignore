@@ -9,6 +9,7 @@ E3DC-V1/debug.out
 E3DC-V1/wetter.out
 E3DC-V1/e3dc.wallbox.txt
 E3DC-V1/soc.txt
+E3DC-V1/e3dc.hourly.txt
 wetter.out
 soc.txt
 E3DC-V1/forecast.json

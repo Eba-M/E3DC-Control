@@ -327,13 +327,13 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
 //                    SollSoc = SollSoc2 +fSoC;
                 SollSoc = SollSoc2;
                 if (SollSoc > 95) SollSoc = 95;
-                if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
-                    ((x1==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
+                    ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {
                     if ((SollSoc-fSoC)>ladeleistung)
                         fSoC = fSoC + ladeleistung;
                     else
-                        fSoC = SollSoc-0.1;
+                        fSoC = SollSoc;
 //                    if (fSoC > SollSoc-0.5)
 //                        (fSoC = SollSoc-0.5);
                     return 2;}
@@ -453,9 +453,9 @@ if (mode == 0) // Standardmodus
 
             if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
-            if (SollSoc > 95.5) SollSoc = 95.5;
+            if (SollSoc > 95) SollSoc = 95;
             if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 2% weniger als das Soll geladen
-                ((lw==0)||((SollSoc-fSoC-0.5)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
+                ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             {
                 return 2;}
             else
