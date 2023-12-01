@@ -101,8 +101,17 @@ float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahl
         if (w[j].pp > preis) {
             if (x3 > 0)
             {
-                if (x2 > 0 && x2>x3)    // Konnte schon nachgeladen werden, dann vom bedarf abziehen.
-                    x2 = x2 - x3;       // mit Solaretrag verrechnen
+                if (x2 > 0)
+                    if (x2>x3)    // Konnte schon nachgeladen werden, dann vom bedarf abziehen.
+                        x2 = x2 - x3;
+                        else
+                        {
+                            x3 = x3 - x2; // solaren Zugewinn abziehen
+                            x1 = x1 + x3; // Bedarf hinzurechen
+                            x2 = 0;       // Zugewinn ist nun 0
+                        }
+                
+                        // mit Solaretrag verrechnen
                 else
                     x1 = x1 + x3;
             }
@@ -118,9 +127,10 @@ float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahl
             if (x3 < 0)
             {              // PV Überschuss ?
                 x2 = x2 - x3;
-                if (x2 > 100) x2 = 100;
-// Wenn der Speicher voll ist, kann abgebrochen werden?
-                return x1;
+                if (x2 > 100)
+                {x2 = 100;
+                    // Wenn der Speicher voll ist, kann abgebrochen werden?
+                return x1;}
             }
     }
     return x1;
