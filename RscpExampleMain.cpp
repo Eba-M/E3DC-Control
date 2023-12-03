@@ -790,25 +790,27 @@ int iModbusTCP()
             receive.resize(1024);
   
 // Heizkreise schalten in Abhängigkeit vom EVU und Status des jeweiligen heizkreis
+// Wenn WP und oekofen aus sind, dann heizkreise ausschalten
+// Wenn WP oder oekofen laufen Heizkreise einschalten
             
             if (temp[13] > 0) // Temperatur Puffer gesetzt?
             {
-                if (tasmota_status[0]==1&&temp[1]==0) // EVU Aus und Heizkreis Aus -> einschalten
+                if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(oekofen[1],1,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (tasmota_status[0]==1&&temp[7]==0) // EVU Aus und Heizkreis Aus -> einschalten
+                if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (tasmota_status[0]==0&&temp[1]==1)
+                if (tasmota_status[0]==0&&temp[17]==0&&temp[1]==1)
                 {
                     iLength  = iModbusTCP_Set(11,0,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (tasmota_status[0]==0&&temp[7]==1)
+                if (tasmota_status[0]==0&&temp[17]==0&&temp[7]==1)
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
@@ -1090,7 +1092,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         }
         if (tasmota_status[3] > 1)
             tasmota_status[3] = tasmotastatus(4);
-        
+// Steuerung BWWP über Tasmota Kanal4
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
