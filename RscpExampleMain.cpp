@@ -1023,6 +1023,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static soc_t high,low;
     static int itag = 24*3600;
     int x1,x2;
+    static float fspreis;
     
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
@@ -1396,7 +1397,10 @@ bDischarge = false;
     printf("RB %2ld:%2ld %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
-    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten));
+    fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
+    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,fspreis);
+    if (e3dc_config.WP&&fcop>0)
+    printf(" %.2f",fspreis/fcop);
     printf("%c[K\n", 27 );
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -3624,7 +3628,7 @@ static void mainLoop(void)
 //            test;
             
 //            if (e3dc_config.WP)
-              mewp(w,wetter,fatemp,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
+              mewp(w,wetter,fatemp,fcop,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
