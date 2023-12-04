@@ -704,13 +704,17 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
                     
                     if (w[w1].hh == x1)
                     {
-                        float pv = atof(value)/e3dc_config.speichergroesse/10;
-                        float pv2 = w[w1].solar;
-                        if (anlage == 0)
-                            w[w1].solar = pv;
-                        else
-                            w[w1].solar = w[w1].solar + pv;
-                        w1++;
+// den PV-Ertrag immer der vorhergehende Stunde zuordnen
+                        if (w1>0)
+                        {
+                            float pv = atof(value)/e3dc_config.speichergroesse/10;
+                            float pv2 = w[w1-1].solar;
+                            if (anlage == 0)
+                                w[w1-1].solar = pv;
+                            else
+                                w[w1-1].solar = w[w1-1].solar + pv;
+                        }
+                            w1++;
                     }
                 }
             }

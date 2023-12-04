@@ -453,6 +453,9 @@ bool GetConfig()
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
         e3dc_config.WPHeizgrenze = -1;
+        e3dc_config.WPmin = -1;
+        e3dc_config.WPmax = -1;
+        e3dc_config.WPZWE = -1;
 
 
 
@@ -560,6 +563,12 @@ bool GetConfig()
                         e3dc_config.WPHeizgrenze = atof(value);
                     else if(strcmp(var, "wpleistung") == 0)
                         e3dc_config.WPLeistung = atof(value);
+                    else if(strcmp(var, "wpmin") == 0)
+                        e3dc_config.WPmin = atof(value);
+                    else if(strcmp(var, "wpmax") == 0)
+                        e3dc_config.WPmax = atof(value);
+                    else if(strcmp(var, "wpzwe") == 0)
+                        e3dc_config.WPmax = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)

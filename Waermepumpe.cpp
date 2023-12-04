@@ -96,14 +96,33 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
                             float f2 = ((absolutenull+f1)/(f1-we.temp))*.35; // COP
                             if (cop < 0) cop = f2;
+                            // thermische Heizleistung
                             float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
-                            //                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                            if (f3 > e3dc.WPLeistung) f3 = e3dc.WPLeistung;
-                            float f4 = f3/f2; // benötigte elektrische Leistung;
+                            float f4 = 0;
+                            float f5 = f3; // angeförderte Heizleistung
+                            // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
+                            if (f3 > e3dc.WPLeistung) {
+                                f4 = f3 - e3dc.WPLeistung;
+                                f3 = e3dc.WPLeistung;
+                            }
+                            // Heizleistung WP unter Nennwert => mehr Heizstab
+                            if (f3/f2>e3dc.WPmax)
+                                f4 = f4 + f3 - f2*e3dc.WPmax + e3dc.WPmax;
+                            else
+                                f4 = f4 + f3/f2; // benötigte elektrische Leistung;
                             we.kosten = f4/e3dc.speichergroesse*100;
                             if ((w.size()>0)&&x1<=w.size())
                                 if (we.hh == w[x1].hh){
-                                    w[x1].wpbedarf = we.kosten;
+// Überprüfen ob WP oder Pelletsheizung günstiger
+                                float f6 =
+                                f4*(w[x1].pp/10*(1+e3dc.AWMWSt/100)+e3dc.AWNebenkosten)/f5;
+
+                                w[x1].wpbedarf = we.kosten;
+                                    
+
+                                if (f6>e3dc.WPZWE)
+// Pelletskessel übernimmt und die WP läuft auf Minimum weiter
+                                        w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
                                 }
                         }
                     } else break;
