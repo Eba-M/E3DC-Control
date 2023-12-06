@@ -1008,6 +1008,9 @@ int wolfstatus()
                 wo.feld = "Kesseltemperatur";
                 wo.AK = "KT";
                 wolf.push_back(wo);
+                wo.feld = "Kesselsolltemperatur";
+                wo.AK = "KST";
+                wolf.push_back(wo);
                 wo.feld = "Rücklauftemperatur";
                 wo.AK = "RL";
                 wolf.push_back(wo);
