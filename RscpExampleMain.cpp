@@ -1014,7 +1014,7 @@ int wolfstatus()
                 wo.feld = "Heizleistung";
                 wo.AK = "HL";
                 wolf.push_back(wo);
-                wo.feld = "Leistungsaufnahme";
+                wo.feld = "Leistungsaufnahme (WP + EHZ)";
                 wo.AK = "PW";
                 wolf.push_back(wo);
                 wo.feld = "Heizkreisdurchfluss";
