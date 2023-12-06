@@ -1048,7 +1048,7 @@ int wolfstatus()
         
             for(int x1=0;x1<wolf.size();x1++)
             {
-                char * c = wolf[x1].feld.data();
+                char * c = &wolf[x1].feld[0];
                 item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
                 if (item != NULL)
                     wolf[x1].wert = item->valuedouble;
