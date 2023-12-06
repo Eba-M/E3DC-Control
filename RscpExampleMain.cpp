@@ -17,7 +17,10 @@
 #include "awattar.hpp"
 #include "avl_array.h"
 //#include "MQTTClient.h"
-//#include "json.hpp"
+#include "cJSON.h"
+#include <string>
+#include <iostream>
+#include <fcntl.h>
 
 // for convenience test4
 // using json = nlohmann::json;
@@ -976,28 +979,122 @@ int iRelayEin(const char * cmd)
   }
     return receive[0];
 }
+FILE *fp;
+static char buf[127];
+static int WP_status = -1;
+int status;
+char path[1024];
+wolf_s wo;
+
+int wolfstatus()
+{
+
+    //           Test zur Abfrage des Tesmota Relais
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
+    {
+        
+ 
+        if (WP_status < 2)
+        {
+            if (wolf.size()==0)
+            {
+                wo.wert = 0;
+                wo.feld = "Vorlauftemperatur";
+                wo.AK = "VL";
+                wolf.push_back(wo);
+                wo.feld = "Sammlertemperatur";
+                wo.AK = "ST";
+                wolf.push_back(wo);
+                wo.feld = "Kesseltemperatur";
+                wo.AK = "KT";
+                wolf.push_back(wo);
+                wo.feld = "Rücklauftemperatur";
+                wo.AK = "RL";
+                wolf.push_back(wo);
+                wo.feld = "Heizleistung";
+                wo.AK = "HL";
+                wolf.push_back(wo);
+                wo.feld = "Leistungsaufnahme";
+                wo.AK = "PW";
+                wolf.push_back(wo);
+                wo.feld = "Heizkreisdurchfluss";
+                wo.AK = "HD";
+                wolf.push_back(wo);
+                wo.feld = "Zulufttemperatur";
+                wo.AK = "ZL";
+                wolf.push_back(wo);
+                wo.feld = "Sauggastemperatur";
+                wo.AK = "SGT";
+                wolf.push_back(wo);
+                wo.feld = "Ablufttemperatur";
+                wo.AK = "AL";
+                wolf.push_back(wo);
+            }
+                
+                
+            fp = NULL;
+           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/# -c -i 101 ",e3dc_config.mqtt_ip);
+            fp = popen(buf, "r");
+            int fd = fileno(fp);
+            int flags = fcntl(fd, F_GETFL, 0);
+            flags |= O_NONBLOCK;
+            fcntl(fd, F_SETFL, flags);
+            WP_status = 2;
+        }
+        if (fgets(path, 1024, fp) != NULL)
+        {
+            const cJSON *item = NULL;
+            cJSON *wolf_json = cJSON_Parse(path);
+        
+            for(int x1=0;x1<wolf.size();x1++)
+            {
+                char * c = wolf[x1].feld.data();
+                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                if (item != NULL)
+                    wolf[x1].wert = item->valuedouble;
+            }
+            
+            cJSON_Delete(wolf_json);
+                
+        }
+        if (WP_status < 2)
+//            status = pclose(fp);
+        return WP_status;
+}
+    return 0;
+}
+FILE *mfp;
+
 int tasmotastatus(int ch)
 {
     //           Test zur Abfrage des Tesmota Relais
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
         
-        FILE *fp;
         char buf[127];
-        int WP_status,status;
+        static int WP_status = -1;
+        int status;
         char path[1024];
-        fp == NULL;
-        sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
-        fp = popen(buf, "r");
-        WP_status = 2;
-        while (fgets(path, 1024, fp) != NULL)
+        if (WP_status < 2)
+        {
+            mfp == NULL;
+            sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
+            mfp = popen(buf, "r");
+            int fd = fileno(mfp);
+            int flags = fcntl(fd, F_GETFL, 0);
+            flags |= O_NONBLOCK;
+            fcntl(fd, F_SETFL, flags);
+            WP_status = 2;
+        }
+        while (fgets(path, 1024, mfp) != NULL)
         {
             if (strcmp(path,"ON\n")==0)
                 WP_status = 1;
             if (strcmp(path,"OFF\n")==0)
                 WP_status = 0;
         }
-        status = pclose(fp);
+        if (WP_status < 2)
+            status = pclose(mfp);
         return WP_status;
 }
     return 0;
@@ -1036,7 +1133,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
-    
+    int ret = wolfstatus();
     time (&t);
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (fDCDC > high.fah) {
@@ -1095,7 +1192,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (t-tasmotatime>10)
         {
             tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
-            ich_Tasmota++;
+            if (tasmota_status[ich_Tasmota]<2)
+                ich_Tasmota++;
             if (ich_Tasmota > 3) ich_Tasmota = 0;
             tasmotatime = t;
             
@@ -1765,6 +1863,20 @@ bDischarge = false;
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
         printf("Heizstab %i %i",ireq_Heistab,iLeistungHeizstab);
         printf("%c[K\n", 27 );
+
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
+    {
+        printf("CHA ");
+        for (int j=0;j<wolf.size();j++){
+            printf("%s %0.2f ",wolf[j].AK.c_str(),wolf[j].wert);
+            if (j==5)
+                printf("%c[K\n", 27 );
+
+        }
+    }
+
+    printf("%c[K\n", 27 );
+
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox>=0)
     printf(" WB %0.0004fkWh",(fSavedWB/3600000));
