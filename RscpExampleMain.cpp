@@ -1738,6 +1738,18 @@ bDischarge = false;
 //            if (((abs( int(iPower - iBattLoad)) > 30)||(abs(t-tE3DC_alt)>3600*3))&&(iLMStatus == 1))
 //    if (iPower > iBattLoad&&iLMStatus < 3)
 //        iLMStatus = 1;
+
+    // Überschussleistung an Heizstab, wenn vorhanden
+    // iBattLoad-iPower_Bat die angeforderte Batterieladeleistung sollte angeforderten Batterieladeeistung entsprechen
+    //
+//    if (iPower_PV > 100)
+    {
+        ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
+        if (fAvPower_Grid60 < -50&&fPower_Grid <-50)
+            ireq_Heistab = iPower_Bat - fPower_Grid -50;
+        iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
+    }
+    
     if (iLMStatus == 1)
     {
         
@@ -1798,13 +1810,6 @@ bDischarge = false;
                             
                             if (iPower_PV>0)  // Nur wenn die Sonne scheint
                             {
-// Überschussleistung an Heizstab, wenn vorhanden
-// iBattLoad-iPower_Bat die angeforderte Batterieladeleistung sollte angeforderten Batterieladeeistung entsprechen
-//
-                                ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
-                                if (fAvPower_Grid60 < -50&&fPower_Grid <-50)
-                                    ireq_Heistab = iPower_Bat - fPower_Grid -50;
-                                iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
                                 
                                 static int iLastReq;
                                 if (
