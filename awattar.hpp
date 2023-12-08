@@ -58,7 +58,7 @@ typedef struct {
 
 typedef struct {time_t hh; float pp; float hourly; float wpbedarf;float solar;}watt_s;
 typedef struct {time_t hh; float temp; int sky; float uvi;float kosten;}wetter_s;
-typedef struct {time_t t; std::string feld; std::string AK; float wert;}wolf_s;
+typedef struct {time_t t; std::string feld; std::string AK; std::string status; float wert;}wolf_s;
 static float fatemp,fcop;
 static int heizbegin;
 static int heizende;

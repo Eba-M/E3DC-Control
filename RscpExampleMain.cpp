@@ -982,8 +982,9 @@ int iRelayEin(const char * cmd)
 FILE *fp;
 static char buf[127];
 static int WP_status = -1;
-int status;
-char path[1024];
+int status,vdstatus;
+std::string sverdichterstatus;
+char path[4096];
 wolf_s wo;
 
 int wolfstatus()
@@ -999,13 +1000,14 @@ int wolfstatus()
             if (wolf.size()==0)
             {
                 wo.wert = 0;
+                wo.status = "";
                 wo.feld = "Vorlauftemperatur";
                 wo.AK = "VL";
                 wolf.push_back(wo);
-                wo.feld = "Sammlertemperatur";
+/*                wo.feld = "Sammlertemperatur";
                 wo.AK = "ST";
                 wolf.push_back(wo);
-                wo.feld = "Kesseltemperatur";
+*/                wo.feld = "Kesseltemperatur";
                 wo.AK = "KT";
                 wolf.push_back(wo);
                 wo.feld = "Kesselsolltemperatur";
@@ -1032,11 +1034,18 @@ int wolfstatus()
                 wo.feld = "Ablufttemperatur";
                 wo.AK = "AL";
                 wolf.push_back(wo);
+                wo.feld = "BUSCONFIG_Sollwertkorrektur";
+                wo.AK = "SWK";
+                wolf.push_back(wo);
+                wo.feld = "Verdichterstatus";
+                wo.AK = "VS";
+                wolf.push_back(wo);
+                vdstatus = wolf.size();
             }
                 
                 
             fp = NULL;
-           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/# -c -i 101 ",e3dc_config.mqtt_ip);
+           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/# -c -i 102 ",e3dc_config.mqtt_ip);
             fp = popen(buf, "r");
             int fd = fileno(fp);
             int flags = fcntl(fd, F_GETFL, 0);
@@ -1044,7 +1053,7 @@ int wolfstatus()
             fcntl(fd, F_SETFL, flags);
             WP_status = 2;
         }
-        if (fgets(path, 1024, fp) != NULL)
+        if (fgets(path, 4096, fp) != NULL)
         {
             const cJSON *item = NULL;
             cJSON *wolf_json = cJSON_Parse(path);
@@ -1054,7 +1063,18 @@ int wolfstatus()
                 char * c = &wolf[x1].feld[0];
                 item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
                 if (item != NULL)
+                {
                     wolf[x1].wert = item->valuedouble;
+                    if (item->valuestring!= NULL)
+                    wolf[x1].status = item->valuestring;
+                    
+                    if (wolf[x1].feld=="Verdichterstatus")
+                    {
+                        item = item->child;
+                        item = item->next;
+                        wolf[x1].status = item->valuestring;
+                    }
+                }
             }
             
             cJSON_Delete(wolf_json);
@@ -1871,7 +1891,10 @@ bDischarge = false;
     {
         printf("CHA ");
         for (int j=0;j<wolf.size();j++){
-            printf("%s %0.2f ",wolf[j].AK.c_str(),wolf[j].wert);
+            if (wolf[j].status != "")
+                printf("%s %s",wolf[j].AK.c_str(),wolf[j].status.c_str());
+            else
+                printf("%s %0.2f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==5)
                 printf("%c[K\n", 27 );
 
