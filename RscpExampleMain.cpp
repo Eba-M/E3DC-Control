@@ -63,6 +63,7 @@ static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
 static float fPower_Bat;
+static int ireq_Heistab; // verfügbare Leistung
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
 static int32_t iBattLoad;
@@ -459,6 +460,7 @@ bool GetConfig()
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
         e3dc_config.WPZWE = -1;
+        e3dc_config.MQTTavl = -1;
 
 
 
@@ -649,6 +651,8 @@ bool GetConfig()
                         e3dc_config.AWNebenkosten = atof(value);
                     else if(strcmp(var, "awmwst") == 0)
                         e3dc_config.AWMWSt = atof(value);
+                    else if(strcmp(var, "mqtt/avl") == 0)
+                        e3dc_config.MQTTavl = atoi(value);
                     else if(strcmp(var, "awtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
                     else
@@ -1022,6 +1026,9 @@ int wolfstatus()
                 wo.feld = "Leistungsaufnahme (WP + EHZ)";
                 wo.AK = "PW";
                 wolf.push_back(wo);
+                wo.feld = "Aktuelle Leistungsvorgabe Verdichter";
+                wo.AK = "ALV";
+                wolf.push_back(wo);
                 wo.feld = "Heizkreisdurchfluss";
                 wo.AK = "HD";
                 wolf.push_back(wo);
@@ -1086,6 +1093,21 @@ int wolfstatus()
 }
     return 0;
 }
+
+int mqtt()
+{
+if (tE3DC % e3dc_config.MQTTavl == 0)
+{
+    
+    char buf[127];
+//    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
+    sprintf(buf,"E3DC-Control/Aval -m %i",ireq_Heistab);
+    MQTTsend(e3dc_config.mqtt_ip,buf);
+}
+    return 0;
+};
+
+
 FILE *mfp;
 
 int tasmotastatus(int ch)
@@ -1146,7 +1168,6 @@ typedef struct {
 int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
-    static int ireq_Heistab;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
     static soc_t high,low;
@@ -1158,6 +1179,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
     int ret = wolfstatus();
     time (&t);
+    
+    mqtt();
+    
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (fDCDC > high.fah) {
         high.fah = fDCDC;
@@ -1894,7 +1918,7 @@ bDischarge = false;
             if (wolf[j].status != "")
                 printf("%s %s",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
-                printf("%s %0.2f ",wolf[j].AK.c_str(),wolf[j].wert);
+                printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==5)
                 printf("%c[K\n", 27 );
 

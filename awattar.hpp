@@ -46,7 +46,7 @@ typedef struct {
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
-    int32_t wallbox,BWWP_Power,AWLand,AWTagoffset,soc;
+    int32_t wallbox,BWWP_Power,AWLand,AWTagoffset,soc,MQTTavl;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt,
     WPHeizlast,WPHeizgrenze,WPLeistung,WPmin,WPmax,WPZWE,BWWPein,BWWPaus;

@@ -138,6 +138,19 @@ WPZWE = 7 // kWh Preis des ZWE = zusätzlicher wärmeerzeuger
 Hier ein Pelletskessel, der Brennstoffkosten von 7ct/kWh hat. (Bei 3ct/kg / 4,5kWh/kg = 6,7ct/kWh)
 Damit ist in meinem Fall die WP nur bei AT > 5 (COP = 4) und Strompreisen < 28ct/kWh gegenüber
 dem Pelletskessel zu betreiben. 
+
+MQTT
+
+Über diese Schnittstelle werden Daten zur Steuerung externer Last z.B. Heizstab zur Verfügung gestellt.
+
+Als erste Funktion wird das Topic
+E3DC-Control/AVal
+Unterstützt
+Parameter in e3dc.config.txt
+MQTT/AVal = 10 // Abfrageintervall în Sekunden min = 10 Sekunden
+
+
+
  
 
 
