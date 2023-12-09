@@ -449,6 +449,7 @@ bool GetConfig()
         e3dc_config.AWAufschlag = 1.2;
         e3dc_config.AWTagoffset = 90;
         e3dc_config.AWtest = 0;
+        e3dc_config.AWReserve = 0;
         e3dc_config.BWWP_Power = 0;
         e3dc_config.BWWP_port = 6722;
         e3dc_config.BWWPein = 0;
@@ -651,6 +652,8 @@ bool GetConfig()
                         e3dc_config.AWNebenkosten = atof(value);
                     else if(strcmp(var, "awmwst") == 0)
                         e3dc_config.AWMWSt = atof(value);
+                    else if(strcmp(var, "awreserve") == 0)
+                        e3dc_config.AWReserve = atof(value);
                     else if(strcmp(var, "mqtt/aval") == 0)
                         e3dc_config.MQTTavl = atoi(value);
                     else if(strcmp(var, "awtest") == 0)
@@ -1398,7 +1401,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
  
     int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis, e3dc_config.AWTagoffset); // Ladeleistung in %
+        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis, e3dc_config.AWTagoffset,e3dc_config.AWReserve); // Ladeleistung in %
  
         switch (e3dc_config.AWtest) // Testfunktion
         {

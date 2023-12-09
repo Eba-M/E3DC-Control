@@ -368,7 +368,7 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
         
     }}
 
-int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -407,7 +407,7 @@ if (mode == 0) // Standardmodus
 
 // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-fConsumption) >=Reserve) // x1 Anzahl der Einträge mit höheren Preisen
             return 1;
 
 // suche über den gesamten Bereich
@@ -416,7 +416,7 @@ if (mode == 0) // Standardmodus
         {
             fConsumption = fHighprice(w,0,l1,w[0].pp);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
-            if (w[0].pp>w[l1].pp*aufschlag+Diff)
+            if ((w[0].pp>w[l1].pp*aufschlag+Diff)&&fSoC>=Reserve)
                 return 1;
             if (h1>l1)
                 {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
@@ -480,7 +480,7 @@ if (mode == 0) // Standardmodus
             fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // folgender Preis höher, dann anteilig berücksichtigen
 
         
-    if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+    if (float(fSoC-fConsumption) >=Reserve) // x1 Anzahl der Einträge mit höheren Preisen
     return 1;
     }
 
@@ -918,7 +918,7 @@ if (e3dc.AWLand == 2)
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(w,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600);
+            ret = CheckaWATTar(w,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600,e3dc.AWReserve);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;
