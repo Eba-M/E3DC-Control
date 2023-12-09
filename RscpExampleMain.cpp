@@ -573,7 +573,7 @@ bool GetConfig()
                     else if(strcmp(var, "wpmax") == 0)
                         e3dc_config.WPmax = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
-                        e3dc_config.WPmax = atof(value);
+                        e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
@@ -1926,7 +1926,7 @@ bDischarge = false;
         for (int j=0;j<wolf.size();j++){
             if ((wolf[j].feld == "Betriebsart Heizgerät")||
                 (wolf[j].feld == "Verdichterstatus"))
-                printf("%s %s",wolf[j].AK.c_str(),wolf[j].status.c_str());
+                printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6)
