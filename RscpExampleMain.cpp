@@ -651,7 +651,7 @@ bool GetConfig()
                         e3dc_config.AWNebenkosten = atof(value);
                     else if(strcmp(var, "awmwst") == 0)
                         e3dc_config.AWMWSt = atof(value);
-                    else if(strcmp(var, "mqtt/avl") == 0)
+                    else if(strcmp(var, "mqtt/aval") == 0)
                         e3dc_config.MQTTavl = atoi(value);
                     else if(strcmp(var, "awtest") == 0)
                         e3dc_config.AWtest = atoi(value); // Testmodus 0 = Idel, 1 = Entlade, 2 = Netzladen mit Begrenzung 3 = Netzladen ohne Begrenzung
@@ -1044,6 +1044,9 @@ int wolfstatus()
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
                 wolf.push_back(wo);
+                wo.feld = "Betriebsart Heizgerät";
+                wo.AK = "BHG";
+                wolf.push_back(wo);
                 wo.feld = "Verdichterstatus";
                 wo.AK = "VS";
                 wolf.push_back(wo);
@@ -1075,7 +1078,8 @@ int wolfstatus()
                     if (item->valuestring!= NULL)
                     wolf[x1].status = item->valuestring;
                     
-                    if (wolf[x1].feld=="Verdichterstatus")
+                    if ((wolf[x1].feld=="Verdichterstatus")||
+                        (wolf[x1].feld=="Betriebsart Heizgerät"))
                     {
                         item = item->child;
                         item = item->next;
@@ -1096,7 +1100,7 @@ int wolfstatus()
 
 int mqtt()
 {
-if (tE3DC % e3dc_config.MQTTavl == 0)
+if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
 {
     
     char buf[127];
@@ -1920,11 +1924,12 @@ bDischarge = false;
     {
         printf("CHA ");
         for (int j=0;j<wolf.size();j++){
-            if (wolf[j].status != "")
+            if ((wolf[j].feld == "Betriebsart Heizgerät")||
+                (wolf[j].feld == "Verdichterstatus"))
                 printf("%s %s",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
-            if (j==5)
+            if (j==6)
                 printf("%c[K\n", 27 );
 
         }
