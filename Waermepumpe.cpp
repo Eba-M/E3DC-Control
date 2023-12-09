@@ -115,8 +115,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 if (we.hh == w[x1].hh){
 // Überprüfen ob WP oder Pelletsheizung günstiger
                                 float f6 =
-                                f4*(w[x1].pp/10*(1+e3dc.AWMWSt/100)+e3dc.AWNebenkosten)/f5;
-
+                                ((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten)/f2;
+                                
                                 w[x1].wpbedarf = we.kosten;
                                     
 
