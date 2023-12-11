@@ -1266,19 +1266,21 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
             tasmotaon(4);
 
-// Steuerung LWWP über Tasmota Kanal2
-        if  (temp[14]<e3dc_config.BWWPein*10-20)
-            btasmota_ch2WW = true;
-        if  (temp[14]>e3dc_config.BWWPein*10-10)
-            btasmota_ch2WW = false;
-// Auswertung Steuerung
-        if (btasmota_ch2WW||btasmota_ch2PV)
-            if (tasmota_status[1]==0)
-            tasmotaon(2);
-        if (not btasmota_ch2WW && not btasmota_ch2PV)
-            if (tasmota_status[1]==1)
-            tasmotaoff(2);
-
+// Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
+        if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
+            {
+            if  (temp[14]<e3dc_config.BWWPein*10-20)
+                btasmota_ch2WW = true;
+            if  (temp[14]>e3dc_config.BWWPein*10-10)
+                btasmota_ch2WW = false;
+            // Auswertung Steuerung
+            if (btasmota_ch2WW||btasmota_ch2PV)
+                if (tasmota_status[1]==0)
+                    tasmotaon(2);
+            if (not btasmota_ch2WW && not btasmota_ch2PV)
+                if (tasmota_status[1]==1)
+                    tasmotaoff(2);
+        }
 
     }
     
@@ -1589,7 +1591,7 @@ bDischarge = false;
         b=e3dc_config.WPZWE-1.0;
         if (a<b)
 */
-        if (float(fspreis/fcop)<float(e3dc_config.WPZWE-1.0))
+        if (float(fspreis/fcop)<float(e3dc_config.WPZWE-2.0))
             btasmota_ch2PV = true;
         else
             btasmota_ch2PV = false;

@@ -38,7 +38,7 @@
 static wetter_s we;
 static float fusspunkt = 28; // Fusspunkt bei 15°
 
-static float endpunkt = 40;  // Endpunkt bei -15°
+static float endpunkt = 45;  // Endpunkt bei -15°
 static float absolutenull = 273; // absoluter Nullpunkt 0K
 static float cop,wm,wp;
 static int oldhour = -1;
@@ -93,7 +93,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         fatemp = fatemp + we.temp;
                         if (we.temp < 20&&e3dc.WPLeistung>0)
                         {
-                            float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
+                            float f1 = (endpunkt - fusspunkt)/e3dc.WPHeizlast*(e3dc.WPHeizgrenze-we.temp)+fusspunkt; // Temperaturhub
                             float f2 = ((absolutenull+we.temp)/(f1))*.45; // COP
                             if (cop < 0) cop = f2;
                             // thermische Heizleistung
@@ -120,7 +120,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 w[x1].wpbedarf = we.kosten;
                                     
 
-                                if (f6>e3dc.WPZWE)
+                                if ((f6>e3dc.WPZWE)&&(f3>e3dc.WPLeistung))
 // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
                                         w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
                                 }
