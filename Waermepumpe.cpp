@@ -94,7 +94,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         if (we.temp < 20&&e3dc.WPLeistung>0)
                         {
                             float f1 = (endpunkt - fusspunkt)/30*(15-we.temp)+fusspunkt; // Temperaturhub
-                            float f2 = ((absolutenull+f1)/(f1-we.temp))*.35; // COP
+                            float f2 = ((absolutenull+we.temp)/(f1))*.45; // COP
                             if (cop < 0) cop = f2;
                             // thermische Heizleistung
                             float f3 = (15-we.temp)*e3dc.WPHeizlast/30;

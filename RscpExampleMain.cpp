@@ -1058,7 +1058,7 @@ int wolfstatus()
                 
                 
             fp = NULL;
-           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/# -c -i 102 ",e3dc_config.mqtt_ip);
+           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/#",e3dc_config.mqtt_ip);
             fp = popen(buf, "r");
             int fd = fileno(fp);
             int flags = fcntl(fd, F_GETFL, 0);
@@ -1130,22 +1130,22 @@ int tasmotastatus(int ch)
         if (WP_status < 2)
         {
             mfp == NULL;
-            sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1 ",e3dc_config.mqtt_ip,ch);
+            sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1",e3dc_config.mqtt_ip,ch);
             mfp = popen(buf, "r");
-            int fd = fileno(mfp);
-            int flags = fcntl(fd, F_GETFL, 0);
-            flags |= O_NONBLOCK;
-            fcntl(fd, F_SETFL, flags);
+//            int fd = fileno(mfp);
+//            int flags = fcntl(fd, F_GETFL, 0);
+//            flags |= O_NONBLOCK;
+//            fcntl(fd, F_SETFL, flags);
             WP_status = 2;
         }
-        while (fgets(path, 1024, mfp) != NULL)
+        if (fgets(path, 1024, mfp) != NULL)
         {
             if (strcmp(path,"ON\n")==0)
                 WP_status = 1;
             if (strcmp(path,"OFF\n")==0)
                 WP_status = 0;
         }
-        if (WP_status < 2)
+//        if (WP_status < 2)
             status = pclose(mfp);
         return WP_status;
 }
@@ -1177,6 +1177,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static int iLeistungHeizstab = 0;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
+    static bool btasmota_ch2PV = 0; // Anforderung LWWP/PV
+    static bool btasmota_ch2WW = 0; // Anforderung BWWP
     static soc_t high,low;
     static int itag = 24*3600;
     int x1,x2;
@@ -1254,13 +1256,30 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         }
         if (tasmota_status[3] > 1)
             tasmota_status[3] = tasmotastatus(4);
+
 // Steuerung BWWP über Tasmota Kanal4
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
-        } else if
+        } else 
+        if
             (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
             tasmotaon(4);
+
+// Steuerung LWWP über Tasmota Kanal2
+        if  (temp[14]<e3dc_config.BWWPein*10-20)
+            btasmota_ch2WW = true;
+        if  (temp[14]>e3dc_config.BWWPein*10-10)
+            btasmota_ch2WW = false;
+// Auswertung Steuerung
+        if (btasmota_ch2WW||btasmota_ch2PV)
+            if (tasmota_status[1]==0)
+            tasmotaon(2);
+        if (not btasmota_ch2WW && not btasmota_ch2PV)
+            if (tasmota_status[1]==1)
+            tasmotaoff(2);
+
+
     }
     
     
@@ -1272,7 +1291,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
     ss = t % (60);
-    static float fstrompreis;
+    static float fstrompreis=10000;
     if (((tE3DC % (24*3600))+12*3600)<t) {
 // Erstellen Statistik, Eintrag Logfile
         GetConfig(); //Lesen Parameter aus e3dc.config.txt
@@ -1532,7 +1551,7 @@ bDischarge = false;
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
                    if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
                     iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
-                 printf("Entladen starten ");
+//                 printf("Entladen starten ");
 //                iLMStatus = -7;
                 iLMStatus = 7;
 //                return 0;
@@ -1561,8 +1580,20 @@ bDischarge = false;
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
     if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,fspreis);
     if (e3dc_config.WP&&fcop>0)
-    printf(" %.2f",fspreis/fcop);
-    printf("%c[K\n", 27 );
+    {
+        printf(" %.2f",fspreis/fcop);
+        printf("%c[K\n", 27 );
+// LWWP wegen niedriger Strompreise auf PV Anhebung schalten
+/*        float a,b;
+        a=fspreis/fcop;
+        b=e3dc_config.WPZWE-1.0;
+        if (a<b)
+*/
+        if (float(fspreis/fcop)<float(e3dc_config.WPZWE-1.0))
+            btasmota_ch2PV = true;
+        else
+            btasmota_ch2PV = false;
+    }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     if (t < tLadezeitende3) {
@@ -1915,8 +1946,10 @@ bDischarge = false;
                ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
         printf("%c[K\n", 27 );
         printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
-        if (tasmota_status[3] == 0) printf("OFF ");
-        if (tasmota_status[3] == 1) printf("ON ");
+        if (tasmota_status[3] == 0) printf("WW:OFF ");
+        if (tasmota_status[3] == 1) printf("WW:ON ");
+        if (tasmota_status[1] == 0) printf("PV:OFF ");
+        if (tasmota_status[1] == 1) printf("PV:ON ");
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
