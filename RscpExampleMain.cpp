@@ -814,14 +814,29 @@ int iModbusTCP()
             
             if (temp[13] > 0) // Temperatur Puffer gesetzt?
             {
+//  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
+                
+                if (temp[0]<(e3dc_config.WPZWE-.5)*10&&temp[17]==0)
+                {
+                    iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
+                    iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
+                }
+                if (temp[0]>(e3dc_config.WPZWE+.5)*10&&temp[17]==1)
+                {
+                    iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
+                    iLength  = iModbusTCP_Get(101,1,7); //Heizkessel
+                }
+
+
+// Heizkreise schalten
                 if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(oekofen[1],1,1); //FBH?
+                    iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
                 if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0) // EVU Aus und Heizkreis Aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
                 if (tasmota_status[0]==0&&temp[17]==0&&temp[1]==1)
@@ -993,6 +1008,7 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
+float wphl,wppw;  //heizleistung und stromaufnahme wärmepumpe
 
 int wolfstatus()
 {
@@ -1025,9 +1041,11 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Heizleistung";
                 wo.AK = "HL";
+                wphl = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Leistungsaufnahme (WP + EHZ)";
                 wo.AK = "PW";
+                wppw = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Aktuelle Leistungsvorgabe Verdichter";
                 wo.AK = "ALV";
@@ -1580,22 +1598,23 @@ bDischarge = false;
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
-    if (e3dc_config.aWATTar) printf("%.2f %.2f",fstrompreis,fspreis);
+    if (e3dc_config.aWATTar) printf("%.2f",fspreis);
     if (e3dc_config.WP&&fcop>0)
     {
-        printf(" %.2f",fspreis/fcop);
+        printf(" %.2f %.2f",fspreis/fcop,fcop);
         printf("%c[K\n", 27 );
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
 /*        float a,b;
         a=fspreis/fcop;
         b=e3dc_config.WPZWE-1.0;
         if (a<b)
-*/
+
         if (float(fspreis/fcop)<float(e3dc_config.WPZWE-2.0))
             btasmota_ch2PV = true;
         else
             btasmota_ch2PV = false;
-    }
+ */
+ }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     if (t < tLadezeitende3) {
@@ -1961,7 +1980,8 @@ bDischarge = false;
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
         printf("CHA ");
-        for (int j=0;j<wolf.size();j++){
+        for (int j=0;j<wolf.size();j++)
+        {
             if ((wolf[j].feld == "Betriebsart Heizgerät")||
                 (wolf[j].feld == "Verdichterstatus"))
                 printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
@@ -1971,6 +1991,9 @@ bDischarge = false;
                 printf("%c[K\n", 27 );
 
         }
+        if (wolf[wppw].wert>0) //division durch 0 vermeiden
+        printf("%0.1f ",wolf[wphl].wert/wolf[wppw].wert);
+
     }
 
     printf("%c[K\n", 27 );

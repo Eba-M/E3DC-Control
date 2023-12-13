@@ -91,13 +91,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         we.temp = atof(line);
                         we.kosten = 0;
                         fatemp = fatemp + we.temp;
-                        if (we.temp < 20&&e3dc.WPLeistung>0)
+/*                        if (we.temp < 20&&e3dc.WPLeistung>0)
                         {
                             float f1 = (endpunkt - fusspunkt)/e3dc.WPHeizlast*(e3dc.WPHeizgrenze-we.temp)+fusspunkt; // Temperaturhub
                             float f2 = ((absolutenull+we.temp)/(f1))*.45; // COP
                             if (cop < 0) cop = f2;
                             // thermische Heizleistung
-                            float f3 = (15-we.temp)*e3dc.WPHeizlast/30;
+                            float f3 = (e3dc.WPHeizgrenze-we.temp)*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
                             float f4 = 0;
                             float f5 = f3; // angeförderte Heizleistung
                             // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
@@ -114,17 +114,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             if ((w.size()>0)&&x1<=w.size())
                                 if (we.hh == w[x1].hh){
 // Überprüfen ob WP oder Pelletsheizung günstiger
+// Kosten = aktueller Strompreis * elektrische Arbeit (f4)  / f5 (termische Arbeit)
                                 float f6 =
-                                ((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten)/f2;
+                                ((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten)*f4/f5;
                                 
                                 w[x1].wpbedarf = we.kosten;
                                     
 
-                                if ((f6>e3dc.WPZWE)&&(f3>e3dc.WPLeistung))
+                                if ((f6>e3dc.WPZWE))
+//                                if ((f6>e3dc.WPZWE)&&(f3>e3dc.WPLeistung))
 // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
                                         w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
                                 }
                         }
+ */
                     } else break;
                     if (fgets(line, sizeof(line), fp))
                     {
@@ -141,14 +144,62 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 
                 fclose(fp);
                 fatemp = fatemp / 48;
+                
             }
             {
                 if (e3dc.WPLeistung>0) {
+                    // Ermitteln des Energiebedarfs für die Wärmepumpe
+                    // Die Pelletsheizung wird eingesetzt, wenn die Leistung der WP nicht mehr
+                    // ausreicht
+                    int fbitemp = e3dc.WPHeizgrenze-
+                    e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)*e3dc.WPLeistung;
+
+                    for (int x1=0;x1<w.size();x1++)
+                            if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
+
+                    {
+                                                float f1 = (endpunkt - fusspunkt)/e3dc.WPHeizlast*(e3dc.WPHeizgrenze-we.temp)+fusspunkt; // Temperaturhub
+                                                float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.45; // COP
+                                                if (cop < 0) cop = f2;
+                                                // thermische Heizleistung
+                                                float f3 = (e3dc.WPHeizgrenze-wetter[x1].temp)*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
+                                                float f4 = 0;
+                                                float f5 = f3; // angeförderte Heizleistung
+                                                // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
+                                                if (f3 > e3dc.WPLeistung) {
+                                                    f4 = f3 - e3dc.WPLeistung;
+                                                    f3 = e3dc.WPLeistung;
+                                                }
+                                                // Heizleistung WP unter Nennwert => mehr Heizstab
+                                                if (f3/f2>e3dc.WPmax)
+                                                    f4 = f4 + f3 - f2*e3dc.WPmax + e3dc.WPmax;
+                                                else
+                                                    f4 = f4 + f3/f2; // benötigte elektrische Leistung;
+                        wetter[x1].kosten = f4/e3dc.speichergroesse*100;
+                                                if ((w.size()>0)&&x1<=w.size())
+                                                    if (wetter[x1].hh == w[x1].hh){
+                    // Überprüfen ob WP oder Pelletsheizung günstiger
+                    // Kosten = aktueller Strompreis * elektrische Arbeit (f4)  / f5 (termische Arbeit)
+                                                    float f6 =
+                                                    ((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten)*f4/f5;
+                                                    
+                                                    w[x1].wpbedarf = wetter[x1].kosten;
+                                                        
+
+                                                    if ((e3dc.WPZWE)>fatemp&&e3dc.WPZWE>wetter[x1].temp)
+                    // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
+                                                            w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+                                                    }
+                                            }
+                     
+
                     // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
                     // die Laufdauer der Wärmepumpe vor
                     // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
                     // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
-                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24;
+                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
+                    waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
+                    // Heizlast bei -15°
                     int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
                     heizbegin = sunrise + 120;
                     heizende = (heizbegin + heizdauer)%(24*60);
@@ -184,9 +235,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             
                             if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
                             {
-                                float f1 = (endpunkt - fusspunkt)/30*(15-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
+                                float f1 = (endpunkt - fusspunkt)/e3dc.WPHeizlast*(e3dc.WPHeizgrenze-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
                                 float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
-                                float f3 = (15-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
+                                float f3 = (e3dc.WPHeizgrenze-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
                                 //                     float f4 = f3/f2; // benötigte elektrische Leistung;
                                 float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
                                 float f5 = w[j].wpbedarf;

@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "C2023.12.11.1" //aktuelle Version für dynamische Tarife und WP-Betrieb
+#define VERSION "C2023.12.13.0" //aktuelle Version für dynamische Tarife und WP-Betrieb
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
@@ -21,7 +21,7 @@
 #define UNTERERLADEKORRIDOR  100 // die Ladeleistung soll zwischen dem unteren und
 #define OBERERLADEKORRIDOR  2000 // oberere Ladeleistung liegen, jedoch
 #define MINIMUMLADELEISTUNG  100 // immer > MINIMUMLADELEISTUNG
-#define POWERFAKTOR          -1  // Verstärkungsfaktor 
+#define POWERFAKTOR           -1 // Verstärkungsfaktor
 #define MAXIMUMLADELEISTUNG 3000 // maximale Ladeleistung
 #define WRLEISTUNG 12000 // maximale Ladeleistung
 #define WBMAXLADESTROM 32 // maximale Ladestrom der Wallbox
