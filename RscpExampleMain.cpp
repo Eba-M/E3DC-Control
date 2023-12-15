@@ -1607,7 +1607,7 @@ bDischarge = false;
         float a,b;
         a=fspreis/fcop;
 //        b=e3dc_config.WPZWE-1.0;
-        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
+//        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
         if (fspreis*wolf[wppw].wert/wolf[wphl].wert<7)  // Börsenstrompreis < 50ct/kWh
             btasmota_ch2  |= 2;  //setzen
