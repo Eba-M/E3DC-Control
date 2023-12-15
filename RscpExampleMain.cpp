@@ -1195,8 +1195,7 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     static int iLeistungHeizstab = 0;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
-    static bool btasmota_ch2PV = 0; // Anforderung LWWP/PV
-    static bool btasmota_ch2WW = 0; // Anforderung BWWP
+    static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV 1=ww, 2=preis, 4=überschuss
     static soc_t high,low;
     static int itag = 24*3600;
     int x1,x2;
@@ -1288,14 +1287,15 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
             if  (temp[14]<e3dc_config.BWWPein*10-20)
-                btasmota_ch2WW = true;
+                btasmota_ch2 |= 1;
             if  (temp[14]>e3dc_config.BWWPein*10-10)
-                btasmota_ch2WW = false;
+                if (btasmota_ch2 & 1)
+                    btasmota_ch2 ^= 1;
             // Auswertung Steuerung
-            if (btasmota_ch2WW||btasmota_ch2PV)
+            if (btasmota_ch2)
                 if (tasmota_status[1]==0)
                     tasmotaon(2);
-            if (not btasmota_ch2WW && not btasmota_ch2PV)
+            if (not btasmota_ch2)
                 if (tasmota_status[1]==1)
                     tasmotaoff(2);
         }
@@ -1604,16 +1604,24 @@ bDischarge = false;
         printf(" %.2f %.2f",fspreis/fcop,fcop);
         printf("%c[K\n", 27 );
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
-/*        float a,b;
+        float a,b;
         a=fspreis/fcop;
-        b=e3dc_config.WPZWE-1.0;
-        if (a<b)
+//        b=e3dc_config.WPZWE-1.0;
+        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
-        if (float(fspreis/fcop)<float(e3dc_config.WPZWE-2.0))
-            btasmota_ch2PV = true;
-        else
-            btasmota_ch2PV = false;
- */
+        if (fspreis*wolf[wppw].wert/wolf[wphl].wert<7)  // Börsenstrompreis < 50ct/kWh
+            btasmota_ch2  |= 2;  //setzen
+        if (fspreis*wolf[wppw].wert/wolf[wphl].wert>7)  // Börsenstrompreis < 50ct/kWh
+            if (btasmota_ch2&2)
+                btasmota_ch2  ^= 2;  // löschen
+
+        if (ireq_Heistab>500)  // Überschuss PV
+            btasmota_ch2  |= 4;
+        if (ireq_Heistab<500)  // Überschuss PV
+            if (btasmota_ch2&4)
+                btasmota_ch2  ^= 4;
+
+
  }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
@@ -1992,7 +2000,7 @@ bDischarge = false;
 
         }
         if (wolf[wppw].wert>0) //division durch 0 vermeiden
-        printf("%0.1f ",wolf[wphl].wert/wolf[wppw].wert);
+        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
     }
 
