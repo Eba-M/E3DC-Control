@@ -460,6 +460,7 @@ bool GetConfig()
         e3dc_config.WPHeizgrenze = -1;
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
+        e3dc_config.WPPVon = -1;
         e3dc_config.WPZWE = -1;
         e3dc_config.MQTTavl = -1;
 
@@ -573,6 +574,8 @@ bool GetConfig()
                         e3dc_config.WPmin = atof(value);
                     else if(strcmp(var, "wpmax") == 0)
                         e3dc_config.WPmax = atof(value);
+                    else if(strcmp(var, "wppvon") == 0)
+                        e3dc_config.WPPVon = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
                         e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
@@ -1609,9 +1612,9 @@ bDischarge = false;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
-        if (fspreis*wolf[wppw].wert/wolf[wphl].wert<7)  // Börsenstrompreis < 50ct/kWh
+        if (fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
             btasmota_ch2  |= 2;  //setzen
-        if (fspreis*wolf[wppw].wert/wolf[wphl].wert>7)  // Börsenstrompreis < 50ct/kWh
+        if (fspreis*wolf[wppw].wert/wolf[wphl].wert>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
             if (btasmota_ch2&2)
                 btasmota_ch2  ^= 2;  // löschen
 
