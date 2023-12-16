@@ -1612,9 +1612,9 @@ bDischarge = false;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
-        if (fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+        if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
             btasmota_ch2  |= 2;  //setzen
-        if (fspreis*wolf[wppw].wert/wolf[wphl].wert>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+        if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
             if (btasmota_ch2&2)
                 btasmota_ch2  ^= 2;  // löschen
 
