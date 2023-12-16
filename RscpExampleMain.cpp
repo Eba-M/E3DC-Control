@@ -1611,13 +1611,14 @@ bDischarge = false;
         a=fspreis/fcop;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
-
-        if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
-            btasmota_ch2  |= 2;  //setzen
-        if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
-            if (btasmota_ch2&2)
-                btasmota_ch2  ^= 2;  // löschen
-
+        if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
+        {
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+                btasmota_ch2  |= 2;  //setzen
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+                if (btasmota_ch2&2)
+                    btasmota_ch2  ^= 2;  // löschen
+        }
         if (ireq_Heistab>500)  // Überschuss PV
             btasmota_ch2  |= 4;
         if (ireq_Heistab<500)  // Überschuss PV
