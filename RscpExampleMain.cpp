@@ -89,8 +89,6 @@ static int  iWBSoll,iWBIst; // Soll = angeforderter Ladestrom, Ist = aktueller L
 static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistung, mit der der E3DC-Seicher geladen oder entladen werden soll
 float_t WWTemp; // Warmwassertemperatur
 static float fht; // Reserve aus ht berechnet
-int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
-int sunsetAt;   // Sonnenuntergang
 // in der Simulation wird der höchste Peakwert hochgerechnet
 // 
 int forecastpeaktime;  //
@@ -3877,8 +3875,9 @@ static void mainLoop(void)
 
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
+            int sunrise = sunriseAt;
            if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config,fBatt_SOC);
+            aWATTar(ch,w,e3dc_config,fBatt_SOC, sunrise);
 //            test;
             
 //            if (e3dc_config.WP)
@@ -4001,7 +4000,7 @@ static int iEC = 0;
         GetConfig();
         printf("GetConfig done");
         if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config,fBatt_SOC); // im Master nicht aufrufen
+            aWATTar(ch,w,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {

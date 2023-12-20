@@ -62,6 +62,9 @@ typedef struct {time_t t; std::string feld; std::string AK; std::string status; 
 static float fatemp,fcop;
 static int heizbegin;
 static int heizende;
+static int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
+static int sunsetAt;   // Sonnenuntergang
+
 static int tasmota_status[4]={2,2,2,2};
 
 static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
@@ -69,7 +72,7 @@ static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 static std::vector<wolf_s>wolf; // Stundenwerte der Börsenstrompreise
 
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop,int sunrise, e3dc_config_t &e3dc, float soc);
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc,float soc);
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc,float soc,int sunriseAt);
 int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float anforderung, float Diff,float aufschlag, float ladeleistung);
 int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag, float Reserve);
 

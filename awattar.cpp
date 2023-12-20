@@ -709,8 +709,37 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 // den PV-Ertrag immer der vorhergehende Stunde zuordnen
                         if (w1>0)
                         {
-                            float pv = atof(value)/e3dc_config.speichergroesse/10;
+                            int x2 = x1%(24*3600)/60;
+                            int x3 = x2 - sunriseAt;
+                            float pv = atof(value);
                             float pv2 = w[w1-1].solar;
+                            if (x3>0&&x3<=60)
+                            {
+                                if (x3 <=30)
+                                    pv = pv/10; // die ersten 30min 10%
+                                else;
+                                if (x3 <=60)
+                                {
+                                    pv2 = pv / x3;
+                                    pv = pv2 * 3 + pv2 * (x3-30)/2;
+                                }
+                            }
+                            if (x3>60&&x3<=120)
+                            {
+                                x3 = 120-x3;
+                                pv2 = pv/60; // die ersten 30min 10%
+                                if (x3>30)
+                                {
+                                    pv = (x3-30)*pv2/10;
+                                    pv = pv + 30*pv2/2;
+                                }
+                                if (x3<=30)
+                                    pv = pv = x3*pv2/2;
+                                pv = pv + (60 - x3)*pv2;
+                            }
+
+                            pv = pv/e3dc_config.speichergroesse/10;
+
                             if (anlage == 0)
                                 w[w1-1].solar = pv;
                             else
@@ -725,7 +754,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc)
+void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc, int sunrise)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -756,6 +785,7 @@ int ladedauer = 4;
 
     time(&rawtime);
     ptm = gmtime (&rawtime);
+    sunriseAt = sunrise;
 // alte Einträge > 1h löschen
     while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
         w.erase(w.begin());
