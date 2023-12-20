@@ -143,19 +143,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 if ((w.size()>0)&&x1<=w.size())
                                                     if (wetter[x1].hh == w[x1].hh){
                     // Überprüfen ob WP oder Pelletsheizung günstiger
-                    // Kosten = aktueller Strompreis * elektrische Arbeit (f4)  / f5 (termische Arbeit)
-                                                    float f6 =
-                                                    ((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten)*f4/f5;
-                                                    
-                                                    w[x1].wpbedarf = wetter[x1].kosten;
-                                                        
+                    // Kosten = aktueller Strompreis / COP
+                    float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
+                    float f8 =  f7*f4/f5;
+                    float f6 =  f7/f2;
 
-                                                    if (e3dc.WPZWE>wetter[x1].temp)
+                        w[x1].wpbedarf = wetter[x1].kosten;
+                        if (e3dc.WPZWE>wetter[x1].temp)
                     // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
-                                                            w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+                        w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
 // wenn der Wärmepreis der WP günstiger ist als Pellets
-                                                        if (f6<e3dc.WPPVon)
-                                                        w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
+                        if (f6<e3dc.WPPVon)
+                            w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
                                                     }
                                             }
                      
