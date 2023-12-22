@@ -578,7 +578,7 @@ bool GetConfig()
                     else if(strcmp(var, "wpzwe") == 0)
                         e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "wpzwepvon") == 0)
-                        e3dc_config.WPZWE = atof(value);
+                        e3dc_config.WPZWEPVon = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
