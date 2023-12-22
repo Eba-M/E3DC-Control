@@ -460,6 +460,7 @@ bool GetConfig()
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
         e3dc_config.WPZWE = -1;
+        e3dc_config.WPZWEPVon = -1;
         e3dc_config.MQTTavl = -1;
 
 
@@ -576,6 +577,8 @@ bool GetConfig()
                         e3dc_config.WPPVon = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
                         e3dc_config.WPZWE = atof(value);
+                    else if(strcmp(var, "wpzwepvon") == 0)
+                        e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
@@ -637,8 +640,11 @@ bool GetConfig()
                                  e3dc_config.aWATTar = 1;
                         else
                                  e3dc_config.aWATTar = atoi(value);}
-                    else if((strcmp(var, "awLand") == 0)&&
+                    else if((strcmp(var, "awland") == 0)&&
                             (strcmp(value, "at") == 0))   // AT = 2
+                        e3dc_config.AWLand = 2;
+                    else if((strcmp(var, "awland") == 0)&&
+                            (strcmp(value, "AT") == 0))   // AT = 2
                         e3dc_config.AWLand = 2;
                     else if((strcmp(var, "awland") == 0)&&
                             (strcmp(value, "de") == 0))   // DE = 1
@@ -1609,11 +1615,12 @@ bDischarge = false;
         a=fspreis/fcop;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
+        if (wolf.size()>0)
         if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
         {
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon)  // Börsenstrompreis < 50ct/kWh
                 btasmota_ch2  |= 2;  //setzen
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPPVon)  // Börsenstrompreis < 50ct/kWh
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon)  // Börsenstrompreis < 50ct/kWh
                 if (btasmota_ch2&2)
                     btasmota_ch2  ^= 2;  // löschen
         }
@@ -1980,7 +1987,8 @@ bDischarge = false;
         if (tasmota_status[3] == 0) printf("WW:OFF ");
         if (tasmota_status[3] == 1) printf("WW:ON ");
         if (tasmota_status[1] == 0) printf("PV:OFF ");
-        if (tasmota_status[1] == 1) printf("PV:ON ");
+        if (tasmota_status[1] == 1) 
+            printf("PV:ON%i ",btasmota_ch2);
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
