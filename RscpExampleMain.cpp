@@ -2015,10 +2015,10 @@ bDischarge = false;
         }
         if (wolf.size()>0&&wolf[wppw].wert>0) //division durch 0 vermeiden
         printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
+        printf("%c[K\n", 27 );
 
     }
 
-    printf("%c[K\n", 27 );
 
     printf("U %0.0004fkWh td %0.0004fkWh", (fSavedtotal/3600000),(fSavedtoday/3600000));
     if (e3dc_config.wallbox>=0)
