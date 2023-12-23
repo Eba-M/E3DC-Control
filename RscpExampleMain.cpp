@@ -460,6 +460,7 @@ bool GetConfig()
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
+        e3dc_config.WPEHZ = -1;
         e3dc_config.WPZWE = -1;
         e3dc_config.WPZWEPVon = -1;
         e3dc_config.MQTTavl = -1;
@@ -579,6 +580,8 @@ bool GetConfig()
                         e3dc_config.WPmax = atof(value);
                     else if(strcmp(var, "wppvon") == 0)
                         e3dc_config.WPPVon = atof(value);
+                    else if(strcmp(var, "wpehz") == 0)
+                        e3dc_config.WPEHZ = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
                         e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "wpzwepvon") == 0)
@@ -1217,7 +1220,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     int ret = wolfstatus();
     time (&t);
     
+    if (e3dc_config.debug) printf("D1");
+    
     mqtt();
+
+    if (e3dc_config.debug) printf("D2");
+
     
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (fDCDC > high.fah) {
@@ -1271,8 +1279,12 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 
         }
     t_alt = t;
+    if (e3dc_config.debug) printf("D3");
+
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
+        if (e3dc_config.debug) printf("D4");
+
         if (t-tasmotatime>10)
         {
             tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
@@ -1449,10 +1461,14 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
         }
  */
 
- 
+        if (e3dc_config.debug) printf("D5");
+
     int ret; // Steuerung Netzladen = 2, Entladen = 1
         ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis, e3dc_config.AWTagoffset,e3dc_config.AWReserve); // Ladeleistung in %
- 
+
+        if (e3dc_config.debug) printf("D6");
+
+        
         switch (e3dc_config.AWtest) // Testfunktion
         {
             case 2:
@@ -2002,6 +2018,7 @@ bDischarge = false;
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
         printf("CHA ");
+        if (wolf.size()>0)
         for (int j=0;j<wolf.size();j++)
         {
             if ((wolf[j].feld == "Betriebsart Heizgerät")||
@@ -2013,7 +2030,8 @@ bDischarge = false;
                 printf("%c[K\n", 27 );
 
         }
-        if (wolf.size()>0&&wolf[wppw].wert>0) //division durch 0 vermeiden
+        if (wolf.size()>0)
+            if (wolf[wppw].wert>0) //division durch 0 vermeiden
         printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         printf("%c[K\n", 27 );
 
