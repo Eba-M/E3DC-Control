@@ -43,7 +43,7 @@ typedef struct {
     char logfile[128],conffile[128];
     char openWB_ip[20];
     char openweathermap[50];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,DCDC;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
     int32_t wallbox,BWWP_Power,AWLand,AWTagoffset,soc,MQTTavl;

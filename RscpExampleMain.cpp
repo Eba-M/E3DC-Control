@@ -464,6 +464,7 @@ bool GetConfig()
         e3dc_config.WPZWE = -1;
         e3dc_config.WPZWEPVon = -1;
         e3dc_config.MQTTavl = -1;
+        e3dc_config.DCDC = true;
 
 
 
@@ -523,6 +524,12 @@ bool GetConfig()
                   else if((strcmp(var, "openwb") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.openWB = true;
+                  else if((strcmp(var, "dcdc") == 0)&&
+                          (strcmp(value, "false") == 0))
+                      e3dc_config.DCDC = false;
+                  else if((strcmp(var, "dcdc") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.DCDC = true;
                   else if((strcmp(var, "wp") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WP = true;
@@ -2831,23 +2838,21 @@ if (e3dc_config.ext7)
         protocol.destroyValueData(PVIContainer);
 
         // request DCDC information
-/*
-        SRscpValue DCDCContainer;
-
-        protocol.createContainerValue(&DCDCContainer, TAG_DCDC_REQ_DATA);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_INDEX, (uint8_t)0);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_BAT);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_BAT);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_BAT);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_DCL);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_DCL);
-        protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_DCL);
-        
-        // append sub-container to root container
-        protocol.appendValue(&rootValue, DCDCContainer);
-        // free memory of sub-container as it is now copied to rootValue
-        protocol.destroyValueData(DCDCContainer);
-*/
+            SRscpValue DCDCContainer;
+            
+            protocol.createContainerValue(&DCDCContainer, TAG_DCDC_REQ_DATA);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_INDEX, (uint8_t)0);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_BAT);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_BAT);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_BAT);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_I_DCL);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_U_DCL);
+            protocol.appendValue(&DCDCContainer, TAG_DCDC_REQ_P_DCL);
+            
+            // append sub-container to root container
+            protocol.appendValue(&rootValue, DCDCContainer);
+            // free memory of sub-container as it is now copied to rootValue
+            protocol.destroyValueData(DCDCContainer);
 
         // request Wallbox information
 
@@ -3906,25 +3911,33 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
             int sunrise = sunriseAt;
-           if (e3dc_config.aWATTar)
+            if (e3dc_config.debug) printf("M1");
+            if (e3dc_config.aWATTar)
             aWATTar(ch,w,e3dc_config,fBatt_SOC, sunrise);
 //            test;
-            
+            if (e3dc_config.debug) printf("M2");
+
 //            if (e3dc_config.WP)
-              mewp(w,wetter,fatemp,fcop,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
+            if (e3dc_config.debug) printf("M3");
+
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
-            
+            if (e3dc_config.debug) printf("M4");
+
             if(frameBuffer.dataLength == 0)
                  bWBRequest = true;
             else
                  bWBRequest = false;
-            
+if (e3dc_config.debug) printf("M5");
+
         if(frameBuffer.dataLength == 0)
             LoadDataProcess(&frameBuffer);
 //            sleep(1);
+if (e3dc_config.debug) printf("M6");
+
         }
         // check that frame data was created
         
