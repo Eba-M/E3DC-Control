@@ -1168,6 +1168,7 @@ int tasmotastatus(int ch)
         char path[1024];
         if (WP_status < 2)
         {
+            if (e3dc_config.debug) printf("W1");
             mfp == NULL;
             sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1",e3dc_config.mqtt_ip,ch);
             mfp = popen(buf, "r");
@@ -1177,6 +1178,7 @@ int tasmotastatus(int ch)
 //            fcntl(fd, F_SETFL, flags);
             WP_status = 2;
         }
+        if (mfp != NULL)
         if (fgets(path, 1024, mfp) != NULL)
         {
             if (strcmp(path,"ON\n")==0)
@@ -1185,7 +1187,9 @@ int tasmotastatus(int ch)
                 WP_status = 0;
         }
 //        if (WP_status < 2)
-            status = pclose(mfp);
+        if (mfp != NULL)
+        status = pclose(mfp);
+        if (e3dc_config.debug) printf("W2");
         return WP_status;
 }
     return 0;
