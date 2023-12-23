@@ -399,6 +399,7 @@ bool GetConfig()
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.WP = false;
+        e3dc_config.WPWolf = false;
         e3dc_config.ext1 = false;
         e3dc_config.ext2 = false;
         e3dc_config.ext3 = false;
@@ -524,6 +525,9 @@ bool GetConfig()
                   else if((strcmp(var, "wp") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WP = true;
+                  else if((strcmp(var, "wpwolf") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.WPWolf = true;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -1021,7 +1025,7 @@ int wolfstatus()
 {
 
     //           Test zur Abfrage des Tesmota Relais
-    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
         
  
@@ -1615,7 +1619,7 @@ bDischarge = false;
         a=fspreis/fcop;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
-        if (wolf.size()>0)
+        if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
         {
             if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon)  // Börsenstrompreis < 50ct/kWh
@@ -1995,7 +1999,7 @@ bDischarge = false;
         printf("Heizstab %i %i",ireq_Heistab,iLeistungHeizstab);
         printf("%c[K\n", 27 );
 
-    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
+    if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
         printf("CHA ");
         for (int j=0;j<wolf.size();j++)
@@ -2009,7 +2013,7 @@ bDischarge = false;
                 printf("%c[K\n", 27 );
 
         }
-        if (wolf[wppw].wert>0) //division durch 0 vermeiden
+        if (wolf.size()>0&&wolf[wppw].wert>0) //division durch 0 vermeiden
         printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
 
     }
