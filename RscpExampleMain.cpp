@@ -2831,7 +2831,7 @@ if (e3dc_config.ext7)
         protocol.destroyValueData(PVIContainer);
 
         // request DCDC information
-
+/*
         SRscpValue DCDCContainer;
 
         protocol.createContainerValue(&DCDCContainer, TAG_DCDC_REQ_DATA);
@@ -2847,7 +2847,7 @@ if (e3dc_config.ext7)
         protocol.appendValue(&rootValue, DCDCContainer);
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(DCDCContainer);
-
+*/
 
         // request Wallbox information
 
