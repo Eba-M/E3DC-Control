@@ -1148,7 +1148,10 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     char buf[127];
 //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
     sprintf(buf,"E3DC-Control/Aval -m %i",ireq_Heistab);
+    if (e3dc_config.debug) printf("D3");
     MQTTsend(e3dc_config.mqtt_ip,buf);
+    if (e3dc_config.debug) printf("D4");
+
 }
     return 0;
 };
@@ -1649,9 +1652,9 @@ bDischarge = false;
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
         {
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon)  // Börsenstrompreis < 50ct/kWh
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[14]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
                 btasmota_ch2  |= 2;  //setzen
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon)  // Börsenstrompreis < 50ct/kWh
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon||temp[14]==0)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
                 if (btasmota_ch2&2)
                     btasmota_ch2  ^= 2;  // löschen
         }
