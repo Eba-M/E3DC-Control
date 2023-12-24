@@ -165,7 +165,7 @@ int MQTTsend(char host[20],char buffer[127])
         int ret = system(cbuf);
         return ret;
     } else
-    return(0);
+    return(-1);
 }
 int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
     RscpProtocol protocol;
@@ -394,6 +394,7 @@ bool GetConfig()
         e3dc_config.heizstab_port = 502;
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
+        strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wallbox = -1;
@@ -499,6 +500,8 @@ bool GetConfig()
                         strcpy(e3dc_config.openWB_ip, value);
                     else if(strcmp(var, "mqtt_ip") == 0)
                         strcpy(e3dc_config.mqtt_ip, value);
+                    else if(strcmp(var, "mqtt2_ip") == 0)
+                        strcpy(e3dc_config.mqtt2_ip, value);
                     else if(strcmp(var, "forecast1") == 0)
                         strcpy(e3dc_config.Forecast[0], value);
                     else if(strcmp(var, "forecast2") == 0)
@@ -1149,7 +1152,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
 //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
     sprintf(buf,"E3DC-Control/Aval -m %i",ireq_Heistab);
     if (e3dc_config.debug) printf("D3");
-    MQTTsend(e3dc_config.mqtt_ip,buf);
+    MQTTsend(e3dc_config.mqtt2_ip,buf);
     if (e3dc_config.debug) printf("D4");
 
 }
