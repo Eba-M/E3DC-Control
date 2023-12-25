@@ -855,25 +855,25 @@ int iModbusTCP()
 
 
 // Heizkreise schalten
-                if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0&&btasmota_ch2==0)
+                if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0&&btasmota_ch2!=1)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0&&btasmota_ch2==0)
+                if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0&&btasmota_ch2!=1)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (temp[1]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2>0))
+                if (temp[1]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2&1))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(11,0,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (temp[7]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2>0))
+                if (temp[7]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2&1))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
@@ -1331,9 +1331,9 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
-            if  (temp[14]<e3dc_config.BWWPein*10-20)
+            if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
-            if  (temp[14]>e3dc_config.BWWPein*10-10)
+            if  (temp[14]>e3dc_config.BWWPein*10-10&&(tasmota_status[3]==0))
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
             // Auswertung Steuerung
