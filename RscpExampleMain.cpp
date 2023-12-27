@@ -842,7 +842,7 @@ int iModbusTCP()
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
                 
-                if (temp[0]<(e3dc_config.WPZWE-.5)*10&&temp[17]==0)
+                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
@@ -1681,6 +1681,15 @@ bDischarge = false;
 //                    btasmota_ch2  ^= 2;  // löschen
                 if (b>-2)
                 b=b-0.1;
+// Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
+if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
+{
+    if (wolf[wpkst].wert<(temp[10]/10)||wolf[wpkst].wert<(temp[5]/10+2))
+        b=b+.1;
+    if (wolf[wpkst].wert>(temp[10]/10+.5)&&wolf[wpkst].wert>(temp[5]/10+2.5))
+        b=b-.1;
+
+}
 // Sollwertkorrektur an die Wolf CHA senden
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
