@@ -466,6 +466,7 @@ bool GetConfig()
         e3dc_config.WPEHZ = -1;
         e3dc_config.WPZWE = -1;
         e3dc_config.WPZWEPVon = -1;
+        e3dc_config.WPOffset = 2;
         e3dc_config.MQTTavl = -1;
         e3dc_config.DCDC = true;
 
@@ -598,6 +599,8 @@ bool GetConfig()
                         e3dc_config.WPZWE = atof(value);
                     else if(strcmp(var, "wpzwepvon") == 0)
                         e3dc_config.WPZWEPVon = atof(value);
+                    else if(strcmp(var, "wpoffset") == 0)
+                        e3dc_config.WPOffset = atof(value);
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
@@ -1684,9 +1687,10 @@ bDischarge = false;
 // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
-    if (wolf[wpkst].wert<(float(temp[10])/10+1)||wolf[wpkst].wert<(float(temp[5])/10+3))
+    a=float(temp[10])/10+1.5;
+    if (wolf[wpkst].wert<(float(temp[10])/10+e3dc_config.WPOffset)||wolf[wpkst].wert<(float(temp[5])/10+e3dc_config.WPOffset+2))
         b=b+.1;
-    if (wolf[wpkst].wert>(float(temp[10])/10+1.5)&&wolf[wpkst].wert>(float(temp[5])/10+3.5))
+    if (wolf[wpkst].wert>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&wolf[wpkst].wert>(float(temp[5])/10+e3dc_config.WPOffset+2.5))
         b=b-.1;
 
 }
