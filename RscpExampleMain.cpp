@@ -1042,7 +1042,7 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
-float wphl,wppw;  //heizleistung und stromaufnahme wärmepumpe
+float wphl,wppw,wpswk,wpkst,wpkt;  //heizleistung und stromaufnahme wärmepumpe
 
 int wolfstatus()
 {
@@ -1066,9 +1066,11 @@ int wolfstatus()
                 wolf.push_back(wo);
 */                wo.feld = "Kesseltemperatur";
                 wo.AK = "KT";
+                wpkt = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Kesselsolltemperatur";
                 wo.AK = "KST";
+                wpkst = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Rücklauftemperatur";
                 wo.AK = "RL";
@@ -1098,6 +1100,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
+                wpswk = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
                 wo.AK = "BHG";
@@ -1337,7 +1340,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
             {
             if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
-            if  (temp[14]>e3dc_config.BWWPein*10-10&&(tasmota_status[3]==0))
+//            if  (temp[14]>e3dc_config.BWWPein*10-10&&(tasmota_status[3]==0))
+            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
             // Auswertung Steuerung
@@ -1658,17 +1662,33 @@ bDischarge = false;
         printf("%c[K\n", 27 );
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
         float a,b;
+        static float kst = 0;
         a=fspreis/fcop;
+        b=wolf[wpswk].wert;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
+        if (kst != wolf[wpkst].wert)
         {
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[14]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
-                btasmota_ch2  |= 2;  //setzen
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon||temp[14]==0)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                if (btasmota_ch2&2)
-                    btasmota_ch2  ^= 2;  // löschen
+            kst = wolf[wpkst].wert;
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
+//                btasmota_ch2  |= 2;  //setzen
+                if (b<3&&wolf[wppw].wert<3)
+                b=b+0.1;
+            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
+//                if (btasmota_ch2&2)
+//                    btasmota_ch2  ^= 2;  // löschen
+                if (b>-2)
+                b=b-0.1;
+// Sollwertkorrektur an die Wolf CHA senden
+            char buf[127];
+        //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
+            sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %f1",b);
+            if (b!=wolf[wpswk].wert)
+                MQTTsend(e3dc_config.mqtt_ip,buf);
+
+            
         }
         if (ireq_Heistab>500)  // Überschuss PV
             btasmota_ch2  |= 4;
@@ -2047,10 +2067,11 @@ bDischarge = false;
         if (wolf.size()>0)
         for (int j=0;j<wolf.size();j++)
         {
-            if ((wolf[j].feld == "Betriebsart Heizgerät")||
-                (wolf[j].feld == "Verdichterstatus"))
+            if ((wolf[j].feld == "Betriebsart Heizgerät"))
+//                || (wolf[j].feld == "Verdichterstatus"))
                 printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
+                if (wolf[j].feld != "Verdichterstatus")
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6)
                 printf("%c[K\n", 27 );
@@ -2058,7 +2079,7 @@ bDischarge = false;
         }
         if (wolf.size()>0)
             if (wolf[wppw].wert>0) //division durch 0 vermeiden
-        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
+        printf("%0.2f %0.2f ",fspreis/(wolf[wphl].wert/wolf[wppw].wert),(wolf[wphl].wert/wolf[wppw].wert));
         printf("%c[K\n", 27 );
 
     }
