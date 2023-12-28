@@ -1671,33 +1671,39 @@ bDischarge = false;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         if (wolf.size()>0&&e3dc_config.WPWolf)
-        if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
-        if (kst != wolf[wpkst].wert)
+        if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0)
+        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
+//            if (kst != wolf[wpkst].wert)
         {
-            kst = wolf[wpkst].wert;
+            if (wolf[wpkt].wert>wolf[wpkst].wert)
+            kst = wolf[wpkst].wert*2;
+            else
+                kst = wolf[wpkst].wert+wolf[wpkt].wert;
+;
             if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
 //                btasmota_ch2  |= 2;  //setzen
-                if (b<3&&wolf[wppw].wert<3)
+                if (b<3&&wolf[wppw].wert<0.75*e3dc_config.WPmax)
                 b=b+0.1;
             if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
 //                if (btasmota_ch2&2)
 //                    btasmota_ch2  ^= 2;  // löschen
-                if (b>-2)
+//                if (b>-2)
                 b=b-0.1;
 // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
-    a=float(temp[10])/10+1.5;
-    if (wolf[wpkst].wert<(float(temp[10])/10+e3dc_config.WPOffset)||wolf[wpkst].wert<(float(temp[5])/10+e3dc_config.WPOffset+2))
+    if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2))
+        if (b < 4)
         b=b+.1;
-    if (wolf[wpkst].wert>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&wolf[wpkst].wert>(float(temp[5])/10+e3dc_config.WPOffset+2.5))
+    if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[5])/10+e3dc_config.WPOffset+2.5))
+        if (b >-4)
         b=b-.1;
 
 }
 // Sollwertkorrektur an die Wolf CHA senden
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
-            sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %f1",b);
+            sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
             if (b!=wolf[wpswk].wert)
                 MQTTsend(e3dc_config.mqtt_ip,buf);
 
