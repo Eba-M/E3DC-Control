@@ -1341,13 +1341,13 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
+/*
             if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
-//            if  (temp[14]>e3dc_config.BWWPein*10-10&&(tasmota_status[3]==0))
-            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
+           if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
-            // Auswertung Steuerung
+*/            // Auswertung Steuerung
             if (btasmota_ch2)
                 if (tasmota_status[1]==0)
                     tasmotaon(2);
@@ -1666,7 +1666,7 @@ bDischarge = false;
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
         float a,b;
         static float kst = 0;
-        static float swk_soll = 0;
+        static float c = 0;
         a=fspreis/fcop;
         b=wolf[wpswk].wert;
 //        b=e3dc_config.WPZWE-1.0;
@@ -1693,6 +1693,9 @@ bDischarge = false;
 // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
+    c=(kst/2)<(float(temp[10])/10+e3dc_config.WPOffset);
+    if ((kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2) > c)
+        c=(kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2);
     if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2))
         if (b < 4)
         b=b+.1;
