@@ -1673,8 +1673,8 @@ bDischarge = false;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0)
-        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
-//            if (kst != wolf[wpkst].wert)
+//        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
+            if (kst != wolf[wpkst].wert)
         {
             if (wolf[wpkt].wert>wolf[wpkst].wert)
             kst = wolf[wpkst].wert*2;
@@ -1705,10 +1705,10 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
-            if (b!=wolf[wpswk].wert&&b!=swk_soll)
+            if (b!=wolf[wpswk].wert)
             {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
-                swk_soll = b;
+                kst = wolf[wpswk].wert;
             }
 
             
