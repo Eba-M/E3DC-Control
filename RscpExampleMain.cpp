@@ -1666,6 +1666,7 @@ bDischarge = false;
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
         float a,b;
         static float kst = 0;
+        static float swk_soll = 0;
         a=fspreis/fcop;
         b=wolf[wpswk].wert;
 //        b=e3dc_config.WPZWE-1.0;
@@ -1704,8 +1705,11 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
-            if (b!=wolf[wpswk].wert)
+            if (b!=wolf[wpswk].wert&&b!=swk_soll)
+            {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
+                swk_soll = b;
+            }
 
             
         }
