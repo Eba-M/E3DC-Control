@@ -1237,7 +1237,7 @@ typedef struct {
     float fah, fsoc, fvoltage, fcurrent;
 }soc_t;
 
-int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
+int LoadDataProcess() {
 //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
     static int ich_Tasmota = 0;
@@ -1249,10 +1249,11 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
+    if (e3dc_config.debug) printf("D1");
+
     int ret = wolfstatus();
     time (&t);
     
-    if (e3dc_config.debug) printf("D1");
     
     mqtt();
 
@@ -1419,7 +1420,8 @@ int LoadDataProcess(SRscpFrameBuffer * frameBuffer) {
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
     fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
-    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
+    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende2)+fLadeende2;
+//        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
 // Regelende
@@ -1662,7 +1664,6 @@ bDischarge = false;
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
-        printf("%c[K\n", 27 );
 // LWWP wegen niedriger Strompreise auf PV Anhebung schalten
         float a,b;
         static float kst = 0;
@@ -1812,7 +1813,10 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
                     else
                     iMinLade =  0;
             }
-        //  Laden auf 100% nach 15:30
+
+    printf("%c[K\n", 27 );
+
+    //  Laden auf 100% nach 15:30
             if (iMinLade == iMinLade2)
                 printf("ML1 %i RQ %i ",iMinLade,iFc);
             else
@@ -4000,7 +4004,7 @@ static void mainLoop(void)
 if (e3dc_config.debug) printf("M5");
 
         if(frameBuffer.dataLength == 0)
-            LoadDataProcess(&frameBuffer);
+            LoadDataProcess();
 //            sleep(1);
 if (e3dc_config.debug) printf("M6");
 
@@ -4110,6 +4114,7 @@ static int iEC = 0;
         printf("GetConfig done");
         if (e3dc_config.aWATTar)
             aWATTar(ch,w,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+        LoadDataProcess();
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) {
