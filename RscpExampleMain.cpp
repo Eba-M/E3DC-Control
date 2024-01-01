@@ -1419,7 +1419,8 @@ int LoadDataProcess() {
 
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
-    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
+    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(90-fLadeende)+fLadeende;
+//        fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende2)+fLadeende2;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
@@ -1717,9 +1718,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 
             
         }
-        if (ireq_Heistab>500)  // Überschuss PV
+        if (ireq_Heistab>e3dc_config.WPPVon)  // Überschuss PV
             btasmota_ch2  |= 4;
-        if (ireq_Heistab<500)  // Überschuss PV
+        if (ireq_Heistab<-e3dc_config.WPPVon)  // Überschuss PV
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
 
