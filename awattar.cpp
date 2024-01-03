@@ -818,6 +818,12 @@ int ladedauer = 4;
             }
             fclose(fp);
             printf("e3ec.hourly done\n");
+            for (int j=0;j<w.size();j++)
+            {
+                x2 =w[j].hh%(24*3600);
+                x2 = x2/3600;
+                w[j].hourly = strombedarf[x2];
+            }
         }
         
         if (simu)

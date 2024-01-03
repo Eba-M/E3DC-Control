@@ -1695,13 +1695,13 @@ bDischarge = false;
 // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
-    c=(kst/2)<(float(temp[10])/10+e3dc_config.WPOffset);
-    if ((kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2) > c)
-        c=(kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2);
-    if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[5])/10+e3dc_config.WPOffset+2))
+    c=(float(temp[10])/10+e3dc_config.WPOffset);
+    c=(float(temp[4])/10+e3dc_config.WPOffset+2);
+
+    if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
         if (b < 4)
         b=b+.1;
-    if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[5])/10+e3dc_config.WPOffset+2.5))
+    if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
         if (b >-4)
         b=b-.1;
 
