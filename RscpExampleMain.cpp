@@ -1419,9 +1419,9 @@ int LoadDataProcess() {
 
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
-    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(90-fLadeende)+fLadeende;
+    fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende)+fLadeende;
 //        fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
-    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende2)+fLadeende2;
+    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)+fLadeende2;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
