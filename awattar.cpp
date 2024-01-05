@@ -368,7 +368,7 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
         
     }}
 
-int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int ioffset, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -500,7 +500,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
 //            offset = (cos((69)*2*3.14/365));
             if (offset > 0)
             offset = pow(abs(offset),3.5)*(24*60-sunrise);
-            if (offset < ioffset) offset = ioffset;
+//            if (offset < ioffset) offset = ioffset;
 
 // Überprüfen ob entladen werden kann
             fConsumption = fHighprice(w,0,w.size()-1,w[0].pp);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -605,7 +605,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
                 x2 = SuchePos(w,sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
             else
             {
-                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+ioffset)) // Zwischen Sonnenaufgang + offset entladen generell freigegben
+                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset)) // Zwischen Sonnenaufgang + offset entladen generell freigegben
                     return 1; // Suchen bis 2h nach Sonnenaufgang
                 else
                     if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
@@ -954,7 +954,7 @@ if (e3dc.AWLand == 2)
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(w,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,600,e3dc.AWReserve);
+            ret = CheckaWATTar(w,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;

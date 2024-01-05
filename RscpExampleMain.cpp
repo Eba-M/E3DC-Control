@@ -449,7 +449,7 @@ bool GetConfig()
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = -1;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
-        e3dc_config.AWTagoffset = 90;
+        e3dc_config.AWSimulation = 0;
         e3dc_config.AWtest = 0;
         e3dc_config.AWReserve = 0;
         e3dc_config.BWWP_Power = 0;
@@ -641,8 +641,8 @@ bool GetConfig()
                         e3dc_config.hoehe = atof(value);
                     else if(strcmp(var, "laenge") == 0)
                         e3dc_config.laenge = atof(value);
-                    else if(strcmp(var, "awtagoffset") == 0)
-                        e3dc_config.AWTagoffset = atoi(value); // max länge eines Wintertages
+                    else if(strcmp(var, "awsimulation") == 0)
+                        e3dc_config.AWSimulation = atoi(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "soc") == 0)
@@ -1500,7 +1500,7 @@ Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
         if (e3dc_config.debug) printf("D5");
 
     int ret; // Steuerung Netzladen = 2, Entladen = 1
-        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis, e3dc_config.AWTagoffset,e3dc_config.AWReserve); // Ladeleistung in %
+        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
         if (e3dc_config.debug) printf("D6");
 
@@ -1676,7 +1676,10 @@ bDischarge = false;
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&t%20==0)
 //        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
-            if (kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
+            if ((kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
+                ||
+                (kst == (wolf[wpkst].wert*2 )&& (wolf[wpkst].wert+wolf[wpkt].wert) < (wolf[wpkst].wert*2)))
+                    
         {
             if (wolf[wpkt].wert>wolf[wpkst].wert)
             kst = wolf[wpkst].wert*2;

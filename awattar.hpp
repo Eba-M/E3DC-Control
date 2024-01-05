@@ -46,7 +46,7 @@ typedef struct {
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,DCDC;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade;
-    int32_t wallbox,BWWP_Power,AWLand,AWTagoffset,soc,MQTTavl;
+    int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt,AWReserve,
     WPHeizlast,WPHeizgrenze,WPLeistung,WPmin,WPmax,WPPVon,WPEHZ,WPZWE,WPZWEPVon,WPOffset,BWWPein,BWWPaus;
@@ -74,5 +74,5 @@ static std::vector<wolf_s>wolf; // Stundenwerte der Börsenstrompreise
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop,int sunrise, e3dc_config_t &e3dc, float soc);
 void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc,float soc,int sunriseAt);
 int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float anforderung, float Diff,float aufschlag, float ladeleistung);
-int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, int Wintertag, float Reserve);
+int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve);
 
