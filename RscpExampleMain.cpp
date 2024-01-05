@@ -1676,7 +1676,7 @@ bDischarge = false;
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&t%20==0)
 //        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
-            if (kst != (wolf[wpkst].wert+wolf[wpkt].wert))
+            if (kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
         {
             if (wolf[wpkt].wert>wolf[wpkst].wert)
             kst = wolf[wpkst].wert*2;
