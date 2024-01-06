@@ -1669,12 +1669,13 @@ bDischarge = false;
         float a,b;
         static float kst = 0;
         static float c = 0;
+        static time_t t_old;
         a=fspreis/fcop;
         b=wolf[wpswk].wert;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         if (wolf.size()>0&&e3dc_config.WPWolf)
-        if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&t%20==0)
+        if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&(t-t_old)>30)
 //        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
             if ((kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
                 ||
@@ -1698,8 +1699,8 @@ bDischarge = false;
 // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
-    c=(float(temp[10])/10+e3dc_config.WPOffset);
-    c=(float(temp[4])/10+e3dc_config.WPOffset+2);
+    c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
+    c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
 
     if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
         if (b < 4)
@@ -1716,6 +1717,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             if (b!=wolf[wpswk].wert)
             {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
+                t_old = t;
             }
 //            kst = wolf[wpkst].wert;
 
