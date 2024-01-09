@@ -464,7 +464,7 @@ bool GetConfig()
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
         e3dc_config.WPEHZ = -1;
-        e3dc_config.WPZWE = -1;
+        e3dc_config.WPZWE = -99;
         e3dc_config.WPZWEPVon = -1;
         e3dc_config.WPOffset = 2;
         e3dc_config.MQTTavl = -1;
@@ -2008,7 +2008,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 // und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
 // war, bleibt der Freilauf erhalten
 
-                                {   iLMStatus = 3;
+                                {   
+//                                    if (bDischarge)  // Entladen ist zugelassen?
+                                    iLMStatus = 3;
                                     if (iLastReq>0)
                                     {sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                         WriteLog();
@@ -2018,7 +2020,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
                                 {
 // testweise kein Freilauf
                                     if (iE3DC_Req_Load == e3dc_config.maximumLadeleistung)
-                                    {iLMStatus = 3;
+                                    {
+//                                        if (bDischarge)  // Entladen ist zugelassen?
+                                        iLMStatus = 3;
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
                                     }else
                                 iLMStatus = -6;
@@ -2281,7 +2285,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
         int iRefload=0,iPower=0;
-        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
+//        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
 
         // Ermitteln der tatsächlichen maximalen Speicherladeleistung
         
