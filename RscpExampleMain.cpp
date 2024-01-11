@@ -1723,9 +1723,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 
             
         }
-        if (ireq_Heistab>e3dc_config.WPPVon)  // Überschuss PV
+        if (ireq_Heistab>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder 
             btasmota_ch2  |= 4;
-        if (ireq_Heistab<-e3dc_config.WPPVon)  // Überschuss PV
+        if (ireq_Heistab<(-500-e3dc_config.WPPVon))  // Überschuss PV
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
 
@@ -1922,9 +1922,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     //
 //    if (iPower_PV > 100)
     {
-        ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
-        if (fAvPower_Grid60 < -50&&fPower_Grid <-50)
-            ireq_Heistab = iPower_Bat - fPower_Grid -50;
+        ireq_Heistab = -iMaxBattLade + iPower_Bat - fPower_Grid;
+        if (fAvPower_Grid60 < -100&&fPower_Grid <-100)
+            ireq_Heistab = iPower_Bat - fPower_Grid -100;
         iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
     }
     

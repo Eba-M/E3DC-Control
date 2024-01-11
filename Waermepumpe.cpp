@@ -166,6 +166,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
                     waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
                     // Heizlast bei -15°
+/*
                     int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
                     heizbegin = sunrise + 120;
                     heizende = (heizbegin + heizdauer)%(24*60);
@@ -213,7 +214,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             }
                             
                         }
-                }
+*/
+ }
+
             }}
         {
         while (w.size()>0&&(w[0].hh+3540)<=rawtime)  // eine Minute vorher löschen
