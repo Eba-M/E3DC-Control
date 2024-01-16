@@ -96,7 +96,7 @@ float forecastpeak;    //
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV 1=ww, 2=preis, 4=überschuss
 
 SunriseCalc * location;
-std::vector<watt_s> ch;  //charge hour
+std::vector<ch_s> ch;  //charge hour
 // std::vector<watt_s> w1;
 
 avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Einträgen
@@ -440,6 +440,9 @@ bool GetConfig()
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
+        e3dc_config.wbhour = 0;
+        e3dc_config.wbvon = 0;
+        e3dc_config.wbbis = 0;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = 0;
@@ -1675,11 +1678,16 @@ bDischarge = false;
 //        b=e3dc_config.WPZWE-1.0;
 //        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
         if (wolf.size()>0&&e3dc_config.WPWolf)
-        if (wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&(tE3DC-t_old)>30)
+        if ((wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&(tE3DC-t_old)>30)
+            ||
+            (tE3DC-t_old)>150)
+
 //        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
             if ((kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
                 ||
-                (kst == (wolf[wpkst].wert*2 )&& (wolf[wpkst].wert+wolf[wpkt].wert) < (wolf[wpkst].wert*2)))
+                (kst == (wolf[wpkst].wert*2 )&& (wolf[wpkst].wert+wolf[wpkt].wert) < (wolf[wpkst].wert*2))
+                ||
+                (tE3DC-t_old)>300)
                     
         {
             if (wolf[wpkt].wert>wolf[wpkst].wert)
@@ -1690,13 +1698,19 @@ bDischarge = false;
             if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
 //                btasmota_ch2  |= 2;  //setzen
                 if (b<3&&wolf[wppw].wert<0.75*e3dc_config.WPmax)
-                b=b+0.1;
+                    b=b+0.1;
+// wenn die Wolf nicht läuft, dann auf den theoretischen COP gehen
+            if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
+                if (b < 0)
+                    b=0;
+                else
+                    b=b+.1;
+// Strompreis zu hoch runterregeln
             if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-//                if (btasmota_ch2&2)
-//                    btasmota_ch2  ^= 2;  // löschen
-//                if (b>-2)
-                b=b-0.1;
-// Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
+                if (b >-4)
+                    b=b-0.1;
+
+            // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
     c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
@@ -1723,9 +1737,13 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 
             
         }
-        if (ireq_Heistab>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder 
+// Überschusssteuerung der WP
+        //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
+
+        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
+        if (PVon>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
             btasmota_ch2  |= 4;
-        if (ireq_Heistab<(-500-e3dc_config.WPPVon))  // Überschuss PV
+        if (PVon<(-500-e3dc_config.WPPVon))  // Überschuss PV
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
 
@@ -1922,7 +1940,8 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     //
 //    if (iPower_PV > 100)
     {
-        ireq_Heistab = -iMaxBattLade + iPower_Bat - fPower_Grid;
+//        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
+        ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
         if (fAvPower_Grid60 < -100&&fPower_Grid <-100)
             ireq_Heistab = iPower_Bat - fPower_Grid -100;
         iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
@@ -2095,6 +2114,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
         if (tasmota_status[1] == 0) printf("PV:OFF ");
         if (tasmota_status[1] == 1) 
             printf("PV:ON%i ",btasmota_ch2);
+        printf("%i",int(-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid));
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)

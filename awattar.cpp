@@ -28,6 +28,7 @@
 
 static time_t tm_Wallbox_dt = 0;
 static watt_s ww,ww1,ww2;
+static ch_s cc;
 static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
@@ -67,7 +68,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt)/3600;
-    if (tm >= 24) tm_Wallbox_dt = tm_dt;
+    if (tm > 1) tm_Wallbox_dt = tm_dt;
     if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
     {
         return false;
@@ -754,7 +755,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<watt_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc, int sunrise)
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc, int sunrise)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -1068,14 +1069,17 @@ if (e3dc.AWLand == 2)
                 ww =  w[j];
             }
         }
-        ch.push_back(ww);
+        cc.hh = ww.hh;
+        cc.ch = 0;
+        cc.pp = ww.pp;
+        ch.push_back(cc);
         ww1=ww;
         long erg = 24*3600;
     }
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
 //    sort (ch.begin(),ch.end());
-    std::sort(ch.begin(), ch.end(), [](const watt_s& a, const watt_s& b) {
+    std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.hh < b.hh;});
     int ptm_alt;
     for (int j = 0; j < ch.size(); j++ ){
