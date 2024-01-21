@@ -30,6 +30,7 @@ static time_t tm_Wallbox_dt = 0;
 static watt_s ww,ww1,ww2;
 static ch_s cc;
 static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
+static int old_w_size = 0;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
 
@@ -67,7 +68,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      time(&tm);
      stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
-     tm = (tm - tm_dt)/3600;
+     tm = (tm - tm_dt)/10;
     if (tm > 1) tm_Wallbox_dt = tm_dt;
     if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
     {
@@ -341,6 +342,7 @@ int SimuWATTar(std::vector<watt_s> &w,  int h, float &fSoC,float anforderung,flo
                 if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {
+
                     if ((SollSoc-fSoC)>ladeleistung)
                         fSoC = fSoC + ladeleistung;
                     else
@@ -798,6 +800,7 @@ int ladedauer = 4;
     if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12)))
     {
         oldhour = ptm->tm_hour;
+//        old_w_size = w.size();
 
         for (int j1 = 0;j1<24;j1++) {
             strombedarf[j1] = e3dc.Avhourly;
@@ -1028,26 +1031,54 @@ if (e3dc.AWLand == 2)
           }
         
     }
-// die gewünschten Ladezeiten werden ermittelt
-// Beginn mit der aktuellen Uhrzeit bis nächsten Tag 7Uhr
-    if (not(CheckWallbox()))
-        return;
-
-    fp = fopen("e3dc.wallbox.txt","r");
-    if (fp)
+//
+    
+    
+/* die gewünschten Ladezeiten werden ermittelt
+ Die neuen Ladezeiten werden ermittelt, wenn entweder
+ Checkwallbox erfolgreich ist oder sich bei der Dauereinstelleung
+ wbhour, wbvon oder wbbis sich geändert haben
+*/
+    int chch; // 0 normal 1 Automatik
+    if ((CheckWallbox()))
     {
-        char * res = (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
-        ladedauer = atoi(line);
-        fclose(fp);
-    };
+        fp = fopen("e3dc.wallbox.txt","r");
+        if (fp)
+        {
+            char * res = (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
+            ladedauer = atoi(line);
+            fclose(fp);
+        };
+        von = rawtime;
+        if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
+        bis = von - von%24*3600 + 44*3600;
+        chch = 0;
+        von = w[0].hh;
+        bis = w[w.size()-1].hh;
+    } else
+    {
+// ist die ladezeit schon belegt oder abgelaufen
+        if (w.size()<=old_w_size){
+            old_w_size = w.size();
+            if (ch.size()>0&&ch[ch.size()-1].hh>rawtime&&ch[ch.size()-1].ch==0) // aktiver ladeauftrag
+                return;
+            if (ch.size()==0&&e3dc.wbhour==0)  // nothing todo
+                return;
+            if   (ch.size()==e3dc.wbhour)
+                // keine änderung
+                return;
+        }
+        old_w_size = w.size();
+        bis = w[w.size()-1].hh;
+        bis = bis - bis%(24*3600) + e3dc.wbbis*3600;
+        if (e3dc.wbvon < e3dc.wbbis)
+            von = bis - bis%(24*3600) + e3dc.wbvon*3600;
+        else
+            von = bis - bis%(24*3600) + (e3dc.wbvon-24)*3600;
 
-   
-    von = rawtime;
-    if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
-    bis = von - von%24*3600 + 44*3600;
-
-    von = w[0].hh;
-    bis = w[w.size()-1].hh;
+            ladedauer = e3dc.wbhour;
+            chch = 1;
+    }
 
     long k;       // bis zu     if (k > 7) k = 24-k+7;
     // ersten wert hinzufügen
@@ -1056,7 +1087,7 @@ if (e3dc.AWLand == 2)
         ww1.pp = -1000;
         ch.clear();
  
-    for (int l = 0;(l < ladedauer)&&(l< w.size()); l++)
+/*    for (int l = 0;(l < ladedauer)&&(l< w.size()); l++)
     {
         ww.pp = 1000;
 
@@ -1070,12 +1101,31 @@ if (e3dc.AWLand == 2)
             }
         }
         cc.hh = ww.hh;
-        cc.ch = 0;
+        cc.ch = chch;
         cc.pp = ww.pp;
         ch.push_back(cc);
         ww1=ww;
         long erg = 24*3600;
     }
+ alte logik
+ */
+    for (int l = 0;(l< w.size()); l++)
+    {
+        if (w[l].hh>=von&&w[l].hh<=bis)
+        {
+            cc.hh = w[l].hh;
+            cc.ch = chch;
+            cc.pp = w[l].pp;
+            ch.push_back(cc);
+        }
+    }
+    std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+        return a.pp < b.pp;});
+    while (ch.size()>ladedauer)
+    {
+        ch.erase(ch.end()-1);
+    }
+        
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
 //    sort (ch.begin(),ch.end());

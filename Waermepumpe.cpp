@@ -19,6 +19,111 @@
 #include <array>
 #include <algorithm>
 #include <vector>
+/*
+Steuerung einer BWWP über Tasmota
+Zwischen Sonnenaufgang und Sonnenuntergang wird die BWWP über PV-Überschuss gesteuert.
+ In der Nacht werden zu den günstigsten Zeiten (tibber) für eine bestimmte Stundenzahl die BWWP
+ angesteuert.
+BWWPTasmota = // String zur Ansteuerung der Tasmota-Steckdose
+BWWPTasmotahour = // Anzahl der taglichen Soll Stunden
+Die kummulierte PV-Überschusszeit wird auf die gesamtlaufzeit angerechnet
+*/
+
+static int status = -1; // 0 = tag, 1 = nacht
+static int Tasmotastatus = -1; // 0 = tag, 1 = nacht
+static time_t ontime;
+
+
+int MQTTsend1(char host[20],char buffer[127])
+
+{
+    char cbuf[768];
+    if (strcmp(host,"0.0.0.0")!=0) //gültige hostadresse
+    {
+        sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
+        int ret = system(cbuf);
+        return ret;
+    } else
+    return(-1);
+}
+
+int tasmotaon1(e3dc_config_t &e3dc)
+{
+    char buf[127];
+    sprintf(buf,"cmnd/%s/POWER -m 1",e3dc.BWWPTasmota);
+    MQTTsend1(e3dc.mqtt_ip,buf);
+    Tasmotastatus = 1;
+    return 0;
+}
+int tasmotaoff1(e3dc_config_t &e3dc)
+{
+    char buf[127];
+    sprintf(buf,"cmnd/%s/POWER -m 0",e3dc.BWWPTasmota);
+    MQTTsend1(e3dc.mqtt_ip,buf);
+    Tasmotastatus = 0;
+    return 0;
+}
+
+void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sunset,int ireq_Heistab)
+
+
+
+{
+    time_t rawtime;
+    
+    std::vector<ch_s> ch;
+    ch_s cc;
+    static int tasmotastatus = 0;
+    time(&rawtime);
+    
+    if (rawtime%(24*3600)/60>sunset&&status<1) // wechsel tag/nacht
+    {
+        status = 1;
+        ch.clear();
+        int stunden = ((sunrise+24*60)-sunset)/60;
+        for(int j=0;j<w.size()&&j<stunden;j++)
+        {
+            cc.hh = w[j].hh;
+            cc.pp = w[j].pp;
+            int min = cc.hh%(24*3600)/60;
+            if (min>sunset||min<sunrise)
+            ch.push_back(cc);
+        }
+        std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+            return a.pp < b.pp;});
+        while (ch.size()>e3dc.BWWPTasmotaDauer)
+        {
+            ch.erase(ch.end()-1);
+        }
+        std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+            return a.hh < b.hh;});
+        
+    }
+    if (ch.size() > 0)
+    {
+        if (ch[0].hh+3600 < rawtime)
+        {
+            ch.erase(ch.begin());
+            if (ch.size() == 0&&Tasmotastatus > 0)
+                tasmotaoff1(e3dc);
+            return;
+        }
+    }
+    else
+        return;
+    if (ch[0].hh < rawtime&&Tasmotastatus < 0)
+    {
+        tasmotaon1(e3dc);
+        ontime = rawtime;
+    }
+    if (ch[0].hh > rawtime&&Tasmotastatus > 0&&((rawtime-ontime)>300))
+    {
+        tasmotaoff1(e3dc);
+    }
+
+};
+
+
 
 // Wärmepumpe   Die Wärmepumpe soll kostenoptimiert betrieben werden.
 // Um den Wärmebedarf vom Haus zu ermitteln werden die Wetterdaten der
@@ -48,13 +153,16 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, e3dc_config_t &e3dc, float soc) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
     float anforderung;
     ptm = gmtime (&rawtime);
 
+    if (e3dc.BWWPTasmotaDauer > 0)
+    bwwptasmota(w,e3dc,sunrise,sunset,ireq_Heistab);
+    
     if (oldhour < 0 && soc<0) {
         return;
     }
@@ -66,7 +174,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //    /*{
      FILE * fp;
      char line[256];
-
         if (strlen(e3dc.openweathermap)>0)
         {
             

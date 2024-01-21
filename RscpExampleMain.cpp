@@ -440,9 +440,9 @@ bool GetConfig()
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
-        e3dc_config.wbhour = 0;
-        e3dc_config.wbvon = 0;
-        e3dc_config.wbbis = 0;
+        e3dc_config.wbhour = -1;
+        e3dc_config.wbvon = -1;
+        e3dc_config.wbbis = -1;
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = 0;
@@ -459,6 +459,8 @@ bool GetConfig()
         e3dc_config.BWWP_port = 6722;
         e3dc_config.BWWPein = 0;
         e3dc_config.BWWPaus = 0;
+        e3dc_config.BWWPTasmotaDauer = 0;
+        memset(e3dc_config.BWWPTasmota,0,sizeof(e3dc_config.BWWPTasmota));
         e3dc_config.soc = -1;
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
@@ -518,6 +520,10 @@ bool GetConfig()
                         strcpy(e3dc_config.Forecast[3], value);
                     else if(strcmp(var, "openweathermap") == 0)
                         strcpy(e3dc_config.openweathermap, value);
+                    else if(strcmp(var, "bwwptasmota") == 0)
+                        strcpy(e3dc_config.BWWPTasmota, value);
+                    else if(strcmp(var, "bwwptasmotadauer") == 0)
+                        e3dc_config.BWWPTasmotaDauer = atoi(value);
                     else if(strcmp(var, "wurzelzaehler") == 0)
                         e3dc_config.wurzelzaehler = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -638,6 +644,12 @@ bool GetConfig()
                         e3dc_config.wbminlade = atoi(value);
                     else if(strcmp(var, "wbmaxladestrom") == 0)
                         e3dc_config.wbmaxladestrom = atoi(value);
+                    else if(strcmp(var, "wbhour") == 0)
+                        e3dc_config.wbhour = atoi(value);
+                    else if(strcmp(var, "wbvon") == 0)
+                        e3dc_config.wbvon = atoi(value);
+                    else if(strcmp(var, "wbbis") == 0)
+                        e3dc_config.wbbis = atoi(value);
                     else if(strcmp(var, "wbminsoc") == 0)
                         e3dc_config.wbminSoC = atof(value);
                     else if(strcmp(var, "hoehe") == 0)
@@ -1106,6 +1118,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
+                wo.wert = -4;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -1440,8 +1453,8 @@ int LoadDataProcess() {
     int cLadezeitende2 = (e3dc_config.winterminimum+0.5+(e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600; // eine halbe Stunde Später
     tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommerladeende-e3dc_config.winterminimum-0.5)/2)*3600;
     if (e3dc_config.LE > 0)
-    {    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60;
-        tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.LE*60-(sunsetAt+sunriseAt)/2)/2)*60;
+    {    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60; //Korrektur + 60min
+        tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.LE*60-60-(sunsetAt+sunriseAt)/2)/2)*60; //korrektur berücksichtigen
     }
 // Regelbeginn
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
@@ -1740,7 +1753,10 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 // Überschusssteuerung der WP
         //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
 
-        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
+//        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
+        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
+        if (iMinLade == 0)
+            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
         if (PVon>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
             btasmota_ch2  |= 4;
         if (PVon<(-500-e3dc_config.WPPVon))  // Überschuss PV
@@ -1938,6 +1954,16 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     // Überschussleistung an Heizstab, wenn vorhanden
     // iBattLoad-iPower_Bat die angeforderte Batterieladeleistung sollte angeforderten Batterieladeeistung entsprechen
     //
+    // Ermitteln der tatsächlichen maximalen Speicherladeleistung
+    
+    if ((fAvPower_Grid < -100)&&(fPower_Grid<-150))
+    { if ((iMaxBattLade*.02) > 50)
+            iMaxBattLade = iMaxBattLade*.98;
+        else iMaxBattLade = iMaxBattLade-50;}
+    if (iPower_Bat > iMaxBattLade)
+        iMaxBattLade = iPower_Bat;
+    if (iMaxBattLade < iPower_Bat*-1&&fBatt_SOC<e3dc_config.ladeende) iMaxBattLade = iPower_Bat*-1;
+
 //    if (iPower_PV > 100)
     {
 //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
@@ -2302,25 +2328,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            createRequestWBData(frameBuffer);
     }
     
-    if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
-    {
         int iRefload=0,iPower=0;
 //        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
 
-        // Ermitteln der tatsächlichen maximalen Speicherladeleistung
-        
-        if ((fAvPower_Grid < -100)&&(fPower_Grid<-150))
-        { if ((iMaxBattLade*.02) > 50)
-                iMaxBattLade = iMaxBattLade*.98;
-            else iMaxBattLade = iMaxBattLade-50;}
-        if (iPower_Bat > iMaxBattLade)
-            iMaxBattLade = iPower_Bat;
-        if (iMinLade>iFc) iRefload = iFc;
+
+    if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
 // Morgens soll die volle Leistung zur Verfügung stehen
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
-        if (iMaxBattLade < iPower_Bat*-1&&fBatt_SOC<e3dc_config.ladeende) iMaxBattLade = iPower_Bat*-1;
         
+    if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
+    {
 
 //        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
 //            iRefload = iMaxBattLade;
@@ -4018,7 +4036,7 @@ static void mainLoop(void)
             if (e3dc_config.debug) printf("M2");
 
 //            if (e3dc_config.WP)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,e3dc_config,fBatt_SOC);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
