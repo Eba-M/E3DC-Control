@@ -770,7 +770,7 @@ void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, 
 //    std::vector<watt_s> ch;  //charge hour
 bool simu = false;
 //    simu = true;
-int ladedauer = 4;
+int ladedauer = 0;
     float strombedarf[24];
     time_t rawtime;
     struct tm * ptm;
@@ -1058,30 +1058,34 @@ if (e3dc.AWLand == 2)
         bis = w[w.size()-1].hh;
     } else
     {
-// ist die ladezeit schon belegt oder abgelaufen
-        if (w.size()<=old_w_size){
+        // ist die ladezeit schon belegt oder abgelaufen
+        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24){
             old_w_size = w.size();
             if (ch.size()>0&&ch[ch.size()-1].hh>rawtime&&ch[ch.size()-1].ch==0) // aktiver ladeauftrag
                 return;
-            if (ch.size()==0&&e3dc.wbhour==0)  // nothing todo
-                return;
-            if   (ch.size()<=e3dc.wbhour)
-                // keine änderung
+            if (ch.size()==0&&e3dc.wbhour<=0)  // nothing todo
                 return;
         }
-        old_w_size = w.size();
-        bis = w[w.size()-1].hh;
-        bis = bis - bis%(24*3600) + e3dc.wbbis*3600;
-        if (e3dc.wbvon < e3dc.wbbis)
-            von = bis - bis%(24*3600) + e3dc.wbvon*3600;
-        else
-            von = bis - bis%(24*3600) + (e3dc.wbvon-24)*3600;
-
-        if (e3dc.wbhour > 0)
-        {
-            ladedauer = e3dc.wbhour;
-            chch = 1;
-        } else ladedauer = 0;
+        if (w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
+        {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
+            if (e3dc.wbhour <=0) return;  // nichts zu ermitteln;
+            if (e3dc.wbvon < 0) e3dc.wbvon = 0;
+            if (e3dc.wbbis > 24) e3dc.wbbis = 24;
+            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
+            old_w_size = w.size();
+            bis = w[w.size()-1].hh;
+            bis = bis - bis%(24*3600) + e3dc.wbbis*3600;
+            if (e3dc.wbvon < e3dc.wbbis)
+                von = bis - bis%(24*3600) + e3dc.wbvon*3600;
+            else
+                von = bis - bis%(24*3600) + (e3dc.wbvon-24)*3600;
+            
+            if (e3dc.wbhour > 0)
+            {
+                ladedauer = e3dc.wbhour;
+                chch = 1;
+            } else ladedauer = 0;
+        } else return;
     }
 
     long k;       // bis zu     if (k > 7) k = 24-k+7;
