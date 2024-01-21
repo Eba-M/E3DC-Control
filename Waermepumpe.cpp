@@ -71,14 +71,16 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
 {
     time_t rawtime;
     
-    std::vector<ch_s> ch;
-    ch_s cc;
+    static std::vector<ch_s> ch;
+    static ch_s cc;
     static int tasmotastatus = 0;
+    static int dauer = -1;
     time(&rawtime);
     
-    if (rawtime%(24*3600)/60>sunset&&status<1) // wechsel tag/nacht
+    if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
         status = 1;
+        dauer = e3dc.BWWPTasmotaDauer;
         ch.clear();
         int stunden = ((sunrise+24*60)-sunset)/60;
         for(int j=0;j<w.size()&&j<stunden;j++)

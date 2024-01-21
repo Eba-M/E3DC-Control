@@ -1040,6 +1040,7 @@ if (e3dc.AWLand == 2)
  wbhour, wbvon oder wbbis sich geändert haben
 */
     int chch; // 0 normal 1 Automatik
+    static int dauer = -1;
     if ((CheckWallbox()))
     {
         fp = fopen("e3dc.wallbox.txt","r");
@@ -1064,7 +1065,7 @@ if (e3dc.AWLand == 2)
                 return;
             if (ch.size()==0&&e3dc.wbhour==0)  // nothing todo
                 return;
-            if   (ch.size()==e3dc.wbhour)
+            if   (ch.size()<=e3dc.wbhour)
                 // keine änderung
                 return;
         }
@@ -1076,8 +1077,11 @@ if (e3dc.AWLand == 2)
         else
             von = bis - bis%(24*3600) + (e3dc.wbvon-24)*3600;
 
+        if (e3dc.wbhour > 0)
+        {
             ladedauer = e3dc.wbhour;
             chch = 1;
+        } else ladedauer = 0;
     }
 
     long k;       // bis zu     if (k > 7) k = 24-k+7;
