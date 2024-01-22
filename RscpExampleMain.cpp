@@ -1707,22 +1707,30 @@ bDischarge = false;
             kst = wolf[wpkst].wert*2;
             else
                 kst = wolf[wpkst].wert+wolf[wpkt].wert;
-;
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
-//                btasmota_ch2  |= 2;  //setzen
-                if (b<3&&wolf[wppw].wert<0.75*e3dc_config.WPmax)
-                    b=b+0.1;
-// wenn die Wolf nicht läuft, dann auf den theoretischen COP gehen
+
             if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
                 if (b < 0)
                     b=0;
                 else
                     b=b+.1;
-// Strompreis zu hoch runterregeln
-            if ((fspreis*wolf[wppw].wert/wolf[wphl].wert)>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                if (b >-4)
-                    b=b-0.1;
 
+            if (wolf[wphl].wert > 0) {
+                float fpreis = fspreis*wolf[wppw].wert/wolf[wphl].wert;
+                if ((fpreis)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
+                    //                btasmota_ch2  |= 2;  //setzen
+                    if (b<3&&wolf[wppw].wert<0.75*e3dc_config.WPmax)
+                        b=b+0.1;
+                // wenn die Wolf nicht läuft, dann auf den theoretischen COP gehen
+                if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
+                    if (b < 0)
+                        b=0;
+                    else
+                        b=b+.1;
+                // Strompreis zu hoch runterregeln
+                if (fpreis>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
+                    if (b >-4)
+                        b=b-0.1;
+            }
             // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {

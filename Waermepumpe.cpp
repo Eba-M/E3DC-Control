@@ -28,7 +28,7 @@ BWWPTasmota = // String zur Ansteuerung der Tasmota-Steckdose
 BWWPTasmotahour = // Anzahl der taglichen Soll Stunden
 Die kummulierte PV-Überschusszeit wird auf die gesamtlaufzeit angerechnet
 */
-
+static time_t rawtime;
 static int status = -1; // 0 = tag, 1 = nacht
 static int Tasmotastatus = -1; // 0 = tag, 1 = nacht
 static time_t ontime;
@@ -50,15 +50,18 @@ int MQTTsend1(char host[20],char buffer[127])
 int tasmotaon1(e3dc_config_t &e3dc)
 {
     char buf[127];
-    sprintf(buf,"cmnd/%s/POWER -m 1",e3dc.BWWPTasmota);
+    sprintf(buf,"cmnd/%s/POWER -m ON",e3dc.BWWPTasmota);
+    if (Tasmotastatus == 0)
     MQTTsend1(e3dc.mqtt_ip,buf);
     Tasmotastatus = 1;
+    ontime = rawtime;
     return 0;
 }
 int tasmotaoff1(e3dc_config_t &e3dc)
 {
     char buf[127];
-    sprintf(buf,"cmnd/%s/POWER -m 0",e3dc.BWWPTasmota);
+    sprintf(buf,"cmnd/%s/POWER -m OFF",e3dc.BWWPTasmota);
+    if (Tasmotastatus == 1)
     MQTTsend1(e3dc.mqtt_ip,buf);
     Tasmotastatus = 0;
     return 0;
@@ -69,14 +72,17 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
 
 
 {
-    time_t rawtime;
     
     static std::vector<ch_s> ch;
     static ch_s cc;
-    static int tasmotastatus = 0;
     static int dauer = -1;
     time(&rawtime);
     
+    if (ireq_Heistab>500&&Tasmotastatus <= 0)
+    {
+        tasmotaon1(e3dc);
+    }
+
     if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
         status = 1;
@@ -110,19 +116,19 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
                 tasmotaoff1(e3dc);
             return;
         }
+        
+        if (ch[0].hh <= rawtime&&Tasmotastatus <= 0)
+        {
+            tasmotaon1(e3dc);
+            
+        }
     }
-    else
-        return;
-    if (ch[0].hh < rawtime&&Tasmotastatus < 0)
-    {
-        tasmotaon1(e3dc);
-        ontime = rawtime;
-    }
-    if (ch[0].hh > rawtime&&Tasmotastatus > 0&&((rawtime-ontime)>300))
+    if ((ch.size() == 0||ch[0].hh > rawtime)&&Tasmotastatus > 0&&((rawtime-ontime)>300))
     {
         tasmotaoff1(e3dc);
     }
-
+    if (ch.size() > 0)
+        printf("Tasmo %i",(ch[0].hh%(24*3600)/3600));
 };
 
 
