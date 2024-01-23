@@ -1118,7 +1118,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
-                wo.wert = -4;
+                wo.wert = -99;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -1749,7 +1749,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
-            if (b!=wolf[wpswk].wert)
+            if (b!=wolf[wpswk].wert&&b>-4)
             {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
                 t_old = tE3DC;
