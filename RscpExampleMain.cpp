@@ -1405,7 +1405,7 @@ int LoadDataProcess() {
         
     }
     t = tE3DC % (24*3600);
-    
+    static int PVon;
     static time_t t_config = tE3DC;
     if ((tE3DC-t_config) > 10)
     {
@@ -1708,10 +1708,9 @@ bDischarge = false;
             else
                 kst = wolf[wpkst].wert+wolf[wpkt].wert;
 
+            
+            
             if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                if (b==-4.1)
-                    b=0;
-                else
                     b=b+.1;
 
             if (wolf[wphl].wert > 0) {
@@ -1731,24 +1730,34 @@ bDischarge = false;
                     if (b >-4)
                         b=b-0.1;
             }
-            // Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
+// Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
 if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
 {
+
     c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
     c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
 
-    if (b==-4.1)
-        b=0;
-    
-    if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
-        if (b < 4)
-        b=b+.1;
-    if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
-        if (b >-4)
-        b=b-.1;
-
+    if (float(temp[13])/10<e3dc_config.BWWPein)
+    {
+        if (float(temp[14])/10<(e3dc_config.BWWPein+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
+            b=b+0.1;
+        else
+            b = b-0.1;
+    } else
+    {
+        if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
+            if (b < 4)
+                b=b+.1;
+        if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
+            if (b >-4)
+                b=b-.1;
+    }
 }
 // Sollwertkorrektur an die Wolf CHA senden
+
+            if (b==-4.1)
+                b=0;
+
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
@@ -1768,11 +1777,11 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 // Überschusssteuerung der WP
         //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
 
-        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
+         PVon = (-iMinLade + iPower_Bat - fPower_Grid);
 //        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
         if (iMinLade == 0)
             PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
-        if (PVon>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
+        if (PVon>e3dc_config.WPPVon||(PVon&&fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
             btasmota_ch2  |= 4;
         if (PVon<(-500-e3dc_config.WPPVon))  // Überschuss PV
             if (btasmota_ch2&4)
@@ -1982,9 +1991,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 //    if (iPower_PV > 100)
     {
 //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
-        ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
-        if (fAvPower_Grid60 < -100&&fPower_Grid <-100)
-            ireq_Heistab = iPower_Bat - fPower_Grid -100 -iMinLade;
+        ireq_Heistab = -(iBattLoad+iMinLade)/2 + iPower_Bat - fPower_Grid;
+        if (iMinLade == 0)
+            ireq_Heistab = iPower_Bat - fPower_Grid -100;
         iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
     }
     
@@ -2155,7 +2164,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
         if (tasmota_status[1] == 0) printf("PV:OFF ");
         if (tasmota_status[1] == 1) 
             printf("PV:ON%i ",btasmota_ch2);
-        printf("%i",int(-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid));
+        printf("%i",PVon);
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
