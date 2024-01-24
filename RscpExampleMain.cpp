@@ -1737,9 +1737,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
     c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
 
-    if (float(temp[13])/10<e3dc_config.BWWPein)
+    if ((tasmota_status[3] == 1))
     {
-        if (float(temp[14])/10<(e3dc_config.BWWPein+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
+        if (float(temp[14])/10<(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
             b=b+0.1;
         else
             b = b-0.1;
