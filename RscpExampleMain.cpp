@@ -160,7 +160,7 @@ return(0);
 int MQTTsend(char host[20],char buffer[127])
 
 {
-    char cbuf[768];
+    char cbuf[128];
     if (strcmp(host,"0.0.0.0")!=0) //gültige hostadresse
     {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
@@ -1118,7 +1118,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
-                wo.wert = -99;
+                wo.wert = -4.5;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -1182,7 +1182,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     
     char buf[127];
 //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
-    sprintf(buf,"E3DC-Control/Aval -m %i",ireq_Heistab);
+    sprintf(buf,"E3DC-Control/Aval -m '%i %i' ",ireq_Heistab,iBattLoad);
     if (e3dc_config.debug) printf("D3");
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     if (e3dc_config.debug) printf("D4");
@@ -1693,14 +1693,14 @@ bDischarge = false;
         if (wolf.size()>0&&e3dc_config.WPWolf)
         if ((wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&(tE3DC-t_old)>30)
             ||
-            (tE3DC-t_old)>150)
+            (tE3DC-t_old)>60)
 
 //        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
             if ((kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
                 ||
                 (kst == (wolf[wpkst].wert*2 )&& (wolf[wpkst].wert+wolf[wpkt].wert) < (wolf[wpkst].wert*2))
                 ||
-                (tE3DC-t_old)>300)
+                (tE3DC-t_old)>120)
                     
         {
             if (wolf[wpkt].wert>wolf[wpkst].wert)
@@ -1709,7 +1709,7 @@ bDischarge = false;
                 kst = wolf[wpkst].wert+wolf[wpkt].wert;
 
             if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                if (b < 0)
+                if (b==-4.1)
                     b=0;
                 else
                     b=b+.1;
@@ -1718,16 +1718,16 @@ bDischarge = false;
                 float fpreis = fspreis*wolf[wppw].wert/wolf[wphl].wert;
                 if ((fpreis)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
                     //                btasmota_ch2  |= 2;  //setzen
-                    if (b<3&&wolf[wppw].wert<0.75*e3dc_config.WPmax)
+                    if (b<4&&wolf[wppw].wert<0.6*e3dc_config.WPmax)
                         b=b+0.1;
                 // wenn die Wolf nicht läuft, dann auf den theoretischen COP gehen
                 if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                    if (b < 0)
+                    if (b < 0&&b>-4)
                         b=0;
                     else
                         b=b+.1;
                 // Strompreis zu hoch runterregeln
-                if (fpreis>e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
+                if ((fpreis>e3dc_config.WPZWEPVon||wolf[wppw].wert>0.7*e3dc_config.WPmax)&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
                     if (b >-4)
                         b=b-0.1;
             }
@@ -1737,6 +1737,9 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
     c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
 
+    if (b==-4.1)
+        b=0;
+    
     if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
         if (b < 4)
         b=b+.1;
@@ -1749,20 +1752,24 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
-            if (b!=wolf[wpswk].wert&&b>-4)
+            if (b!=wolf[wpswk].wert&&b>=-4&&b<=4)
             {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
                 t_old = tE3DC;
+            } else
+            if (b<=-4)
+            {
+                wolf[wpswk].wert = b;
+                t_old = tE3DC;
             }
-//            kst = wolf[wpkst].wert;
 
             
         }
 // Überschusssteuerung der WP
         //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
 
-//        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
-        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
+        int PVon = (-(iMinLade*2)+ fAvBatterie + iPower_Bat - fPower_Grid);
+//        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
         if (iMinLade == 0)
             PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
         if (PVon>e3dc_config.WPPVon||(fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
@@ -1977,7 +1984,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
         ireq_Heistab = -iBattLoad + iPower_Bat - fPower_Grid;
         if (fAvPower_Grid60 < -100&&fPower_Grid <-100)
-            ireq_Heistab = iPower_Bat - fPower_Grid -100;
+            ireq_Heistab = iPower_Bat - fPower_Grid -100 -iMinLade;
         iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
     }
     
