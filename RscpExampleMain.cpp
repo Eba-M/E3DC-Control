@@ -1741,9 +1741,15 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
     {
         diff = (float(temp[14])/10-(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2);
         if (float(temp[14])/10<(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
+        {
+           if (wolf[wpkst].wert < wolf[wpkt].wert+1.5) //max. 1,5° Überhöhung
             b=b+0.1;
+        }
         else
-            b = b-0.1;
+        {
+            if (wolf[wpkt].wert > (float(temp[10])/10+2)&&(wolf[wpkt].wert > (float(temp[14])/10)))
+                b = b-0.1;
+        }
     } else
     {
         diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset);
@@ -1793,10 +1799,10 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 // Überschusssteuerung der WP
         //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
 
-         PVon = (-iMinLade + iPower_Bat - fPower_Grid);
+         PVon = (-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid);
 //        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
-        if (iMinLade == 0)
-            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
+//        if (iMinLade == 0)
+//            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
         if (PVon>e3dc_config.WPPVon||(PVon&&fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
             btasmota_ch2  |= 4;
         if (PVon<(-500-e3dc_config.WPPVon))  // Überschuss PV
@@ -2007,9 +2013,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 //    if (iPower_PV > 100)
     {
 //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
-        ireq_Heistab = -(iBattLoad+iMinLade)/2 + iPower_Bat - fPower_Grid;
-        if (iMinLade == 0)
-            ireq_Heistab = iPower_Bat - fPower_Grid -100;
+        ireq_Heistab = -sqrt(iBattLoad*iMinLade+iBattLoad) + iPower_Bat - fPower_Grid;
         iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
     }
     
