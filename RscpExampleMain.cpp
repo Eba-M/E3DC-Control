@@ -1118,7 +1118,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "BUSCONFIG_Sollwertkorrektur";
                 wo.AK = "SWK";
-                wo.wert = -4.5;
+                wo.wert = -5;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -1736,26 +1736,42 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 
     c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
     c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
-
+    float diff;
     if ((tasmota_status[3] == 1))
     {
+        diff = (float(temp[14])/10-(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2);
         if (float(temp[14])/10<(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
             b=b+0.1;
         else
             b = b-0.1;
     } else
     {
+        diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset);
+        diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2);
         if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
             if (b < 4)
                 b=b+.1;
-        if ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
-            if (b >-4)
-                b=b-.1;
+        diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset+.5);
+        diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2.5);
+        
+        if
+            ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
+        {
+            if (b>-4)
+            {
+                if (diff > 1)
+                    b=b-(diff/10);
+                else
+                    b=b-.1;
+                if (b <-4)
+                    b=b-4;
+            }
+        }
     }
 }
 // Sollwertkorrektur an die Wolf CHA senden
 
-            if (b==-4.1)
+            if (b>-4.2&&b<-4.1)
                 b=0;
 
             char buf[127];
