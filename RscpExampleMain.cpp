@@ -1786,9 +1786,10 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
             if (b!=wolf[wpswk].wert&&b>=-4&&b<=4)
             {
                 MQTTsend(e3dc_config.mqtt_ip,buf);
+                wolf[wpswk].wert = b;
                 t_old = tE3DC;
             } else
-            if (b<=-4)
+//            if (b<=-4)
             {
                 wolf[wpswk].wert = b;
                 t_old = tE3DC;
