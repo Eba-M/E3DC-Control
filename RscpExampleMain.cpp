@@ -1755,7 +1755,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
         diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset);
         diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2);
         if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
-            if (b < 4)
+            if (b < 4&&wolf[wpkt].wert>0&&wolf[wpkst].wert>0)
                 b=b+.1;
         diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset+.5);
         diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2.5);
@@ -1779,7 +1779,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 
             if (b>-4.2&&b<-4.1)
                 b=0;
-
+/*
             char buf[127];
         //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
             sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
@@ -1794,7 +1794,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
                 wolf[wpswk].wert = b;
                 t_old = tE3DC;
             }
-
+*/
             
         }
 // Überschusssteuerung der WP
