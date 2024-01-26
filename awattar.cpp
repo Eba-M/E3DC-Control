@@ -1075,10 +1075,11 @@ if (e3dc.AWLand == 2)
             old_w_size = w.size();
             bis = w[w.size()-1].hh;
             bis = bis - bis%(24*3600) + e3dc.wbbis*3600;
-            if (e3dc.wbvon < e3dc.wbbis)
-                von = bis - bis%(24*3600) + e3dc.wbvon*3600;
-            else
-                von = bis - bis%(24*3600) + (e3dc.wbvon-24)*3600;
+            von = w[0].hh;
+            von = von - von%(24*3600) + e3dc.wbvon*3600;
+
+            if (von > bis)
+                bis = bis + 24*3600;   // nächster tag
             
             if (e3dc.wbhour > 0)
             {
