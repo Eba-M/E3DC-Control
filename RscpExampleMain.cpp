@@ -1804,7 +1804,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
 //        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
 //        if (iMinLade == 0)
 //            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
-        if (PVon>e3dc_config.WPPVon||(PVon&&fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
+        if (PVon>e3dc_config.WPPVon||(PVon>0&&fBatt_SOC>fLadeende2&&iPower_PV>100))  // Überschuss PV oder
             btasmota_ch2  |= 4;
         if (PVon<(-500-e3dc_config.WPPVon))  // Überschuss PV
             if (btasmota_ch2&4)

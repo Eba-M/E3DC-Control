@@ -1068,7 +1068,7 @@ if (e3dc.AWLand == 2)
         }
         if (w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
-            if (e3dc.wbhour <=0) return;  // nichts zu ermitteln;
+            if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
             dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
