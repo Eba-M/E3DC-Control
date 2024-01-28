@@ -1264,7 +1264,7 @@ int LoadDataProcess() {
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
     if (e3dc_config.debug) printf("D1");
-
+if (e3dc_config.WPWolf)
     int ret = wolfstatus();
     time (&t);
     
@@ -1357,10 +1357,10 @@ int LoadDataProcess() {
         static time_t wpofftime = 0;
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
-                if (temp[17]==1&&temp[19]==4) // Kessel an + Leistungsbrand
+                if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
                 {
                     // LWWP ausschalten wenn der Pelletskessel läuft
-                    if (tasmota_status[0]==1&&btasmota_ch2==0&&t-wpofftime>300){
+                    if (tasmota_status[0]==1&&btasmota_ch2==0&&t-wpofftime>900){
                         tasmotaoff(1);
                         wpofftime = t;
                     }
@@ -1368,14 +1368,24 @@ int LoadDataProcess() {
                         if (tasmota_status[0]==0&&btasmota_ch2>0){
                             tasmotaon(1);
                             wpofftime = t;
-
                         }
                 } else
                     if (tasmota_status[0]==0){
                         tasmotaon(1);
                         wpofftime = t;
                     }
-
+// LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
+            if (fcop>0)
+                if (fspreis/fcop<e3dc_config.WPZWEPVon)
+                {
+                    wpofftime = t;
+                    if (tasmota_status[0]==0){
+                        tasmotaon(1);
+                        wpofftime = t;
+                    }
+                }
+                
+                
             if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
@@ -3965,9 +3975,10 @@ static void mainLoop(void)
             aWATTar(ch,w,e3dc_config,fBatt_SOC, sunrise);
 //            test;
             if (e3dc_config.debug) printf("M2");
-
-//            if (e3dc_config.WP)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,wolf[wpzl].wert);       // Ermitteln Wetterdaten
+            int zulufttemp = -99;
+            if (e3dc_config.WPWolf)
+                zulufttemp = wolf[wpzl].wert;
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
