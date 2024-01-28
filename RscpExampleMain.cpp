@@ -1354,7 +1354,7 @@ int LoadDataProcess() {
             tasmotaon(4);
 
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
-        time_t wpofftime = 0;
+        static time_t wpofftime = 0;
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
                 if (temp[17]==1&&temp[19]==4) // Kessel an + Leistungsbrand
