@@ -1669,7 +1669,7 @@ bDischarge = false;
         a=fspreis/fcop;
 
         
-         PVon = (-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid);
+         PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
 //        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
 //        if (iMinLade == 0)
 //            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
