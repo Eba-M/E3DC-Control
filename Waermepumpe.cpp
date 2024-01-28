@@ -58,7 +58,6 @@ int MQTTsend1(char host[20],char buffer[127])
         int ret = system(cbuf);
         if (debug)
         debugout(cbuf);
-
         return ret;
     } else
     return(-1);
@@ -68,10 +67,8 @@ int tasmotaon1(e3dc_config_t &e3dc)
 {
     char buf[127];
     sprintf(buf,"cmnd/%s/POWER -m ON",e3dc.BWWPTasmota);
-    if (debug) debugout(buf);
     if (Tasmotastatus <= 0){
-        if (debug) debugout(buf);
-        MQTTsend1(e3dc.mqtt_ip,buf);
+        MQTTsend1(e3dc.mqtt2_ip,buf);
     }
         Tasmotastatus = 1;
     ontime = rawtime;
@@ -82,7 +79,7 @@ int tasmotaoff1(e3dc_config_t &e3dc)
     char buf[127];
     sprintf(buf,"cmnd/%s/POWER -m OFF",e3dc.BWWPTasmota);
     if (Tasmotastatus == 1)
-    MQTTsend1(e3dc.mqtt_ip,buf);
+    MQTTsend1(e3dc.mqtt2_ip,buf);
     Tasmotastatus = 0;
     return 0;
 }
@@ -106,8 +103,6 @@ if (debug)
 
     if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
-        if (debug) printf("BT2");
-
         status = 1;
         dauer = e3dc.BWWPTasmotaDauer;
         ch.clear();
@@ -130,7 +125,6 @@ if (debug)
             return a.hh < b.hh;});
         
     }
-    if (debug) printf("BT CH %i",ch.size());
 
     if (ch.size() > 0)
     {
@@ -142,15 +136,9 @@ if (debug)
                 tasmotaoff1(e3dc);
             return;
         }
-        if (debug) printf("BTS %i",Tasmotastatus);
-
-        
         if (ch[0].hh <= rawtime&&Tasmotastatus <= 0)
         {
-            sprintf(buf,"BT on");
-            if (debug) debugout(buf);
             tasmotaon1(e3dc);
-            
         }
     }
     if ((ch.size() == 0||ch[0].hh > rawtime)&&Tasmotastatus > 0&&((rawtime-ontime)>600))
