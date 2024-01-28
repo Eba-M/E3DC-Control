@@ -84,7 +84,8 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
 
 
 {
-    
+if (debug)
+    printf("BT1");
     static std::vector<ch_s> ch;
     static ch_s cc;
     static int dauer = -1;
@@ -97,6 +98,8 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
 
     if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
+        if (debug) printf("BT2");
+
         status = 1;
         dauer = e3dc.BWWPTasmotaDauer;
         ch.clear();
@@ -119,8 +122,11 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
             return a.hh < b.hh;});
         
     }
+    if (debug) printf("BT CH %i",ch.size());
+
     if (ch.size() > 0)
     {
+
         if (ch[0].hh+3600 < rawtime)
         {
             ch.erase(ch.begin());
