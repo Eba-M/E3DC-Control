@@ -1354,16 +1354,27 @@ int LoadDataProcess() {
             tasmotaon(4);
 
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
+        time_t wpofftime = 0;
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
                 if (temp[17]==1&&temp[19]==4) // Kessel an + Leistungsbrand
                 {
                     // LWWP ausschalten wenn der Pelletskessel läuft
-                    if (tasmota_status[0]==1&&btasmota_ch2==0)
-                    tasmotaoff(1);
+                    if (tasmota_status[0]==1&&btasmota_ch2==0&&t-wpofftime>300){
+                        tasmotaoff(1);
+                        wpofftime = t;
+                    }
+                    else
+                        if (tasmota_status[0]==0&&btasmota_ch2>0){
+                            tasmotaon(1);
+                            wpofftime = t;
+
+                        }
                 } else
-                    if (tasmota_status[0]==0)
+                    if (tasmota_status[0]==0){
                         tasmotaon(1);
+                        wpofftime = t;
+                    }
 
             if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
@@ -1371,12 +1382,18 @@ int LoadDataProcess() {
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
             // Auswertung Steuerung
-                if (btasmota_ch2&&tasmota_status[1]==0)
+                if (btasmota_ch2)
                 {
-                    if (tasmota_status[0]==0) // WP ist aus
-                        tasmotaon(1);
+                    if (tasmota_status[1]==0) 
+                    {
+                        
+                        if (tasmota_status[0]==0) // WP ist aus
+                            tasmotaon(1);
                         tasmotaon(2);
+                    }
+                    wpofftime = t;
                 }
+
             if (not btasmota_ch2)
                 if (tasmota_status[1]==1)
                     tasmotaoff(2);
