@@ -1180,8 +1180,9 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     
     char buf[127];
 //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
-    sprintf(buf,"E3DC-Control/Aval -m '%i %i' ",ireq_Heistab,iBattLoad);
-    if (e3dc_config.debug) printf("D3");
+    sprintf(buf,"E3DC-Control/Aval -m '%i' ",ireq_Heistab);
+    MQTTsend(e3dc_config.mqtt2_ip,buf);
+    sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     if (e3dc_config.debug) printf("D4");
 
