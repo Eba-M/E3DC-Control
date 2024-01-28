@@ -134,9 +134,12 @@ if (debug)
                 tasmotaoff1(e3dc);
             return;
         }
+        if (debug) printf("BTS %i",Tasmotastatus);
+
         
         if (ch[0].hh <= rawtime&&Tasmotastatus <= 0)
         {
+            if (debug) printf("BT on");
             tasmotaon1(e3dc);
             
         }
