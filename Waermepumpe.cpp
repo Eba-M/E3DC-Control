@@ -161,7 +161,7 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -174,6 +174,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
     if (oldhour < 0 && soc<0) {
         return;
     }
+    // Ermitteln COP auf Basis der Zuluft WP
+    if (zuluft>-99)
+        cop = ((absolutenull+zuluft)/(((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-zuluft)+fusspunkt))*.45;
+
 // Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
     if (ptm->tm_hour!=oldhour||w.size()>oldwsize)
     {
@@ -231,7 +235,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // ausreicht
                     int fbitemp = e3dc.WPHeizgrenze-
                     e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)*e3dc.WPLeistung;
-
+                    
                     for (int x1=0;x1<w.size();x1++)
                             if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
 

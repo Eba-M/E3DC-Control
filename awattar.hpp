@@ -81,7 +81,7 @@ static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
 static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
 static std::vector<wolf_s>wolf; // Stundenwerte der Börsenstrompreise
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab);
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft);
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc,float soc,int sunriseAt);
 int SimuWATTar(std::vector<watt_s> &w, int h, float &fSoC,float anforderung, float Diff,float aufschlag, float ladeleistung);
 int CheckaWATTar(std::vector<watt_s> &w,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve);

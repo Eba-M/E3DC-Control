@@ -780,7 +780,7 @@ typedef struct {
     char data[197];
 }Modbus_receive;
 
-std::array<int, 19> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,101,102};
+std::array<int, 20> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,101,102,105};
 static int x1 = 0;
 static int16_t temp[oekofen.size()];
 static uint8_t tn = 1;
@@ -874,28 +874,24 @@ int iModbusTCP()
 
 // Heizkreise schalten
                 if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0)
-//                    if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0&&btasmota_ch2!=1)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
                 if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0)
-//                    if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0&&btasmota_ch2!=1)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
                 if (temp[1]==1&&((tasmota_status[0]==0&&temp[17]==0)))
-//                    if (temp[1]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2&1))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(11,0,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
                 if (temp[7]==1&&((tasmota_status[0]==0&&temp[17]==0)))
-//                    if (temp[7]==1&&((tasmota_status[0]==0&&temp[17]==0)||btasmota_ch2&1))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
@@ -905,7 +901,7 @@ int iModbusTCP()
             {
                 
                 {
-                    iLength = iModbusTCP_Get(2,102,0); // Alle Register auf einmal abfragen
+                    iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
                 }
             }
         }
@@ -1060,7 +1056,7 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
-float wphl,wppw,wpswk,wpkst,wpkt;  //heizleistung und stromaufnahme wärmepumpe
+float wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
 
 int wolfstatus()
 {
@@ -1109,6 +1105,8 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Zulufttemperatur";
                 wo.AK = "ZL";
+                wo.wert = -99;
+                wpzl = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Sauggastemperatur";
                 wo.AK = "SGT";
@@ -1358,16 +1356,27 @@ int LoadDataProcess() {
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
-/*
+                if (temp[17]==1&&temp[19]==4) // Kessel an + Leistungsbrand
+                {
+                    // LWWP ausschalten wenn der Pelletskessel läuft
+                    if (tasmota_status[0]==1&&btasmota_ch2==0)
+                    tasmotaoff(1);
+                } else
+                    if (tasmota_status[0]==0)
+                        tasmotaon(1);
+
             if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
-*/            // Auswertung Steuerung
-            if (btasmota_ch2)
-                if (tasmota_status[1]==0)
-                    tasmotaon(2);
+            // Auswertung Steuerung
+                if (btasmota_ch2&&tasmota_status[1]==0)
+                {
+                    if (tasmota_status[0]==0) // WP ist aus
+                        tasmotaon(1);
+                        tasmotaon(2);
+                }
             if (not btasmota_ch2)
                 if (tasmota_status[1]==1)
                     tasmotaoff(2);
@@ -1482,37 +1491,8 @@ int LoadDataProcess() {
         sunriseAt = location->sunrise();
         sunsetAt = location->sunset();
 
-/*
-Steuerung eines 2 Kanal relais für die Ansteuerung einer BWWP mit 500W Aufnahmeleistung
-Die Wärmepumpe wird eingeschaltet wenn wenigstens 1000W Überschuss anstehen
 
-// Einschaltkriterien der BWWP
-        static int iChannel1 = -1;
-        static time_t twbtime = 0;
-        if (iChannel1<0)
-        iChannel1 = iRelayEin("00");
-// 48 = "0"  Einschalten erst 15min nach letztem Ausschalten
-        if (iChannel1==48&&(tE3DC-twbtime>900))
-            if (
-            ((iPower_Bat > e3dc_config.BWWP_Power*2  // Batterie wird > 2fachen der BWWP Leistung geladen
-              ||fAvPower_Grid60<-e3dc_config.BWWP_Power*2)  // In das Netz wird > 2fachen der BWWP Leistung eingespeist
-             ||(iPower_PV>e3dc_config.BWWP_Power*2&&fPower_WB>e3dc_config.BWWP_Power*2)))
-            // Die PV-Leistung ist > 2fachen der BWWP Leistung && Wallbox wird geladen
-        {
-            iChannel1 = iRelayEin("11");
-            twbtime = tE3DC;
-        }
-// Ausschatltkriterien der BWWP
-        if ((iChannel1==49&&fPower_WB==0&&
-           ((fAvBatterie900 < -100) // Batterie wird entladen und es wird kein Auto geladen
-            ||fAvPower_Grid60>100)) // Netzbezug > 100W
-            || sunsetAt<hh*60+mm)   // Sonne ist untergegangen
-        {
-            iChannel1 = iRelayEin("21");
-            twbtime = tE3DC;
-        }
- */
-
+        
         if (e3dc_config.debug) printf("D5");
 
     int ret; // Steuerung Netzladen = 2, Entladen = 1
@@ -1687,119 +1667,8 @@ bDischarge = false;
         static float c = 0;
         static time_t t_old;
         a=fspreis/fcop;
-        b=wolf[wpswk].wert;
-//        b=e3dc_config.WPZWE-1.0;
-//        printf("%0.2f ",wolf[wphl].wert/wolf[wppw].wert);
-        if (wolf.size()>0&&e3dc_config.WPWolf)
-        if ((wolf[wpkt].wert>0&&wolf[wpkst].wert>0&&(tE3DC-t_old)>30)
-            ||
-            (tE3DC-t_old)>60)
 
-//        if (kst != (wolf[wpkst].wert)+wolf[wpkt].wert)
-            if ((kst != (wolf[wpkst].wert+wolf[wpkt].wert)&&kst != (wolf[wpkst].wert*2))
-                ||
-                (kst == (wolf[wpkst].wert*2 )&& (wolf[wpkst].wert+wolf[wpkt].wert) < (wolf[wpkst].wert*2))
-                ||
-                (tE3DC-t_old)>120)
-                    
-        {
-            if (wolf[wpkt].wert>wolf[wpkst].wert)
-            kst = wolf[wpkst].wert*2;
-            else
-                kst = wolf[wpkst].wert+wolf[wpkt].wert;
-
-            
-            
-            if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                    b=b+.1;
-
-            if (wolf[wphl].wert > 0) {
-                float fpreis = fspreis*wolf[wppw].wert/wolf[wphl].wert;
-                if ((fpreis)<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh und der WPZWE Pelletskessel läuft
-                    //                btasmota_ch2  |= 2;  //setzen
-                    if (b<4&&wolf[wppw].wert<0.6*e3dc_config.WPmax)
-                        b=b+0.1;
-                // wenn die Wolf nicht läuft, dann auf den theoretischen COP gehen
-                if (wolf[wppw].wert==0&&fspreis/fcop<e3dc_config.WPZWEPVon&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                    if (b < 0&&b>-4)
-                        b=0;
-                    else
-                        b=b+.1;
-                // Strompreis zu hoch runterregeln
-                if ((fpreis>e3dc_config.WPZWEPVon||wolf[wppw].wert>0.7*e3dc_config.WPmax)&&temp[17]==1)  // Börsenstrompreis < 50ct/kWh oder der Pelletskessel ist aus
-                    if (b >-4)
-                        b=b-0.1;
-            }
-// Sollwertkorrektur im Nornalbetrieb - Optimierung an Solltemperatur HZK
-if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch aus
-{
-
-    c=(float(temp[10])/10+e3dc_config.WPOffset)*2;
-    c=(float(temp[4])/10+e3dc_config.WPOffset+2)*2;
-    float diff;
-    if ((tasmota_status[3] == 1))
-    {
-        diff = (float(temp[14])/10-(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2);
-        if (float(temp[14])/10<(e3dc_config.BWWPaus+float(temp[4])/10+2+e3dc_config.WPOffset)/2)
-        {
-           if (wolf[wpkst].wert < wolf[wpkt].wert+1.5) //max. 1,5° Überhöhung
-            b=b+0.1;
-        }
-        else
-        {
-            if (wolf[wpkt].wert > (float(temp[10])/10+2)&&(wolf[wpkt].wert > (float(temp[14])/10)))
-                b = b-0.1;
-        }
-    } else
-    {
-        diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset);
-        diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2);
-        if ((kst/2)<(float(temp[10])/10+e3dc_config.WPOffset)||(kst/2)<(float(temp[4])/10+e3dc_config.WPOffset+2))
-            if (b < 4&&wolf[wpkt].wert>0&&wolf[wpkst].wert>0)
-                b=b+.1;
-        diff = (kst/2)-(float(temp[10])/10+e3dc_config.WPOffset+.5);
-        diff = (kst/2)-(float(temp[4])/10+e3dc_config.WPOffset+2.5);
         
-        if
-            ((kst/2)>(float(temp[10])/10+e3dc_config.WPOffset+.5)&&(kst/2)>(float(temp[4])/10+e3dc_config.WPOffset+2.5))
-        {
-            if (b>-4)
-            {
-                if (diff > 1)
-                    b=b-(diff/10);
-                else
-                    b=b-.1;
-                if (b <-4)
-                    b=b-4;
-            }
-        }
-    }
-}
-// Sollwertkorrektur an die Wolf CHA senden
-
-            if (b>-4.2&&b<-4.1)
-                b=0;
-/*
-            char buf[127];
-        //    sprintf(buf,"E3DC-Control/Avl -m %i",iAvalPower);
-            sprintf(buf,"Wolf/192.168.178.90/DHK_BM-2_0x35/set/Sollwertkorrektur/340031 -m  %.1f",b);
-            if (b!=wolf[wpswk].wert&&b>=-4&&b<=4)
-            {
-                MQTTsend(e3dc_config.mqtt_ip,buf);
-                wolf[wpswk].wert = b;
-                t_old = tE3DC;
-            } else
-//            if (b<=-4)
-            {
-                wolf[wpswk].wert = b;
-                t_old = tE3DC;
-            }
-*/
-            
-        }
-// Überschusssteuerung der WP
-        //        ireq_Heistab = -(iMinLade*2)+ fAvPower_Grid60 + iPower_Bat - fPower_Grid;
-
          PVon = (-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid);
 //        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
 //        if (iMinLade == 0)
@@ -2179,7 +2048,7 @@ if (temp[17]==0&&btasmota_ch2==0) // Pelletskessel ist aus PV Anhebung ist auch 
         printf("HK2 %i %i %i %i %i %i"
                ,temp[7],temp[8],temp[9],temp[10],temp[11],temp[12]);
         printf("%c[K\n", 27 );
-        printf("PU %i %i %i %i K: %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18]);
+        printf("PU %i %i %i %i K: %i %i %i ",temp[13],temp[14],temp[15],temp[16],temp[17],temp[18],temp[19]);
         if (tasmota_status[3] == 0) printf("WW:OFF ");
         if (tasmota_status[3] == 1) printf("WW:ON ");
         if (tasmota_status[1] == 0) printf("PV:OFF ");
@@ -4081,7 +3950,7 @@ static void mainLoop(void)
             if (e3dc_config.debug) printf("M2");
 
 //            if (e3dc_config.WP)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,wolf[wpzl].wert);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
