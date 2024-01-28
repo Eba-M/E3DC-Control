@@ -3975,7 +3975,7 @@ static void mainLoop(void)
             aWATTar(ch,w,e3dc_config,fBatt_SOC, sunrise);
 //            test;
             if (e3dc_config.debug) printf("M2");
-            int zulufttemp = -99;
+            float zulufttemp = -99;
             if (e3dc_config.WPWolf)
                 zulufttemp = wolf[wpzl].wert;
             mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten

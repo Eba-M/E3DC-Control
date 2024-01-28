@@ -30,7 +30,7 @@ Die kummulierte PV-Überschusszeit wird auf die gesamtlaufzeit angerechnet
 */
 static time_t rawtime;
 static int status = -1; // 0 = tag, 1 = nacht
-static int Tasmotastatus = -1; // 0 = tag, 1 = nacht
+static int Tasmotastatus = -1; // 0 = aus, 1 = ein
 static time_t ontime;
 
 
@@ -42,6 +42,7 @@ int MQTTsend1(char host[20],char buffer[127])
     {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
         int ret = system(cbuf);
+        printf(cbuf);
         return ret;
     } else
     return(-1);
@@ -51,7 +52,7 @@ int tasmotaon1(e3dc_config_t &e3dc)
 {
     char buf[127];
     sprintf(buf,"cmnd/%s/POWER -m ON",e3dc.BWWPTasmota);
-    if (Tasmotastatus == 0)
+    if (Tasmotastatus <= 0)
     MQTTsend1(e3dc.mqtt_ip,buf);
     Tasmotastatus = 1;
     ontime = rawtime;
