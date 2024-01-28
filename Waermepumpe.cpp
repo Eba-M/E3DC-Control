@@ -69,9 +69,11 @@ int tasmotaon1(e3dc_config_t &e3dc)
     char buf[127];
     sprintf(buf,"cmnd/%s/POWER -m ON",e3dc.BWWPTasmota);
     if (debug) debugout(buf);
-    if (Tasmotastatus <= 0)
-    MQTTsend1(e3dc.mqtt_ip,buf);
-    Tasmotastatus = 1;
+    if (Tasmotastatus <= 0){
+        if (debug) debugout(buf);
+        MQTTsend1(e3dc.mqtt_ip,buf);
+    }
+        Tasmotastatus = 1;
     ontime = rawtime;
     return 0;
 }
