@@ -34,7 +34,19 @@ static int status = -1; // 0 = tag, 1 = nacht
 static int Tasmotastatus = -1; // 0 = aus, 1 = ein
 static time_t ontime;
 static bool debug;
+char buf[100];
 
+int debugout(char buffer [100])
+//        if (debug)
+{
+    FILE *fp;
+
+    timeinfo = localtime (&rawtime);
+    fp = fopen("debug1.out","a");
+    fprintf(fp,"%s %s\n",asctime(timeinfo),buffer);
+    fclose(fp);
+    return 0;
+}
 
 int MQTTsend1(char host[20],char buffer[127])
 
@@ -44,15 +56,8 @@ int MQTTsend1(char host[20],char buffer[127])
     {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
         int ret = system(cbuf);
-//        printf(cbuf);
-        FILE *fp;
-//        if (debug)
-        {
-            timeinfo = localtime (&rawtime);
-            fp = fopen("debug1.out","a");
-            fprintf(fp,"%s %s\n",asctime(timeinfo),cbuf);
-            fclose(fp);
-        }
+        if (debug)
+        debugout(cbuf);
 
         return ret;
     } else
@@ -63,6 +68,7 @@ int tasmotaon1(e3dc_config_t &e3dc)
 {
     char buf[127];
     sprintf(buf,"cmnd/%s/POWER -m ON",e3dc.BWWPTasmota);
+    if (debug) debugout(buf);
     if (Tasmotastatus <= 0)
     MQTTsend1(e3dc.mqtt_ip,buf);
     Tasmotastatus = 1;
@@ -139,7 +145,8 @@ if (debug)
         
         if (ch[0].hh <= rawtime&&Tasmotastatus <= 0)
         {
-            if (debug) printf("BT on");
+            sprintf(buf,"BT on");
+            if (debug) debugout(buf);
             tasmotaon1(e3dc);
             
         }
