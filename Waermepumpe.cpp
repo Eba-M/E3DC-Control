@@ -46,7 +46,8 @@ int MQTTsend1(char host[20],char buffer[127])
         int ret = system(cbuf);
 //        printf(cbuf);
         FILE *fp;
-        if (debug){
+//        if (debug)
+        {
             timeinfo = localtime (&rawtime);
             fp = fopen("debug1.out","a");
             fprintf(fp,"%s %s\n",asctime(timeinfo),cbuf);

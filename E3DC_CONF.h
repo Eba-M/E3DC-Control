@@ -5,7 +5,7 @@
 //  Created by Eberhard Mayer on 16.08.18.
 //  Copyright © 2018 Eberhard Mayer. All rights reserved.
 //
-#define VERSION "C2024.01.28.2" //aktuelle Version für dynamische Tarife und WP-Betrieb
+#define VERSION "C2024.01.28.3" //aktuelle Version für dynamische Tarife und WP-Betrieb
 #ifndef E3DC_CONF_h
 #define E3DC_CONF_h
 
