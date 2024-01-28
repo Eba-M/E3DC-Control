@@ -29,9 +29,11 @@ BWWPTasmotahour = // Anzahl der taglichen Soll Stunden
 Die kummulierte PV-Überschusszeit wird auf die gesamtlaufzeit angerechnet
 */
 static time_t rawtime;
+struct tm * timeinfo;
 static int status = -1; // 0 = tag, 1 = nacht
 static int Tasmotastatus = -1; // 0 = aus, 1 = ein
 static time_t ontime;
+static bool debug;
 
 
 int MQTTsend1(char host[20],char buffer[127])
@@ -42,7 +44,15 @@ int MQTTsend1(char host[20],char buffer[127])
     {
         sprintf(cbuf, "mosquitto_pub -r -h %s -t %s", host,buffer);
         int ret = system(cbuf);
-        printf(cbuf);
+//        printf(cbuf);
+        FILE *fp;
+        if (debug){
+            timeinfo = localtime (&rawtime);
+            fp = fopen("debug1.out","a");
+            fprintf(fp,"%s %s\n",asctime(timeinfo),cbuf);
+            fclose(fp);
+        }
+
         return ret;
     } else
     return(-1);
@@ -168,6 +178,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
     time(&rawtime);
     float anforderung;
     ptm = gmtime (&rawtime);
+    debug = e3dc.debug;
 
     if (e3dc.BWWPTasmotaDauer > 0)
     bwwptasmota(w,e3dc,sunrise,sunset,ireq_Heistab);
