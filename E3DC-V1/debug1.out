@@ -8,3 +8,11 @@ Sun Jan 28 22:55:13 2024
  cmnd/tasmota_91DFA6/POWER -m ON
 Sun Jan 28 22:55:13 2024
  mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Sun Jan 28 23:47:12 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Sun Jan 28 23:48:08 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Mon Jan 29 11:27:27 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Mon Jan 29 11:32:06 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON

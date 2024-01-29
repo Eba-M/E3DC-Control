@@ -399,6 +399,7 @@ bool GetConfig()
         strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
+        e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.WP = false;
@@ -526,6 +527,8 @@ bool GetConfig()
                         e3dc_config.BWWPTasmotaDauer = atoi(value);
                     else if(strcmp(var, "wurzelzaehler") == 0)
                         e3dc_config.wurzelzaehler = atoi(value);
+                    else if(strcmp(var, "wrsteuerung") == 0)
+                        e3dc_config.wrsteuerung = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
                         if
                            (strcmp(value, "true") == 0)
@@ -2733,7 +2736,12 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
             iBattPowerStatus = 1;
         }
 // request Power Meter information
-        if (iLMStatus < 0)
+        if (iLMStatus < 0&&e3dc_config.wrsteuerung==0)
+            printf("\nAchtung WR-Steuerung inaktiv %i \n",iE3DC_Req_Load);
+        if (iLMStatus < 0&&e3dc_config.wrsteuerung==2)
+            printf("\n WR-Steuerung aktiv %i \n",iE3DC_Req_Load);
+
+        if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
             int32_t Mode;
             if (iE3DC_Req_Load==0) Mode = 1; else
