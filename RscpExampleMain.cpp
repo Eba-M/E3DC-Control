@@ -2739,9 +2739,9 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
             iBattPowerStatus = 1;
         }
 // request Power Meter information
-        if (iLMStatus < 0&&e3dc_config.wrsteuerung==0)
+        if (e3dc_config.wrsteuerung==0)
             printf("\nAchtung WR-Steuerung inaktiv %i \n",iE3DC_Req_Load);
-        if (iLMStatus < 0&&e3dc_config.wrsteuerung==2)
+        if (e3dc_config.wrsteuerung==2)
             printf("\n WR-Steuerung aktiv %i \n",iE3DC_Req_Load);
 
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
