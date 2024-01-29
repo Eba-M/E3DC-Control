@@ -1938,7 +1938,10 @@ bDischarge = false;
 // Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
 //                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
 //                 iPower = e3dc_config.maximumLadeleistung*-1;
-                 iBattLoad = iPower;
+                if (e3dc_config.wrsteuerung>0)
+                    iBattLoad = iPower;
+                else 
+                    iBattLoad = 0;
                  tE3DC_alt = t;
 
                         {
