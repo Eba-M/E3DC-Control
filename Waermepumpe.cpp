@@ -99,7 +99,8 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
         if (Tasmotastatus <= 0)
             tasmotaon1(e3dc);
     }
-    
+    if (rawtime%(24*3600)/60>sunrise&&rawtime%(24*3600)/60<sunset) 
+        status = 0;
     if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
         status = 1;
