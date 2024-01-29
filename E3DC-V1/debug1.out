@@ -22,3 +22,7 @@ Mon Jan 29 11:53:25 2024
  mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
 Mon Jan 29 12:11:12 2024
  mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Mon Jan 29 12:16:08 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
+Mon Jan 29 12:18:05 2024
+ mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
