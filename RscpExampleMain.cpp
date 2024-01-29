@@ -1264,6 +1264,8 @@ int LoadDataProcess() {
     static int itag = 24*3600;
     int x1,x2;
     static float fspreis;
+    static time_t wpofftime = t;
+
     
 // Speicher SoC selbst berechnen
 // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
@@ -1358,7 +1360,6 @@ if (e3dc_config.WPWolf)
             tasmotaon(4);
 
 // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
-        static time_t wpofftime = 0;
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
             {
                 if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
@@ -2088,7 +2089,7 @@ bDischarge = false;
         if (tasmota_status[1] == 0) printf("PV:OFF ");
         if (tasmota_status[1] == 1) 
             printf("PV:ON%i ",btasmota_ch2);
-        printf("%i",PVon);
+        printf("%i %i",PVon,t_alt-wpofftime);
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
