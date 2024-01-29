@@ -71,7 +71,6 @@ int tasmotaon1(e3dc_config_t &e3dc)
         MQTTsend1(e3dc.mqtt2_ip,buf);
     }
         Tasmotastatus = 1;
-    ontime = rawtime;
     return 0;
 }
 int tasmotaoff1(e3dc_config_t &e3dc)
@@ -86,21 +85,21 @@ int tasmotaoff1(e3dc_config_t &e3dc)
 
 void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sunset,int ireq_Heistab)
 
-
-
 {
-if (debug)
-    printf("BT1");
+    if (debug)
+        printf("BT1");
     static std::vector<ch_s> ch;
     static ch_s cc;
     static int dauer = -1;
     time(&rawtime);
     
-    if (ireq_Heistab>500&&Tasmotastatus <= 0)
+    if (ireq_Heistab>500)
     {
-        tasmotaon1(e3dc);
+        ontime = rawtime;
+        if (Tasmotastatus <= 0)
+            tasmotaon1(e3dc);
     }
-
+    
     if ((rawtime%(24*3600)/60>sunset||rawtime%(24*3600)/60<sunrise)&&(status<1||e3dc.BWWPTasmotaDauer!=dauer)) // wechsel tag/nacht
     {
         status = 1;
@@ -113,7 +112,7 @@ if (debug)
             cc.pp = w[j].pp;
             int min = cc.hh%(24*3600)/60;
             if (min>sunset||min<sunrise)
-            ch.push_back(cc);
+                ch.push_back(cc);
         }
         std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
             return a.pp < b.pp;});
@@ -125,10 +124,10 @@ if (debug)
             return a.hh < b.hh;});
         
     }
-
+    
     if (ch.size() > 0)
     {
-
+        
         if (ch[0].hh+3600 < rawtime)
         {
             ch.erase(ch.begin());
@@ -147,6 +146,9 @@ if (debug)
     }
     if (ch.size() > 0)
         printf("Tasmo %i",(ch[0].hh%(24*3600)/3600));
+    else
+        printf("Tasmo %i",(rawtime-ontime));
+
 };
 
 
