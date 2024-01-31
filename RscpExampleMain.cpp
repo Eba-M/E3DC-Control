@@ -93,7 +93,8 @@ static float fht; // Reserve aus ht berechnet
 // 
 int forecastpeaktime;  //
 float forecastpeak;    //
-static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV 1=ww, 2=preis, 4=überschuss
+static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein;
+static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 
 SunriseCalc * location;
 std::vector<ch_s> ch;  //charge hour
@@ -1265,6 +1266,7 @@ int LoadDataProcess() {
     int x1,x2;
     static float fspreis;
     static time_t wpofftime = t;
+    static time_t wpontime = t;  //
 
     
 // Speicher SoC selbst berechnen
@@ -1365,18 +1367,23 @@ if (e3dc_config.WPWolf)
                 if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
                 {
                     // LWWP ausschalten wenn der Pelletskessel läuft
-                    if (tasmota_status[0]==1&&btasmota_ch2==0&&t-wpofftime>900){
+                    // und keine Anforderungen anliegen
+                    if (t-wpofftime>900) btasmota_ch1 = 0;
+                    if (tasmota_status[0]==1&&btasmota_ch1==0&&btasmota_ch2==0)
+                    {
                         tasmotaoff(1);
-                        wpofftime = t;
                     }
                     else
-                        if (tasmota_status[0]==0&&btasmota_ch2>0){
+                        if (tasmota_status[0]==0&&(btasmota_ch1>0)) // Anforderung liegt vor
+                        {
                             tasmotaon(1);
+                            wpontime = t;
                             wpofftime = t;
                         }
                 } else
                     if (tasmota_status[0]==0){
                         tasmotaon(1);
+                        wpontime = t;
                         wpofftime = t;
                     }
 // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
@@ -1386,7 +1393,6 @@ if (e3dc_config.WPWolf)
                     wpofftime = t;
                     if (tasmota_status[0]==0){
                         tasmotaon(1);
-                        wpofftime = t;
                     }
                 }
                 
@@ -1403,7 +1409,10 @@ if (e3dc_config.WPWolf)
                     {
                         
                         if (tasmota_status[0]==0) // WP ist aus
-                            tasmotaon(1);
+                        {
+                            btasmota_ch1 = 1;
+                        } else
+                        if (t-wpontime>300)
                         tasmotaon(2);
                     }
                     wpofftime = t;
@@ -1693,20 +1702,25 @@ bDischarge = false;
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
-// LWWP wegen niedriger Strompreise auf PV Anhebung schalten
-        float a,b;
-        static float kst = 0;
-        static float c = 0;
-        static time_t t_old;
-        a=fspreis/fcop;
+// LWWP  auf PV Anhebung schalten
 
         
          PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
-//        int PVon = (-iBattLoad+ fAvBatterie + iPower_Bat - fPower_Grid);
-//        if (iMinLade == 0)
-//            PVon = (-iBattLoad/2 + fAvBatterie + iPower_Bat - fPower_Grid);
+//       Steuerung der LWWP nach Überschuss
+//       1. Stufe LWWP Ein Nach mind 15min Laufzeit
+//       2. Stufe PV-Anhebung
         if (PVon>e3dc_config.WPPVon)  // Überschuss PV oder
-            btasmota_ch2  |= 4;
+        { 
+            if (btasmota_ch1 == 0)
+            {
+                btasmota_ch1 = 1;   // WP einschalten
+            } else
+            {
+                btasmota_ch2  |= 4;
+            }
+        }
+// LWWP weiterlaufen lassen wenn noch überschuss da
+        if (PVon>100&&t_alt-wpofftime<900) wpofftime = t_alt;
         if (PVon<(-100))  // Überschuss PV
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
