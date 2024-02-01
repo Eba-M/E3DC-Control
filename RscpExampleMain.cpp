@@ -1415,7 +1415,7 @@ int LoadDataProcess() {
         } else
             if (tasmota_status[0]==1)
             {
-                if (t-wpofftime > 3000)
+                if (t-wpofftime > 300)   // 300sek. verzögerung vor der abschaltung
                 tasmotaoff(1);
             }
 
@@ -2455,6 +2455,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                     iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
                           break;
+            case 10:
+                    if (fPower_Grid > 0)
+                        iPower = -fPower_Grid*3; else
+                        iPower = -fPower_Grid;
+                break;
+// Auswertung
         }
 
 // im Sonnenmodus nur bei PV-Produktion regeln
