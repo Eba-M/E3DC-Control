@@ -93,7 +93,7 @@ static float fht; // Reserve aus ht berechnet
 // 
 int forecastpeaktime;  //
 float forecastpeak;    //
-static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein;
+static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 
 SunriseCalc * location;
@@ -1257,7 +1257,7 @@ typedef struct {
 }soc_t;
 
 int LoadDataProcess() {
-//    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
+    //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
@@ -1267,20 +1267,20 @@ int LoadDataProcess() {
     static float fspreis;
     static time_t wpofftime = t;
     static time_t wpontime = t;  //
-
     
-// Speicher SoC selbst berechnen
-// Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
+    
+    // Speicher SoC selbst berechnen
+    // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
     if (e3dc_config.debug) printf("D1");
-if (e3dc_config.WPWolf)
-    int ret = wolfstatus();
+    if (e3dc_config.WPWolf)
+        int ret = wolfstatus();
     time (&t);
     
     
     mqtt();
-
+    
     if (e3dc_config.debug) printf("D2");
-
+    
     
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (fDCDC > high.fah) {
@@ -1297,20 +1297,20 @@ if (e3dc_config.WPWolf)
         low.fcurrent = fCurrent;
         low.t = t;
     };
-// Bei Sonnenaufgang werden die Ausgangswerte neu gesetzt
+    // Bei Sonnenaufgang werden die Ausgangswerte neu gesetzt
     if (t % itag >= sunriseAt*60&&t_alt%itag < sunriseAt*60)
-        {
-            high.fah = fDCDC;
-            high.fsoc = fBatt_SOC;
-            high.fvoltage = fVoltage;
-            high.fcurrent = fCurrent;
-            high.t = t;
-        }
+    {
+        high.fah = fDCDC;
+        high.fsoc = fBatt_SOC;
+        high.fvoltage = fVoltage;
+        high.fcurrent = fCurrent;
+        high.t = t;
+    }
     // Bei Sonnenuntergang werden High/Low in die Datei fortgeschrieben
     x1 = t % itag;
     x2 = t_alt % itag;
-
-        if (e3dc_config.soc >=0)
+    
+    if (e3dc_config.soc >=0)
         if ((t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)||
             (t % itag >= sunriseAt*60&&t_alt%itag < sunriseAt*60)||
             (e3dc_config.soc >0 &&t_alt % (60*e3dc_config.soc) > t % (60*e3dc_config.soc)))
@@ -1320,26 +1320,26 @@ if (e3dc_config.WPWolf)
             p=&high;
             ts = gmtime(&t);
             sprintf(Log,"Hoch %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
-                int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
+                    int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
             p=&low;
             sprintf(Log,"Tief %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
-                int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
+                    int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
             
             if (t % itag >= sunsetAt*60&&t_alt%itag < sunsetAt*60)
                 low.fah = fDCDC;
-
+            
         }
     t_alt = t;
     if (e3dc_config.debug) printf("D3");
-
+    
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
         if (e3dc_config.debug) printf("D4");
-
+        
         if (t-tasmotatime>10)
         {
             tasmota_status[ich_Tasmota] = tasmotastatus(ich_Tasmota+1);
@@ -1351,79 +1351,92 @@ if (e3dc_config.WPWolf)
         }
         if (tasmota_status[3] > 1)
             tasmota_status[3] = tasmotastatus(4);
-
-// Steuerung BWWP über Tasmota Kanal4
+        
+        // Steuerung BWWP über Tasmota Kanal4
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
-        } else 
-        if
-            (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
-            tasmotaon(4);
-
-// Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
+        } else
+            if
+                (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
+                tasmotaon(4);
+        
+        // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
+        {
+            if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
             {
-                if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
-                {
-                    // LWWP ausschalten wenn der Pelletskessel läuft
-                    // und keine Anforderungen anliegen
-                    if (t-wpofftime>900) btasmota_ch1 = 0;
-                    if (tasmota_status[0]==1&&btasmota_ch1==0&&btasmota_ch2==0)
-                    {
-                        tasmotaoff(1);
-                    }
-                    else
-                        if (tasmota_status[0]==0&&(btasmota_ch1>0)) // Anforderung liegt vor
-                        {
-                            tasmotaon(1);
-                            wpontime = t;
-                            wpofftime = t;
-                        }
-                } else
-                    if (tasmota_status[0]==0){
-                        tasmotaon(1);
-                        wpontime = t;
-                        wpofftime = t;
-                    }
-// LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
+                // LWWP ausschalten wenn der Pelletskessel läuft
+                // und keine Anforderungen anliegen
+                if (btasmota_ch1 & 1)
+                    btasmota_ch1 ^=1;
+            } else
+            {
+                btasmota_ch1 |=1;
+                wpofftime = t;
+            }
+        
+            // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
+            //
             if (fcop>0)
                 if (fspreis/fcop<e3dc_config.WPZWEPVon)
                 {
-                    wpofftime = t;
-                    if (tasmota_status[0]==0){
-                        tasmotaon(1);
-                    }
-                }
-                
-                
-            if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
-                btasmota_ch2 |= 1;
-           if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
-                if (btasmota_ch2 & 1)
-                    btasmota_ch2 ^= 1;
-            // Auswertung Steuerung
-                if (btasmota_ch2)
-                {
-                    if (tasmota_status[1]==0) 
+                    if (btasmota_ch1 & 1)
                     {
-                        
-                        if (tasmota_status[0]==0) // WP ist aus
-                        {
-                            btasmota_ch1 = 1;
-                        } else
-                        if (t-wpontime>300)
-                        tasmotaon(2);
-                    }
-                    wpofftime = t;
-                }
+                        btasmota_ch2 |=2;
+                    } else
+                        btasmota_ch1 |=2;
 
-            if (not btasmota_ch2)
-                if (tasmota_status[1]==1)
-                    tasmotaoff(2);
+                } else
+                {
+                    if (btasmota_ch1 & 2)
+                        btasmota_ch1 ^= 2;
+                    if (btasmota_ch2 & 2)
+                        btasmota_ch2 ^= 2;
+                };
         }
+        
+        
+        if  (temp[14]<e3dc_config.BWWPein*10-20&&(tasmota_status[3]==1))
+            btasmota_ch2 |= 1;
+        if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
+            if (btasmota_ch2 & 1)
+                btasmota_ch2 ^= 1;
 
+// Auswertung Steuerung
+        if (btasmota_ch1)
+        {
+            if (tasmota_status[0]==0)
+            {
+                tasmotaon(1);
+                wpontime = t;
+                wpofftime = t;   //mindestlaufzeit
+            }
+        } else
+            if (tasmota_status[0]==1)
+            {
+                if (t-wpofftime > 3000)
+                tasmotaoff(1);
+            }
+
+        if (btasmota_ch2)
+        {
+            if (tasmota_status[1]==0)
+            {
+                if (btasmota_ch2<4||(t-wpontime>300&&btasmota_ch2&4))
+                    tasmotaon(2);
+            }
+        } 
+        else
+        if (tasmota_status[1]==1)
+        {
+                tasmotaoff(2);
+                wpofftime = t;
+        }
     }
+
+
+    
     
     
     
@@ -1702,28 +1715,27 @@ bDischarge = false;
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
-// LWWP  auf PV Anhebung schalten
-
+        // LWWP  auf PV Anhebung schalten
         
-         PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
-//       Steuerung der LWWP nach Überschuss
-//       1. Stufe LWWP Ein Nach mind 15min Laufzeit
-//       2. Stufe PV-Anhebung
+        
+        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
+        //       Steuerung der LWWP nach Überschuss
+        //       1. Stufe LWWP Ein Nach mind 15min Laufzeit
+        //       2. Stufe PV-Anhebung
         if (PVon>e3dc_config.WPPVon)  // Überschuss PV oder
-        { 
-            if (btasmota_ch1 == 0)
-            {
-                btasmota_ch1 = 1;   // WP einschalten
-            } else
-            {
-                btasmota_ch2  |= 4;
-            }
+        {
+            btasmota_ch1 |= 4;   // WP einschalten
+            btasmota_ch2 |= 4;
         }
-// LWWP weiterlaufen lassen wenn noch überschuss da
+        // LWWP weiterlaufen lassen wenn noch überschuss da
         if (PVon>100&&t_alt-wpofftime<900) wpofftime = t_alt;
-        if (PVon<(-100))  // Überschuss PV
+        if (PVon<(-100))  // Überschuss PV 
+        {
+            if (btasmota_ch1&4)
+                btasmota_ch1  ^= 4;
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
+        }
 
 
  }
@@ -2103,7 +2115,7 @@ bDischarge = false;
         if (tasmota_status[1] == 0) printf("PV:OFF ");
         if (tasmota_status[1] == 1) 
             printf("PV:ON%i ",btasmota_ch2);
-        printf("%i %i",PVon,t_alt-wpofftime);
+        printf("%i %i %i",PVon,t_alt-wpontime,t_alt-wpofftime);
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
@@ -2756,9 +2768,10 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
 // request Power Meter information
         if (e3dc_config.wrsteuerung==0)
             printf("\n Achtung WR-Steuerung inaktiv %i Status %i\n",iE3DC_Req_Load,iLMStatus);
-        if (e3dc_config.wrsteuerung==2)
+        if (e3dc_config.wrsteuerung==2) // Text ausgeben
             printf("\n WR-Steuerung aktiv %i Status %i\n",iE3DC_Req_Load,iLMStatus);
 
+        if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
             int32_t Mode;
