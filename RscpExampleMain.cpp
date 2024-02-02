@@ -1383,7 +1383,13 @@ int LoadDataProcess() {
                 {
                     if (btasmota_ch1 & 1)
                     {
-                        btasmota_ch2 |=2;
+                        if (wolf[wphl].wert>0&&(fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPZWEPVon))
+                            btasmota_ch2 |=2; 
+                        else
+                        {
+                            if (btasmota_ch2 & 2)
+                                btasmota_ch2 ^=2;
+                        }
                     } else
                         btasmota_ch1 |=2;
 
