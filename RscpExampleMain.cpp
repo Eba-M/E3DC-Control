@@ -1134,7 +1134,7 @@ int wolfstatus()
                 
                 
             fp = NULL;
-           sprintf(buf,"mosquitto_sub -h %s -t Wolf/192.168.178.90/#",e3dc_config.mqtt_ip);
+           sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/#",e3dc_config.mqtt_ip);
             fp = popen(buf, "r");
             int fd = fileno(fp);
             int flags = fcntl(fd, F_GETFL, 0);
@@ -2494,7 +2494,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 
-        if (e3dc_config.wbmode==1||e3dc_config.wbmode==10) iAvalPower = iPower;
+        if (e3dc_config.wbmode==1||e3dc_config.wbmode==10) 
+            iAvalPower = iAvalPower*.8 +iPower*.2;  // = 5 sec average
         
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
