@@ -1383,14 +1383,15 @@ int LoadDataProcess() {
                 {
                     if (btasmota_ch1 & 1)
                     {
-                        if (wolf[wphl].wert>0&&(fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPZWEPVon))
-                            btasmota_ch2 |=2; 
+/*                        if (wolf[wphl].wert>0&&(fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPZWEPVon))
+                            btasmota_ch2 |=2;
                         else
                         {
                             if (btasmota_ch2 & 2)
                                 btasmota_ch2 ^=2;
                         }
-                    } else
+*/
+                } else
                         btasmota_ch1 |=2;
 
                 } else
@@ -2501,7 +2502,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 
         if (e3dc_config.wbmode==1||e3dc_config.wbmode==10) 
-            iAvalPower = iAvalPower*.8 +iPower*.2;  // = 5 sec average
+            iAvalPower = iPower;  // = 5 sec average
         
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
