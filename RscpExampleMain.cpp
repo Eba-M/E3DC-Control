@@ -1404,7 +1404,7 @@ int LoadDataProcess() {
         }
         
         
-        if  (temp[14]<e3dc_config.BWWPein*10-3&&(tasmota_status[3]==1))
+        if  (temp[14]<e3dc_config.BWWPein*10&&(tasmota_status[3]==1))
             btasmota_ch2 |= 1;
         if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
             if (btasmota_ch2 & 1)
