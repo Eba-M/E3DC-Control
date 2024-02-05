@@ -877,25 +877,25 @@ int iModbusTCP()
 
 
 // Heizkreise schalten
-                if ((tasmota_status[0]==1||temp[17]>0)&&temp[1]==0)
+                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if ((tasmota_status[0]==1||temp[17]>0)&&temp[7]==0)
+                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (temp[1]==1&&((tasmota_status[0]==0&&temp[17]==0)))
+                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(11,0,1); //FBH?
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if (temp[7]==1&&((tasmota_status[0]==0&&temp[17]==0)))
+                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
@@ -1413,14 +1413,14 @@ int LoadDataProcess() {
 // Auswertung Steuerung
         if (btasmota_ch1)
         {
-            if (tasmota_status[0]==0)
+            if (tasmota_status[0]==1)
             {
                 tasmotaoff(1);   // EVU = OFF Keine Sperre
                 wpontime = t;
                 wpofftime = t;   //mindestlaufzeit
             }
         } else
-            if (tasmota_status[0]==1)
+            if (tasmota_status[0]==0)
             {
                 if (t-wpofftime > 300)   // 300sek. verzögerung vor der abschaltung
                 tasmotaon(1);   // EVU = ON  Sperre
