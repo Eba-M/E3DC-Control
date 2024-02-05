@@ -1415,7 +1415,7 @@ int LoadDataProcess() {
         {
             if (tasmota_status[0]==0)
             {
-                tasmotaon(1);
+                tasmotaoff(1);   // EVU = OFF Keine Sperre
                 wpontime = t;
                 wpofftime = t;   //mindestlaufzeit
             }
@@ -1423,7 +1423,7 @@ int LoadDataProcess() {
             if (tasmota_status[0]==1)
             {
                 if (t-wpofftime > 300)   // 300sek. verzögerung vor der abschaltung
-                tasmotaoff(1);
+                tasmotaon(1);   // EVU = ON  Sperre
             }
 
         if (btasmota_ch2)
