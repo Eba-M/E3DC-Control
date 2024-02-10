@@ -491,7 +491,7 @@ else
                  if (e3dc.AWSimulation == 1)
                      fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
                  else
-                     fprintf(fp,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt));
+                     fprintf(fp,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt));
              }
              else
              {

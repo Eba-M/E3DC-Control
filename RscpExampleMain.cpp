@@ -4037,6 +4037,7 @@ static void mainLoop(void)
             float zulufttemp = -99;
             if (e3dc_config.WPWolf)
                 zulufttemp = wolf[wpzl].wert;
+            if (fBatt_SOC >= 0)
             mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3");
 
