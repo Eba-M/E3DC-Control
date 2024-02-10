@@ -934,13 +934,19 @@ int ladedauer = 0;
                         strombedarf[x2] = atof(value);
             }
             fclose(fp);
+
             printf("e3ec.hourly done\n");
             for (int j=0;j<w.size();j++)
             {
                 x2 =w[j].hh%(24*3600);
                 x2 = x2/3600;
-                w[j].hourly = strombedarf[x2];
+                if (e3dc.openmeteo)
+                    w[j].hourly = strombedarf[x2]/4;
+                else
+                    w[j].hourly = strombedarf[x2];
+
             }
+
         }
         
         if (simu)
