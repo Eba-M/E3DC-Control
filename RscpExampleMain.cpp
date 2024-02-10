@@ -403,6 +403,7 @@ bool GetConfig()
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
+        e3dc_config.openmeteo = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.ext1 = false;
@@ -543,6 +544,9 @@ bool GetConfig()
                   else if((strcmp(var, "openwb") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.openWB = true;
+                  else if((strcmp(var, "openmeteo") == 0)&&
+                            (strcmp(value, "true") == 0))
+                        e3dc_config.openmeteo = true;
                   else if((strcmp(var, "dcdc") == 0)&&
                           (strcmp(value, "false") == 0))
                       e3dc_config.DCDC = false;
@@ -1570,7 +1574,8 @@ int LoadDataProcess() {
             case 1: ret = 1;
         }
 
-        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&(fPower_Grid>100)&&(iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
+        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&(iPower_PV<10)&&
+             (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            printf("Netzladen an");

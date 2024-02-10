@@ -23,13 +23,15 @@
 #include <array>
 #include <algorithm>
 #include <vector>
+#include "cJSON.h"
+#include <fcntl.h>
 
 //typedef struct {int hh; float pp;}watt_s;
 
 static time_t tm_Wallbox_dt = 0;
 static watt_s ww,ww1,ww2;
 static ch_s cc;
-static int oldhour = 24; // zeitstempel Wallbox Steurungsdatei;
+static time_t oldhour = 0; // zeitstempel Wallbox Steurungsdatei;
 static int old_w_size = 0;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
@@ -639,7 +641,108 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
     }
     return 0;
 }
+int fp_status = -1;  //
 
+void openmeteo(std::vector<watt_s> &w, e3dc_config_t e3dc,int anlage)
+{
+    FILE * fp;
+    char line[256];
+    char path [65000];
+    char value[25];
+    char var[25];
+    char var2[25];
+
+    int x1 = 0;
+    int x2,x3;
+    int len = strlen(e3dc.Forecast[anlage]);
+    
+    if (anlage >=0)
+    {
+        memcpy(&line,&e3dc.Forecast[anlage],len);
+        memset(var, 0, sizeof(var));
+        memset(var2, 0, sizeof(var2));
+        memset(value, 0, sizeof(value));
+        for(int j = 0;j<len&&x1==0;j++)
+        {
+            if (line[j]=='/') x1=j;
+        }
+        x2=0;
+        for(int j=x1+1;j<len&&x2==0;j++)
+        {
+            if (line[j]=='/') x2=j;
+        }
+        memcpy(&var,&line[0],x1);
+        memcpy(&var2,&line[x1+1],x2-x1-1);
+        memcpy(&value,&line[x2+1],len-x2-1);
+        
+        x1 = atoi(var);
+        x2 = atoi(var2);
+        x3 = atoi(value);
+    }
+
+   
+      {
+
+          sprintf(line,"curl -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
+
+          fp = NULL;
+          fp = popen(line, "r");
+          int fd = fileno(fp);
+          int flags = fcntl(fd, F_GETFL, 0);
+          flags |= O_NONBLOCK;
+          fcntl(fd, F_SETFL, flags);
+          fp_status = 2;
+
+    }
+    {
+        int timeout = 0;
+        while (fgets(path, 65000, fp) == NULL&&timeout < 30)
+        {
+            sleep(1);
+            timeout++;
+        }
+        if (timeout >= 30) return;
+        {
+            const cJSON *item = NULL;
+            const cJSON *item1 = NULL;
+            const cJSON *item2 = NULL;
+
+            std::string feld;
+            cJSON *wolf_json = cJSON_Parse(path);
+            feld = "minutely_15";
+            char * c = &feld[0];
+            item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+            feld = "time";
+            item1 = cJSON_GetObjectItemCaseSensitive(item, c );
+            feld = "global_tilted_irradiance_instant";
+            c = &feld[0];
+            item2 = cJSON_GetObjectItemCaseSensitive(item, c );
+            item1 = item1->child;
+            item2 = item2->child;
+            int x1 = 0;
+            while (item1!=NULL)
+            {
+                while (w[x1].hh < item1->valueint&&x1<w.size())
+                    x1++;
+                if (w[x1].hh == item1->valueint)
+                {
+                    if (anlage==0)
+                        w[x1].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;  // (15min Intervall daher /4
+                    else
+                        w[x1].solar = w[x1].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                    x1++;
+                    if (x1 >= w.size())
+                        return;
+                }
+                item1 = item1->next;
+                item2 = item2->next;
+
+            }
+
+        }
+    }
+        
+}
             
 void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 
@@ -762,7 +865,7 @@ void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, 
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
  Datei e3dc.wallbox.txt
- und dann 1x Stunde ausgeführt werden.
+ und dann 1x Stunde ausgeführt werden. aktuell bei open-meteo alle 15min
  
  
  */
@@ -783,23 +886,33 @@ int ladedauer = 0;
     int64_t von, bis;
 //    e3dc_config_t e3dc;
     
-
-    
-
     time(&rawtime);
     ptm = gmtime (&rawtime);
     sunriseAt = sunrise;
 // alte Einträge > 1h löschen
-    while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
+    if (e3dc.openmeteo)
+        while ((not simu)&&w.size()>0&&(w[0].hh+900<=rawtime))
         w.erase(w.begin());
+    else
+        while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
+        w.erase(w.begin());
+
 
 // Tagesverbrauchsprofil aus e3dc.config.txt AWhourly vorbelegen
 
 
     
-    if (((ptm->tm_hour!=oldhour))||((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12)))
+    if (((rawtime-oldhour)>=3600)
+        ||
+        ((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12))
+        || 
+        (e3dc.openmeteo&&((rawtime-oldhour)>=900))
+        ||
+        (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<48))
+
+        )
     {
-        oldhour = ptm->tm_hour;
+        oldhour = rawtime;
 //        old_w_size = w.size();
 
         for (int j1 = 0;j1<24;j1++) {
@@ -852,6 +965,7 @@ int ladedauer = 0;
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 printf("GET api.awattar\n");
 
+
 if (e3dc.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
 if (e3dc.AWLand == 2)
@@ -883,10 +997,25 @@ if (e3dc.AWLand == 2)
                                     ww.pp = atof(line);
                                     x2 =ww.hh%(24*3600);
                                     x2 = x2/3600;
-                                    ww.hourly = strombedarf[x2];
+                                    if (e3dc.openmeteo)
+                                        ww.hourly = strombedarf[x2]/4;
+                                    else
+                                        ww.hourly = strombedarf[x2];
                                     ww.solar = 0;
                                     if ((simu)||(ww.hh+3600>rawtime))
-                                        w.push_back(ww);
+                                    {
+                                        if (e3dc.openmeteo)
+                                        {
+                                            for (int x1=0;x1<=3;x1++)
+                                            {
+                                                w.push_back(ww);
+                                                ww.hh = ww.hh + 900;
+                                            }
+                                        }
+                                        else
+                                            w.push_back(ww);
+
+                                    }
                                 } else break;
                             }
 
@@ -897,6 +1026,13 @@ if (e3dc.AWLand == 2)
 
             }
 
+if (e3dc.openmeteo)
+{
+//    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
+    for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
+    openmeteo(w, e3dc, j);
+}
+else
         
         for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
             forecast(w, e3dc, j);

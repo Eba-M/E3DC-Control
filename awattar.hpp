@@ -44,7 +44,7 @@ typedef struct {
     char openWB_ip[20];
     char openweathermap[50];
     char BWWPTasmota[50];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,DCDC;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,DCDC,openmeteo;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom,wrsteuerung;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
@@ -79,7 +79,7 @@ static int tasmota_status[4]={2,2,2,2};
 
 static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
 static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
-static std::vector<wolf_s>wolf; // Stundenwerte der Börsenstrompreise
+static std::vector<wolf_s>wolf; // Werte der Wolf WP
 
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft);
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc,float soc,int sunriseAt);
