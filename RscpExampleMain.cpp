@@ -1699,8 +1699,8 @@ bDischarge = false;
 //                 printf("Entladen starten ");
             if (e3dc_config.AWtest == 1||e3dc_config.AWtest == 4){
                 iLMStatus = -7;
-                return 0;
-            }
+//                return 0;
+            } else
                 iLMStatus = 7;
         }
 
