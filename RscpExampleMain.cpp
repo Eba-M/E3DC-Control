@@ -1697,10 +1697,11 @@ bDischarge = false;
                    if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
                     iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
 //                 printf("Entladen starten ");
-if (e3dc_config.AWtest == 1)
-            iLMStatus = -7;
+            if (e3dc_config.AWtest == 1||e3dc_config.AWtest == 4){
+                iLMStatus = -7;
+                return 0;
+            }
                 iLMStatus = 7;
-//                return 0;
         }
 
 
