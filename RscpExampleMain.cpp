@@ -1574,7 +1574,7 @@ int LoadDataProcess() {
             case 1: ret = 1;
         }
 
-        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&(iPower_PV<10)&&
+        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&
              (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
