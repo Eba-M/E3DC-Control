@@ -902,11 +902,11 @@ int ladedauer = 0;
 
 
     
-    if (((rawtime-oldhour)>=3600)
+    if (((rawtime-oldhour)>=3600&&ptm->tm_min==0)
         ||
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12))
         || 
-        (e3dc.openmeteo&&((rawtime-oldhour)>=900))
+        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==0)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<48))
 
@@ -976,7 +976,13 @@ if (e3dc.AWLand == 1)
         sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
 if (e3dc.AWLand == 2)
         sprintf(line,"curl -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
-        if ((not simu)&&(w.size()<12)) // alte aWATTar Datei verarbeiten
+        if ((not simu)&&
+            (
+            (w.size()<12)
+            ||
+            (e3dc.openmeteo&&w.size()<48)
+            )
+            ) // alte aWATTar Datei verarbeiten
             {
                 fp = fopen("debug.out","w");
                 fprintf(fp,"%s",line);

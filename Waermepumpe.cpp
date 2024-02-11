@@ -451,6 +451,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 while (w.size()>0&&(w[0].hh+3540)<=rawtime)  // eine Minute vorher löschen
                     w.erase(w.begin());
             }
+            if (e3dc.openmeteo)
+                while (w.size()>0&&(w[0].hh+900<=rawtime))
+                    w.erase(w.begin());
 
          fp = fopen("awattardebug.out","w");
          for (int j = 0;j<w.size();j++)
