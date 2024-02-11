@@ -909,7 +909,8 @@ int ladedauer = 0;
         (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==0)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<48))
-
+        ||
+        (w.size()==0)
         )
     {
         oldhour = rawtime;
