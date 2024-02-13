@@ -1,1 +1,0 @@
-mosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ONmosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ONmosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ONmosquitto_pub -r -h 192.168.178.54 -t cmnd/tasmota_91DFA6/POWER -m ON
