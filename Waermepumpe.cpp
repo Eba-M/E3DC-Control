@@ -367,18 +367,19 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         if (e3dc.WPZWE>wetter[x1].temp)
                     // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
                             if (e3dc.openmeteo)
-                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
+//                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
+                                w[x1].wpbedarf = 0;
+
                             else
-                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+//                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+                                w[x1].wpbedarf = 0;
 
                                 // wenn der Wärmepreis der WP günstiger ist als Pellets
                         if (f6<e3dc.WPZWEPVon)
                             if (e3dc.openmeteo)
-//                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
-                                w[x1].wpbedarf = 0; //Pelletsheizung übernimmt
+                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                             else
-//                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
-                                w[x1].wpbedarf = 0;  //Pelletsheizung übernimmt
+                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
                                                     }
                                             }
                      
