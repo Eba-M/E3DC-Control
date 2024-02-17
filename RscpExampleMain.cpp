@@ -762,6 +762,7 @@ bool GetConfig()
     return fpread;
 }
 
+int wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
 long iLength;
@@ -874,17 +875,17 @@ int iModbusTCP()
 //  Regelgröße ist die Zulufttemperatur der LWWP
 //  daneben die aktuelle Temperatur vom Wetterportal
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
-//  if (t - wolf[wpzl].t > 300) wolf[wpzl].wert = wetter[0].temp;
-//  float isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
-//                if isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
+                float isttemp = wolf[wpzl].wert;
+                if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
+                   isttemp = wetter[0].temp;
 
-                
-                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
+                if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
+//                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
                 }
-                if (temp[0]>(e3dc_config.WPZWE+.5)*10&&temp[17]==1)
+                if (isttemp>(e3dc_config.WPZWE+.5)*10&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,1,7); //Heizkessel
@@ -1075,11 +1076,11 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
-int wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
 
 int wolfstatus()
 {
-
+    time_t now;
+    time(&now);
     //           Test zur Abfrage des Tesmota Relais
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
@@ -1170,7 +1171,7 @@ int wolfstatus()
                 if (item != NULL)
                 {
                     wolf[x1].wert = item->valuedouble;
-                    wolf[x1].t = t;
+                    wolf[x1].t = now;
                     if (item->valuestring!= NULL)
                     wolf[x1].status = item->valuestring;
                     
@@ -2528,7 +2529,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 
         if (e3dc_config.wbmode==1||e3dc_config.wbmode==10) 
-            iAvalPower = iPower;  // = 5 sec average
+            iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
         
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
