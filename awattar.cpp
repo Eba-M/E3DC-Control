@@ -1269,7 +1269,7 @@ else
  */
     for (int l = 0;(l< w.size()); l++)
     {
-        if (w[l].hh>=von&&w[l].hh<=bis&&w[l].hh%60==0)
+        if (w[l].hh>=von&&w[l].hh<=bis&&w[l].hh%3600==0)
         {
             cc.hh = w[l].hh;
             cc.ch = chch;
