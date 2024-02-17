@@ -114,7 +114,7 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
             cc.hh = w[j].hh;
             cc.pp = w[j].pp;
             int min = cc.hh%(24*3600)/60;
-            if (min>sunset||min<sunrise)
+            if ((min>sunset||min<sunrise)&&cc.hh%60==0)
                 ch.push_back(cc);
         }
         std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {

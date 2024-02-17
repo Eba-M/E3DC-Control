@@ -170,6 +170,7 @@ int MQTTsend(char host[20],char buffer[127])
     } else
     return(-1);
 }
+/*
 int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
     RscpProtocol protocol;
     SRscpValue rootValue;
@@ -194,7 +195,8 @@ int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) 
     
     return 0;
 }
-int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
+*/
+/*int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
     uint32_t uPower;
@@ -224,6 +226,8 @@ int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     
     return 0;
 }
+*/
+/*
 int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     RscpProtocol protocol;
     SRscpValue rootValue;
@@ -257,7 +261,7 @@ int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
     return 0;
 }
 
-
+*/
 int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
@@ -867,6 +871,13 @@ int iModbusTCP()
             if (temp[13] > 0) // Temperatur Puffer gesetzt?
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
+//  Regelgröße ist die Zulufttemperatur der LWWP
+//  daneben die aktuelle Temperatur vom Wetterportal
+// und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
+//  if (t - wolf[wpzl].t > 300) wolf[wpzl].wert = wetter[0].temp;
+//  float isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
+//                if isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
+
                 
                 if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                 {
@@ -1064,7 +1075,7 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
-float wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
+int wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
 
 int wolfstatus()
 {
@@ -1079,6 +1090,7 @@ int wolfstatus()
             if (wolf.size()==0)
             {
                 wo.wert = 0;
+                wo.t = 0;
                 wo.status = "";
                 wo.feld = "Vorlauftemperatur";
                 wo.AK = "VL";
@@ -1158,6 +1170,7 @@ int wolfstatus()
                 if (item != NULL)
                 {
                     wolf[x1].wert = item->valuedouble;
+                    wolf[x1].t = t;
                     if (item->valuestring!= NULL)
                     wolf[x1].status = item->valuestring;
                     
@@ -1691,7 +1704,7 @@ bDischarge = false;
                 }
         }
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&(iPower_Bat < 100)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&(iPower_Bat < 200)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
                    if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
@@ -2201,7 +2214,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     static uint8_t WBChar_alt = 0;
-    static int32_t iWBMinimumPower,iAvalPowerCount,idynPower; // MinimumPower bei 6A
+    static int32_t iWBMinimumPower,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static bool bWBLademodusSave,bWBZeitsteuerung;
 
@@ -2366,32 +2379,36 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iPower = 0;
                 if (-fAvPower_Grid > iWBMinimumPower)
 // Netzüberschuss  größer Startleistung WB
-                 iPower = -fAvPower_Grid;
+                    iPower = -fAvPower_Grid;
                 else
-                if (fBatt_SOC > 10)
+                    if (fBatt_SOC > 10)
 // Mindestladestand Erreicht
-                {
+                    {
 // Überschuss Netz
-                if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
-                  {if ((-fPower_Grid > (iWBMinimumPower/6)))
-                         iPower = -fPower_Grid;
-                     else
-                        (iPower = iWBMinimumPower/6);
-                  }
-                 else
+                        if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
+                        {
+                            if ((-fPower_Grid > (iWBMinimumPower/6)))
+                                iPower = -fPower_Grid;
+                            else
+                                iPower = iWBMinimumPower/6;
+                        }
+                        else
 // Überschussleistung verfügbar?
-                 { if (abs(iPower_Bat-iBattLoad) > (iWBMinimumPower/6))
-                 {if (iBattLoad > iMaxBattLade)
-                    iPower = iPower_Bat-iMaxBattLade;
-                    else
-                    iPower = iPower_Bat-iBattLoad;
-
-                 }}
-                }
+                        {
+                            if (abs(iPower_Bat-iBattLoad) > (iWBMinimumPower/6))
+                            {
+                                if (iBattLoad > iMaxBattLade)
+                                    iPower = iPower_Bat-iMaxBattLade;
+                                else
+                                    iPower = iPower_Bat-iBattLoad;
+                         
+                            }
+                        }
+                    }
                     idynPower = (iRefload - (fAvBatterie900+fAvBatterie))*-2;
                     if (idynPower < 0)
                         iPower = idynPower;
-              break;
+                break;
             case 3:
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
@@ -2420,8 +2437,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             // des Ladekorridors entprechen
                 int x1,x2,x3,x4,x5;
                
-                if ((iRefload > iMinLade2)) iRefload = (iRefload+iMinLade2)/2;
-                if (iRefload > iMaxBattLade) iRefload = iMaxBattLade;
+                if ((iRefload > iMinLade2)) 
+                    iRefload = (iRefload+iMinLade2)/2;
+                if (iRefload > iMaxBattLade) 
+                    iRefload = iMaxBattLade;
 // iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
                 
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
@@ -2492,9 +2511,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
             iPower = fPower_Grid*-3;
         }
-        if (iAvalPowerCount < 3) iAvalPowerCount++;
-        iAvalPower = iAvalPower*(iAvalPowerCount-1)/iAvalPowerCount;
-        iAvalPower = iAvalPower + iPower/iAvalPowerCount;
+        
+        iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
+                                                    // Um das Laden ein- oder auszuschalten
 
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
@@ -4143,29 +4162,32 @@ static int iEC = 0;
     int res = system("pwd");
     if (GetConfig())
         while(iEC < 10)
-    {
-        iEC++; // Schleifenzähler erhöhen
-        ptm = gmtime(&t);
-//      Berechne Sonnenaufgang-/untergang
-        location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
-        location->date(1900+ptm->tm_year, 12,21,  0); // Wintersonnewende
-        sunriseWSW = location->sunrise();
-        location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
-        sunriseAt = location->sunrise();
-        sunsetAt = location->sunset();
-        int hh1 = sunsetAt / 60;
-        int mm1 = sunsetAt % 60;
-        int hh = sunriseAt / 60;
-        int mm = sunriseAt % 60;
-        sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
-        WriteLog();
-        // connect to server
-        printf("Program Start Version:%s\n",VERSION);
-        printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-        GetConfig();
-        printf("GetConfig done");
-        if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+        {
+            iEC++; // Schleifenzähler erhöhen
+            ptm = gmtime(&t);
+            //      Berechne Sonnenaufgang-/untergang
+            location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+            location->date(1900+ptm->tm_year, 12,21,  0); // Wintersonnewende
+            sunriseWSW = location->sunrise();
+            location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
+            sunriseAt = location->sunrise();
+            sunsetAt = location->sunset();
+            int hh1 = sunsetAt / 60;
+            int mm1 = sunsetAt % 60;
+            int hh = sunriseAt / 60;
+            int mm = sunriseAt % 60;
+            sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
+            WriteLog();
+            // connect to server
+            printf("Program Start Version:%s\n",VERSION);
+            printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
+            GetConfig();
+            printf("GetConfig done");
+            if (e3dc_config.aWATTar)
+            {
+                aWATTar(ch,w,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+//            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
+        }
         LoadDataProcess();
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
