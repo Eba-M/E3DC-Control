@@ -475,6 +475,7 @@ bool GetConfig()
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
+        e3dc_config.WPPVoff = -100;
         e3dc_config.WPEHZ = -1;
         e3dc_config.WPZWE = -99;
         e3dc_config.WPZWEPVon = -1;
@@ -614,6 +615,8 @@ bool GetConfig()
                         e3dc_config.WPmax = atof(value);
                     else if(strcmp(var, "wppvon") == 0)
                         e3dc_config.WPPVon = atof(value);
+                    else if(strcmp(var, "wppvoff") == 0)
+                        e3dc_config.WPPVoff = atof(value);
                     else if(strcmp(var, "wpehz") == 0)
                         e3dc_config.WPEHZ = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
@@ -1757,7 +1760,7 @@ bDischarge = false;
         }
         // LWWP weiterlaufen lassen wenn noch überschuss da
         if (PVon>100&&t_alt-wpofftime<900) wpofftime = t_alt;
-        if (PVon<(-100))  // Überschuss PV 
+        if (PVon<(e3dc_config.WPPVoff))  // Überschuss PV
         {
             if (btasmota_ch1&4)
                 btasmota_ch1  ^= 4;

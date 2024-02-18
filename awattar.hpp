@@ -50,7 +50,7 @@ typedef struct {
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt,AWReserve,
-    WPHeizlast,WPHeizgrenze,WPLeistung,WPmin,WPmax,WPPVon,WPEHZ,WPZWE,WPZWEPVon,WPOffset,BWWPein,BWWPaus,BWWPTasmotaDauer;
+    WPHeizlast,WPHeizgrenze,WPLeistung,WPmin,WPmax,WPPVon,WPPVoff,WPEHZ,WPZWE,WPZWEPVon,WPOffset,BWWPein,BWWPaus,BWWPTasmotaDauer;
     char Forecast[4][20]; // 4 Elemente
 
     
