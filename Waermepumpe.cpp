@@ -375,7 +375,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 w[x1].wpbedarf = 0;
 
                                 // wenn der Wärmepreis der WP günstiger ist als Pellets
-                        if (f6<e3dc.WPZWEPVon)
+                        if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
                             if (e3dc.openmeteo)
                                 w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                             else

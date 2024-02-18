@@ -875,7 +875,7 @@ int iModbusTCP()
 //  Regelgröße ist die Zulufttemperatur der LWWP
 //  daneben die aktuelle Temperatur vom Wetterportal
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
-                float isttemp = wolf[wpzl].wert;
+                float isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
                 if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
                    isttemp = wetter[0].temp;
 
@@ -885,7 +885,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
                 }
-                if (isttemp>(e3dc_config.WPZWE+.5)*10&&temp[17]==1)
+                if (isttemp>(e3dc_config.WPZWE+.5)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,1,7); //Heizkessel
