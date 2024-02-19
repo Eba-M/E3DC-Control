@@ -2177,9 +2177,16 @@ bDischarge = false;
                 printf("%c[K\n", 27 );
 
         }
+        static float hl_alt;
+        static float cop;
         if (wolf.size()>0)
             if (wolf[wppw].wert>0) //division durch 0 vermeiden
-        printf("%0.2f %0.2f ",fspreis/(wolf[wphl].wert/wolf[wppw].wert),(wolf[wphl].wert/wolf[wppw].wert));
+            {
+                if (wolf[wphl].wert!=hl_alt)
+                    cop = (wolf[wphl].wert/wolf[wppw].wert);
+                printf("%0.2f %0.2f ",fspreis/(wolf[wphl].wert/wolf[wppw].wert),cop);
+                hl_alt = wolf[wphl].wert;
+            }
         printf("%c[K\n", 27 );
 
     }
