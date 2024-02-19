@@ -212,6 +212,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
         oldwsize = w.size();
 //    /*{
         FILE * fp;
+        FILE * fp1;
         char line[256];
         char path [65000];
         char value[25];
@@ -458,13 +459,25 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 while (w.size()>0&&(w[0].hh+900<=rawtime))
                     w.erase(w.begin());
 
-         fp = fopen("awattardebug.out","w");
-         for (int j = 0;j<w.size();j++)
+            memset(&line, 0, sizeof(line));
+            fp = fopen("awattardebug.out","w");
+            sprintf(line,"awattarlog%i.out",ptm->tm_wday);
+            struct stat stats;
+             stat(line,&stats);
+            time_t t = *(&stats.st_mtime);
+             if ((rawtime-t)>(24*3600*5)) // nach 5 tagen überschreiben
+                fp1 = fopen(line,"w");
+
+         fp1 = fopen(line,"a");
+         if (fp1 == NULL)
+             fp1 = fopen(line,"w");
+
+             for (int j = 0;j<w.size();j++)
 if (e3dc.openmeteo)
     fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
 else
     fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
-
+            fprintf(fp,line);
     fprintf(fp,"\n Simulation \n\n");
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
@@ -495,21 +508,25 @@ else
              if (e3dc.openmeteo)
              {
                  if (e3dc.AWSimulation == 1)
-                     fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
+                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
                  else
-                     fprintf(fp,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt));
+                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt));
              }
              else
              {
                  
                  if (e3dc.AWSimulation == 1)
-                     fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
+                     sprintf(line,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
                  else
-                     fprintf(fp,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt));
+                     sprintf(line,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt));
                  
              }
+             fprintf(fp,line);
+             if (j< 2)
+                 fprintf(fp1,line);
          }
          fclose(fp);
+         fclose(fp1);
 
              
          
