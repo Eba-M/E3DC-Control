@@ -466,6 +466,7 @@ bool GetConfig()
         e3dc_config.BWWP_port = 6722;
         e3dc_config.BWWPein = 0;
         e3dc_config.BWWPaus = 0;
+        e3dc_config.BWWPSupport = -1;
         e3dc_config.BWWPTasmotaDauer = 0;
         memset(e3dc_config.BWWPTasmota,0,sizeof(e3dc_config.BWWPTasmota));
         e3dc_config.soc = -1;
@@ -629,6 +630,8 @@ bool GetConfig()
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
                         e3dc_config.BWWPaus = atof(value);
+                    else if(strcmp(var, "bwwpsupport") == 0)
+                        e3dc_config.BWWPSupport = atof(value);
                     else if(strcmp(var, "rb") == 0)
                         e3dc_config.RB = atof(value);
                     else if(strcmp(var, "sommermaximum") == 0)
@@ -1378,9 +1381,8 @@ int LoadDataProcess() {
         {
             tasmotaoff(4);
         } else
-            if
-                (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
-                tasmotaon(4);
+        if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
+            tasmotaon(4);
         
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
@@ -1404,15 +1406,8 @@ int LoadDataProcess() {
                 {
                     if (btasmota_ch1 & 1)
                     {
-/*                        if (wolf[wphl].wert>0&&(fspreis*wolf[wppw].wert/wolf[wphl].wert<e3dc_config.WPZWEPVon))
-                            btasmota_ch2 |=2;
-                        else
-                        {
-                            if (btasmota_ch2 & 2)
-                                btasmota_ch2 ^=2;
-                        }
-*/
-                } else
+                    } 
+                    else
                         btasmota_ch1 |=2;
 
                 } else
@@ -1424,12 +1419,14 @@ int LoadDataProcess() {
                 };
         }
         
-        
-        if  (temp[14]<e3dc_config.BWWPein*10&&(tasmota_status[3]==1))
-            btasmota_ch2 |= 1;
-        if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
-            if (btasmota_ch2 & 1)
-                btasmota_ch2 ^= 1;
+        if  (e3dc_config.BWWPSupport>0)
+        {
+            if  (temp[14]<(e3dc_config.BWWPein-e3dc_config.BWWPSupport)*10&&(tasmota_status[3]==1))
+                btasmota_ch2 |= 1;
+            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
+                if (btasmota_ch2 & 1)
+                    btasmota_ch2 ^= 1;
+        }
 
 // Auswertung Steuerung
         if (btasmota_ch1)
