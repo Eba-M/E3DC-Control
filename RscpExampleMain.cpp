@@ -2159,11 +2159,19 @@ bDischarge = false;
         if (wolf.size()>0)
         for (int j=0;j<wolf.size();j++)
         {
-            if ((wolf[j].feld == "Betriebsart Heizgerät"))
-//                || (wolf[j].feld == "Verdichterstatus"))
+            if (
+//                (wolf[j].feld == "Betriebsart Heizgerät")
+//                ||
+                (wolf[j].feld == "Verdichterstatus")
+                )
                 printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
-                if (wolf[j].feld != "Verdichterstatus")
+                if (
+                    (wolf[j].feld != "Verdichterstatus")
+&&
+                    (wolf[j].feld != "Betriebsart Heizgerät")
+
+                    )
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6)
                 printf("%c[K\n", 27 );
