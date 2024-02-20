@@ -2533,14 +2533,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (iPower <= 0)
                 iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
             else                                        // Um das Laden ein- oder auszuschalten
-                iAvalPower = iAvalPower *.95 + iPower*.01;    // Über-/Unterschuss wird aufakkumuliert
+                iAvalPower = iAvalPower *.95 + iPower*.05;    // Über-/Unterschuss wird aufakkumuliert
 //            if (iAvalPower<iPower)
 //                iAvalPower = iPower;
         }
         if (iAvalPower < 0)
         {
             if (iPower <= 0)
-                iAvalPower = iAvalPower *.95 + iPower*.01;    // Über-/Unterschuss wird aufakkumuliert
+                iAvalPower = iAvalPower *.95 + iPower*.05;    // Über-/Unterschuss wird aufakkumuliert
             else                                        // Um das Laden ein- oder auszuschalten
                 iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
 //            if (iAvalPower>iPower)
