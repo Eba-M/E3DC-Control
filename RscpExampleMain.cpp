@@ -1419,7 +1419,7 @@ int LoadDataProcess() {
                 };
         }
         
-        if  (e3dc_config.BWWPSupport>0)
+        if  (e3dc_config.BWWPSupport>=0)
         {
             if  (temp[14]<(e3dc_config.BWWPein-e3dc_config.BWWPSupport)*10&&(tasmota_status[3]==1))
                 btasmota_ch2 |= 1;
@@ -2528,8 +2528,16 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iPower = fPower_Grid*-3;
         }
         
-        iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
-                                                    // Um das Laden ein- oder auszuschalten
+        if (iAvalPower > 0)
+            if (iPower < 0)
+              iAvalPower = iAvalPower *.8 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
+            else                                        // Um das Laden ein- oder auszuschalten
+                iAvalPower = iAvalPower *.9 + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
+        if (iAvalPower < 0)
+            if (iPower < 0)
+              iAvalPower = iAvalPower *.9 + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
+            else                                        // Um das Laden ein- oder auszuschalten
+                iAvalPower = iAvalPower *.8 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
 
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
