@@ -2529,16 +2529,24 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         
         if (iAvalPower >= 0)
-            if (iPower < 0)
-              iAvalPower = iAvalPower *.8 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
+        {
+            if (iPower <= 0)
+                iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
             else                                        // Um das Laden ein- oder auszuschalten
-                iAvalPower = iAvalPower *.9 + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
+                iAvalPower = iAvalPower *.95 + iPower*.01;    // Über-/Unterschuss wird aufakkumuliert
+//            if (iAvalPower<iPower)
+//                iAvalPower = iPower;
+        }
         if (iAvalPower < 0)
-            if (iPower < 0)
-              iAvalPower = iAvalPower *.9 + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
+        {
+            if (iPower <= 0)
+                iAvalPower = iAvalPower *.95 + iPower*.01;    // Über-/Unterschuss wird aufakkumuliert
             else                                        // Um das Laden ein- oder auszuschalten
-                iAvalPower = iAvalPower *.8 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
+                iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
+//            if (iAvalPower>iPower)
+//                iAvalPower = iPower;
 
+        }
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
 
