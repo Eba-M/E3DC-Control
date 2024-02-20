@@ -109,7 +109,7 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
         dauer = e3dc.BWWPTasmotaDauer;
         ch.clear();
         int stunden = ((sunrise+24*60)-sunset)/60;
-        for(int j=0;j<w.size()&&j<stunden;j++)
+        for(int j=0;j<w.size()&&ch.size()<stunden;j++)
         {
             cc.hh = w[j].hh;
             cc.pp = w[j].pp;
