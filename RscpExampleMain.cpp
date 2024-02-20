@@ -2528,7 +2528,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iPower = fPower_Grid*-3;
         }
         
-        if (iAvalPower > 0)
+        if (iAvalPower >= 0)
             if (iPower < 0)
               iAvalPower = iAvalPower *.8 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
             else                                        // Um das Laden ein- oder auszuschalten
