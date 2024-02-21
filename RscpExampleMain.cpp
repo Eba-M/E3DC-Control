@@ -2529,7 +2529,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
             iPower = fPower_Grid*-3;
         }
-        
+
+        static float fPower_WB_alt = 0;
+
+        if (fPower_WB!=fPower_WB_alt)
+            iAvalPower = iAvalPower - fPower_WB + fPower_WB_alt;
+        fPower_WB_alt = fPower_WB;        
         if  (
             (iAvalPower > 0&&iPower>0)
             ||
@@ -2537,10 +2542,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             )
         {
                 iAvalPower = iAvalPower *.995 + iPower*.02;
-            // Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
+// Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
+
+
         } else
                 iAvalPower = iAvalPower*.8  + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
 
+
+        
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
