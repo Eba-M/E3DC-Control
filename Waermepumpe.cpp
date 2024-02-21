@@ -490,8 +490,14 @@ else
              float preis = w[j].pp;
              int ret = SimuWATTar(w ,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
              float fsolar = w[j].solar;
-             if (fsolar > e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
-                 fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
+             if (e3dc.openmeteo)
+             {
+                 if (fsolar > (e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4))
+                     fsolar = (e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4);
+             } else
+                 if (fsolar > e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
+                     fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
+
              if (ret == 0)
              { if ((w[j].solar - w[j].hourly - w[j].wpbedarf ) > 0)
                  soc = soc - w[j].hourly - w[j].wpbedarf + fsolar;

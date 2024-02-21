@@ -2391,6 +2391,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //            wenn nicht abgeregelt werden muss, abschalten
               break;
             case 2:
+                iPower = -iFc + iPower_Bat + fPower_Grid;
+                break;
                 // Wenn Überschuss dann Laden starten
                 iPower = 0;
                 if (-fAvPower_Grid > iWBMinimumPower)
@@ -2528,25 +2530,18 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             iPower = fPower_Grid*-3;
         }
         
-        if (iAvalPower >= 0)
+        if  (
+            (iAvalPower > 0&&iPower>0)
+            ||
+            (iAvalPower < 0&&iPower<0)
+            )
         {
-            if (iPower <= 0)
-                iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
-            else                                        // Um das Laden ein- oder auszuschalten
-                iAvalPower = iAvalPower *.95 + iPower*.05;    // Über-/Unterschuss wird aufakkumuliert
-//            if (iAvalPower<iPower)
-//                iAvalPower = iPower;
-        }
-        if (iAvalPower < 0)
-        {
-            if (iPower <= 0)
-                iAvalPower = iAvalPower *.95 + iPower*.05;    // Über-/Unterschuss wird aufakkumuliert
-            else                                        // Um das Laden ein- oder auszuschalten
-                iAvalPower = iAvalPower *.5 + iPower*.5;    // Über-/Unterschuss wird aufakkumuliert
-//            if (iAvalPower>iPower)
-//                iAvalPower = iPower;
+                iAvalPower = iAvalPower *.99 + iPower*.05;
+            // Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
+        } else
+                iAvalPower = iAvalPower*.7  + iPower*.7;    // Über-/Unterschuss wird aufakkumuliert
 
-        }
+        
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
 
