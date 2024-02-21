@@ -2536,10 +2536,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             (iAvalPower < 0&&iPower<0)
             )
         {
-                iAvalPower = iAvalPower *.99 + iPower*.05;
+                iAvalPower = iAvalPower *.995 + iPower*.02;
             // Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
         } else
-                iAvalPower = iAvalPower*.7  + iPower*.7;    // Über-/Unterschuss wird aufakkumuliert
+                iAvalPower = iAvalPower*.8  + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
 
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
