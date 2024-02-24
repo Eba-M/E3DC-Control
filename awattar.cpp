@@ -1245,31 +1245,9 @@ else
         ww1.pp = -1000;
         ch.clear();
  
-/*    for (int l = 0;(l < ladedauer)&&(l< w.size()); l++)
-    {
-        ww.pp = 1000;
-
-        for (int j = 0; j < w.size(); j++ )
-        {
-            ww2=w[j];
-            if ((w[j].pp>ww1.pp||(w[j].pp==ww1.pp&&w[j].hh>ww1.hh))
-                &&(w[j].pp<ww.pp||(w[j].pp==ww.pp&&w[j].hh<ww.hh))&&(w[j].hh>=von)&&(w[j].hh<=bis))
-            {
-                ww =  w[j];
-            }
-        }
-        cc.hh = ww.hh;
-        cc.ch = chch;
-        cc.pp = ww.pp;
-        ch.push_back(cc);
-        ww1=ww;
-        long erg = 24*3600;
-    }
- alte logik
- */
     for (int l = 0;(l< w.size()); l++)
     {
-        if (w[l].hh>=von&&w[l].hh<=bis&&w[l].hh%3600==0)
+        if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh%3600==0||w[l].hh<=rawtime))
         {
             cc.hh = w[l].hh;
             cc.ch = chch;
