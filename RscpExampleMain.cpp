@@ -2794,7 +2794,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     }
         }}
     printf("%c[K\n", 27 );
-    printf("AVal %0i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
+    printf("AVal %0i/%01i/%01i Power %0i WBMode %0i ", iAvalPower,iMaxBattLade,iPower,iWBMinimumPower, e3dc_config.wbmode);
     printf(" iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
