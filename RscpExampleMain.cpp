@@ -410,6 +410,7 @@ bool GetConfig()
         e3dc_config.openmeteo = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
+        e3dc_config.WPSperre = false;
         e3dc_config.ext1 = false;
         e3dc_config.ext2 = false;
         e3dc_config.ext3 = false;
@@ -565,6 +566,9 @@ bool GetConfig()
                   else if((strcmp(var, "wpwolf") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPWolf = true;
+                  else if((strcmp(var, "wpsperre") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.WPSperre = true;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -1395,8 +1399,11 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
             } else
             {
-                btasmota_ch1 |=1;
-                wpofftime = t;
+                if (not e3dc_config.WPSperre) 
+                {
+                    btasmota_ch1 |=1;
+                    wpofftime = t;
+                }
             }
         
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
@@ -1427,7 +1434,10 @@ int LoadDataProcess() {
                 if (btasmota_ch2 & 1)
                     btasmota_ch2 ^= 1;
         }
-
+// LWWP ausschalten
+        if (e3dc_config.WPSperre)
+            btasmota_ch1 = 0;
+        
 // Auswertung Steuerung
         if (btasmota_ch1)
         {
@@ -2541,7 +2551,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             (iAvalPower < 0&&iPower<0)
             )
         {
-                iAvalPower = iAvalPower *.995 + iPower*.02;
+                iAvalPower = iAvalPower *.995 + iPower*.025;
 // Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
 
 

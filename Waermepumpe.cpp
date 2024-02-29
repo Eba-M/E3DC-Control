@@ -505,8 +505,8 @@ else
              } else
                  if (ret == 1) {
                      float soc2 = soc_alt - w[j].hourly - w[j].wpbedarf + fsolar;
-                     if (soc<soc2)
-                         soc = soc2;
+                     if (soc>soc2)
+                         soc = soc_alt+fsolar;
                      if (soc > 100) soc = 100;
                      if (soc < 0) soc = 0;
                  }

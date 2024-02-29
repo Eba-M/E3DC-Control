@@ -44,7 +44,7 @@ typedef struct {
     char openWB_ip[20];
     char openweathermap[50];
     char BWWPTasmota[50];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,DCDC,openmeteo;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,WPSperre,DCDC,openmeteo;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom,wrsteuerung;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
