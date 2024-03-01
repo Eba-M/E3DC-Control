@@ -478,6 +478,8 @@ bool GetConfig()
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
         e3dc_config.WPPVoff = -100;
+        e3dc_config.WPHK2on = -1;
+        e3dc_config.WPHK2off = -1;
         e3dc_config.WPEHZ = -1;
         e3dc_config.WPZWE = -99;
         e3dc_config.WPZWEPVon = -1;
@@ -622,6 +624,10 @@ bool GetConfig()
                         e3dc_config.WPPVon = atof(value);
                     else if(strcmp(var, "wppvoff") == 0)
                         e3dc_config.WPPVoff = atof(value);
+                    else if(strcmp(var, "wphk2on") == 0)
+                        e3dc_config.WPHK2on = atof(value);
+                    else if(strcmp(var, "wphk2off") == 0)
+                        e3dc_config.WPHK2off = atof(value);
                     else if(strcmp(var, "wpehz") == 0)
                         e3dc_config.WPEHZ = atof(value);
                     else if(strcmp(var, "wpzwe") == 0)
@@ -852,6 +858,7 @@ int iModbusTCP_Get(int reg,int val,int tac)
 }
 static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK2off = 0;
+static int bWP = 0;
 
 int iModbusTCP()
 {
@@ -1412,7 +1419,7 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
             } else
             {
-                if (not e3dc_config.WPSperre) 
+                if (not e3dc_config.WPSperre&&bWP==0)
                 {
                     btasmota_ch1 |=1;
                     wpofftime = t;
@@ -1448,9 +1455,38 @@ int LoadDataProcess() {
                     btasmota_ch2 ^= 1;
         }
 // LWWP ausschalten
-        if (e3dc_config.WPSperre)
+        if (e3dc_config.WPSperre||bWP>0||(bHK1off&&bHK2off))
             btasmota_ch1 = 0;
+// FBH zwischen Sonnenuntergang und Sonnenaufgang+1h ausschalten
+        int m1 = t%(24*3600)/60;
+        if (m1 > (sunriseAt+60)&&m1 < sunsetAt&& bHK1off&1)
+            bHK1off ^= 1;
+        if (m1 < (sunriseAt+60)||m1 > sunsetAt)
+            bHK1off |= 1;
+
+// HK2 zwischen WPHK2off und WPHK2on ausschalten
+        float f1 = t%(24*3600)/3600.0;
+        if (f1>e3dc_config.WPHK2off)
+            bHK2off |= 1;
+
+        if (f1>(e3dc_config.WPHK2on)
+            &&
+            f1<e3dc_config.WPHK2off
+            &&
+            bHK2off&1)
+                    
+                bHK2off ^= 1;
+
+        if (f1>(e3dc_config.WPHK2on)
+            &&
+            (e3dc_config.WPHK2on)>e3dc_config.WPHK2off
+            &&
+            bHK2off&1)
+            
+                bHK2off ^= 1;
+
         
+
 // Auswertung Steuerung
         if (btasmota_ch1)
         {
