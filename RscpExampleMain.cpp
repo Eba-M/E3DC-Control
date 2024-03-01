@@ -909,8 +909,8 @@ int iModbusTCP()
                 if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,1,1); //FBH?
+                    iLength  = iModbusTCP_Set(11,1,8); //FBH? register 11
+                    iLength  = iModbusTCP_Get(11,1,8); //FBH?
                 }
                 if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
@@ -1396,10 +1396,11 @@ int LoadDataProcess() {
 
         } else
         if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
+        {    
             tasmotaon(4);
             bHK1off |= 2;
-//            bHK2off |= 2;
-
+            //            bHK2off |= 2;
+        }
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
