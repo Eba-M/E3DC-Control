@@ -850,6 +850,9 @@ int iModbusTCP_Get(int reg,int val,int tac)
 
     return iLength;
 }
+static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
+static int bHK2off = 0;
+
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
@@ -903,25 +906,27 @@ int iModbusTCP()
 
 
 // Heizkreise schalten
-                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0)
+                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,1); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,1); //FBH?
                 }
-                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0)
+                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)))
+                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
+                    ||bHK1off>0))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-                    iLength  = iModbusTCP_Set(11,0,1); //FBH?
-                    iLength  = iModbusTCP_Get(11,1,1); //FBH?
+                    iLength  = iModbusTCP_Set(11,0,7); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,7); //FBH?
                 }
-                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)))
+                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
+                    ||bHK2off>0))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
@@ -1384,10 +1389,17 @@ int LoadDataProcess() {
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
+            if (bHK1off & 2)
+            bHK1off ^= 2;
+            if (bHK2off & 2)
+            bHK2off ^= 2;
+
         } else
         if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
             tasmotaon(4);
-        
+            bHK1off |= 2;
+            bHK2off |= 2;
+
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
