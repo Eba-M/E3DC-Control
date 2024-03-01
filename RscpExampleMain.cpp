@@ -1398,7 +1398,7 @@ int LoadDataProcess() {
         if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
             tasmotaon(4);
             bHK1off |= 2;
-            bHK2off |= 2;
+//            bHK2off |= 2;
 
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
