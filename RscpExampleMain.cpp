@@ -1490,15 +1490,21 @@ int LoadDataProcess() {
         for (int x1=0; x1<w.size(); x1++) {
             f1 = f1 + w[x1].solar;
         }
-        f1 = f1/4;
+
         if  (
-             ((sunsetAt-sunriseAt) > 10*60 && f1>100)
+             ((sunsetAt-sunriseAt) > 10*60 && f1>300)  // 300% vom Soc = 60kWh
              &&
-             (m1>sunsetAt||m1<sunriseAt)
+             (m1>sunsetAt||m1<(sunriseAt+120))
+            &&
+             fBatt_SOC>=0
             )
         {
             float f2 = 0;
-            for (int x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++) {
+            int x1;
+            for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
+            {
+                int hh1 = w[x1].hh%(24*3600)/3600;
+                if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
                 f2 = f2 + w[x1].hourly;
             }
             if (fBatt_SOC>0&& fBatt_SOC< (f2+10)) 
