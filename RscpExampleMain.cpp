@@ -1396,16 +1396,16 @@ int LoadDataProcess() {
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
-            if (bHK1off & 2)
+/*            if (bHK1off & 2)
             bHK1off ^= 2;
             if (bHK2off & 2)
             bHK2off ^= 2;
-
+*/
         } else
         if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
         {    
             tasmotaon(4);
-            bHK1off |= 2;
+//            bHK1off |= 2;
             //            bHK2off |= 2;
         }
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
