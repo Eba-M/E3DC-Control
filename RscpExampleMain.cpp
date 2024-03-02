@@ -1419,7 +1419,7 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
             } else
             {
-                if (not e3dc_config.WPSperre&&bWP==0)
+                if (not e3dc_config.WPSperre&&bWP==0) //bWP > 0 LWWP ausschalten
                 {
                     btasmota_ch1 |=1;
                     wpofftime = t;
@@ -1485,8 +1485,27 @@ int LoadDataProcess() {
             
                 bHK2off ^= 1;
 
-        
-
+// Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
+        f1 = 0;
+        for (int x1=0; x1<w.size(); x1++) {
+            f1 = f1 + w[x1].solar;
+        }
+        f1 = f1/4;
+        if  (
+             ((sunsetAt-sunriseAt) > 10*60 && f1>100)
+             &&
+             (m1>sunsetAt||m1<sunriseAt)
+            )
+        {
+            float f2 = 0;
+            for (int x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++) {
+                f2 = f2 + w[x1].hourly;
+            }
+            if (fBatt_SOC>0&& fBatt_SOC< (f2+10)) 
+                bWP  |= 1; // LWWP ausschalten
+            if (x1 == 0&&bWP&1) 
+                bWP ^=1;        // LWWP einschalten;
+        }
 // Auswertung Steuerung
         if (btasmota_ch1)
         {
@@ -1499,7 +1518,7 @@ int LoadDataProcess() {
         } else
             if (tasmota_status[0]==0)
             {
-                if (t-wpofftime > 300)   // 300sek. verzögerung vor der abschaltung
+//                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
                 tasmotaon(1);   // EVU = ON  Sperre
             }
 
