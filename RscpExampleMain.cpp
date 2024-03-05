@@ -850,7 +850,9 @@ int iModbusTCP_Get(int reg,int val,int tac)
     Msend.Fcd = 3; // Funktioncode
     //            Msend.Fcd = 6; // Funktioncode
     Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
-    Msend.Count = val*256; // Inhalt    int size = send.size();
+    Msend.Count = (val%256)*256; // Inhalt    int size = send.size();
+    Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
+
     memcpy(&send[0],&Msend,send.size());
     iLength = SocketSendData(isocket,&send[0],send.size());
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
