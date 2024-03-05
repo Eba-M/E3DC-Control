@@ -778,7 +778,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wphl,wppw,wpswk,wpkst,wpkt,wpzl;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
 long iLength;
@@ -828,7 +828,8 @@ int iModbusTCP_Set(int reg,int val,int tac)
     Msend.Fcd = 6; // Funktioncode
     //            Msend.Fcd = 6; // Funktioncode
     Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
-    Msend.Count = val*256; // Inhalt    int size = send.size();
+    Msend.Count = (val%256)*256; // Inhalt    int size = send.size();
+    Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
     memcpy(&send[0],&Msend,send.size());
     iLength = SocketSendData(isocket,&send[0],send.size());
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
@@ -905,7 +906,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
                 }
-                if (isttemp>(e3dc_config.WPZWE+.5)&&temp[17]==1)
+                if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,1,7); //Heizkessel
@@ -1117,6 +1118,7 @@ int wolfstatus()
                 wo.status = "";
                 wo.feld = "Vorlauftemperatur";
                 wo.AK = "VL";
+                wpvl = wolf.size();
                 wolf.push_back(wo);
 /*                wo.feld = "Sammlertemperatur";
                 wo.AK = "ST";
@@ -1142,6 +1144,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Aktuelle Leistungsvorgabe Verdichter";
                 wo.AK = "ALV";
+                wpalv = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Heizkreisdurchfluss";
                 wo.AK = "HD";
@@ -1291,6 +1294,54 @@ int tasmotaoff(int ch)
     tasmota_status[ch-1] = 0;
     return 0;
 }
+
+int shelly_get(){
+    FILE *fp;
+    char line[256];
+    int WP_status,status;
+    char path[PATH_MAX];
+    
+    fp = NULL;
+    
+    sprintf(line,"curl -X GET 'http://192.168.178.151/rpc/Light.GetStatus?id=0'");
+    fp = popen(line, "r");
+//    system(line);
+    const cJSON *item = NULL;
+    if (fp != NULL)
+    if (fgets(path, 1024, fp) != NULL)
+
+    {
+        
+        std::string feld;
+        cJSON *wolf_json = cJSON_Parse(path);
+        feld = "brightness";
+        char * c = &feld[0];
+        item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+        
+    }
+    status = pclose(fp);
+    if (item!=NULL)
+        return(item->valueint);
+    else
+        return(0);
+        
+}
+
+
+int shelly(int ALV)
+{
+    char path[PATH_MAX];
+    char buf[127];
+    FILE *fp;
+    fp==NULL;
+    sprintf(buf,"curl -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://192.168.178.151/rpc/Light.Set?",ALV);
+    fp = popen(buf, "r");
+
+    if (fp != NULL)
+    if (fgets(path, 1024, fp) != NULL)
+    {}
+    return 0;
+}
 typedef struct {
     time_t t;
     float fah, fsoc, fvoltage, fcurrent;
@@ -1307,7 +1358,7 @@ int LoadDataProcess() {
     static float fspreis;
     static time_t wpofftime = t;
     static time_t wpontime = t;  //
-    
+    static int PVon;
     
     // Speicher SoC selbst berechnen
     // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
@@ -1396,18 +1447,18 @@ int LoadDataProcess() {
         if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
         {
             tasmotaoff(4);
-/*            if (bHK1off & 2)
-            bHK1off ^= 2;
-            if (bHK2off & 2)
-            bHK2off ^= 2;
-*/
+            /*            if (bHK1off & 2)
+             bHK1off ^= 2;
+             if (bHK2off & 2)
+             bHK2off ^= 2;
+             */
         } else
-        if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
-        {    
-            tasmotaon(4);
-//            bHK1off |= 2;
-            //            bHK2off |= 2;
-        }
+            if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
+            {
+                tasmotaon(4);
+                //            bHK1off |= 2;
+                //            bHK2off |= 2;
+            }
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
@@ -1419,13 +1470,13 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
             } else
             {
-                if (not e3dc_config.WPSperre&&bWP==0) //bWP > 0 LWWP ausschalten
+                if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0) //bWP > 0 LWWP ausschalten
                 {
                     btasmota_ch1 |=1;
                     wpofftime = t;
                 }
             }
-        
+            
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
             //
             if (fcop>0)
@@ -1433,10 +1484,10 @@ int LoadDataProcess() {
                 {
                     if (btasmota_ch1 & 1)
                     {
-                    } 
+                    }
                     else
                         btasmota_ch1 |=2;
-
+                    
                 } else
                 {
                     if (btasmota_ch1 & 2)
@@ -1444,106 +1495,167 @@ int LoadDataProcess() {
                     if (btasmota_ch2 & 2)
                         btasmota_ch2 ^= 2;
                 };
-        }
-        
-        if  (e3dc_config.BWWPSupport>=0)
-        {
-            if  (temp[14]<(e3dc_config.BWWPein-e3dc_config.BWWPSupport)*10&&(tasmota_status[3]==1))
-                btasmota_ch2 |= 1;
-            if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
-                if (btasmota_ch2 & 1)
-                    btasmota_ch2 ^= 1;
-        }
-// LWWP ausschalten
-        if (e3dc_config.WPSperre||bWP>0||(bHK1off&&bHK2off))
-            btasmota_ch1 = 0;
-// FBH zwischen Sonnenuntergang und Sonnenaufgang+1h ausschalten
-        int m1 = t%(24*3600)/60;
-        if (m1 > (sunriseAt+60)&&m1 < sunsetAt&& bHK1off&1)
-            bHK1off ^= 1;
-        if (m1 < (sunriseAt+60)||m1 > sunsetAt)
-            bHK1off |= 1;
-
-// HK2 zwischen WPHK2off und WPHK2on ausschalten
-        float f1 = t%(24*3600)/3600.0;
-        if (f1>e3dc_config.WPHK2off)
-            bHK2off |= 1;
-
-        if (f1>(e3dc_config.WPHK2on)
-            &&
-            f1<e3dc_config.WPHK2off
-            &&
-            bHK2off&1)
-                    
-                bHK2off ^= 1;
-
-        if (f1>(e3dc_config.WPHK2on)
-            &&
-            (e3dc_config.WPHK2on)>e3dc_config.WPHK2off
-            &&
-            bHK2off&1)
             
-                bHK2off ^= 1;
+            
+            if  (e3dc_config.BWWPSupport>=0)
+            {
+                if  (temp[14]<(e3dc_config.BWWPein-e3dc_config.BWWPSupport)*10&&(tasmota_status[3]==1))
+                    btasmota_ch2 |= 1;
+                if  (temp[14]>e3dc_config.BWWPein*10||(tasmota_status[3]==0))
+                    if (btasmota_ch2 & 1)
+                        btasmota_ch2 ^= 1;
+            }
+            // LWWP ausschalten
+            if (e3dc_config.WPSperre||bWP>0||(bHK1off&&bHK2off))
+                btasmota_ch1 = 0;
+            
+            // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
+            int f2 = 0;
+            for (int x1=0; x1<w.size(); x1++) {
+                f2 = f2 + w[x1].solar;
+            }
+            
+            int m1 = t%(24*3600)/60;
+            // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
+            // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
+            
+            if   ((sunsetAt-sunriseAt) > 10*60 && f2>250)  // 300% vom Soc = 60kWh
+            {
+                // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
+                if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
+                    bHK1off ^= 1;
+                if (m1 < (sunriseAt+60)||m1 > sunriseAt+720)
+                    bHK1off |= 1;
+                // Steuerung der Temperatur der FBH
 
-// Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
-        f1 = 0;
-        for (int x1=0; x1<w.size(); x1++) {
-            f1 = f1 + w[x1].solar;
-        }
+                if (bHK1off == 0 && temp[2]<280&&t%15==0&&PVon>0)
+                {
+                    iLength  = iModbusTCP_Set(12,280,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,280,12); //FBH?
+                }
 
-        if  (
-             ((sunsetAt-sunriseAt) > 10*60 && f1>300)  // 300% vom Soc = 60kWh
-             &&
-             (m1>sunsetAt||m1<(sunriseAt+120))
-            &&
-             fBatt_SOC>=0
-            )
-        {
-            float f2 = 0;
-            int x1;
-            for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
-            {
-                int hh1 = w[x1].hh%(24*3600)/3600;
-                if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
-                f2 = f2 + w[x1].hourly;
-            }
-            if (fBatt_SOC>0&& fBatt_SOC< (f2+10)) 
-                bWP  |= 1; // LWWP ausschalten
-            if (x1 == 0&&bWP&1) 
-                bWP ^=1;        // LWWP einschalten;
-        }
-// Auswertung Steuerung
-        if (btasmota_ch1)
-        {
-            if (tasmota_status[0]==1)
-            {
-                tasmotaoff(1);   // EVU = OFF Keine Sperre
-                wpontime = t;
-                wpofftime = t;   //mindestlaufzeit
-            }
-        } else
-            if (tasmota_status[0]==0)
-            {
-//                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
-                tasmotaon(1);   // EVU = ON  Sperre
-            }
+                if (bHK1off > 0 && temp[2]>250&&t%15==0)
+                {
+                    iLength  = iModbusTCP_Set(12,250,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,250,12); //FBH?
+                }
 
-        if (btasmota_ch2)
-        {
-            if (tasmota_status[1]==0)
-            {
-                if (btasmota_ch2<4||(t-wpontime>300&&btasmota_ch2&4))
-                    tasmotaon(2);
+                // HK2 zwischen WPHK2off und WPHK2on ausschalten
+                float f1 = t%(24*3600)/3600.0;
+                if (f1>e3dc_config.WPHK2off)
+                    bHK2off |= 1;
+                
+                if (f1>(e3dc_config.WPHK2on)
+                    &&
+                    (e3dc_config.WPHK2on)>e3dc_config.WPHK2off
+                    &&
+                    bHK2off&1)
+                    
+                    bHK2off ^= 1;
+                
+                
+                if  (
+                     (m1>sunsetAt||m1<(sunriseAt+60))
+                     &&
+                     fBatt_SOC>=0
+                     )
+                {
+                    
+                    
+                    float f3 = 0;
+                    int x1;
+                    for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
+                    {
+                        int hh1 = w[x1].hh%(24*3600)/3600;
+                        if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
+                            f3 = f3 + w[x1].hourly;
+                    }
+                    if (fBatt_SOC>0&& fBatt_SOC< (f3+10))
+                        bWP  |= 1; // LWWP ausschalten
+                    if (x1 == 0&&bWP&1)
+                        bWP ^=1;        // LWWP einschalten;
+                }
+
+
+
             }
-        } 
-        else
-        if (tasmota_status[1]==1)
-        {
-                tasmotaoff(2);
-                wpofftime = t;
+// Steuerung LWWP über shelly 0-10V
+            
+            static int ALV = -1;
+            
+            if (ALV < 0) ALV = shelly_get();
+            
+            static time_t wp_t;
+            if (t - wp_t > 60&&ALV>0&&tasmota_status[0]==0)
+            {   wp_t = t;
+                
+                if (ALV > 45) ALV = 45;
+                if (ALV < 15) ALV = 15;
+
+
+                if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
+                {
+                    if (wolf[wpvl].wert>40)
+                        shelly(ALV--);
+                }
+
+
+                // muss Leistung angehoben werden?
+                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
+                {
+                    shelly(ALV++);
+                }
+                
+                if ( 
+                    (PVon < 0 &&
+                    (
+                     (temp[1]==0||temp[4]<temp[5])
+                     &&
+                     (temp[7]==0||temp[10]<temp[11])
+                    )
+                      )
+                    ||
+                    temp[14]>400
+                    )
+                {
+                    shelly(ALV--);
+                }
+            }
+        
+        
+
+            // Auswertung Steuerung
+            if (btasmota_ch1)
+            {
+                if (tasmota_status[0]==1)
+                {
+                    tasmotaoff(1);   // EVU = OFF Keine Sperre
+                    wpontime = t;
+                    wpofftime = t;   //mindestlaufzeit
+                }
+            } else
+                if (tasmota_status[0]==0)
+                {
+                    //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
+                    tasmotaon(1);   // EVU = ON  Sperre
+                }
+            
+            if (btasmota_ch2)
+            {
+                if (tasmota_status[1]==0)
+                {
+                    if (btasmota_ch2<4||(t-wpontime>300&&btasmota_ch2&4))
+                        tasmotaon(2);
+                }
+            }
+            else
+                if (tasmota_status[1]==1)
+                {
+                    tasmotaoff(2);
+                    wpofftime = t;
+                }
         }
     }
-
 
     
     
@@ -1577,7 +1689,7 @@ int LoadDataProcess() {
         
     }
     t = tE3DC % (24*3600);
-    static int PVon;
+    
     static time_t t_config = tE3DC;
     if ((tE3DC-t_config) > 10)
     {
@@ -2511,15 +2623,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (idynPower < 0)
                         iPower = idynPower;
                 break;
+
             case 3:
-                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+
+//                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
-//                idynPower = idynPower- iRefload;
-// Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
+
+                // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
                 if (iPower > iPower_Bat) iPower = iPower_Bat;
                 break;
             case 4:
+
 // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
               if (iRefload > iMinLade2) iRefload = iMinLade2;
               iPower = iPower_Bat-fPower_Grid*3-iRefload;

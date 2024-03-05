@@ -537,7 +537,7 @@ else
          
 
 
-         /*       Test zur Abfrage des Tesmota Relais
+/*       Test zur Abfrage des Tesmota Relais
 
           FILE *fp;
 
