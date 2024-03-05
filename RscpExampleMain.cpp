@@ -1299,7 +1299,7 @@ int shelly_get(){
     FILE *fp;
     char line[256];
     int WP_status,status;
-    char path[PATH_MAX];
+    char path[1024];
     
     fp = NULL;
     
@@ -1330,7 +1330,7 @@ int shelly_get(){
 
 int shelly(int ALV)
 {
-    char path[PATH_MAX];
+    char path[1024];
     char buf[127];
     FILE *fp;
     fp==NULL;

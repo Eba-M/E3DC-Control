@@ -13,9 +13,16 @@ E3DC-V1/soc.txt
 E3DC-V1/e3dc.hourly.txt
 wetter.out
 soc.txt
+E3DC-V1/awattarlog0.out
 E3DC-V1/forecast.json
 E3DC-V1/forecast0.json
 E3DC-V1/forecast1.json
 E3DC-V1/forecast2.json
 E3DC-V1/forecast3.json
 E3DC-V1/awattardebug.out
+E3DC-V1/awattarlog1.out
+E3DC-V1/awattarlog2.out
+E3DC-V1/awattarlog3.out
+E3DC-V1/awattarlog4.out
+E3DC-V1/awattarlog5.out
+E3DC-V1/awattarlog6.out
