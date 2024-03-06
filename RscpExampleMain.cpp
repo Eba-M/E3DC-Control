@@ -1572,11 +1572,11 @@ int LoadDataProcess() {
                         if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
                             f3 = f3 + w[x1].hourly;
                     }
-                    if (fBatt_SOC>0&& fBatt_SOC< (f3+10))
+/*                    if (fBatt_SOC>0&& fBatt_SOC< (f3+10))
                         bWP  |= 1; // LWWP ausschalten
                     if (x1 == 0&&bWP&1)
                         bWP ^=1;        // LWWP einschalten;
-                }
+*/                }
 
 
 
