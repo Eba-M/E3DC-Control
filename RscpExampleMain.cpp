@@ -1543,19 +1543,17 @@ int LoadDataProcess() {
                 }
 
                 // HK2 zwischen WPHK2off und WPHK2on ausschalten
-                float f1 = t%(24*3600)/3600.0;
-                if (f1>e3dc_config.WPHK2off)
-                    bHK2off |= 1;
-                
-                if (f1>(e3dc_config.WPHK2on)
-                    &&
-                    (e3dc_config.WPHK2on)>e3dc_config.WPHK2off
-                    &&
-                    bHK2off&1)
-                    
+                if  (bHK2off&1)
                     bHK2off ^= 1;
-                
-                
+
+                float f1 = t%(24*3600)/3600.0;
+                if ((e3dc_config.WPHK2off>e3dc_config.WPHK2on)
+                    &&(f1>e3dc_config.WPHK2off||f1<e3dc_config.WPHK2on))
+                    bHK2off |= 1;
+                if ((e3dc_config.WPHK2off<e3dc_config.WPHK2on)
+                    &&(f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on))
+                    bHK2off |= 1;
+
                 if  (
                      (m1>sunsetAt||m1<(sunriseAt+60))
                      &&
@@ -1591,21 +1589,21 @@ int LoadDataProcess() {
             if (t - wp_t > 60&&ALV>0&&tasmota_status[0]==0)
             {   wp_t = t;
                 
-                if (ALV > 45) ALV = 45;
+                if (ALV > 48) ALV = 48;
                 if (ALV < 15) ALV = 15;
 
-
+                
                 if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
                 {
                     if (wolf[wpvl].wert>40)
-                        shelly(ALV--);
+                        shelly((ALV--)-1);
                 }
 
 
                 // muss Leistung angehoben werden?
                 if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
-                    shelly(ALV++);
+                    shelly((ALV++)+1);
                 }
                 
                 if ( 
@@ -1620,7 +1618,7 @@ int LoadDataProcess() {
                     temp[14]>400
                     )
                 {
-                    shelly(ALV--);
+                    shelly((ALV--)-1);
                 }
             }
         
