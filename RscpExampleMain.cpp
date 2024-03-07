@@ -1589,7 +1589,7 @@ int LoadDataProcess() {
             if (t - wp_t > 60&&ALV>0&&tasmota_status[0]==0)
             {   wp_t = t;
                 
-                if (ALV > 48) ALV = 48;
+                if (ALV > 47) ALV = 47;
                 if (ALV < 15) ALV = 15;
 
                 
