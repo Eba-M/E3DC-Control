@@ -1538,7 +1538,7 @@ int LoadDataProcess() {
                     iLength  = iModbusTCP_Get(12,280,12); //FBH?
                 }
 
-                if (bHK1off && temp[2]>250&& not (t%15))
+                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && not (t%15))
                 {
                     iLength  = iModbusTCP_Set(12,250,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,250,12); //FBH?
@@ -2063,7 +2063,9 @@ bDischarge = false;
                 printf("ML1 %i ML2 %i RQ %i ",iMinLade, iMinLade2,iFc);
             printf("GMT %2ld:%2ld ZG %d ",tLadezeitende/3600,tLadezeitende%3600/60,tZeitgleichung);
 
-    printf("E3DC: %i:%i:%i %.2f ",hh,mm,ss,fatemp);
+    printf(" %i:%i:%i ",hh,mm,ss);
+    if (wetter.size()>0)
+    printf("%.2f° %.2f° ",wetter[0].temp,fatemp);
     printf("%c[K\n", 27 );
     
     int iPower = 0;
