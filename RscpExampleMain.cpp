@@ -1125,6 +1125,8 @@ int status,vdstatus;
 std::string sverdichterstatus;
 char path[4096];
 wolf_s wo;
+static int ALV = -1;
+
 
 int wolfstatus()
 {
@@ -1612,7 +1614,6 @@ int LoadDataProcess() {
             }
 // Steuerung LWWP über shelly 0-10V
             
-            static int ALV = -1;
             
             if (ALV < 0) ALV = shelly_get();
             
@@ -1632,7 +1633,7 @@ int LoadDataProcess() {
 
 
                 // muss Leistung angehoben werden?
-                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
+               if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     shelly((ALV++)+1);
                 }   else
@@ -2401,7 +2402,7 @@ bDischarge = false;
                     )
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6)
-                printf("%c[K\n", 27 );
+                printf("%i%c[K\n", ALV, 27 );
 
         }
         static float hl_alt;
