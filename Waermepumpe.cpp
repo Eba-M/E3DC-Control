@@ -339,6 +339,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 if (f3 > e3dc.WPLeistung) {
                                                     f4 = f3 - e3dc.WPLeistung;
                                                     f3 = e3dc.WPLeistung;
+                                                    if (f4 > e3dc.WPEHZ)
+                                                        f4 = e3dc.WPEHZ;
                                                 }
                                                 // Heizleistung WP unter Nennwert => mehr Heizstab
                                                 if (f3/f2>e3dc.WPmax)

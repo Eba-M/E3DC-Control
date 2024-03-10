@@ -403,11 +403,14 @@ bool GetConfig()
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
+        strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.openmeteo = false;
+        e3dc_config.shelly0V10V = false;
+        e3dc_config.tasmota = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.WPSperre = false;
@@ -502,6 +505,8 @@ bool GetConfig()
                         strcpy(e3dc_config.server_ip, value);
                     else if(strcmp(var, "bwwp_ip") == 0)
                         strcpy(e3dc_config.BWWP_ip, value);
+                    else if(strcmp(var, "shelly0v10v_ip") == 0)
+                        strcpy(e3dc_config.shelly0V10V_ip, value);
                     else if(strcmp(var, "heizung_ip") == 0)
                         strcpy(e3dc_config.heizung_ip, value);
                     else if(strcmp(var, "heizstab_ip") == 0)
@@ -562,9 +567,26 @@ bool GetConfig()
                   else if((strcmp(var, "dcdc") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.DCDC = true;
+                  else if((strcmp(var, "shelly0v10v") == 0))
+                  {
+                      if (strcmp(value, "false") == 0)
+                          e3dc_config.shelly0V10V = false;
+                      else
+                          if (strcmp(value, "true") == 0)
+                              e3dc_config.shelly0V10V = true;
+                  }
+                  else if((strcmp(var, "tasmota") == 0))
+                  {
+                      if (strcmp(value, "false") == 0)
+                          e3dc_config.tasmota = false;
+                      else
+                          if (strcmp(value, "true") == 0)
+                              e3dc_config.tasmota = true;
+                  }
                   else if((strcmp(var, "wp") == 0)&&
-                          (strcmp(value, "true") == 0))
-                      e3dc_config.WP = true;
+                            (strcmp(value, "true") == 0))
+                            e3dc_config.WP = true;
+                  
                   else if((strcmp(var, "wpwolf") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPWolf = true;
@@ -1285,18 +1307,22 @@ int tasmotastatus(int ch)
 int tasmotaon(int ch)
 {
     char buf[127];
-    sprintf(buf,"cmnd/tasmota/POWER%i -m 1",ch);
-    MQTTsend(e3dc_config.mqtt_ip,buf);
-    tasmota_status[ch-1] = 1;
-    return 0;
+    if (e3dc_config.tasmota)
+    {
+        sprintf(buf,"cmnd/tasmota/POWER%i -m 1",ch);
+        MQTTsend(e3dc_config.mqtt_ip,buf);
+        tasmota_status[ch-1] = 1;
+    }    return 0;
 }
 int tasmotaoff(int ch)
 {
     char buf[127];
-    sprintf(buf,"cmnd/tasmota/POWER%i -m 0",ch);
-    MQTTsend(e3dc_config.mqtt_ip,buf);
-    tasmota_status[ch-1] = 0;
-    return 0;
+    if (e3dc_config.tasmota)
+    {
+        sprintf(buf,"cmnd/tasmota/POWER%i -m 0",ch);
+        MQTTsend(e3dc_config.mqtt_ip,buf);
+        tasmota_status[ch-1] = 0;
+    }    return 0;
 }
 
 int shelly_get(){
@@ -1307,7 +1333,7 @@ int shelly_get(){
     
     fp = NULL;
     
-    sprintf(line,"curl -X GET 'http://192.168.178.151/rpc/Light.GetStatus?id=0'");
+    sprintf(line,"curl -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
     fp = popen(line, "r");
 //    system(line);
     const cJSON *item = NULL;
@@ -1337,14 +1363,17 @@ int shelly(int ALV)
     char path[1024];
     char buf[127];
     FILE *fp;
-    fp==NULL;
-    sprintf(buf,"curl -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://192.168.178.151/rpc/Light.Set?",ALV);
-    fp = popen(buf, "r");
-
-    if (fp != NULL)
-    if (fgets(path, 1024, fp) != NULL)
-    {}
-    return 0;
+    if (e3dc_config.shelly0V10V)
+    {
+        fp==NULL;
+        sprintf(buf,"curl -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+        fp = popen(buf, "r");
+        
+        if (fp != NULL)
+            if (fgets(path, 1024, fp) != NULL)
+            {}
+    }
+        return 0;
 }
 typedef struct {
     time_t t;
@@ -1528,20 +1557,20 @@ int LoadDataProcess() {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
                     bHK1off ^= 1;
-                if (m1 < (sunriseAt+60)||m1 > sunriseAt+720)
+                if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
                     bHK1off |= 1;
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
-                if (not bHK1off && temp[2]<280&& not (t%15) && btasmota_ch1&&PVon>0)
+                if (not bHK1off && temp[2]<280&& not (t%15) && btasmota_ch1&&PVon>200)
                 {
-                    iLength  = iModbusTCP_Set(12,280,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,280,12); //FBH?
+                    iLength  = iModbusTCP_Set(12,temp[2]+50,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,temp[2]+50,12); //FBH?
                 }
 
-                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && not (t%15))
+                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && not (t%15)&&PVon<-200)
                 {
-                    iLength  = iModbusTCP_Set(12,250,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,250,12); //FBH?
+                    iLength  = iModbusTCP_Set(12,temp[2]-50,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,temp[2]-50,12); //FBH?
                 }
 
                 // HK2 zwischen WPHK2off und WPHK2on ausschalten
@@ -1597,7 +1626,7 @@ int LoadDataProcess() {
                 
                 if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
                 {
-                    if (wolf[wpvl].wert>40)
+                    if (wolf[wpvl].wert>42)
                         shelly((ALV--)-1);
                 }
 
@@ -1606,14 +1635,14 @@ int LoadDataProcess() {
                 if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     shelly((ALV++)+1);
-                }
+                }   else
                 
                 if ( 
                     (PVon < 0 &&
                     (
-                     (temp[1]==0||temp[4]<temp[5])
-                     &&
-                     (temp[7]==0||temp[10]<temp[11])
+                     (temp[1]>0&&temp[4]<temp[5])
+                     ||
+                     (temp[7]>0&&temp[10]<temp[11])
                     )
                       )
                     ||
@@ -1944,7 +1973,8 @@ bDischarge = false;
         // LWWP  auf PV Anhebung schalten
         
         
-        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
+//        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
+        PVon = PVon*.9 + ((iPower_PV - iPowerHome- fPower_Grid))/10;
         //       Steuerung der LWWP nach Überschuss
         //       1. Stufe LWWP Ein Nach mind 15min Laufzeit
         //       2. Stufe PV-Anhebung

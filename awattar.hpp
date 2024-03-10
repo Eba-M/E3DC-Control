@@ -36,6 +36,7 @@ typedef struct {
     char heizung_ip[20];  // oekofen
     char mqtt_ip[20],mqtt2_ip[20];  // MQTT
     char BWWP_ip[20];
+    char shelly0V10V_ip[20];
     uint32_t  server_port,heizstab_port,BWWP_port;
     char e3dc_user[128];
     char e3dc_password[128];
@@ -44,7 +45,7 @@ typedef struct {
     char openWB_ip[20];
     char openweathermap[50];
     char BWWPTasmota[50];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,WP,WPWolf,WPSperre,DCDC,openmeteo;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom,wrsteuerung;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
