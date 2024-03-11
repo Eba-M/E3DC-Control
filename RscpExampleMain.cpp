@@ -481,6 +481,8 @@ bool GetConfig()
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
         e3dc_config.WPPVoff = -100;
+        e3dc_config.WPHK1 = 25;
+        e3dc_config.WPHK1max = 29;
         e3dc_config.WPHK2on = -1;
         e3dc_config.WPHK2off = -1;
         e3dc_config.WPEHZ = -1;
@@ -646,6 +648,10 @@ bool GetConfig()
                         e3dc_config.WPPVon = atof(value);
                     else if(strcmp(var, "wppvoff") == 0)
                         e3dc_config.WPPVoff = atof(value);
+                    else if(strcmp(var, "wphk1") == 0)
+                        e3dc_config.WPHK1 = atof(value);
+                    else if(strcmp(var, "wphk1max") == 0)
+                        e3dc_config.WPHK1max = atof(value);
                     else if(strcmp(var, "wphk2on") == 0)
                         e3dc_config.WPHK2on = atof(value);
                     else if(strcmp(var, "wphk2off") == 0)
@@ -1565,17 +1571,16 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                int res;
-                if (not bHK1off && temp[1]==1 && temp[2]<280&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                if (not bHK1off && temp[1]==1 && temp[2]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                 {
-                    res = temp[2]+5;
-                    iLength  = iModbusTCP_Set(12,res,12); //FBH? Solltemperatur
+                    
+                    iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
                     if (iLength>0 ) HK1_t = t;
                     else HK1_t++;
                 }
 
-                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && (t-HK1_t)>60 &&PVon<-200)
+                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>(e3dc_config.WPHK1*10) && (t-HK1_t)>60 &&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
@@ -1648,7 +1653,7 @@ int LoadDataProcess() {
                 
                 if (
                     (
-//                    (PVon < 0 &&
+                    PVon < 0 &&
                     (
                      (temp[1]>0&&temp[4]<temp[5])
                      ||
@@ -1977,7 +1982,7 @@ bDischarge = false;
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
     if (e3dc_config.aWATTar) printf("%.2f",fspreis);
-    PVon = PVon*.9 + ((iPower_PV - iPowerHome- fPower_Grid))/10;
+    PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
