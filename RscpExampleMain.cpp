@@ -1564,7 +1564,7 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                if (not bHK1off && temp[1]==1 && temp[2]<280&& (temp[4]-temp[5])<=5 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                if (not bHK1off && temp[1]==1 && temp[2]<280&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,temp[2]+5,12); //FBH?
