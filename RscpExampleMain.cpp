@@ -858,12 +858,14 @@ int iModbusTCP_Set(int reg,int val,int tac)
 
     return iLength;
 }
-int iModbusTCP_Get(int reg,int val,int tac)
+int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 {
     send.resize(12);
     receive.resize(1024);
 
     Modbus_send Msend;
+    Modbus_receive Mreceive;
+
     Msend.Tid = (tn*256+tac);
     tn++;
     Msend.Pid = 0;
@@ -878,7 +880,6 @@ int iModbusTCP_Get(int reg,int val,int tac)
     memcpy(&send[0],&Msend,send.size());
     iLength = SocketSendData(isocket,&send[0],send.size());
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
-
     return iLength;
 }
 static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
@@ -928,12 +929,12 @@ int iModbusTCP()
 //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
-                    iLength  = iModbusTCP_Get(101,1,1); //Heizkessel
+                    iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
-                    iLength  = iModbusTCP_Get(101,1,7); //Heizkessel
+                    iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
                 }
 
 
@@ -1564,17 +1565,19 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
+                int res;
                 if (not bHK1off && temp[1]==1 && temp[2]<280&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                 {
-                    iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,temp[2]+5,12); //FBH?
+                    res = temp[2]+5;
+                    iLength  = iModbusTCP_Set(12,res,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
                     HK1_t = t;
                 }
 
                 if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && (t-HK1_t)>60 &&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,temp[2]-5,12); //FBH?
+                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
                     HK1_t = t;
                 }
 
@@ -1972,6 +1975,7 @@ bDischarge = false;
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
     if (e3dc_config.aWATTar) printf("%.2f",fspreis);
+    PVon = PVon*.9 + ((iPower_PV - iPowerHome- fPower_Grid))/10;
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
@@ -1979,7 +1983,6 @@ bDischarge = false;
         
         
 //        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
-        PVon = PVon*.9 + ((iPower_PV - iPowerHome- fPower_Grid))/10;
         //       Steuerung der LWWP nach Überschuss
         //       1. Stufe LWWP Ein Nach mind 15min Laufzeit
         //       2. Stufe PV-Anhebung
