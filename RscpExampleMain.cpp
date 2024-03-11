@@ -1580,7 +1580,7 @@ int LoadDataProcess() {
                     else HK1_t++;
                 }
 
-                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>(e3dc_config.WPHK1*10) && (t-HK1_t)>60 &&PVon<-200)
+                if ((bHK1off ||m1 > (sunsetAt-60))&& temp[2]>(e3dc_config.WPHK1*10) && (t-HK1_t)>60 &&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
