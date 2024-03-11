@@ -1638,8 +1638,9 @@ int LoadDataProcess() {
                     shelly((ALV++)+1);
                 }   else
                 
-                if ( 
-                    (PVon < 0 &&
+                if (
+                    (
+//                    (PVon < 0 &&
                     (
                      (temp[1]>0&&temp[4]<temp[5])
                      ||
