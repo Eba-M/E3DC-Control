@@ -1571,14 +1571,16 @@ int LoadDataProcess() {
                     res = temp[2]+5;
                     iLength  = iModbusTCP_Set(12,res,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                    HK1_t = t;
+                    if (iLength>0 ) HK1_t = t;
+                    else HK1_t++;
                 }
 
                 if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && (t-HK1_t)>60 &&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                    HK1_t = t;
+                    if (iLength>0 ) HK1_t = t;
+                    else HK1_t++;
                 }
 
                 // HK2 zwischen WPHK2off und WPHK2on ausschalten
