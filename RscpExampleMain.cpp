@@ -1563,16 +1563,16 @@ int LoadDataProcess() {
                     bHK1off |= 1;
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
-                if (not bHK1off && temp[2]<280&& not (t%15) && btasmota_ch1&&PVon>200)
+                if (not bHK1off && temp[2]<280&& (temp[4]-temp[5])<=5 && not (t%60) && btasmota_ch1&&PVon>200)
                 {
-                    iLength  = iModbusTCP_Set(12,temp[2]+50,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,temp[2]+50,12); //FBH?
+                    iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,temp[2]+5,12); //FBH?
                 }
 
-                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && not (t%15)&&PVon<-200)
+                if ((bHK1off ||m1 > sunsetAt)&& temp[2]>250 && not (t%60)&&PVon<-200)
                 {
-                    iLength  = iModbusTCP_Set(12,temp[2]-50,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,temp[2]-50,12); //FBH?
+                    iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,temp[2]-5,12); //FBH?
                 }
 
                 // HK2 zwischen WPHK2off und WPHK2on ausschalten
