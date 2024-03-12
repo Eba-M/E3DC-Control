@@ -1656,7 +1656,7 @@ int LoadDataProcess() {
                 
                 if (
                     (
-                    PVon < 0 &&
+//                    PVon < 0 &&
                     (
                      (temp[1]>0&&temp[4]<temp[5])
                      ||
