@@ -1561,7 +1561,7 @@ int LoadDataProcess() {
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
             
-            if   ((sunsetAt-sunriseAt) > 10*60 && f2>250)  // 300% vom Soc = 60kWh
+            if   ((sunsetAt-sunriseAt) > 10*60 && f2>200)  // 300% vom Soc = 60kWh
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
