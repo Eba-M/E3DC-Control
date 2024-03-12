@@ -1342,7 +1342,7 @@ int shelly_get(){
     
     fp = NULL;
     
-    sprintf(line,"curl -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
+    sprintf(line,"curl -s -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
     fp = popen(line, "r");
 //    system(line);
     const cJSON *item = NULL;
@@ -1375,7 +1375,7 @@ int shelly(int ALV)
     if (e3dc_config.shelly0V10V)
     {
         fp==NULL;
-        sprintf(buf,"curl -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+        sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         fp = popen(buf, "r");
         
         if (fp != NULL)
@@ -1632,23 +1632,26 @@ int LoadDataProcess() {
             
             static time_t wp_t;
             if (t - wp_t > 60&&ALV>0&&tasmota_status[0]==0)
-            {   wp_t = t;
+            {
                 
-                if (ALV > 47) ALV = 47;
-                if (ALV < 15) ALV = 15;
+//                if (ALV > 47) ALV = 47;
+//                if (ALV < 13) ALV = 13;
 
                 
                 if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
                 {
                     if (wolf[wpvl].wert>42)
                         shelly((ALV--)-1);
+                    wp_t = t;
                 }
 
 
                 // muss Leistung angehoben werden?
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
+                    if (ALV<48)
                     shelly((ALV++)+1);
+                    wp_t = t;
                 }   else
                 
                 if (
@@ -1664,7 +1667,9 @@ int LoadDataProcess() {
                     temp[14]>400
                     )
                 {
+                    if (ALV>12)
                     shelly((ALV--)-1);
+                    wp_t = t;
                 }
             }
         

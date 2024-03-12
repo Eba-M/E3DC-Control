@@ -683,7 +683,7 @@ void openmeteo(std::vector<watt_s> &w, e3dc_config_t e3dc,int anlage)
    
       {
 
-          sprintf(line,"curl -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
+          sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
 
           fp = NULL;
           fp = popen(line, "r");
@@ -755,7 +755,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
     char var[256];
     sprintf(var,"forecast%i.json",anlage);
     if (Checkfile(var,59)){
-        sprintf(line,"curl -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds'| jq . > %s",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage],var);
+        sprintf(line,"curl -s -X GET 'https://api.forecast.solar/estimate/%f/%f/%s?time=seconds'| jq . > %s",e3dc_config.hoehe,e3dc_config.laenge,e3dc_config.Forecast[anlage],var);
         
         int res = system(line);
     }
@@ -974,9 +974,9 @@ printf("GET api.awattar\n");
 
 
 if (e3dc.AWLand == 1)
-        sprintf(line,"curl -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
+        sprintf(line,"curl -s -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
 if (e3dc.AWLand == 2)
-        sprintf(line,"curl -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
+        sprintf(line,"curl -s -X GET 'https://api.awattar.at/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
         if ((not simu)&&
             (
             (w.size()<12)
