@@ -643,7 +643,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
 }
 int fp_status = -1;  //
 
-void openmeteo(std::vector<watt_s> &w, e3dc_config_t e3dc,int anlage)
+void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t e3dc,int anlage)
 {
     FILE * fp;
     char line[256];
@@ -720,18 +720,30 @@ void openmeteo(std::vector<watt_s> &w, e3dc_config_t e3dc,int anlage)
             item1 = item1->child;
             item2 = item2->child;
             int x1 = 0;
+            int x2 = 0;
             while (item1!=NULL)
             {
                 while (w[x1].hh < item1->valueint&&x1<w.size())
                     x1++;
-                if (w[x1].hh == item1->valueint)
+                while (wetter[x2].hh < item1->valueint&&x2<wetter.size())
+                    x2++;
+
+                if (wetter[x2].hh == item1->valueint)
                 {
-                    if (anlage==0)
-                        w[x1].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;  // (15min Intervall daher /4
-                    else
-                        w[x1].solar = w[x1].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                    if (anlage==0){
+                        if (x1 < w.size())
+                        w[x1].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        wetter[x2].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        // (15min Intervall daher /4
+                    }
+                    else {
+                        if (x1 < w.size())
+                            w[x1].solar = w[x1].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                            wetter[x2].solar = wetter[x2].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                    }
                     x1++;
-                    if (x1 >= w.size())
+                    x2++;
+                    if (x2 >= wetter.size())
                         return;
                 }
                 item1 = item1->next;
@@ -860,7 +872,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w, e3dc_config_t &e3dc, float soc, int sunrise)
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, int sunrise)
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -891,18 +903,23 @@ int ladedauer = 0;
     sunriseAt = sunrise;
 // alte Einträge > 1h löschen
     if (e3dc.openmeteo)
+    {
+        if (wetter.size() == 0)
+            return;
         while ((not simu)&&w.size()>0&&(w[0].hh+900<=rawtime))
-        w.erase(w.begin());
+            w.erase(w.begin());}
     else
         while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
         w.erase(w.begin());
-
 
 // Tagesverbrauchsprofil aus e3dc.config.txt AWhourly vorbelegen
 
 
     
-    if (((rawtime-oldhour)>=3600&&ptm->tm_min==0)
+    if (
+        oldhour == 0
+        ||
+        ((rawtime-oldhour)>=3600&&ptm->tm_min==0)
         ||
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12))
         || 
@@ -1043,7 +1060,7 @@ if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
     for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
-    openmeteo(w, e3dc, j);
+    openmeteo(w,wetter, e3dc, j);
 }
 else
         

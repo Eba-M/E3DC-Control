@@ -1553,15 +1553,17 @@ int LoadDataProcess() {
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
             int f2 = 0;
-            for (int x1=0; x1<w.size(); x1++) {
-                f2 = f2 + w[x1].solar;
-            }
-            
+//            for (int x1=0; x1<wetter.size(); x1++) {
+                for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
+                {
+                    f2 = f2 + wetter[x1].solar;
+                }
+
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
             
-            if   ((sunsetAt-sunriseAt) > 10*60 && f2>200)  // 300% vom Soc = 60kWh
+            if   ((sunsetAt-sunriseAt) > 10*60 && f2>300)  // 300% vom Soc = 60kWh
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
@@ -1580,7 +1582,8 @@ int LoadDataProcess() {
                     else HK1_t++;
                 }
 
-                if ((bHK1off ||m1 > (sunsetAt-60))&& temp[2]>(e3dc_config.WPHK1*10) && (t-HK1_t)>60 &&PVon<-200)
+                if ((bHK1off ||m1 > (sunsetAt-60) || PVon<-iMinLade)
+                    && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
@@ -1631,7 +1634,7 @@ int LoadDataProcess() {
             if (ALV < 0) ALV = shelly_get();
             
             static time_t wp_t;
-            if (t - wp_t > 60&&ALV>0&&tasmota_status[0]==0)
+            if (t - wp_t > 59&&ALV>0&&tasmota_status[0]==0)
             {
                 
 //                if (ALV > 47) ALV = 47;
@@ -4342,7 +4345,7 @@ static void mainLoop(void)
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1");
             if (e3dc_config.aWATTar)
-            aWATTar(ch,w,e3dc_config,fBatt_SOC, sunrise);
+            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise);
 //            test;
             if (e3dc_config.debug) printf("M2");
             float zulufttemp = -99;
@@ -4475,7 +4478,7 @@ static int iEC = 0;
             printf("GetConfig done");
             if (e3dc_config.aWATTar)
             {
-                aWATTar(ch,w,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+//                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
 //            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
         }
         LoadDataProcess();

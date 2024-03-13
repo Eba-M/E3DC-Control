@@ -253,18 +253,31 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 item1 = item1->child;
                 item2 = item2->child;
                 int x1 = 0;
-                wetter.clear();
+//                wetter.clear();
                 fatemp = 0;
+                if ((item1!=NULL)&&wetter.size()>0)
+                while (wetter[0].hh < item1->valueint)
+                    wetter.erase(wetter.begin());
                 while (item1!=NULL)
                 {
-                    we.hh = item1->valueint;
-                    we.temp = item2->valuedouble;
-                    wetter.push_back(we);
-                    fatemp = fatemp + we.temp;
-                    item1 = item1->next;
-                    item2 = item2->next;
-                    x1++;
-
+                    if(x1<wetter.size())
+                    {
+                        if (wetter[x1].hh == item1->valueint)
+                        {
+                            wetter[x1].temp = item2->valuedouble;
+                        }
+                        
+                    }
+                    else
+                    {
+                        we.hh = item1->valueint;
+                        we.temp = item2->valuedouble;
+                        wetter.push_back(we);
+                    }
+                        fatemp = fatemp + item2->valuedouble;
+                        item1 = item1->next;
+                        item2 = item2->next;
+                        x1++;
                 }
                 fatemp = fatemp / x1;
 
