@@ -1573,7 +1573,7 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                if (not bHK1off && temp[1]==1 && temp[2]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                if (not bHK1off && temp[1]==1 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                 {
                     
                     iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
@@ -1582,7 +1582,7 @@ int LoadDataProcess() {
                     else HK1_t++;
                 }
 
-                if ((bHK1off ||m1 > (sunsetAt-60) || PVon<-iMinLade)
+                if ((bHK1off ||m1 > (sunsetAt+60) || PVon<-iMinLade)
                     && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
@@ -1667,7 +1667,9 @@ int LoadDataProcess() {
                     )
                       )
                     ||
-                    temp[14]>400
+                    temp[14]>450
+                    ||
+                    (wolf[wpvl].wert>45)
                     )
                 {
                     if (ALV>12)
