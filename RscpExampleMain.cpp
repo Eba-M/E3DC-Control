@@ -1641,13 +1641,13 @@ int LoadDataProcess() {
 //                if (ALV < 13) ALV = 13;
 
                 
-                if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
+/*                if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
                 {
                     if (wolf[wpvl].wert>42)
                         shelly((ALV--)-1);
                     wp_t = t;
                 }
-
+*/
 
                 // muss Leistung angehoben werden?
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
