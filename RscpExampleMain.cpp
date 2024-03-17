@@ -410,6 +410,8 @@ bool GetConfig()
         e3dc_config.openWB = false;
         e3dc_config.openmeteo = false;
         e3dc_config.shelly0V10V = false;
+        e3dc_config.shelly0V10Vmin = 12;
+        e3dc_config.shelly0V10Vmax = 47;
         e3dc_config.tasmota = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
@@ -618,6 +620,10 @@ bool GetConfig()
 
                         
                     }
+                    else if(strcmp(var, "shelly0v10vmin") == 0)
+                        e3dc_config.shelly0V10Vmin = atoi(value);
+                    else if(strcmp(var, "shelly0v10vmax") == 0)
+                        e3dc_config.shelly0V10Vmax = atoi(value);
                     else if(strcmp(var, "untererladekorridor") == 0)
                         e3dc_config.untererLadekorridor = atoi(value);
                     else if(strcmp(var, "obererladekorridor") == 0)
@@ -1652,7 +1658,7 @@ int LoadDataProcess() {
                 // muss Leistung angehoben werden?
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
-                    if (ALV<48)
+                    if (ALV<e3dc_config.shelly0V10Vmax)
                     shelly((ALV++)+1);
                     wp_t = t;
                 }   else
@@ -1672,7 +1678,7 @@ int LoadDataProcess() {
                     (wolf[wpvl].wert>45)
                     )
                 {
-                    if (ALV>12)
+                    if (ALV>e3dc_config.shelly0V10Vmin)
                     shelly((ALV--)-1);
                     wp_t = t;
                 }

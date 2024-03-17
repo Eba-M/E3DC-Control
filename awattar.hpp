@@ -48,7 +48,7 @@ typedef struct {
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2, unload, AWtest,aWATTar,wbmaxladestrom,wrsteuerung;
     int32_t ht, untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshsoc,wbmode,wbminlade,wbhour,wbvon,wbbis;
-    int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl;
+    int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl,shelly0V10Vmin,shelly0V10Vmax;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
     hton, htoff, htsockel, wbminSoC, hoehe, laenge, Avhourly, AWDiff, AWAufschlag,AWNebenkosten, AWMWSt,AWReserve,
     WPHeizlast,WPHeizgrenze,WPLeistung,WPmin,WPmax,WPPVon,WPPVoff,WPEHZ,WPZWE,WPZWEPVon,WPHK1,WPHK1max,WPHK2on,WPHK2off,WPOffset,BWWPein,BWWPaus,BWWPSupport,BWWPTasmotaDauer;
