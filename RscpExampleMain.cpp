@@ -966,7 +966,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (temp[1]==1&&((tasmota_status[0]>0&&temp[17]==0)
+                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
@@ -1683,6 +1683,8 @@ int LoadDataProcess() {
                     shelly((ALV--)-1);
                     wp_t = t;
                 }
+                if (wp_t == t||(t%60)==0)
+                    ALV = shelly_get();
             }
         
         
