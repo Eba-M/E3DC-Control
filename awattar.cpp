@@ -1055,7 +1055,7 @@ if (e3dc.AWLand == 2)
                         }
 
             }
-
+if (wetter.size()==0) return;
 if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur

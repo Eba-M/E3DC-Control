@@ -894,6 +894,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
     return iLength;
 }
+static int dummy = 0;
 static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK2off = 0;
 static int bWP = 0;
@@ -965,7 +966,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
                 }
-                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
+                if (temp[1]==1&&((tasmota_status[0]>0&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
@@ -1579,7 +1580,7 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                if (not bHK1off && temp[1]==1 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                if (not bHK1off && temp[1]>0 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                 {
                     
                     iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
@@ -4375,7 +4376,7 @@ static void mainLoop(void)
                  bWBRequest = false;
 if (e3dc_config.debug) printf("M5");
 
-        if(frameBuffer.dataLength == 0)
+        if(frameBuffer.dataLength == 0&&w.size()>0&&wetter.size()>0)
             LoadDataProcess();
 //            sleep(1);
 if (e3dc_config.debug) printf("M6");

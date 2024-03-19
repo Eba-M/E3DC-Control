@@ -191,7 +191,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
     float anforderung;
     ptm = gmtime (&rawtime);
     debug = e3dc.debug;
-
     if (e3dc.BWWPTasmotaDauer > 0)
     bwwptasmota(w,e3dc,sunrise,sunset,ireq_Heistab);
     
@@ -203,7 +202,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
         cop = ((absolutenull+zuluft)/(((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-zuluft)+fusspunkt))*.44;
 
 // Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
-    if ((ptm->tm_min%15==0||oldhour==0)&&
+    if ((ptm->tm_min%15==0||oldhour==0||w.size()>oldwsize)&&
         (
         (rawtime-oldhour)>=3600||e3dc.openmeteo&&(rawtime-oldhour)>=900||w.size()>oldwsize)
         )
@@ -327,6 +326,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 
             }
         }
+        if (w.size()==0) return;
         {
             {
                 if (e3dc.WPLeistung>0) {
@@ -487,11 +487,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
          if (fp1 == NULL)
              fp1 = fopen(line,"w");
 
-             for (int j = 0;j<w.size();j++)
-if (e3dc.openmeteo)
-    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
-else
-    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
     fprintf(fp,"\n Simulation \n\n");
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
@@ -545,6 +540,14 @@ else
              if (j< 2)
                  fprintf(fp1,line);
          }
+            fprintf(fp,"\n\n Data \n\n");
+
+            for (int j = 0;j<w.size();j++)
+                if (e3dc.openmeteo)
+                    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
+                else
+                    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
+
          fclose(fp);
          fclose(fp1);
 
