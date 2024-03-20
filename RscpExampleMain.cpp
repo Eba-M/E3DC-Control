@@ -1369,7 +1369,7 @@ int shelly_get(){
     if (item!=NULL)
         return(item->valueint);
     else
-        return(0);
+        return(-1);
         
 }
 
@@ -1644,8 +1644,19 @@ int LoadDataProcess() {
             if (t - wp_t > 59&&ALV>0&&tasmota_status[0]==0)
             {
                 
-//                if (ALV > 47) ALV = 47;
-//                if (ALV < 13) ALV = 13;
+                if (ALV > e3dc_config.shelly0V10Vmax
+                    ||
+                    ALV < e3dc_config.shelly0V10Vmin)
+                {
+                    if (ALV > e3dc_config.shelly0V10Vmax)
+                        ALV = e3dc_config.shelly0V10Vmax;
+                    else
+                        ALV = e3dc_config.shelly0V10Vmin;
+                    shelly(ALV);
+                }
+                   
+                    
+                 
 
                 
 /*                if (ALV>0&&wolf[wpvl].wert>0&&t-wolf[wpvl].t<100)
@@ -1659,7 +1670,8 @@ int LoadDataProcess() {
                 // muss Leistung angehoben werden?
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
-                    if (ALV<e3dc_config.shelly0V10Vmax)
+                    ALV = shelly_get();
+                    if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                     shelly((ALV++)+1);
                     wp_t = t;
                 }   else
@@ -1679,11 +1691,12 @@ int LoadDataProcess() {
                     (wolf[wpvl].wert>45)
                     )
                 {
+                    ALV = shelly_get();
                     if (ALV>e3dc_config.shelly0V10Vmin)
                     shelly((ALV--)-1);
                     wp_t = t;
                 }
-                if (wp_t == t||(t%60)==0)
+                if ((t%60)==0)
                     ALV = shelly_get();
             }
         
