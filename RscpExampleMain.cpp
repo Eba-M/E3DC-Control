@@ -57,6 +57,7 @@ static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
+static float fPVtoday=0;
 static float fDCDC = 0; // Strommenge mit rechnen
 static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
@@ -487,7 +488,7 @@ bool GetConfig()
         e3dc_config.WPHK1max = 29;
         e3dc_config.WPHK2on = -1;
         e3dc_config.WPHK2off = -1;
-        e3dc_config.WPEHZ = -1;
+        e3dc_config.WPEHZ = 0;
         e3dc_config.WPZWE = -99;
         e3dc_config.WPZWEPVon = -1;
         e3dc_config.WPOffset = 2;
@@ -1169,8 +1170,8 @@ int wolfstatus()
                 wo.AK = "KT";
                 wpkt = wolf.size();
                 wolf.push_back(wo);
-                wo.feld = "Kesselsolltemperatur";
-                wo.AK = "KST";
+                wo.feld = "Kesseltemperatur 2";
+                wo.AK = "KT2";
                 wpkst = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Rücklauftemperatur";
@@ -1560,10 +1561,13 @@ int LoadDataProcess() {
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
             int f2 = 0;
-//            for (int x1=0; x1<wetter.size(); x1++) {
+
+            //            for (int x1=0; x1<wetter.size(); x1++) {
                 for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
                 {
                     f2 = f2 + wetter[x1].solar;
+                    if (wetter[x1].hh%(24*3600)==0&&fPVtoday==0)
+                        fPVtoday=f2;
                 }
 
             int m1 = t%(24*3600)/60;
@@ -3077,7 +3081,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }}
     printf("%c[K\n", 27 );
     printf("AVal %0i/%01i/%01i Power %0i WBMode %0i ", iAvalPower,iPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf(" iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
+    printf("iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
 return 0;
 }
@@ -3394,7 +3398,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     }
     case TAG_EMS_POWER_PV: {    // response for TAG_EMS_REQ_POWER_PV
         int32_t iPower = protocol->getValueAsInt32(response);
-        printf("EMS PV %i", iPower);
+        printf("PV %i", iPower);
         iPower_PV = iPower;
         iPower_PV_E3DC = iPower;
         break;
@@ -3421,7 +3425,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         int32_t iPower = protocol->getValueAsInt32(response);
         iPowerBalance = iPowerBalance- iPower_PV + iPower_Bat - iPower;
         printf(" grid %i", iPower);
-        printf(" E3DC %i ", -iPowerBalance - int(fPower_WB));
+//        printf(" E3DC %i ", -iPowerBalance - int(fPower_WB));
         printf(" # %i", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
         printf("%c[K\n", 27 );
 
@@ -3430,9 +3434,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     case TAG_EMS_POWER_ADD: {    // response for TAG_EMS_REQ_POWER_ADD
         int32_t iPower = protocol->getValueAsInt32(response);
 
-        printf(" add %i", - iPower);
+        printf(" + %i", - iPower);
         iPower_PV = iPower_PV - iPower;
-        printf(" # %i", iPower_PV);
+//        printf(" #%i", iPower_PV);
         break;
     }
         case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
@@ -3541,18 +3545,20 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
                 if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
                 fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
-                printf("Battery SOC %0.02f%% ", fBatt_SOC);
+//                printf("Battery SOC %0.02f%% ", fBatt_SOC);
+                printf("SOC %0.02f%% ", fBatt_SOC);
                 break;
             }
             case TAG_BAT_MODULE_VOLTAGE: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
                 fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
-                printf(" %0.1f V ", fVoltage);
+                printf(" %0.1fV ", fVoltage);
                 break;
             }
             case TAG_BAT_CURRENT: {    // response for TAG_BAT_REQ_CURRENT
                 float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
                 fPower_Bat = fVoltage*fCurrent;
-                printf(" %0.02f A %0.02f W", fCurrent,fPower_Bat);
+                printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
+                printf(" %0.02f%%", fPVtoday); // erwartete PV Ertrag in % des Speichers
                 printf("%c[K\n", 27 );
 
                 break;
@@ -3598,7 +3604,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         fPower1 = protocol->getValueAsDouble64(&PMData[i]);
-                        printf("#%u is %0.1f W ", ucPMIndex,fPower1);
+                        printf("#%u %0.1fW ", ucPMIndex,fPower1);
                         break;
                     }
                     case TAG_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
@@ -3608,8 +3614,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case TAG_PM_POWER_L3: {              // response for TAG_PM_REQ_L3
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
                         if ((fPower2+fPower3)||0){
-                        printf("%0.1f W %0.1f W ", fPower2, fPower3);
-                        printf(" # %0.1f W ", fPower1+fPower2+fPower3);
+                        printf("%0.1fW %0.1fW ", fPower2, fPower3);
+                        printf("#%0.1fW ", fPower1+fPower2+fPower3);
                         printf("%c[K\n", 27 );
 
                         }
@@ -3634,13 +3640,13 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             if (iAvPower_GridCount<20)
                                 fAvPower_Grid = fAvPower_Grid3600; else
                             fAvPower_Grid = fAvPower_Grid*19/20 + fPower_Grid/20;
-                            printf(" & %0.01f %0.01f %0.01f %0.01f W ", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
+                            printf("& %0.01f %0.01f %0.01f %0.01fW ", fAvPower_Grid3600, fAvPower_Grid600, fAvPower_Grid60, fAvPower_Grid);
                     }
                         break;
                     }
                     case TAG_PM_VOLTAGE_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
-                        printf(" %0.1f V", fPower);
+                        printf(" %0.1fV", fPower);
                         fL1V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase1 -m %0.1f",float(fPower));
                         MQTTsend(e3dc_config.openWB_ip,buffer);
@@ -3649,7 +3655,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_VOLTAGE_L2: {              // response for TAG_PM_REQ_L2
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
-                        printf(" %0.1f V", fPower);
+                        printf(" %0.1fV", fPower);
                         fL2V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase2 -m %0.1f",float(fPower));
                         MQTTsend(e3dc_config.openWB_ip,buffer);
@@ -3657,7 +3663,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_VOLTAGE_L3: {              // response for TAG_PM_REQ_L3
                         float fPower = protocol->getValueAsFloat32(&PMData[i]);
-                        printf(" %0.1f V", fPower);
+                        printf(" %0.1fV", fPower);
                         printf("%c[K\n", 27 );
                         fL3V = fPower;
                         sprintf(buffer,"openWB/set/evu/VPhase3 -m %0.1f",float(fPower));
@@ -3810,7 +3816,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
                     //                                printf(" %0.2f A \n", fPower);
                                                     printf(" %0.2fA ", fPower);
-                                                    if (index == 2) printf(" # %0.0fW",fGesPower);
+                                                    if (index == 2) printf("# %0.0fW",fGesPower);
 
                                                 }
                                             }
@@ -3967,14 +3973,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //                                    WBchar6[0]=WBchar[0];
                                     WBchar6[0]=2+bWBSonne;
                                     printf("%c[K\n", 27 );
-                                    printf("WB: Modus %02X ",uint8_t(cWBALG));
+                                    printf("WB: Mode %02X ",uint8_t(cWBALG));
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
-                                    if (bWBLademodus) printf("Sonne "); else printf("Netz: ");
-                                    if (bWBConnect) printf(" Dose verriegelt");
-                                    if (bWBStart) printf(" gestartet");
-                                    if (bWBCharge) printf(" lädt");
-                                    if (bWBStopped ) printf(" gestoppt");
+                                    if (bWBLademodus) printf("SUN"); else printf("Grid");
+                                    if (bWBConnect) printf(" lock");
+                                    if (bWBStart) printf(" start");
+                                    if (bWBCharge) printf(" charge");
+                                    if (bWBStopped ) printf(" stop");
 
 //                                    if ((WBchar[2]==32)&&(iWBSoll!=32)) {
                                     if (WBchar[2]==e3dc_config.wbmaxladestrom) {
@@ -4015,7 +4021,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
-                                    printf(" Ladestrom %u/%uA ",iWBSoll,WBchar[2]);
+                                    printf(" Current %u/%uA ",iWBSoll,WBchar[2]);
                                     printf("%c[K", 27 );
                                     break;
                                 }
