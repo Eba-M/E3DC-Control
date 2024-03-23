@@ -1563,6 +1563,7 @@ int LoadDataProcess() {
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
             float f2 = 0;
             fPVdirect = 0;
+            fPVtoday = 0;
 
             //            for (int x1=0; x1<wetter.size(); x1++) {
                 for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
