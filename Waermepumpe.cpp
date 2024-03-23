@@ -204,7 +204,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
     if ((ptm->tm_min%15==0||oldhour==0||w.size()!=oldwsize)&&
         (
-        (rawtime-oldhour)>=3600||e3dc.openmeteo&&(rawtime-oldhour)>=900||w.size()>oldwsize)
+        (rawtime-oldhour)>=3600||e3dc.openmeteo&&(rawtime-oldhour)>=900||w.size()!=oldwsize)
         )
     {
         oldhour = rawtime;
