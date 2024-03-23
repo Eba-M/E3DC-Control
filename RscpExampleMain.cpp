@@ -3445,7 +3445,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 
         printf(" + %i", - iPower);
         iPower_PV = iPower_PV - iPower;
-//        printf(" #%i", iPower_PV);
+        printf(" #%i", iPower_PV);
         break;
     }
         case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
