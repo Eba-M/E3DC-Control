@@ -1561,7 +1561,7 @@ int LoadDataProcess() {
                 btasmota_ch1 = 0;
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
-            int f2 = 0;
+            float f2 = 0;
             fPVdirect = 0;
 
             //            for (int x1=0; x1<wetter.size(); x1++) {
@@ -3443,9 +3443,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     case TAG_EMS_POWER_ADD: {    // response for TAG_EMS_REQ_POWER_ADD
         int32_t iPower = protocol->getValueAsInt32(response);
 
-        printf(" + %i", - iPower);
+        printf("+%i", - iPower);
         iPower_PV = iPower_PV - iPower;
-        printf(" #%i", iPower_PV);
+        printf("=%i", iPower_PV);
         break;
     }
         case TAG_EMS_SET_POWER: {    // response for TAG_EMS_SET_POWER
