@@ -58,6 +58,7 @@ static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; /
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static float fPVtoday=0;
+static float fPVdirect=0;
 static float fDCDC = 0; // Strommenge mit rechnen
 static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
@@ -1561,6 +1562,7 @@ int LoadDataProcess() {
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
             int f2 = 0;
+            fPVdirect = 0;
 
             //            for (int x1=0; x1<wetter.size(); x1++) {
                 for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
@@ -1568,6 +1570,13 @@ int LoadDataProcess() {
                     f2 = f2 + wetter[x1].solar;
                     if (wetter[x1].hh%(24*3600)==0&&fPVtoday==0)
                         fPVtoday=f2;
+                    if (wetter[x1].solar>0)
+                    {
+                        if (wetter[x1].solar>wetter[x1].kosten)
+                            fPVdirect = fPVdirect + wetter[x1].kosten;
+                        else
+                            fPVdirect = fPVdirect + wetter[x1].solar;
+                    }
                 }
 
             int m1 = t%(24*3600)/60;
@@ -1593,7 +1602,7 @@ int LoadDataProcess() {
                     else HK1_t++;
                 }
 
-                if ((bHK1off ||m1 > (sunsetAt+60) || PVon<-iMinLade)
+                if ((bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade))
                     && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                 {
                     iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
@@ -3558,7 +3567,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
-                printf(" %0.02f%%", fPVtoday); // erwartete PV Ertrag in % des Speichers
+                printf(" %0.02f%% %0.02f%%", fPVtoday,fPVdirect); // erwartete PV Ertrag in % des Speichers
                 printf("%c[K\n", 27 );
 
                 break;
@@ -4440,7 +4449,8 @@ if (e3dc_config.debug) printf("M6");
                 sleep(1);
 //                printf("%c[2J", 27 );
                 printf("%c[H", 27 );
-                printf("Request cyclic example data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+//                printf("Request cyclic example data done %s
+                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%c[K\n", 27 );
 
 
