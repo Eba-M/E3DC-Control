@@ -1562,6 +1562,7 @@ int LoadDataProcess() {
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
             float f2 = 0;
+            float f3 = 0;
             fPVdirect = 0;
             fPVtoday = 0;
 
@@ -1570,13 +1571,16 @@ int LoadDataProcess() {
                 {
                     f2 = f2 + wetter[x1].solar;
                     if (wetter[x1].hh%(24*3600)==0&&fPVtoday==0)
+                    {
                         fPVtoday=f2;
+                        fPVdirect=f3;
+                    }
                     if (wetter[x1].solar>0)
                     {
                         if (wetter[x1].solar>wetter[x1].kosten)
-                            fPVdirect = fPVdirect + wetter[x1].kosten;
+                            f3 = f3 + wetter[x1].kosten;
                         else
-                            fPVdirect = fPVdirect + wetter[x1].solar;
+                            f3 = f3 + wetter[x1].solar;
                     }
                 }
 

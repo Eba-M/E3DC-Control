@@ -335,6 +335,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // ausreicht
                     int fbitemp = e3dc.WPHeizgrenze-
                     e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)*e3dc.WPLeistung;
+// Ermitteln ob Kernwinterbetrieb oder Sommerbetrieb
+                    float f2 = 0;
+                    bool bsommer = false;
+                    for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
+                    {
+                        f2 = f2 + wetter[x1].solar;
+                    }
+                    if   ((sunset-sunrise) > 10*60 && f2>300)  // 300% vom Soc = 60kWh
+                        bsommer = true;
+
+                    
                     
                     for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                             if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
@@ -380,7 +391,29 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     float f6 =  f7/f2;
 
                         w[x1].wpbedarf = wetter[x1].kosten;
-                        if (e3dc.WPZWE>wetter[x1].temp)
+                                                        
+                    int bHK1on = 0;
+                    int bHK2on = 1;
+                    if (bsommer)
+                    {
+                        float f1 = w[x1].hh%(24*3600)/3600.0;
+                        if (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
+                            bHK1on = 1;
+                            
+                        if ((e3dc.WPHK2off>e3dc.WPHK2on)
+                            &&(f1>e3dc.WPHK2off||f1<e3dc.WPHK2on))
+                            bHK2on = 0;
+                        if ((e3dc.WPHK2off<e3dc.WPHK2on)
+                            &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
+                            bHK2on = 0;
+                        
+                        w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
+                        
+                    }
+                                                        
+                                                        
+                                                        
+                    if (e3dc.WPZWE>wetter[x1].temp)
                     // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
                             if (e3dc.openmeteo)
 //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
