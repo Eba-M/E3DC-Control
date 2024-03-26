@@ -4412,8 +4412,9 @@ static void mainLoop(void)
                  bWBRequest = false;
 if (e3dc_config.debug) printf("M5");
 
-        if(frameBuffer.dataLength == 0&&w.size()>0&&wetter.size()>0)
+        if(frameBuffer.dataLength == 0)
             LoadDataProcess();
+            
 //            sleep(1);
 if (e3dc_config.debug) printf("M6");
 
