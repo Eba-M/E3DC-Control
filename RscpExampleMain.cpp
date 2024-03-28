@@ -1598,7 +1598,7 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                if (fPVtoday>fPVdirect*3) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
+                if (fPVtoday>fPVdirect*3||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
                     if (not bHK1off && temp[1]>0 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
