@@ -1588,7 +1588,7 @@ int LoadDataProcess() {
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
             
-            if   ((sunsetAt-sunriseAt) > 10*60 && f2>300)  // 300% vom Soc = 60kWh
+            if   ((sunsetAt-sunriseAt) > 10*60)  // 300% vom Soc = 60kWh
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
@@ -1596,62 +1596,65 @@ int LoadDataProcess() {
                 if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
                     bHK1off |= 1;
                 // Steuerung der Temperatur der FBH
-// Wenn WP an und PV Überschuss
+                // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
-                if (not bHK1off && temp[1]>0 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                if (fPVtoday>fPVdirect*3) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
-                    
-                    iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                    if (iLength>0 ) HK1_t = t;
-                    else HK1_t++;
-                }
-
-                if ((bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade))
-                    && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
-                {
-                    iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
-                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                    if (iLength>0 ) HK1_t = t;
-                    else HK1_t++;
-                }
-
-                // HK2 zwischen WPHK2off und WPHK2on ausschalten
-                if  (bHK2off&1)
-                    bHK2off ^= 1;
-
-                float f1 = t%(24*3600)/3600.0;
-                if ((e3dc_config.WPHK2off>e3dc_config.WPHK2on)
-                    &&(f1>e3dc_config.WPHK2off||f1<e3dc_config.WPHK2on))
-                    bHK2off |= 1;
-                if ((e3dc_config.WPHK2off<e3dc_config.WPHK2on)
-                    &&(f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on))
-                    bHK2off |= 1;
-
-                if  (
-                     (m1>sunsetAt||m1<(sunriseAt+60))
-                     &&
-                     fBatt_SOC>=0
-                     )
-                {
-                    
-                    
-                    float f3 = 0;
-                    int x1;
-                    for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
+                    if (not bHK1off && temp[1]>0 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
-                        int hh1 = w[x1].hh%(24*3600)/3600;
-                        if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
-                            f3 = f3 + w[x1].hourly;
+                        
+                        iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
+                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        if (iLength>0 ) HK1_t = t;
+                        else HK1_t++;
                     }
-/*                    if (fBatt_SOC>0&& fBatt_SOC< (f3+10))
-                        bWP  |= 1; // LWWP ausschalten
-                    if (x1 == 0&&bWP&1)
-                        bWP ^=1;        // LWWP einschalten;
-*/                }
-
-
-
+                    
+                    if ((bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade))
+                        && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                    {
+                        iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
+                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        if (iLength>0 ) HK1_t = t;
+                        else HK1_t++;
+                    }
+                    
+                    // HK2 zwischen WPHK2off und WPHK2on ausschalten
+                    if  (bHK2off&1)
+                        bHK2off ^= 1;
+                    
+                    float f1 = t%(24*3600)/3600.0;
+                    if ((e3dc_config.WPHK2off>e3dc_config.WPHK2on)
+                        &&(f1>e3dc_config.WPHK2off||f1<e3dc_config.WPHK2on))
+                        bHK2off |= 1;
+                    if ((e3dc_config.WPHK2off<e3dc_config.WPHK2on)
+                        &&(f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on))
+                        bHK2off |= 1;
+                    
+                    if  (
+                         (m1>sunsetAt||m1<(sunriseAt+60))
+                         &&
+                         fBatt_SOC>=0
+                         )
+                    {
+                        
+                        
+                        float f3 = 0;
+                        int x1;
+                        for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
+                        {
+                            int hh1 = w[x1].hh%(24*3600)/3600;
+                            if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
+                                f3 = f3 + w[x1].hourly;
+                        }
+                        /*                    if (fBatt_SOC>0&& fBatt_SOC< (f3+10))
+                         bWP  |= 1; // LWWP ausschalten
+                         if (x1 == 0&&bWP&1)
+                         bWP ^=1;        // LWWP einschalten;
+                         */                }
+                    
+                    
+                    
+                }
             }
 // Steuerung LWWP über shelly 0-10V
             
@@ -2149,7 +2152,12 @@ bDischarge = false;
                     else
                     iMinLade =  0;
             }
-
+// Wenn der noch zu erwartende Solarertrag kleiner ist als der Speicherbedarf und der Stromverbrauch
+// multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
+    if ((fPVtoday<(fPVdirect+fBatt_SOC-fLadeende)*2)&&t<tLadezeitende2)
+    {iFc = e3dc_config.maximumLadeleistung;}
+    
+    
     printf("%c[K\n", 27 );
 
     //  Laden auf 100% nach 15:30
