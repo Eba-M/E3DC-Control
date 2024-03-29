@@ -2739,8 +2739,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             case 3:
 
-//                iPower = iPower_Bat-fPower_Grid*2-iRefload;
-
+                iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
