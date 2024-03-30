@@ -356,7 +356,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.45; // COP
                                                 if (cop < 0) cop = f2;
                                                 // thermische Heizleistung
-                                                float f3 = (e3dc.WPHeizgrenze-wetter[x1].temp)*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
+                                                float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
+                                                     if (f3 < 0) f3=0; // zu warm keine Heizung
                                                 float f4 = 0;
                                                 float f5 = f3; // angeförderte Heizleistung
                                                 // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
@@ -507,6 +508,32 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 while (w.size()>0&&(w[0].hh+900<=rawtime))
                     w.erase(w.begin());
 
+            int analyse = 1;
+            
+            if (analyse)
+            {
+                soc = 12.74;
+                w.clear();
+                if (fp != NULL)
+                fclose(fp);
+                fp = fopen("awattardebug.in","r");
+                watt_s ww;
+                float temp = 0;
+                float hh = 0;
+                int ret = 0;
+                while (fp != NULL&&ret>=0)
+                {
+//                    int ret =  fscanf(fp,line);
+                    ret =  fscanf(fp,"%f %f %f %f %f %f \n ",&hh,&ww.pp,&ww.hourly,&ww.wpbedarf,&ww.solar, &temp);
+                    ww.hh = hh * 3600;
+                    w.push_back(ww);
+                }
+                if (fp != NULL)
+                fclose(fp);
+            }
+
+            
+            
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.out","w");
             sprintf(line,"awattarlog%i.out",ptm->tm_wday);
@@ -515,6 +542,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             time_t t = *(&stats.st_mtime);
              if ((rawtime-t)>(24*3600*5)) // nach 5 tagen überschreiben
                 fp1 = fopen(line,"w");
+
 
          fp1 = fopen(line,"a");
          if (fp1 == NULL)
