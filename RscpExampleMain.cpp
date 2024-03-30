@@ -1564,23 +1564,21 @@ int LoadDataProcess() {
             float f2 = 0;
             float f3 = 0;
             fPVdirect = 0;
-            fPVtoday = 0;
+            fPVtoday = -1;
 
             //            for (int x1=0; x1<wetter.size(); x1++) {
-                for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
+                for (int x1=0; x1<w.size()&&x1<96; x1++) // nur die nächsten 24h
                 {
-                    f2 = f2 + wetter[x1].solar;
-                    if (wetter[x1].hh%(24*3600)==0&&fPVtoday==0)
+                    f2 = f2 + w[x1].solar;
+                    int hh = (w[x1].hh%(24*3600));
+                    if (hh>(22*3600)&&fPVtoday<0.0)
                     {
                         fPVtoday=f2;
                         fPVdirect=f3;
                     }
-                    if (wetter[x1].solar>0)
+                    if (w[x1].solar>0)
                     {
-                        if (wetter[x1].solar>wetter[x1].kosten)
-                            f3 = f3 + wetter[x1].kosten;
-                        else
-                            f3 = f3 + wetter[x1].solar;
+                            f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
                     }
                 }
 
