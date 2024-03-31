@@ -97,7 +97,7 @@ int forecastpeaktime;  //
 float forecastpeak;    //
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
-static u_int32_t iWeekhour [7*24*4]; // Wochenstatistik
+u_int32_t iWeekhour[24*7*4]; // Wochenstatistik
 static u_int32_t iCurrenthour; // 15min Intervall des aktuellen Verbrauchs
 static u_int32_t iDayHome; // 15min Intervall des aktuellen Verbrauchs
 SunriseCalc * location;
@@ -107,9 +107,9 @@ std::vector<ch_s> ch;  //charge hour
 avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Einträgen
 
 
-FILE * pFile;
 e3dc_config_t e3dc_config;
-char Log[300];
+FILE * pFile;
+char Log[3000];
 
 int WriteLog()
 {
@@ -410,6 +410,7 @@ bool GetConfig()
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
+        e3dc_config.stop = 0; // 1 = Programm beenden
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.openmeteo = false;
@@ -554,6 +555,8 @@ bool GetConfig()
                         e3dc_config.wurzelzaehler = atoi(value);
                     else if(strcmp(var, "wrsteuerung") == 0)
                         e3dc_config.wrsteuerung = atoi(value);
+                    else if(strcmp(var, "stop") == 0)
+                        e3dc_config.stop = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
                         if
                            (strcmp(value, "true") == 0)
@@ -1450,7 +1453,7 @@ int LoadDataProcess() {
             pFile = fopen ("Weekhour.dat","wb");
             if (pFile!=NULL)
             {
-                fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour), pFile);
+                fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
                 fclose (pFile);
             }
         }
@@ -1506,7 +1509,6 @@ int LoadDataProcess() {
                 low.fah = fDCDC;
             
         }
-    t_alt = t;
     if (e3dc_config.debug) printf("D3");
     
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
@@ -1798,9 +1800,10 @@ int LoadDataProcess() {
     mm = t % (3600)/60;
     ss = t % (60);
     static float fstrompreis=10000;
-    if (((tE3DC % (24*3600))+12*3600)<t) {
+    if ((t % (24*3600))<(t_alt%(24*3600)))  // neuer tag
+    {
 // Erstellen Statistik, Eintrag Logfile
-        GetConfig(); //Lesen Parameter aus e3dc.config.txt
+        CheckConfig(); //Lesen Parameter aus e3dc.config.txt
         sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
         WriteLog();
         if (fSavedtoday > 0)
@@ -1820,7 +1823,7 @@ int LoadDataProcess() {
     t = tE3DC % (24*3600);
     
     static time_t t_config = tE3DC;
-    if ((tE3DC-t_config) > 10)
+    if ((tE3DC-t_config) > 5)
     {
         if (CheckConfig()) // Config-Datei hat sich geändert;
         {
@@ -2564,6 +2567,7 @@ bDischarge = false;
     sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
 //    system(buffer);
     }
+    t_alt = t;
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
@@ -4422,7 +4426,7 @@ static void mainLoop(void)
     RscpProtocol protocol;
     bool bStopExecution = false;
     bool bWBRequest = false;
-    while(!bStopExecution)
+    while(!bStopExecution&&!e3dc_config.stop)
     {
         
         //--------------------------------------------------------------------------------------------------------------
@@ -4547,6 +4551,8 @@ static int iEC = 0;
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
     GetConfig();
+    e3dc_config.stop = 0; // Stop ausschalten
+    
     if (e3dc_config.statistik)
     {
         FILE * pFile;
@@ -4554,12 +4560,13 @@ static int iEC = 0;
         pFile = fopen ("Weekhour.dat","rb");
         if (pFile!=NULL)
         {
-            fread (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour), pFile);
+            size_t x1 = sizeof(iWeekhour);
+            x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
     }
     
-        while(iEC < 10)
+        while(iEC < 10&&!e3dc_config.stop)
         {
             iEC++; // Schleifenzähler erhöhen
             ptm = gmtime(&t);
@@ -4579,8 +4586,8 @@ static int iEC = 0;
             // connect to server
             printf("Program Start Version:%s\n",VERSION);
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
-            GetConfig();
-            printf("GetConfig done");
+//            CheckConfig();
+//            printf("GetConfig done");
             if (e3dc_config.aWATTar)
             {
 //                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
@@ -4628,9 +4635,22 @@ static int iEC = 0;
         // close socket connection
         SocketClose(iSocket);
         iSocket = -1;
-        sleep(10);
+        if (!e3dc_config.stop)
+            sleep(10);
     }
-    printf("Programm wirklich beendet");
+    if (e3dc_config.statistik)
+    {
+        FILE * pFile;
+        pFile = NULL;
+        pFile = fopen ("Weekhour.dat","wb");
+        if (pFile!=NULL)
+        {
+            fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
+    }
+
+    printf("Programm wirklich beendet\n");
     
     return 0;
 }
