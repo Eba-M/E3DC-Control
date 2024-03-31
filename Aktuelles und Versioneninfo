@@ -1,3 +1,10 @@
+Version C2024.03.31.0
+
+Parameter Stop und Parameter Statistik hinzugefügt. Bei Stop = 1 wird das Programm beendet um z.B. eine neue Version zu starten. 
+Nicht vergessen den Parameter gelegentlich, spätestens bei einer weiteren Änderung der Parameterdatei, wieder auf Stop = 0 zu setzen.
+Der Parameter Statisik erstellt eine Verbrauchstatistik des Grundvebrauchs (ohne Wallbox) mit einem Wochenprofil auf Basis von 15min Intervallen. 
+Damit soll der Verbrauch besser vorhergesagt werden. Damit werden in der nächsten Zeit die Parameter AVhourly und die e3dc.hourly.txt ersetzt bzw. ergänzt.
+
 Version C2023.11.04.0
 
 Neue Version für dynamische Stromtarife und Wärmepumpenbetrieb.
