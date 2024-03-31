@@ -3623,7 +3623,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 printf(" %0.02f%% %0.02f%%", fPVtoday,fPVdirect); // erwartete PV Ertrag in % des Speichers
                 if (e3dc_config.statistik)
-                    printf(" %0.02fkWh", iDayHome/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.04fkWh", iDayHome/3600000.0); // Tages Hausverbrauch
                 printf("%c[K\n", 27 );
 
                 break;
