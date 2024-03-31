@@ -342,7 +342,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     {
                         f2 = f2 + wetter[x1].solar;
                     }
-                    if   ((sunset-sunrise) > 10*60 && f2>300)  // 300% vom Soc = 60kWh
+                    if   ((sunset-sunrise) > 10*60 && f2>200)  // 300% vom Soc = 60kWh
                         bsommer = true;
 
                     
