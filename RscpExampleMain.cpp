@@ -1820,6 +1820,7 @@ int LoadDataProcess() {
         fSavedtotal=0; fSavedWB=0;
         
     }
+    t_alt = t;
     t = tE3DC % (24*3600);
     
     static time_t t_config = tE3DC;
@@ -2567,7 +2568,7 @@ bDischarge = false;
     sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
 //    system(buffer);
     }
-    t_alt = t;
+
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
