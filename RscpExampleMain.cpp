@@ -1447,14 +1447,16 @@ int LoadDataProcess() {
             else
                 iWeekhour[x1] = iCurrenthour*10;
             iCurrenthour = 0;
-            if ((t_alt%24*3600)>(t%24*3600))
-                iDayHome = 0;
-            FILE * pFile;
-            pFile = fopen ("Weekhour.dat","wb");
-            if (pFile!=NULL)
+            if ((t_alt%(24*3600))>(t%(24*3600)))
             {
-                fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
-                fclose (pFile);
+                iDayHome = 0;
+                FILE * pFile;
+                pFile = fopen ("Weekhour.dat","wb");
+                if (pFile!=NULL)
+                {
+                    fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
             }
         }
     }

@@ -350,89 +350,90 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                             if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
 
-                    {
-                        float f1=((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-wetter[x1].temp)+fusspunkt;
-                        // Temperaturhub
-                                                float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.45; // COP
-                                                if (cop < 0) cop = f2;
-                                                // thermische Heizleistung
-                                                float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
-                                                     if (f3 < 0) f3=0; // zu warm keine Heizung
-                                                float f4 = 0;
-                                                float f5 = f3; // angeförderte Heizleistung
-                                                // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
-                                                if (f3 > e3dc.WPLeistung) {
-                                                    f4 = f3 - e3dc.WPLeistung;
-                                                    f3 = e3dc.WPLeistung;
-                                                    if (f4 > e3dc.WPEHZ)
-                                                        f4 = e3dc.WPEHZ;
-                                                }
-                                                // Heizleistung WP unter Nennwert => mehr Heizstab
-                                                if (f3/f2>e3dc.WPmax)
-                                                    f4 = f4 + f3 - f2*e3dc.WPmax + e3dc.WPmax;
+                            {
+                                float f1=((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-wetter[x1].temp)+fusspunkt;
+                                // Temperaturhub
+                                float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.45; // COP
+                                if (cop < 0) cop = f2;
+                                // thermische Heizleistung
+                                float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
+                                if (f3 < 0) f3=0; // zu warm keine Heizung
+                                float f4 = 0;
+                                float f5 = f3; // angeförderte Heizleistung
+                                // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
+                                if (f3 > e3dc.WPLeistung) {
+                                    f4 = f3 - e3dc.WPLeistung;
+                                    f3 = e3dc.WPLeistung;
+                                    if (f4 > e3dc.WPEHZ)
+                                        f4 = e3dc.WPEHZ;
+                                }
+                                // Heizleistung WP unter Nennwert => mehr Heizstab
+                                if (f3/f2>e3dc.WPmax)
+                                    f4 = f4 + f3 - f2*e3dc.WPmax + e3dc.WPmax;
+                                else
+                                    f4 = f4 + f3/f2; // benötigte elektrische Leistung;
+                                if (e3dc.openmeteo)
+                                {
+                                    wetter[x1].kosten = f4/e3dc.speichergroesse*100/4;
+                                    while (w.size()>0&&(w[0].hh+900<=rawtime))
+                                        w.erase(w.begin());
+                                    while (wetter.size()>0&&(wetter[0].hh+900<=rawtime))
+                                        wetter.erase(wetter.begin());
+                                }
+                                else
+                                    wetter[x1].kosten = f4/e3dc.speichergroesse*100;
+                                
+                                if ((w.size()>0)&&x1<=w.size())
+                                    if (wetter[x1].hh == w[x1].hh){
+                                        // Überprüfen ob WP oder Pelletsheizung günstiger
+                                        // Kosten = aktueller Strompreis / COP
+                                        float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
+                                        float f8 =  f7*f4/f5;
+                                        float f6 =  f7/f2;
+                                        
+                                        w[x1].wpbedarf = wetter[x1].kosten;
+                                        
+                                        int bHK1on = 0;
+                                        int bHK2on = 1;
+                                        if (bsommer)
+                                        {
+                                            float f1 = w[x1].hh%(24*3600)/3600.0;
+                                            if (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
+                                                bHK1on = 1;
+                                            
+                                            if ((e3dc.WPHK2off>e3dc.WPHK2on)
+                                                &&(f1>e3dc.WPHK2off||f1<e3dc.WPHK2on))
+                                                bHK2on = 0;
+                                            if ((e3dc.WPHK2off<e3dc.WPHK2on)
+                                                &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
+                                                bHK2on = 0;
+                                            
+                                            w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
+                                            
+                                        }
+                                        
+                                        
+                                        
+                                        if (e3dc.WPZWE>wetter[x1].temp)
+                                        {
+                                            // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
+                                            if (e3dc.openmeteo)
+                                                //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
+                                                w[x1].wpbedarf = 0;
+                                            
+                                            else
+                                                //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+                                                w[x1].wpbedarf = 0;
+                                            
+                                            // wenn der Wärmepreis der WP günstiger ist als Pellets
+                                            if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
+                                                if (e3dc.openmeteo)
+                                                    w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                                                 else
-                                                    f4 = f4 + f3/f2; // benötigte elektrische Leistung;
-                        if (e3dc.openmeteo)
-                        {
-                            wetter[x1].kosten = f4/e3dc.speichergroesse*100/4;
-                            while (w.size()>0&&(w[0].hh+900<=rawtime))
-                                w.erase(w.begin());
-                            while (wetter.size()>0&&(wetter[0].hh+900<=rawtime))
-                                wetter.erase(wetter.begin());
-                        }
-                        else
-                            wetter[x1].kosten = f4/e3dc.speichergroesse*100;
-
-                            if ((w.size()>0)&&x1<=w.size())
-                                                    if (wetter[x1].hh == w[x1].hh){
-                    // Überprüfen ob WP oder Pelletsheizung günstiger
-                    // Kosten = aktueller Strompreis / COP
-                    float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
-                    float f8 =  f7*f4/f5;
-                    float f6 =  f7/f2;
-
-                        w[x1].wpbedarf = wetter[x1].kosten;
-                                                        
-                    int bHK1on = 0;
-                    int bHK2on = 1;
-                    if (bsommer)
-                    {
-                        float f1 = w[x1].hh%(24*3600)/3600.0;
-                        if (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
-                            bHK1on = 1;
-                            
-                        if ((e3dc.WPHK2off>e3dc.WPHK2on)
-                            &&(f1>e3dc.WPHK2off||f1<e3dc.WPHK2on))
-                            bHK2on = 0;
-                        if ((e3dc.WPHK2off<e3dc.WPHK2on)
-                            &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
-                            bHK2on = 0;
-                        
-                        w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
-                        
-                    }
-                                                        
-                                                        
-                                                        
-                    if (e3dc.WPZWE>wetter[x1].temp)
-                    // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
-                            if (e3dc.openmeteo)
-//                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
-                                w[x1].wpbedarf = 0;
-
-                            else
-//                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
-                                w[x1].wpbedarf = 0;
-
-                                // wenn der Wärmepreis der WP günstiger ist als Pellets
-                        if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
-                            if (e3dc.openmeteo)
-                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
-                            else
-                                w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
-                                                    }
-                                            }
-                     
+                                                    w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
+                                        }
+                                    }
+                            }
 
                     // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
                     // die Laufdauer der Wärmepumpe vor
