@@ -212,8 +212,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //    /*{
         FILE * fp;
         FILE * fp1;
-        char line[256];
         char path [65000];
+        char line[256];
         char value[25];
         char var[25];
 

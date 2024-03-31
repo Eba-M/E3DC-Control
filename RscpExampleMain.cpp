@@ -97,7 +97,9 @@ int forecastpeaktime;  //
 float forecastpeak;    //
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
-
+static u_int32_t iWeekhour [7*24*4]; // Wochenstatistik
+static u_int32_t iCurrenthour; // 15min Intervall des aktuellen Verbrauchs
+static u_int32_t iDayHome; // 15min Intervall des aktuellen Verbrauchs
 SunriseCalc * location;
 std::vector<ch_s> ch;  //charge hour
 // std::vector<watt_s> w1;
@@ -415,6 +417,7 @@ bool GetConfig()
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
         e3dc_config.tasmota = false;
+        e3dc_config.statistik = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.WPSperre = false;
@@ -599,6 +602,9 @@ bool GetConfig()
                   else if((strcmp(var, "wpsperre") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPSperre = true;
+                  else if((strcmp(var, "statistik") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.statistik = true;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -1425,6 +1431,31 @@ int LoadDataProcess() {
     
     
     fDCDC = fDCDC + fCurrent*(t-t_alt);
+    if (e3dc_config.statistik)
+    {
+        
+        iCurrenthour = iCurrenthour + iPowerHome*(t-t_alt);
+        iDayHome = iDayHome + iPowerHome*(t-t_alt);
+        if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
+        {
+            int x1 = (t_alt%24*7*4*900)/900;
+            if (iWeekhour[x1]>0)
+                iWeekhour[x1] = iWeekhour[x1]*.9 + iCurrenthour;
+            else
+                iWeekhour[x1] = iCurrenthour*10;
+            iCurrenthour = 0;
+            if ((t_alt%24*3600)>(t%24*3600))
+                iDayHome = 0;
+            FILE * pFile;
+            pFile = fopen ("Weekhour.dat","wb");
+            if (pFile!=NULL)
+            {
+                fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour), pFile);
+                fclose (pFile);
+            }
+        }
+    }
+    
     if (fDCDC > high.fah) {
         high.fah = fDCDC;
         high.fsoc = fBatt_SOC;
@@ -1571,7 +1602,7 @@ int LoadDataProcess() {
                 {
                     f2 = f2 + w[x1].solar;
                     int hh = (w[x1].hh%(24*3600));
-                    if (hh>(22*3600)&&fPVtoday<0.0)
+                    if (hh>(21*3600)&&fPVtoday<0.0)
                     {
                         fPVtoday=f2;
                         fPVdirect=f3;
@@ -3586,6 +3617,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 printf(" %0.02f%% %0.02f%%", fPVtoday,fPVdirect); // erwartete PV Ertrag in % des Speichers
+                if (e3dc_config.statistik)
+                    printf(" %0.02fkWh", iDayHome/3600000.0); // Tages Hausverbrauch
                 printf("%c[K\n", 27 );
 
                 break;
@@ -4513,7 +4546,19 @@ static int iEC = 0;
 
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
-    if (GetConfig())
+    GetConfig();
+    if (e3dc_config.statistik)
+    {
+        FILE * pFile;
+        pFile = NULL;
+        pFile = fopen ("Weekhour.dat","rb");
+        if (pFile!=NULL)
+        {
+            fread (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour), pFile);
+            fclose (pFile);
+        }
+    }
+    
         while(iEC < 10)
         {
             iEC++; // Schleifenzähler erhöhen
