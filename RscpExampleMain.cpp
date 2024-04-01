@@ -1725,6 +1725,16 @@ int LoadDataProcess() {
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     ALV = shelly_get();
+                    if (PVon>0)
+                    {
+                        if (PVon < 5000)
+                            ALV = ALV + PVon / 1000;
+                        else
+                            ALV = ALV + 5;
+                    }
+                    if (ALV>= e3dc_config.shelly0V10Vmax)
+                        ALV = e3dc_config.shelly0V10Vmax-1;
+
                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                     shelly((ALV++)+1);
                     wp_t = t;
@@ -1747,7 +1757,15 @@ int LoadDataProcess() {
                     )
                 {
                     ALV = shelly_get();
-                    if (ALV>e3dc_config.shelly0V10Vmin)
+                    if (PVon<0)
+                    {
+                        if (PVon >= -5000)
+                            ALV = ALV + PVon / 1000;
+                        else
+                            ALV = ALV - 5;
+                    }
+                    if (ALV<= e3dc_config.shelly0V10Vmin)
+                        ALV = e3dc_config.shelly0V10Vmin+1;
                     shelly((ALV--)-1);
                     wp_t = t;
                 }
