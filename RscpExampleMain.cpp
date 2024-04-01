@@ -1723,10 +1723,10 @@ int LoadDataProcess() {
 */
 
                 // muss Leistung angehoben werden?
-               if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
+                int mm=t%(24*3600)/60;
+                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     ALV = shelly_get();
-                    int mm=t%(24*3600)/60;
                     if (PVon>0&&mm>sunriseAt&&mm<sunsetAt)
                     {
                         if (PVon < 5000)
