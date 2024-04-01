@@ -1602,7 +1602,7 @@ int LoadDataProcess() {
             fPVtoday = -1;
 
             //            for (int x1=0; x1<wetter.size(); x1++) {
-                for (int x1=0; x1<w.size()&&x1<96; x1++) // nur die nächsten 24h
+                for (int x1=0; x1<w.size(); x1++) // nur die nächsten 24h
                 {
                     int hh = (w[x1].hh%(24*3600));
                     if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
@@ -1610,10 +1610,11 @@ int LoadDataProcess() {
                             f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
                             f2 = f2 + w[x1].solar;
                     }
-                    if (hh>(21*3600)&&fPVtoday<0.0&&f2>0.0)
+                    if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
                     {
                         fPVtoday=f2;
                         fPVdirect=f3;
+                        break;
                     }
                 }
 
