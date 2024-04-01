@@ -2161,6 +2161,7 @@ bDischarge = false;
                   iFc = (iFc + iMinLade2)/2;
                   if (iFc < iMinLade2/2)
                       iFc = iMinLade2/2;
+                  if (iFc<0) iFc = 0;
               }}
         if (iFc > e3dc_config.maximumLadeleistung)
         iMinLade = e3dc_config.maximumLadeleistung;
@@ -2190,7 +2191,7 @@ bDischarge = false;
             }
 // Wenn der noch zu erwartende Solarertrag kleiner ist als der Speicherbedarf und der Stromverbrauch
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
-    if ((fPVtoday<(fPVdirect-fBatt_SOC+fLadeende2)*2)&&t<tLadezeitende2)
+    if ((fPVtoday<(fPVdirect*1.5-(fBatt_SOC+fLadeende2)*2))&&t<tLadezeitende2)
     {
         if (fBatt_SOC<fLadeende2)
         {
@@ -2784,7 +2785,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
-                if (iPower > iPower_Bat) iPower = iPower_Bat;
+                if (iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
                 break;
             case 4:
 
