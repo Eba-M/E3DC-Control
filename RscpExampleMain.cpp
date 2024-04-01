@@ -1726,7 +1726,8 @@ int LoadDataProcess() {
                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     ALV = shelly_get();
-                    if (PVon>0)
+                    int mm=t%(24*3600)/60;
+                    if (PVon>0&&mm>sunriseAt&&mm<sunsetAt)
                     {
                         if (PVon < 5000)
                             ALV = ALV + PVon / 1000;
@@ -1758,9 +1759,9 @@ int LoadDataProcess() {
                     )
                 {
                     ALV = shelly_get();
-                    if (PVon<0)
+                    if (PVon>0&&mm>sunriseAt&&mm<sunsetAt)
                     {
-                        if (PVon >= -5000)
+                        if (PVon > -5000)
                             ALV = ALV + PVon / 1000;
                         else
                             ALV = ALV - 5;
