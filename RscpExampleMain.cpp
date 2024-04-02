@@ -884,7 +884,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
 int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 {
     send.resize(12);
-    receive.resize(1024);
+    receive.resize(2048);
 
     Modbus_send Msend;
     Modbus_receive Mreceive;
@@ -905,7 +905,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
     return iLength;
 }
-static int dummy = 0;
+static int dummy[100];
 static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK2off = 0;
 static int bWP = 0;
@@ -1441,11 +1441,11 @@ int LoadDataProcess() {
         iDayHome = iDayHome + iPowerHome*(t-t_alt);
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
-            int x1 = (t_alt%24*7*4*900)/900;
+            int x1 = (t_alt%(24*7*4*900))/900;
             if (iWeekhour[x1]>0)
-                iWeekhour[x1] = iWeekhour[x1]*.9 + iCurrenthour;
+                iWeekhour[x1] = iWeekhour[x1]*.9 + iCurrenthour*.1;
             else
-                iWeekhour[x1] = iCurrenthour*10;
+                iWeekhour[x1] = iCurrenthour;
             iCurrenthour = 0;
             if ((t_alt%(24*3600))>(t%(24*3600)))
             {
