@@ -1738,11 +1738,11 @@ int LoadDataProcess() {
                         }
                         if (ALV>= e3dc_config.shelly0V10Vmax)
                             ALV = e3dc_config.shelly0V10Vmax-1;
-                        
+                    }
                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                             shelly((ALV++)+1);
                         wp_t = t;
-                    }
+                    
                 }   else
                 
                 if 
