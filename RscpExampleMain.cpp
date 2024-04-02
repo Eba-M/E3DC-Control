@@ -1596,27 +1596,6 @@ int LoadDataProcess() {
                 btasmota_ch1 = 0;
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
-            float f2 = 0;
-            float f3 = 0;
-            fPVdirect = 0;
-            fPVtoday = -1;
-
-            //            for (int x1=0; x1<wetter.size(); x1++) {
-                for (int x1=0; x1<w.size(); x1++) // nur die nächsten 24h
-                {
-                    int hh = (w[x1].hh%(24*3600));
-                    if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                    {
-                            f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
-                            f2 = f2 + w[x1].solar;
-                    }
-                    if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
-                    {
-                        fPVtoday=f2;
-                        fPVdirect=f3;
-                        break;
-                    }
-                }
 
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
@@ -1816,7 +1795,28 @@ int LoadDataProcess() {
         }
     }
 
-    
+    float f2 = 0;
+    float f3 = 0;
+    fPVdirect = 0;
+    fPVtoday = -1;
+
+    //            for (int x1=0; x1<wetter.size(); x1++) {
+        for (int x1=0; x1<w.size(); x1++) // nur die nächsten 24h
+        {
+            int hh = (w[x1].hh%(24*3600));
+            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+            {
+                    f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
+                    f2 = f2 + w[x1].solar;
+            }
+            if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
+            {
+                fPVtoday=f2;
+                fPVdirect=f3;
+                break;
+            }
+        }
+
     
     
     
