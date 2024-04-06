@@ -1743,7 +1743,7 @@ int LoadDataProcess() {
                     ALV = shelly_get();
 //                    if (PVon<0)
                     {
-                        if (mm>sunriseAt&&mm<sunsetAt)
+                        if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
                         {
                             if (PVon > -5000)
                                 ALV = ALV + PVon / 1000;
