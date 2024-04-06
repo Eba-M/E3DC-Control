@@ -1741,7 +1741,7 @@ int LoadDataProcess() {
                     )
                 {
                     ALV = shelly_get();
-                    if (PVon<0)
+//                    if (PVon<0)
                     {
                         if (mm>sunriseAt&&mm<sunsetAt)
                         {
@@ -2933,7 +2933,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
-
+/*
         
         if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
               iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
@@ -2945,7 +2945,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         if (e3dc_config.wbmode==11||e3dc_config.wbmode==10)
             iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
-        
+*/
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
         if (iWBStatus == 1) // 
