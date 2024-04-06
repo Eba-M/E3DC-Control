@@ -2942,10 +2942,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //        else if (fBatt_SOC < 20) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
-
+*/
         if (e3dc_config.wbmode==11||e3dc_config.wbmode==10)
             iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
-*/
+
         
 //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
         if (iWBStatus == 1) // 
