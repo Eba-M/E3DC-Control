@@ -2901,7 +2901,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //        if (iPower < -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
 //            iPower = -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
 
-
+/*
         if (iPower_PV_E3DC > e3dc_config.wrleistung){
             iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
             if (fPower_Grid < 100 && iPower > fPower_Grid*-1) // Netzbezug, verfügbare Leistung reduzieren
@@ -2909,7 +2909,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
             iPower = fPower_Grid*-3;
         }
-
+*/
         static float fPower_WB_alt = 0;
 
         if (fPower_WB!=fPower_WB_alt)
@@ -2929,7 +2929,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iAvalPower = iAvalPower*.8  + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
 
 
-        
+
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
