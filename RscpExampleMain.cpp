@@ -2806,7 +2806,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             case 3:
 
-//                iPower = iPower_Bat-fPower_Grid*2-iRefload;
+//                iPower = iPower_Bat-fPower_Grid-iRefload;
+                iPower = -fPower_Grid;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
@@ -2942,7 +2943,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 
-        if (e3dc_config.wbmode==1||e3dc_config.wbmode==10) 
+        if (e3dc_config.wbmode==11||e3dc_config.wbmode==10)
             iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
         
         
