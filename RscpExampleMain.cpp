@@ -1605,13 +1605,15 @@ int LoadDataProcess() {
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
-                    bHK1off ^= 1;
-                if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
                 {
-// HK1 wird auscheschaltet, zuvor wird die Solltemperatur zurückgesetzt, erst dann wird HK1 ausgeschaltet
+// HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
                     iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
                     if (iLength > 0)
+                        bHK1off ^= 1;
+                }
+                if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
+                {
                         bHK1off |= 1;
 
                 }
@@ -1779,6 +1781,7 @@ int LoadDataProcess() {
                 if (tasmota_status[0]==1)
                 {
                     tasmotaoff(1);   // EVU = OFF Keine Sperre
+                    ALV = e3dc_config.shelly0V10Vmin;
                     wpontime = t;
                     wpofftime = t;   //mindestlaufzeit
                 }
@@ -1788,7 +1791,6 @@ int LoadDataProcess() {
                     //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
                     tasmotaon(1);   // EVU = ON  Sperre
                     // Leistung ALV der WP auf Minimum
-                    ALV = e3dc_config.shelly0V10Vmin;
                 }
             
             if (btasmota_ch2)
