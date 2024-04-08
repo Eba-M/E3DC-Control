@@ -1607,13 +1607,24 @@ int LoadDataProcess() {
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
                     bHK1off ^= 1;
                 if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
-                    bHK1off |= 1;
+                {
+// HK1 wird auscheschaltet, zuvor wird die Solltemperatur zurückgesetzt, erst dann wird HK1 ausgeschaltet
+                    iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
+                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                    if (iLength > 0)
+                        bHK1off |= 1;
+
+                }
                 // Steuerung der Temperatur der FBH
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
                 if (fPVtoday>fPVdirect*2||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
-                    if (not bHK1off && temp[1]>0 && temp[4]<(e3dc_config.WPHK1max*10)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                    int WPHK1max = e3dc_config.WPHK1max*10;
+                    if (fatemp>12)
+                        WPHK1max = WPHK1max - (fatemp-12)*10;
+                        
+                    if (not bHK1off && temp[1]>0 && temp[4]<(WPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
                         
                         iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
@@ -1776,6 +1787,8 @@ int LoadDataProcess() {
                 {
                     //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
                     tasmotaon(1);   // EVU = ON  Sperre
+                    // Leistung ALV der WP auf Minimum
+                    ALV = e3dc_config.shelly0V10Vmin;
                 }
             
             if (btasmota_ch2)
@@ -2933,13 +2946,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
-/*
+
         
         if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
               iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         // Speicher nur bis 5-7% entladen
         if ((fBatt_SOC < 5)&&(iPower_Bat<0)) iAvalPower = iPower_Bat-fPower_Grid - iWBMinimumPower/6-fPower_WB;
 //        else if (fBatt_SOC < 20) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
+/*
         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
             iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
 */
