@@ -1623,8 +1623,8 @@ int LoadDataProcess() {
                 if (fPVtoday>fPVdirect*2||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
                     int WPHK1max = e3dc_config.WPHK1max*10;
-                    if (fatemp>12)
-                        WPHK1max = WPHK1max - (fatemp-12)*10;
+                    if (fatemp>10)
+                        WPHK1max = WPHK1max - (fatemp-10)*10;
                         
                     if (not bHK1off && temp[1]>0 && temp[4]<(WPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
@@ -1716,7 +1716,7 @@ int LoadDataProcess() {
 
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
-                if ((temp[1]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
+                if ((temp[1]>0&&temp[6]>0&&temp[4]>temp[5]+10)||(temp[7]>0&&temp[10]>temp[11]+10))
                 {
                     ALV = shelly_get();
                     if (PVon>0)
@@ -1742,13 +1742,15 @@ int LoadDataProcess() {
                      (
                     PVon < 0 &&
                       (
-                       (temp[1]>0&&temp[4]<temp[5])
+                       (temp[1]>0&&temp[6]>0&&temp[4]<temp[5])
                      ||
                        (temp[7]>0&&temp[10]<temp[11])
                       )
                      )
                     ||
                     temp[14]>450
+                    ||
+                     (temp[1]>0&&temp[6]>0&&temp[4]+10<temp[5])
                     ||
                     (wolf[wpvl].wert>45)
                     )
