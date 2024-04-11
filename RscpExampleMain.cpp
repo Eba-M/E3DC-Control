@@ -4623,6 +4623,7 @@ static int iEC = 0;
             size_t x1 = sizeof(iWeekhour);
             x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
+/*
             float fdurchschnitt = 0;
             float fleistung = 0;
 
@@ -4636,7 +4637,7 @@ static int iEC = 0;
                     iWeekhour[x1]=fleistung*900;
 
             }
-
+*/
         }
     }
     
