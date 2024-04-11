@@ -1442,7 +1442,7 @@ int LoadDataProcess() {
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (t_alt%(24*7*4*900))/900;
-            if (iWeekhour[x1]>0)
+            if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iCurrenthour*.1;
             else
                 iWeekhour[x1] = iCurrenthour;
@@ -1636,7 +1636,9 @@ int LoadDataProcess() {
                     }
                     
                     if ((bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4))
-                        && temp[4]>=temp[5] && (t-HK1_t)>60 && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                        && (t-HK1_t)>60 && 
+                        (((temp[4]>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                        ) || temp[5]>(e3dc_config.WPHK1max*10)))
                     {
                         iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
@@ -2762,10 +2764,18 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000)
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = iPower+iWBMinimumPower/6;
+                    iPower = iPower+fPower_WB-iPower_Bat+iMinLade;
                 else
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
-                    iPower = iPower+iWBMinimumPower;
+                {
+                    iPower = iPower+iWBMinimumPower/6;
+                    if (iPower > 0)
+                    {
+// PV-Erzeugung > Einspeiselimit, Auto lädt noch nicht Ladevorgang sofort starten
+                        if (iAvalPower < iWBMinimumPower)
+                            iAvalPower = iWBMinimumPower;
+                    }
+                }
 
                 if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == 6)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
                 {//iPower = -20000;
@@ -4613,6 +4623,20 @@ static int iEC = 0;
             size_t x1 = sizeof(iWeekhour);
             x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
+            float fdurchschnitt = 0;
+            float fleistung = 0;
+
+            for (int x2=0;x2<600;x2++)
+            for (int x1=0;x1<sizeof(iWeekhour)/sizeof(uint32_t);x1++)
+            {
+                fleistung = iWeekhour[x1]/900;
+                if (fleistung>2000||fleistung<1)  fleistung = iWeekhour[x1+92]/900;
+                if (fleistung>2000)  fleistung = 0;
+                if (iWeekhour[x1]>2000*900||iWeekhour[x1]<1)
+                    iWeekhour[x1]=fleistung*900;
+
+            }
+
         }
     }
     
