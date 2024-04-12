@@ -1753,8 +1753,8 @@ int LoadDataProcess() {
                     temp[14]>450
                     ||
                      (temp[1]>0&&temp[6]>0&&(e3dc_config.WPHK1max+1)*10<temp[5])
-                    ||
-                    (wolf[wpvl].wert>45)
+//                    ||
+//                    (wolf[wpvl].wert>45)
                     )
                 {
                     ALV = shelly_get();
