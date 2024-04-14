@@ -945,7 +945,9 @@ int iModbusTCP()
 //  Regelgröße ist die Zulufttemperatur der LWWP
 //  daneben die aktuelle Temperatur vom Wetterportal
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
-                float isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
+                float isttemp = wolf[wpzl].wert;
+                if (wetter.size() > 0)
+                    isttemp  = isttemp  + wetter[0].temp/2;
                 if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
                    isttemp = wetter[0].temp;
 
@@ -1622,23 +1624,31 @@ int LoadDataProcess() {
                 static time_t HK1_t = 0;
                 if (fPVtoday>fPVdirect*2||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
-                    int WPHK1max = e3dc_config.WPHK1max*10;
-                    if (fatemp>10)
-                        WPHK1max = WPHK1max - (fatemp-10)*10;
+                    int iWPHK1max = e3dc_config.WPHK1max*10;
+                    if (fatemp>8)
+                        iWPHK1max = iWPHK1max - (fatemp-8)*10.0;
                         
-                    if (not bHK1off && temp[1]>0 && temp[4]<(WPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                    if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
-                        
-                        iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
+                        if (temp[4]<(iWPHK1max-5))
+                            iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
+                        else
+                            if (temp[4]<(iWPHK1max))
+                                iLength  = iModbusTCP_Set(12,temp[2]+1,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                     }
                     
-                    if ((bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4))
-                        && (t-HK1_t)>60 && 
-                        (((temp[4]>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
-                        ) || temp[5]>(e3dc_config.WPHK1max*10)))
+                    if ( t-HK1_t>60 &&
+                        (
+                         (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4)
+                          &&
+                         ((temp[4]>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                          ))
+                         || ((temp[4]>iWPHK1max)&&(temp[5]>iWPHK1max))
+                         )
+                        )
                     {
                         iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
