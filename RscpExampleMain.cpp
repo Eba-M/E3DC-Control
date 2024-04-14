@@ -969,8 +969,8 @@ int iModbusTCP()
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(11,1,8); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,1,8); //FBH?
+                    iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
+                    iLength  = iModbusTCP_Get(11,1,7); //FBH?
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1598,6 +1598,10 @@ int LoadDataProcess() {
                 btasmota_ch1 = 0;
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
+ 
+            int iWPHK1max = e3dc_config.WPHK1max*10;
+            if (fatemp>8)
+                iWPHK1max = iWPHK1max - (fatemp-8)*10.0;
 
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
@@ -1622,11 +1626,9 @@ int LoadDataProcess() {
                 // Steuerung der Temperatur der FBH
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
+  
                 if (fPVtoday>fPVdirect*2||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
-                    int iWPHK1max = e3dc_config.WPHK1max*10;
-                    if (fatemp>8)
-                        iWPHK1max = iWPHK1max - (fatemp-8)*10.0;
                         
                     if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
@@ -1760,9 +1762,9 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                    temp[14]>450
+                    (temp[14]>450&&wolf[wpvl].wert>45)
                     ||
-                     (temp[1]>0&&temp[6]>0&&(e3dc_config.WPHK1max+1)*10<temp[5])
+                     (temp[1]>0&&temp[6]>0&&(iWPHK1max+1)*10<temp[5])
 //                    ||
 //                    (wolf[wpvl].wert>45)
                     )
