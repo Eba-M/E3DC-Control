@@ -100,6 +100,7 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 u_int32_t iWeekhour[24*7*4]; // Wochenstatistik
 static u_int32_t iCurrenthour; // 15min Intervall des aktuellen Verbrauchs
 static u_int32_t iDayHome; // 15min Intervall des aktuellen Verbrauchs
+
 SunriseCalc * location;
 std::vector<ch_s> ch;  //charge hour
 // std::vector<watt_s> w1;
@@ -108,6 +109,12 @@ avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Eint
 
 
 e3dc_config_t e3dc_config;
+
+float fLadeende = e3dc_config.ladeende;
+float fLadeende2 = e3dc_config.ladeende2;
+float fLadeende3 = e3dc_config.unload;
+
+
 FILE * pFile;
 char Log[3000];
 
@@ -1905,11 +1912,6 @@ int LoadDataProcess() {
 //    iModbusTCP_Heizstab(400);
 //    iModbusTCP_Heizstab(500);
 
-    
-    float fLadeende = e3dc_config.ladeende;
-    float fLadeende2 = e3dc_config.ladeende2;
-    float fLadeende3 = e3dc_config.unload;
-
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
     fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende)+fLadeende;
@@ -3693,7 +3695,6 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
-                printf(" %0.02f%% %0.02f%%", fPVtoday,fPVdirect); // erwartete PV Ertrag in % des Speichers
                 if (e3dc_config.statistik)
                     printf(" %0.04fkWh", iDayHome/3600000.0); // Tages Hausverbrauch
                 printf("%c[K\n", 27 );
@@ -4579,7 +4580,10 @@ if (e3dc_config.debug) printf("M6");
 //                printf("%c[2J", 27 );
                 printf("%c[H", 27 );
 //                printf("Request cyclic example data done %s
-                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+//                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+                printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+                printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*2,fPVdirect); // erwartete PV Ertrag in % des Speichers
+
                 printf("%c[K\n", 27 );
 
 
