@@ -2262,8 +2262,8 @@ bDischarge = false;
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.25))
                 iMinLade = e3dc_config.maximumLadeleistung*.25;
-            if (iFc < iMinLade)
-                iFc = iMinLade;
+            if (iFc < iMinLade*e3dc_config.powerfaktor)
+                iFc = iMinLade*e3dc_config.powerfaktor;
         } else {
             iBattLoad = e3dc_config.maximumLadeleistung*.5;}
     }
