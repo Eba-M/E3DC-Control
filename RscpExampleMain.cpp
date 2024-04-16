@@ -1215,8 +1215,8 @@ int wolfstatus()
                 wo.feld = "Ablufttemperatur";
                 wo.AK = "AL";
                 wolf.push_back(wo);
-                wo.feld = "BUSCONFIG_Sollwertkorrektur";
-                wo.AK = "SWK";
+                wo.feld = "Verdichterfrequenz";
+                wo.AK = "VFQ";
                 wo.wert = -5;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
@@ -1641,12 +1641,13 @@ int LoadDataProcess() {
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                     }
-                    
+// Überprüfen ob die Solltemperatur der FBH bei PV-Ertragsmangel heruntergesetzt werden muss
+
                     if ( t-HK1_t>60 &&
                         (
                          (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4)
                           &&
-                         ((temp[4]>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                           ))
                          || ((temp[4]>iWPHK1max)&&(temp[5]>iWPHK1max))
                          )
@@ -2776,11 +2777,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000)
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = iPower+fPower_WB-iPower_Bat+iMinLade;
+                    iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
                 else
 //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
                 {
-                    iPower = iPower+iWBMinimumPower/6;
+                    iPower = iPower+iWBMinimumPower;
                     if (iPower > 0)
                     {
 // PV-Erzeugung > Einspeiselimit, Auto lädt noch nicht Ladevorgang sofort starten

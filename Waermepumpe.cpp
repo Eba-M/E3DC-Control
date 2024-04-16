@@ -199,7 +199,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
     }
     // Ermitteln COP auf Basis der Zuluft WP
     if (zuluft>-99)
-        cop = ((absolutenull+zuluft)/(((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-zuluft)+fusspunkt))*.44;
+        cop = ((absolutenull+zuluft)/(((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-zuluft)+fusspunkt))*.6;
 
 // Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
     if ((ptm->tm_min%15==0||oldhour==0||w.size()!=oldwsize)&&
