@@ -1911,6 +1911,10 @@ int LoadDataProcess() {
 //    iModbusTCP_Heizstab(300);
 //    iModbusTCP_Heizstab(400);
 //    iModbusTCP_Heizstab(500);
+    fLadeende = e3dc_config.ladeende;
+    fLadeende2 = e3dc_config.ladeende2;
+    fLadeende3 = e3dc_config.unload;
+
 
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
