@@ -1641,7 +1641,8 @@ int LoadDataProcess() {
                 if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
                         
-                    if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                    if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
+                        (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
                         if (temp[4]<(iWPHK1max-5))
                             iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
@@ -1660,7 +1661,7 @@ int LoadDataProcess() {
                           &&
                          (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200&&fPVtoday<fPVSoll)
                           ))
-                         || ((temp[4]>iWPHK1max)&&(temp[5]>iWPHK1max))
+                         || ((temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max))
                          )
                         )
                     {
