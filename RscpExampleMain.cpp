@@ -1659,7 +1659,7 @@ int LoadDataProcess() {
                         (
                          (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4)
                           &&
-                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200&&fPVtoday<fPVSoll)
+                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                           ))
                          || ((temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max))
                          )
@@ -1783,7 +1783,7 @@ int LoadDataProcess() {
                 if 
                     (
                      (
-                    PVon < 0 && fPVtoday<fPVSoll &&                      (
+                      (PVon < 0 || fPVtoday<fPVSoll) &&                      (
                        (temp[1]>0&&temp[6]>0&&temp[4]<temp[5])
                      ||
                        (temp[7]>0&&temp[10]<temp[11])
