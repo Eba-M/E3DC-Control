@@ -1743,13 +1743,16 @@ int LoadDataProcess() {
 
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
-                if (
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(e3dc_config.WPHK1max+5))
+// Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
+                if (temp[14]<(e3dc_config.WPHK1max+5)&&
+                    (
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10))
                     ||
                     (temp[7]>0&&temp[10]>temp[11]+10)
                     ||
-                    (temp[14]<(e3dc_config.WPHK1max+5)*10&&PVon>500&&fPVtoday>fPVSoll)
+                    (PVon>500&&fPVtoday>fPVSoll)
                     )
+                   )
                 {
                     ALV = shelly_get();
                     if (PVon>0)
@@ -1780,7 +1783,9 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                    (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5))
+                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5))
+                    ||
+                     (temp[14]>(e3dc_config.WPHK1max+7)*10)
                     ||
                      (temp[1]>0&&temp[6]>0&&(iWPHK1max)<temp[5])
 //                    ||
@@ -1788,8 +1793,7 @@ int LoadDataProcess() {
                     )
                 {
                     ALV = shelly_get();
-//                    if (PVon<0)
-                    {
+                    
                         if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
                         {
                             if (PVon > -5000)
@@ -1801,7 +1805,7 @@ int LoadDataProcess() {
                             ALV = e3dc_config.shelly0V10Vmin+1;
                         shelly((ALV--)-1);
                         wp_t = t;
-                    }
+                    
                 }
                 if ((t%60)==0)
                     ALV = shelly_get();
