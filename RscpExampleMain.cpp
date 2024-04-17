@@ -57,8 +57,9 @@ static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
-static float fPVtoday=0;
-static float fPVdirect=0;
+static float fPVtoday=0; // Erzeugung heute
+static float fPVdirect=0;  // Direktverbrauch
+static float fPVSoll=0; // Mindestertrag zur Abdeckung Tagesverbrauch und Speicherladung bis ladeende2
 static float fDCDC = 0; // Strommenge mit rechnen
 static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
@@ -1634,7 +1635,7 @@ int LoadDataProcess() {
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
   
-                if (fPVtoday>fPVdirect*2||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
+                if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
                         
                     if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
@@ -1654,7 +1655,7 @@ int LoadDataProcess() {
                         (
                          (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4)
                           &&
-                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200&&fPVtoday<fPVSoll)
                           ))
                          || ((temp[4]>iWPHK1max)&&(temp[5]>iWPHK1max))
                          )
@@ -1743,7 +1744,7 @@ int LoadDataProcess() {
                     ||
                     (temp[7]>0&&temp[10]>temp[11]+10)
                     ||
-                    (temp[14]<(e3dc_config.WPHK1max+5)*10&&PVon>500)
+                    (temp[14]<(e3dc_config.WPHK1max+5)*10&&PVon>500&&fPVdirect>fPVSoll)
                     )
                 {
                     ALV = shelly_get();
@@ -1768,8 +1769,7 @@ int LoadDataProcess() {
                 if 
                     (
                      (
-                    PVon < 0 &&
-                      (
+                    PVon < 0 && fPVdirect<fPVSoll &&                      (
                        (temp[1]>0&&temp[6]>0&&temp[4]<temp[5])
                      ||
                        (temp[7]>0&&temp[10]<temp[11])
@@ -1858,6 +1858,7 @@ int LoadDataProcess() {
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
+                fPVSoll = fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*2;
                 break;
             }
         }
@@ -2261,7 +2262,7 @@ bDischarge = false;
             }
 // Wenn der noch zu erwartende Solarertrag kleiner ist als der Speicherbedarf und der Stromverbrauch
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
-    if (fPVtoday>0&&(fPVtoday<(fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*2))&&t<tLadezeitende2)
+    if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende2)
     {
         if (fBatt_SOC<fLadeende2)
         {
@@ -4594,7 +4595,7 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*2,fPVdirect); // erwartete PV Ertrag in % des Speichers
+                printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
 
                 printf("%c[K\n", 27 );
 
