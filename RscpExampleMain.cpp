@@ -913,10 +913,10 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
     return iLength;
 }
-static int dummy[100];
-static int bHK1off = 0; // wenn > 0 wird der HK ausgeschaltet
-static int bHK2off = 0;
 static int bWP = 0;
+static int dummy[100];
+static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
+static int bHK1off = 0;
 
 int iModbusTCP()
 {
@@ -1618,6 +1618,9 @@ int LoadDataProcess() {
             if   ((sunsetAt-sunriseAt) > 10*60)  // 300% vom Soc = 60kWh
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
+                if (bHK1off > 1)
+                    bHK1off = 0;
+
                 if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
                 {
 // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
@@ -1744,7 +1747,7 @@ int LoadDataProcess() {
                     ||
                     (temp[7]>0&&temp[10]>temp[11]+10)
                     ||
-                    (temp[14]<(e3dc_config.WPHK1max+5)*10&&PVon>500&&fPVdirect>fPVSoll)
+                    (temp[14]<(e3dc_config.WPHK1max+5)*10&&PVon>500&&fPVtoday>fPVSoll)
                     )
                 {
                     ALV = shelly_get();
@@ -1769,7 +1772,7 @@ int LoadDataProcess() {
                 if 
                     (
                      (
-                    PVon < 0 && fPVdirect<fPVSoll &&                      (
+                    PVon < 0 && fPVtoday<fPVSoll &&                      (
                        (temp[1]>0&&temp[6]>0&&temp[4]<temp[5])
                      ||
                        (temp[7]>0&&temp[10]<temp[11])
