@@ -1744,7 +1744,14 @@ int LoadDataProcess() {
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
-                if (temp[14]<(e3dc_config.WPHK1max+5)&&
+                if (
+                    (
+                     temp[14]<(e3dc_config.WPHK1max+5)
+                     ||
+                     (wolf[wpvl].wert<(e3dc_config.WPHK1max+5)&&
+                      wolf[wpvl].wert>0)
+                    )
+                    &&
                     (
                     (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10))
                     ||
@@ -1783,7 +1790,8 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5))
+                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5)&&
+                      wolf[wpvl].wert>0)
                     ||
                      (temp[14]>(e3dc_config.WPHK1max+7)*10)
                     ||
