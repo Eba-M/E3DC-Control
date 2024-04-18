@@ -2278,9 +2278,9 @@ bDischarge = false;
             }
 // Wenn der noch zu erwartende Solarertrag kleiner ist als der Speicherbedarf und der Stromverbrauch
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
-    if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende2)
+    if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende)
     {
-        if (fBatt_SOC<fLadeende2)
+        if (fBatt_SOC<fLadeende-1)
         {
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.25))
