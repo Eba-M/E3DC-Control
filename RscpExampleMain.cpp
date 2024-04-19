@@ -2616,7 +2616,10 @@ bDischarge = false;
 //                ||
                 (wolf[j].feld == "Verdichterstatus")
                 )
-                printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
+                if (wolf[vdstatus].t>wolf[vdstatus-1].t)
+                    printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
+                else
+                    printf("%s %s ",wolf[j-1].AK.c_str(),wolf[j-1].status.c_str());
             else
                 if (
                     (wolf[j].feld != "Verdichterstatus")
@@ -2896,6 +2899,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 //                iPower = iPower_Bat-fPower_Grid-iRefload;
                 iPower = -fPower_Grid;
+                if (iFc>iRefload) iRefload = (iRefload+iFc)/2;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
