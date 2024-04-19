@@ -1621,7 +1621,12 @@ int LoadDataProcess() {
                 if (bHK1off > 1)
                     bHK1off = 0;
 
-                if (m1 > (sunriseAt+60)&&m1 < sunriseAt+720 && bHK1off&1)
+                if 
+                (
+                    (m1 > (sunriseAt+60)||PVon>0)
+                    &&
+                    m1 < sunriseAt+720 && bHK1off&1
+                )
                 {
 // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
                     iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
@@ -1629,7 +1634,7 @@ int LoadDataProcess() {
                     if (iLength > 0)
                         bHK1off ^= 1;
                 }
-                if (m1 < (sunriseAt+60)||(m1 > sunriseAt+720 && m1 > sunsetAt))
+                if (m1 < (sunriseAt+60)||(m1 > (sunriseAt+720) && m1 > sunsetAt))
                 {
                         bHK1off |= 1;
 
@@ -2158,7 +2163,19 @@ bDischarge = false;
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
     if (e3dc_config.aWATTar) printf("%.2f",fspreis);
+    
+// PVon dynamischer Berechnung unter Ausnutzung des Rest SoC am Morgen
+    
     PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
+
+//    if (fPVtoday>fPVSoll&fBatt_SOC>5)   // Überschuss erwartet
+    if (fPVtoday>fPVSoll&fBatt_SOC>5&&t<tLadezeitende3&&(t/60)>sunriseAt)   // Überschuss erwartet
+
+    {
+        float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
+        PVon = PVon*.9 + fdynPower+iMinLade/10;
+    }
+
     if (e3dc_config.WP&&fcop>0)
     {
         printf(" %.2f %.2f",fspreis/fcop,fcop);
