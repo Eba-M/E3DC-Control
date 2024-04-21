@@ -1233,8 +1233,8 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Verdichterstatus";
                 wo.AK = "VS";
-                wolf.push_back(wo);
                 vdstatus = wolf.size();
+                wolf.push_back(wo);
             }
                 
                 
@@ -2165,16 +2165,14 @@ bDischarge = false;
     if (e3dc_config.aWATTar) printf("%.2f",fspreis);
     
 // PVon dynamischer Berechnung unter Ausnutzung des Rest SoC am Morgen
-    
-    PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
+        if (t<tLadezeitende3&&(t/60)>sunriseAt&&fPVtoday>fPVSoll&&fBatt_SOC>5&&iPower_PV>100)
+        {
+            float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
+            PVon = PVon*.9 + fdynPower+iMinLade/10;
+        }
+        else
+            PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
 
-//    if (fPVtoday>fPVSoll&fBatt_SOC>5)   // Überschuss erwartet
-    if (fPVtoday>fPVSoll&fBatt_SOC>5&&t<tLadezeitende3&&(t/60)>sunriseAt)   // Überschuss erwartet
-
-    {
-        float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
-        PVon = PVon*.9 + fdynPower+iMinLade/10;
-    }
 
     if (e3dc_config.WP&&fcop>0)
     {
@@ -2261,12 +2259,16 @@ bDischarge = false;
 // weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
           if ((tLadezeitende-t) < 3600||(tLadezeitende2-t) < 7200)
           {
-              if (iMinLade2 > iFc){
+              if (iMinLade2 > iFc)
+              {
                   iFc = (iFc + iMinLade2)/2;
                   if (iFc < iMinLade2/2)
                       iFc = iMinLade2/2;
                   if (iFc<0) iFc = 0;
-              }}
+              }
+              if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
+                  iFc = 0;
+          }
         if (iFc > e3dc_config.maximumLadeleistung)
         iMinLade = e3dc_config.maximumLadeleistung;
           else
@@ -2612,14 +2614,14 @@ bDischarge = false;
         for (int j=0;j<wolf.size();j++)
         {
             if (
-//                (wolf[j].feld == "Betriebsart Heizgerät")
+                (wolf[j].feld == "Betriebsart Heizgerät")
 //                ||
-                (wolf[j].feld == "Verdichterstatus")
+//                (wolf[j].feld == "Verdichterstatus")
                 )
-                if (wolf[vdstatus].t>wolf[vdstatus-1].t)
-                    printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
+                if (wolf[vdstatus].t>wolf[j].t)  // mit verdichterstatus vergleichen ob aktueller
+                    printf("%s %s ",wolf[vdstatus].AK.c_str(),wolf[vdstatus].status.c_str());
                 else
-                    printf("%s %s ",wolf[j-1].AK.c_str(),wolf[j-1].status.c_str());
+                    printf("%s %s ",wolf[j].AK.c_str(),wolf[j].status.c_str());
             else
                 if (
                     (wolf[j].feld != "Verdichterstatus")
