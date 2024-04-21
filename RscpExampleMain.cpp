@@ -1664,11 +1664,12 @@ int LoadDataProcess() {
                         (
                          (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4)
                           &&
-                         (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                         ((((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                           ))
                          || ((temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max))
                          )
                         )
+                    )
                     {
                         iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
