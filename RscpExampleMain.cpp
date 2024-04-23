@@ -28,6 +28,7 @@
 #define AES_KEY_SIZE        32
 #define AES_BLOCK_SIZE      32
 
+
 // json j;
 static int iSocket = -1;
 static int iAuthenticated = 0;
@@ -955,7 +956,7 @@ int iModbusTCP()
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
                 float isttemp = wolf[wpzl].wert;
                 if (wetter.size() > 0)
-                    isttemp  = isttemp  + wetter[0].temp/2;
+                    isttemp  = (isttemp  + wetter[0].temp)/2;
                 if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
                    isttemp = wetter[0].temp;
 
@@ -1634,7 +1635,13 @@ int LoadDataProcess() {
                     if (iLength > 0)
                         bHK1off ^= 1;
                 }
-                if (m1 < (sunriseAt+60)||(m1 > (sunriseAt+720) && m1 > sunsetAt))
+                if (
+                    temp[17]==0   // Pellets muss aus sein
+                    &&
+                    (m1 < (sunriseAt+60)
+                    ||
+                    (m1 > (sunriseAt+720) && m1 > sunsetAt)
+                    ))
                 {
                         bHK1off |= 1;
 
@@ -4217,7 +4224,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     iWBIst = WBchar[2];
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
-                                    printf(" Current %u/%uA ",iWBSoll,WBchar[2]);
+                                    printf(" %u/%uA ",iWBSoll,WBchar[2]);
                                     printf("%c[K", 27 );
                                     break;
                                 }
