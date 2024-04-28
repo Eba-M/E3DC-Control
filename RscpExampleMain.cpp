@@ -99,9 +99,8 @@ int forecastpeaktime;  //
 float forecastpeak;    //
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
-u_int32_t iWeekhour[24*7*4]; // Wochenstatistik
-static u_int32_t iCurrenthour; // 15min Intervall des aktuellen Verbrauchs
-static u_int32_t iDayHome; // 15min Intervall des aktuellen Verbrauchs
+#define sizeweekhour 24*7*4
+u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 
 SunriseCalc * location;
 std::vector<ch_s> ch;  //charge hour
@@ -832,7 +831,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
 long iLength;
@@ -1193,7 +1192,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Kesseltemperatur 2";
                 wo.AK = "KT2";
-                wpkst = wolf.size();
+                wpkt2 = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Rücklauftemperatur";
                 wo.AK = "RL";
@@ -1447,20 +1446,23 @@ int LoadDataProcess() {
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (e3dc_config.statistik)
     {
+// die laufende Stunde wird in iWeekhour[sizeweekhour+1]
+// der Tageswert wird in iWeekhour[sizeweekhour+2]
+
         
-        iCurrenthour = iCurrenthour + iPowerHome*(t-t_alt);
-        iDayHome = iDayHome + iPowerHome*(t-t_alt);
+        iWeekhour[sizeweekhour+1] = iWeekhour[sizeweekhour+1] + iPowerHome*(t-t_alt);
+        iWeekhour[sizeweekhour+2] = iWeekhour[sizeweekhour+2] + iPowerHome*(t-t_alt);
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (t_alt%(24*7*4*900))/900;
             if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
-                iWeekhour[x1] = iWeekhour[x1]*.9 + iCurrenthour*.1;
+                iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[sizeweekhour+1]*.1;
             else
-                iWeekhour[x1] = iCurrenthour;
-            iCurrenthour = 0;
+                iWeekhour[x1] = iWeekhour[sizeweekhour+1];
+            iWeekhour[sizeweekhour+1] = 0;
             if ((t_alt%(24*3600))>(t%(24*3600)))
             {
-                iDayHome = 0;
+                iWeekhour[sizeweekhour+2] = 0;
                 FILE * pFile;
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
@@ -1772,7 +1774,7 @@ int LoadDataProcess() {
                      temp[14]<(e3dc_config.WPHK1max+5)
                      ||
                      (wolf[wpvl].wert<(e3dc_config.WPHK1max+5)&&
-                      wolf[wpvl].wert>0)
+                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+6))
                     )
                     &&
                     (
@@ -1787,7 +1789,11 @@ int LoadDataProcess() {
                     ALV = shelly_get();
                     if (PVon>0)
                     {
-                        if (mm>sunriseAt&&mm<sunsetAt)
+                        if  (
+                             mm>sunriseAt&&mm<sunsetAt&&
+                             temp[14]<(e3dc_config.WPHK1max+5)
+// nur wenn der Puufer Wärme aufnehmen kann
+                            )
                         {
                             if (PVon < 5000)
                                 ALV = ALV + PVon / 1000;
@@ -2186,7 +2192,7 @@ bDischarge = false;
         if (t<tLadezeitende3&&(t/60)>sunriseAt&&fPVtoday>fPVSoll&&fBatt_SOC>5&&iPower_PV>100)
         {
             float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
-            PVon = PVon*.9 + fdynPower+iMinLade/10;
+            PVon = PVon*.9 + fdynPower+((iPower_PV - iPowerHome - fPower_Grid))/10;
         }
         else
             PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
@@ -3766,7 +3772,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 if (e3dc_config.statistik)
-                    printf(" %0.04fkWh", iDayHome/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.04fkWh",iWeekhour[sizeweekhour+2]/3600000.0); // Tages Hausverbrauch
                 printf("%c[K\n", 27 );
 
                 break;
