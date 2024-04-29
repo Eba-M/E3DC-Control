@@ -1405,14 +1405,19 @@ int shelly(int ALV)
     if (e3dc_config.shelly0V10V)
     {
         fp==NULL;
-        sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+        if (ALV>0)
+            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+        else
+            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""off"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         fp = popen(buf, "r");
         
         if (fp != NULL)
             if (fgets(path, 1024, fp) != NULL)
             {}
     }
-        return 0;
+    if (fp != NULL)
+        pclose(fp);
+    return 0;
 }
 typedef struct {
     time_t t;
@@ -1742,7 +1747,7 @@ int LoadDataProcess() {
             if (ALV < 0) ALV = shelly_get();
             
             static time_t wp_t;
-            if (t - wp_t > 59&&ALV>0&&tasmota_status[0]==0)
+            if (t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
             {
                 
                 if (ALV > e3dc_config.shelly0V10Vmax
