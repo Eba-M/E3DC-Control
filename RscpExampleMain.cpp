@@ -100,6 +100,8 @@ float forecastpeak;    //
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
+int weekhour    =  sizeweekhour+1;
+int dayhour     =   weekhour+1;
 u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 
 SunriseCalc * location;
@@ -1450,15 +1452,15 @@ int LoadDataProcess() {
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
 
         
-        iWeekhour[sizeweekhour+1] = iWeekhour[sizeweekhour+1] + iPowerHome*(t-t_alt);
-        iWeekhour[sizeweekhour+2] = iWeekhour[sizeweekhour+2] + iPowerHome*(t-t_alt);
+        iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
+        iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (t_alt%(24*7*4*900))/900;
             if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
-                iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[sizeweekhour+1]*.1;
+                iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
-                iWeekhour[x1] = iWeekhour[sizeweekhour+1];
+                iWeekhour[x1] = iWeekhour[weekhour];
             iWeekhour[sizeweekhour+1] = 0;
             if ((t_alt%(24*3600))>(t%(24*3600)))
             {
@@ -1750,6 +1752,7 @@ int LoadDataProcess() {
                     if (ALV > e3dc_config.shelly0V10Vmax)
                         ALV = e3dc_config.shelly0V10Vmax;
                     else
+                        if (ALV > 0)
                         ALV = e3dc_config.shelly0V10Vmin;
                     shelly(ALV);
                 }
@@ -1804,7 +1807,12 @@ int LoadDataProcess() {
                             ALV = e3dc_config.shelly0V10Vmax-1;
                     }
                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
-                            shelly((ALV++)+1);
+                            shelly((ALV++)+1); 
+                        else
+                            if (ALV==0)
+                                e3dc_config.shelly0V10Vmin;
+                                
+                                
                         wp_t = t;
                     
                 }   else
@@ -1844,6 +1852,8 @@ int LoadDataProcess() {
                         wp_t = t;
                     
                 }
+                if (temp[14]>(e3dc_config.WPHK1max+7)*10)
+                    shelly(0);
                 if ((t%60)==0)
                     ALV = shelly_get();
             }
@@ -3772,7 +3782,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 if (e3dc_config.statistik)
-                    printf(" %0.04fkWh",iWeekhour[sizeweekhour+2]/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.04fkWh",iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
                 printf("%c[K\n", 27 );
 
                 break;
@@ -4714,6 +4724,7 @@ static int iEC = 0;
         if (pFile!=NULL)
         {
             size_t x1 = sizeof(iWeekhour);
+//            x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
 /*
