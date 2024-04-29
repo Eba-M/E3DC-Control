@@ -1773,7 +1773,7 @@ int LoadDataProcess() {
                     (
                      temp[14]<(e3dc_config.WPHK1max+5)
                      ||
-                     (wolf[wpvl].wert<(e3dc_config.WPHK1max+5)&&
+                     (temp[14]<(e3dc_config.WPHK1max+6)&&wolf[wpvl].wert<(e3dc_config.WPHK1max+5)&&
                       wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+6))
                     )
                     &&
@@ -2281,7 +2281,7 @@ bDischarge = false;
 // Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
 
 // weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
-          if ((tLadezeitende-t) < 3600||(tLadezeitende2-t) < 7200)
+          if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
           {
               if (iMinLade2 > iFc)
               {

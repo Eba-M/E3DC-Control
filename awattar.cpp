@@ -759,14 +759,17 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     }
                     x1++;
                     x2++;
-                    if (x2 >= wetter.size())
+                    if (x2 > wetter.size())
+                    {                        
+                        if (fp!=NULL) pclose(fp);
                         return;
+                    }
                 }
                 item1 = item1->next;
                 item2 = item2->next;
 
             }
-
+            if (fp!=NULL) pclose(fp);
         }
     }
         
@@ -1018,10 +1021,13 @@ if (e3dc.AWLand == 2)
             )
             ) // alte aWATTar Datei verarbeiten
             {
-                fp = fopen("debug.out","w");
-                fprintf(fp,"%s",line);
-                fclose(fp);
-                int res = system(line);
+                if (e3dc.debug)
+                {
+                    fp = fopen("debug.out","w");
+                    fprintf(fp,"%s",line);
+                    fclose(fp);
+                }
+    int res = system(line);
                 // Einlesen der letzten aWATTar Datei
                         if (not simu)
                         {

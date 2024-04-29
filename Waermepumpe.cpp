@@ -279,7 +279,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         x1++;
                 }
                 fatemp = fatemp / x1;
-
+                if (fp!=NULL) pclose(fp);
             }
         }
         else
