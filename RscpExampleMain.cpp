@@ -1779,10 +1779,10 @@ int LoadDataProcess() {
 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 if (
                     (
-                     temp[14]<(e3dc_config.WPHK1max+5)
+                     temp[14]<(e3dc_config.WPHK1max+5)*10
                      ||
-                     (temp[14]<(e3dc_config.WPHK1max+6)&&wolf[wpvl].wert<(e3dc_config.WPHK1max+5)&&
-                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+6))
+                     (temp[14]<(e3dc_config.WPHK1max+6)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+5.0)&&
+                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+6.0))
                     )
                     &&
                     (
@@ -1790,7 +1790,7 @@ int LoadDataProcess() {
                     ||
                     (temp[7]>0&&temp[10]>temp[11]+10)
                     ||
-                    (PVon>500&&fPVtoday>fPVSoll)
+                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
                    )
                 {
@@ -1799,7 +1799,7 @@ int LoadDataProcess() {
                     {
                         if  (
                              mm>sunriseAt&&mm<sunsetAt&&
-                             temp[14]<(e3dc_config.WPHK1max+5)
+                             temp[14]<(e3dc_config.WPHK1max+5)*10
 // nur wenn der Puufer Wärme aufnehmen kann
                             )
                         {
@@ -1815,8 +1815,10 @@ int LoadDataProcess() {
                             shelly((ALV++)+1); 
                         else
                             if (ALV==0)
-                                e3dc_config.shelly0V10Vmin;
-                                
+                            {
+                                ALV = e3dc_config.shelly0V10Vmin;
+                                shelly(ALV);
+                            }
                                 
                         wp_t = t;
                     
@@ -1832,12 +1834,12 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5)&&
+                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5.0)&&
                       wolf[wpvl].wert>0)
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+7)*10)
+                     (temp[14]>(e3dc_config.WPHK1max+5)*10)
                     ||
-                     (temp[1]>0&&temp[6]>0&&(iWPHK1max)<temp[5])
+                     (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
 //                    ||
 //                    (wolf[wpvl].wert>45)
                     )
@@ -1857,8 +1859,10 @@ int LoadDataProcess() {
                         wp_t = t;
                     
                 }
-                if (temp[14]>(e3dc_config.WPHK1max+7)*10)
+                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
+                {
                     shelly(0);
+                }
                 if ((t%60)==0)
                     ALV = shelly_get();
             }
