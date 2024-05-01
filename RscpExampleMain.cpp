@@ -1870,6 +1870,7 @@ int LoadDataProcess() {
                 {
                     ALV = 0;
                     shelly(ALV);
+                    wp_t = t;
                 }
                 if ((t%60)==0)
                     ALV = shelly_get();
