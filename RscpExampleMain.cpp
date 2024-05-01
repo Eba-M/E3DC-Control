@@ -1867,7 +1867,8 @@ int LoadDataProcess() {
                 }
                 if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 {
-                    shelly(0);
+                    ALV = 0;
+                    shelly(ALV);
                 }
                 if ((t%60)==0)
                     ALV = shelly_get();
