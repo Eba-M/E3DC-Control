@@ -1408,7 +1408,7 @@ int shelly(int ALV)
         if (ALV>0)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         else
-            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""off"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":false, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         fp = popen(buf, "r");
         
         if (fp != NULL)
@@ -1776,7 +1776,13 @@ int LoadDataProcess() {
 
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
-// Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
+                int wwmax = e3dc_config.WPHK1max-fatemp+20;
+                if (wwmax < e3dc_config.WPHK1max)
+                    wwmax = e3dc_config.WPHK1max;
+                if (wwmax > (e3dc_config.WPHK1max+5))
+                    wwmax = e3dc_config.WPHK1max+5;
+
+                // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 if (
                     (
                      temp[14]<(e3dc_config.WPHK1max+5)*10
