@@ -1817,8 +1817,13 @@ int LoadDataProcess() {
                         if (ALV>= e3dc_config.shelly0V10Vmax)
                             ALV = e3dc_config.shelly0V10Vmax-1;
                     }
+                        if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin)
+                        {
+                            ALV = e3dc_config.shelly0V10Vmin-1;
+                        }
+
                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
-                            shelly((ALV++)+1); 
+                            shelly((ALV++)+1);
                         else
                             if (ALV==0)
                             {
