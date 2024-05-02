@@ -1792,9 +1792,12 @@ int LoadDataProcess() {
                     )
                     &&
                     (
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10))
+//  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 5° über der FBH liegt.
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[5]+50))
                     ||
-                    (temp[7]>0&&temp[10]>temp[11]+10)
+//  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° über der HK2 liegt.
+
+                     (temp[7]>0&&temp[10]>temp[11]+10&&temp[14]<(temp[11]+20))
                     ||
                     (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
