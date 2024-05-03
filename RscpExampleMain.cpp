@@ -2364,9 +2364,9 @@ bDischarge = false;
     {
         if (fBatt_SOC<fLadeende-1)
         {
-            if (iMinLade<iMinLade2) iMinLade = iMinLade2*2; else iMinLade = iMinLade*2;
-            if (iMinLade<(e3dc_config.maximumLadeleistung*.25))
-                iMinLade = e3dc_config.maximumLadeleistung*.25;
+            if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
+            if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
+                iMinLade = e3dc_config.maximumLadeleistung*.5;
             if (iFc < iMinLade*e3dc_config.powerfaktor)
                 iFc = iMinLade*e3dc_config.powerfaktor;
         } else {
