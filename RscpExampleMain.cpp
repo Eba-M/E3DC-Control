@@ -1939,7 +1939,7 @@ int LoadDataProcess() {
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
-                fPVSoll = fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*2;
+                fPVSoll = fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*1.5+10;
                 break;
             }
         }
@@ -2987,6 +2987,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 7:
                 case 8:
                 case 9:
+                case 10:
 
             // Der Leitwert ist iMinLade2 und sollte dem WBminlade
             // des Ladekorridors entprechen
@@ -3030,9 +3031,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                           }
 // Nur bei PV-Ertrag
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
-// Bei wbmode 9 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
+// Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
-               if ((e3dc_config.wbmode ==  9)&&(fBatt_SOC > (e3dc_config.wbminSoC-1.0)))
+               if (
+                   ((e3dc_config.wbmode ==  9 && (iPower_PV>100))
+                   ||
+                   (e3dc_config.wbmode ==  10))
+                   &&
+                   (fBatt_SOC > (e3dc_config.wbminSoC-1.0))
+                   )
                 {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)*(fBatt_SOC-e3dc_config.wbminSoC)*
                     (fBatt_SOC-e3dc_config.wbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
                  if (iPower > e3dc_config.maximumLadeleistung)
@@ -3043,7 +3050,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                     iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
                           break;
-            case 10:
+            case 11:
                     if (fPower_Grid > 0)
                         iPower = -fPower_Grid*3; else
                         iPower = -fPower_Grid;
