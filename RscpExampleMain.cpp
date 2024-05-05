@@ -1776,7 +1776,7 @@ int LoadDataProcess() {
 
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
-                int wwmax = e3dc_config.WPHK1max-fatemp+20;
+                int wwmax = e3dc_config.WPHK1max-fatemp+20.0;
                 if (wwmax < e3dc_config.WPHK1max)
                     wwmax = e3dc_config.WPHK1max;
                 if (wwmax > (e3dc_config.WPHK1max+5))
@@ -1798,8 +1798,8 @@ int LoadDataProcess() {
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° über der HK2 liegt.
 
                      (temp[7]>0&&temp[10]>temp[11]+10&&temp[14]<(temp[11]+20))
-                    ||
-                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
+//                    ||
+//                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
                    )
                 {
@@ -1874,12 +1874,22 @@ int LoadDataProcess() {
                         wp_t = t;
                     
                 }
-                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
-                {
-                    ALV = 0;
-                    shelly(ALV);
-                    wp_t = t;
-                }
+//                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
+                float ALV_Calc = (e3dc_config.WPHK1max+3)-temp[14]/10.0;
+                ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin);
+                if (ALV_Calc < 0)
+                    ALV_Calc = 0;
+                    else
+                        if (ALV_Calc >= (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin))
+                            ALV_Calc = e3dc_config.shelly0V10Vmax;
+                        else
+                            ALV_Calc = ALV_Calc + e3dc_config.shelly0V10Vmin;
+                    if (ALV_Calc > ALV&&PVon>500||ALV_Calc<ALV)
+                    {
+                        ALV = ALV_Calc;
+                        shelly(ALV);
+                        wp_t = t;
+                    }
                 if ((t%60)==0)
                     ALV = shelly_get();
             }
