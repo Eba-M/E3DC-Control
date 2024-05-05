@@ -1749,7 +1749,7 @@ int LoadDataProcess() {
             static time_t wp_t;
             if (t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
             {
-                
+                if (ALV!=0)
                 if (ALV > e3dc_config.shelly0V10Vmax
                     ||
                     ALV < e3dc_config.shelly0V10Vmin)
@@ -1760,8 +1760,9 @@ int LoadDataProcess() {
                         if (ALV > 0)
                         ALV = e3dc_config.shelly0V10Vmin;
                     shelly(ALV);
+                    wp_t = t;
                 }
-                   
+
                     
                  
 
@@ -1886,8 +1887,11 @@ int LoadDataProcess() {
                 }
                 else
                 {
-                    if (ALV_Calc>40)
+                    if (ALV_Calc>40&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
+                    else
+                    if (ALV_Calc<30&&PVon<0)
+                        ALV_Calc = 0;
                     else
                     {
                         ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)/10;
