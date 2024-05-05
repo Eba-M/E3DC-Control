@@ -1875,16 +1875,35 @@ int LoadDataProcess() {
                     
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
-                float ALV_Calc = (e3dc_config.WPHK1max+3)-temp[14]/10.0;
-                ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin);
+                int ALV_Calc = (e3dc_config.WPHK1max+3)*10-temp[14];
+// Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
                 if (ALV_Calc < 0)
-                    ALV_Calc = 0;
+                {
+                    if (ALV_Calc<-1)
+                        ALV_Calc = 0;
                     else
+                        ALV_Calc = e3dc_config.shelly0V10Vmin;
+                }
+                else
+                {
+                    if (ALV_Calc>40)
+                        ALV_Calc = e3dc_config.shelly0V10Vmin;
+                    else
+                    {
+                        ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)/10;
                         if (ALV_Calc >= (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin))
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
                         else
                             ALV_Calc = ALV_Calc + e3dc_config.shelly0V10Vmin;
-                    if (ALV_Calc > ALV&&PVon>500||ALV_Calc<ALV)
+                    }
+                }
+                if  (
+                        (ALV_Calc > ALV&&PVon>500) //MEHR GAS NUR BEI PV
+                        ||
+                        ALV_Calc<ALV
+                        ||
+                        ((ALV==0&&PVon>500)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
+                    )
                     {
                         ALV = ALV_Calc;
                         shelly(ALV);
