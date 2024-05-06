@@ -1880,10 +1880,10 @@ int LoadDataProcess() {
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
                 if (ALV_Calc < 0)
                 {
-                    if (ALV_Calc<-10)  // 1K Temperaturanstieg zulassen
+                    if (ALV_Calc<-20)  // 1K Temperaturanstieg zulassen
                         ALV_Calc = 0;
                     else
-                        ALV_Calc = e3dc_config.shelly0V10Vmin;
+                        if (ALV > 0) ALV_Calc = e3dc_config.shelly0V10Vmin;
                 }
                 else
                 {
@@ -1894,6 +1894,7 @@ int LoadDataProcess() {
                         ALV_Calc = 0;
                     else
                     {
+//  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 1K
                         ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)/10;
                         if (ALV_Calc >= (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin))
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
@@ -2304,7 +2305,7 @@ bDischarge = false;
 // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
 // damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
-        if ((fBatt_SOC-fLadeende3) > 0){
+        if ((fBatt_SOC-fLadeende3) > 0.6){    // Raum lassen zum atmen
           if ((fBatt_SOC-fLadeende3) < 0.6)
                 fLadeende = fBatt_SOC; else
 // Es wird bis tLadezeitende3 auf fLadeende3 entladen
