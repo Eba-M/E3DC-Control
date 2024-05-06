@@ -1880,7 +1880,7 @@ int LoadDataProcess() {
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
                 if (ALV_Calc < 0)
                 {
-                    if (ALV_Calc<-1)
+                    if (ALV_Calc<-10)  // 1K Temperaturanstieg zulassen
                         ALV_Calc = 0;
                     else
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
@@ -1890,7 +1890,7 @@ int LoadDataProcess() {
                     if (ALV_Calc>40&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
                     else
-                    if (ALV_Calc<30&&PVon<0)
+                    if (ALV_Calc>30&&PVon<0)
                         ALV_Calc = 0;
                     else
                     {
