@@ -1893,7 +1893,7 @@ int LoadDataProcess() {
                     if (ALV_Calc>40&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
                     else
-                    if (ALV_Calc>30&&PVon<0)
+                    if (ALV_Calc>20&&ALV_Calc<30&&PVon<0)
                         ALV_Calc = 0;
                     else
 //                    if (PVon > 0)
