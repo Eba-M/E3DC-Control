@@ -1878,6 +1878,7 @@ int LoadDataProcess() {
                     
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
+                ALV = shelly_get();
                 int ALV_Calc = (e3dc_config.WPHK1max+3)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
                 if (ALV_Calc < 0)
@@ -1910,7 +1911,7 @@ int LoadDataProcess() {
                         ||
                         ALV_Calc<ALV
                         ||
-                        ((ALV==0&&PVon>500)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
+                        ((ALV_Calc==0)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
                     )
                     {
                         ALV = ALV_Calc;
