@@ -1678,7 +1678,9 @@ int LoadDataProcess() {
 
                     if ( t-HK1_t>60 &&
                         (
-                         (bHK1off ||m1 > (sunsetAt+60) || PVon<(-iMinLade/4))
+// Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
+
+                         (bHK1off ||m1 > (sunsetAt+60) || (PVon<(-iMinLade/4)&&temp[14]<(temp[4]+50)))
                           &&
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
