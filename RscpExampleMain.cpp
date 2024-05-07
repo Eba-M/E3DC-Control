@@ -1893,6 +1893,7 @@ int LoadDataProcess() {
                     if (ALV_Calc>30&&PVon<0)
                         ALV_Calc = 0;
                     else
+//                    if (PVon > 0)
                     {
 //  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 1K
                         ALV_Calc = ALV_Calc*(e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)/10;
@@ -2912,6 +2913,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         else iRefload = iMinLade;
 // Morgens soll die volle Leistung zur Verfügung stehen
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
+    int iwbminSoC = e3dc_config.wbminSoC;
         
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
@@ -3020,6 +3022,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 6:
                 case 7:
                 case 8:
+                    iwbminSoC = fLadeende;
                 case 9:
                 case 10:
 
@@ -3068,14 +3071,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
 
                if (
-                   ((e3dc_config.wbmode ==  9 && (iPower_PV>100))
+                   (
+                    (e3dc_config.wbmode ==  8 && (iPower_PV>100))
+                   ||
+                    (e3dc_config.wbmode ==  9 && (iPower_PV>100))
                    ||
                    (e3dc_config.wbmode ==  10))
                    &&
-                   (fBatt_SOC > (e3dc_config.wbminSoC-1.0))
+                   (fBatt_SOC > (iwbminSoC-1.0))
                    )
-                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-e3dc_config.wbminSoC)*(fBatt_SOC-e3dc_config.wbminSoC)*
-                    (fBatt_SOC-e3dc_config.wbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
+                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-iwbminSoC)*(fBatt_SOC-iwbminSoC)*
+                    (fBatt_SOC-iwbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
                  if (iPower > e3dc_config.maximumLadeleistung)
                      iPower = e3dc_config.maximumLadeleistung*.9;
                     iPower = iPower +(iPower_Bat-fPower_Grid*2);
