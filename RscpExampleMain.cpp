@@ -2315,6 +2315,7 @@ bDischarge = false;
 // Es wird bis tLadezeitende3 auf fLadeende3 entladen
                 fLadeende = fLadeende3;
             tLadezeitende = tLadezeitende3;}
+        else fLadeende = fLadeende3;
                 }
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
