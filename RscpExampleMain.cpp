@@ -2916,7 +2916,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         else iRefload = iMinLade;
 // Morgens soll die volle Leistung zur Verfügung stehen
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
-    int iwbminSoC = e3dc_config.wbminSoC;
+    float fwbminSoC = e3dc_config.wbminSoC;
         
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
@@ -3025,7 +3025,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 6:
                 case 7:
                 case 8:
-                    iwbminSoC = fLadeende;
+                    fwbminSoC = fLadeende-1.5;
                 case 9:
                 case 10:
 
@@ -3081,10 +3081,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                    ||
                    (e3dc_config.wbmode ==  10))
                    &&
-                   (fBatt_SOC > (iwbminSoC-1.0))
+                   (fBatt_SOC > (fwbminSoC))
                    )
-                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-iwbminSoC)*(fBatt_SOC-iwbminSoC)*
-                    (fBatt_SOC-iwbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
+                {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-fwbminSoC)*(fBatt_SOC-fwbminSoC)*
+                    (fBatt_SOC-fwbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
                  if (iPower > e3dc_config.maximumLadeleistung)
                      iPower = e3dc_config.maximumLadeleistung*.9;
                     iPower = iPower +(iPower_Bat-fPower_Grid*2);
