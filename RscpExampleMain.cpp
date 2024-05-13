@@ -1662,7 +1662,7 @@ int LoadDataProcess() {
                 if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
                         
-                    if (not bHK1off && temp[1]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
+                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
                         (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
                         if (temp[4]<(iWPHK1max-5))
@@ -1893,7 +1893,7 @@ int LoadDataProcess() {
                     if (ALV_Calc>40&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
                     else
-                    if (ALV_Calc>20&&ALV_Calc<30&&PVon<0)
+                    if (ALV_Calc>20&&ALV_Calc<30&&PVon<0&&ALV==e3dc_config.shelly0V10Vmin)
                         ALV_Calc = 0;
                     else
 //                    if (PVon > 0)
@@ -3065,6 +3065,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {
 //                    if (iRefload<iMaxBattLade)
 //                    iPower = iPower + idynPower;
+                    if (e3dc_config.wbmode < 8 && fBatt_SOC>5)
                     iPower = idynPower;
 //                    else
                       if (iPower < (iPower_Bat-fPower_Grid))
