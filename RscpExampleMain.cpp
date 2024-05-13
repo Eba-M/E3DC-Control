@@ -1619,7 +1619,7 @@ int LoadDataProcess() {
  
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*10.0;
+                iWPHK1max = iWPHK1max - (fatemp-8)*11.0;
 
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
@@ -3065,7 +3065,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {
 //                    if (iRefload<iMaxBattLade)
 //                    iPower = iPower + idynPower;
-                    if (e3dc_config.wbmode < 8 && fBatt_SOC>5)
+                    if (fBatt_SOC>fwbminSoC)
                     iPower = idynPower;
 //                    else
                       if (iPower < (iPower_Bat-fPower_Grid))
