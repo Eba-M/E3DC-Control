@@ -4779,7 +4779,7 @@ if (e3dc_config.debug) printf("M6");
                     float f5 = iDayStat[x2+92]/(e3dc_config.speichergroesse*10*3600);
 
 //                    if (f2>0)
-                    printf(" %0.02f%% %0.02f%% %0.02f%% %0.02f%% %0.04f%%", f2,f3,f3*100/f2,f4,f5); // erwartete PV Ertrag
+                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5); // erwartete PV Ertrag
                 }
                 printf("%c[K\n", 27 );
 
