@@ -1461,9 +1461,10 @@ int LoadDataProcess() {
         
         iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
         iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
-        int x2 = (t_alt%(24*4*900))/900;
+        int x2 = (t%(24*4*900))/900;
         if (w.size() > 0)
         {
+            if (iDayStat[x2]==0)
             iDayStat[x2] = w[0].solar*100;
             iDayStat[x2+92] = iDayStat[x2+92]+ iPower_PV*(t-t_alt);
         }
