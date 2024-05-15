@@ -103,6 +103,8 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
 u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
+u_int32_t iDayStat[24*4*2]; // Tagesertragstatisik SOLL/IST Vergleich
+
 
 SunriseCalc * location;
 std::vector<ch_s> ch;  //charge hour
@@ -1459,6 +1461,12 @@ int LoadDataProcess() {
         
         iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
         iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
+        int x2 = (t_alt%(24*4*900))/900;
+        if (w.size() > 0)
+        {
+            iDayStat[x2] = w[0].solar*100;
+            iDayStat[x2+92] = iDayStat[x2+92]+ iPower_PV*(t-t_alt);
+        }
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (t_alt%(24*7*4*900))/900;
@@ -1477,6 +1485,17 @@ int LoadDataProcess() {
                     fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
+                char fname[100];
+                int day = t_alt%(24*3600*28)/24*3600;
+                sprintf(fname,"%s.%i.dar","PVStat",day);
+                pFile = fopen(fname,"wb");       // altes logfile löschen
+
+                if (pFile!=NULL)
+                {
+                    x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+
             }
         }
     }
@@ -4750,7 +4769,18 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
+                int x2 = (t%(24*4*900))/900;
+                if (x2 > 0)
+                {
+// Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
+                    float f2 = iDayStat[x2-1]/100.0;
+                    float f3 = iDayStat[x2-1+92]/(e3dc_config.speichergroesse*1000);
+                    float f4 = iDayStat[x2]/100.0;
+                    float f5 = iDayStat[x2+92]/(e3dc_config.speichergroesse*1000*3600);
 
+//                    if (f2>0)
+                    printf(" %0.02f%% %0.02f%% %0.02f%% %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5); // erwartete PV Ertrag
+                }
                 printf("%c[K\n", 27 );
 
 
@@ -4808,22 +4838,20 @@ static int iEC = 0;
 //            x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
-/*
-            float fdurchschnitt = 0;
-            float fleistung = 0;
-
-            for (int x2=0;x2<600;x2++)
-            for (int x1=0;x1<sizeof(iWeekhour)/sizeof(uint32_t);x1++)
-            {
-                fleistung = iWeekhour[x1]/900;
-                if (fleistung>2000||fleistung<1)  fleistung = iWeekhour[x1+92]/900;
-                if (fleistung>2000)  fleistung = 0;
-                if (iWeekhour[x1]>2000*900||iWeekhour[x1]<1)
-                    iWeekhour[x1]=fleistung*900;
-
-            }
-*/
         }
+        pFile = NULL;
+        char fname[100];
+        int day = t%(24*3600*28)/24*3600;
+        sprintf(fname,"%s.%i.dar","PVStat",day);
+        pFile = fopen(fname,"rb");       // altes logfile löschen
+
+        if (pFile!=NULL)
+        {
+            size_t x1 = sizeof(iDayStat);
+            x1 = fread (&iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
+
     }
     
         while(iEC < 10&&!e3dc_config.stop)
@@ -4908,6 +4936,17 @@ static int iEC = 0;
             fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
+        char fname[100];
+        int day = t%(24*3600*28)/24*3600;
+        sprintf(fname,"%s.%i.dar","PVStat",day);
+        pFile = fopen(fname,"wb");       // altes logfile löschen
+
+        if (pFile!=NULL)
+        {
+            x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
+
     }
 
     printf("Programm wirklich beendet\n");
