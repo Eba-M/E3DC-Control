@@ -4864,6 +4864,7 @@ static int iEC = 0;
         }
         pFile = NULL;
         char fname[100];
+        time(&t);
         int day = (t%(24*3600*28))/(24*3600);
         sprintf(fname,"%s.%i.dat","PVStat",day);
         pFile = fopen(fname,"rb");       // altes logfile löschen
@@ -4960,6 +4961,7 @@ static int iEC = 0;
             fclose (pFile);
         }
         char fname[100];
+        time(&t);
         int day = (t%(24*3600*28))/(24*3600);
         sprintf(fname,"%s.%i.dat","PVStat",day);
         pFile = fopen(fname,"wb");       // altes logfile löschen
