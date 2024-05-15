@@ -1479,24 +1479,24 @@ int LoadDataProcess() {
             
             char fname[100];
             int day = (t_alt%(24*3600*28))/(24*3600);
+            FILE * pFile;
+            sprintf(fname,"%s.%i.dat","PVStat",day);
+            pFile = fopen(fname,"wb");       // altes logfile löschen
             
+            if (pFile!=NULL)
+            {
+                x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+                fclose (pFile);
+            }
+
             if ((t_alt%(24*3600))>(t%(24*3600)))
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
                 iWeekhour[sizeweekhour+2] = 0;
-                FILE * pFile;
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
                 {
                     fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
-                    fclose (pFile);
-                }
-                sprintf(fname,"%s.%i.dat","PVStat",day);
-                pFile = fopen(fname,"wb");       // altes logfile löschen
-                
-                if (pFile!=NULL)
-                {
-                    x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
             }
