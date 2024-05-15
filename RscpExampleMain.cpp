@@ -1486,8 +1486,8 @@ int LoadDataProcess() {
                     fclose (pFile);
                 }
                 char fname[100];
-                int day = t_alt%(24*3600*28)/24*3600;
-                sprintf(fname,"%s.%i.dar","PVStat",day);
+                int day = (t_alt%(24*3600*28))/(24*3600);
+                sprintf(fname,"%s.%i.dat","PVStat",day);
                 pFile = fopen(fname,"wb");       // altes logfile löschen
 
                 if (pFile!=NULL)
@@ -4779,7 +4779,7 @@ if (e3dc_config.debug) printf("M6");
                     float f5 = iDayStat[x2+92]/(e3dc_config.speichergroesse*10*3600);
 
 //                    if (f2>0)
-                    printf(" %0.02f%% %0.02f%% %0.02f%% %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5); // erwartete PV Ertrag
+                    printf(" %0.02f%% %0.02f%% %0.02f%% %0.02f%% %0.04f%%", f2,f3,f3*100/f2,f4,f5); // erwartete PV Ertrag
                 }
                 printf("%c[K\n", 27 );
 
@@ -4841,8 +4841,8 @@ static int iEC = 0;
         }
         pFile = NULL;
         char fname[100];
-        int day = t%(24*3600*28)/24*3600;
-        sprintf(fname,"%s.%i.dar","PVStat",day);
+        int day = (t%(24*3600*28))/(24*3600);
+        sprintf(fname,"%s.%i.dat","PVStat",day);
         pFile = fopen(fname,"rb");       // altes logfile löschen
 
         if (pFile!=NULL)
@@ -4937,8 +4937,8 @@ static int iEC = 0;
             fclose (pFile);
         }
         char fname[100];
-        int day = t%(24*3600*28)/24*3600;
-        sprintf(fname,"%s.%i.dar","PVStat",day);
+        int day = (t%(24*3600*28))/(24*3600);
+        sprintf(fname,"%s.%i.dat","PVStat",day);
         pFile = fopen(fname,"wb");       // altes logfile löschen
 
         if (pFile!=NULL)
