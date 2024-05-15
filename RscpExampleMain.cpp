@@ -1461,11 +1461,13 @@ int LoadDataProcess() {
         
         iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
         iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
-        int x2 = (t%(24*4*900))/900;
-        if (w.size() > 0)
+        int x2 = (t_alt%(24*4*900))/900;
+        int x3 = t_alt%900;
+        if (w.size() > 1)
         {
-            if (iDayStat[x2]==0)
-            iDayStat[x2] = w[0].solar*100.0;
+//            if (iDayStat[x2]==0)
+            if ((w[1].hh)>t&&(w[0].hh<t))
+                iDayStat[x2] = (w[0].solar+0.005)*100;
             iDayStat[x2+96] = iDayStat[x2+96]+ iPower_PV*(t-t_alt);
         }
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
@@ -1492,6 +1494,10 @@ int LoadDataProcess() {
             if ((t_alt%(24*3600))>(t%(24*3600)))
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
+  // Tagestabelle iDayStat um Mitternacht löschen.
+                for(int x1=0;x1<sizeof(iDayStat)/sizeof(u_int32_t);x1++)
+                    iDayStat[x1]=0;
+                
                 iWeekhour[sizeweekhour+2] = 0;
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
@@ -1507,7 +1513,7 @@ int LoadDataProcess() {
                 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                 float f2 = iDayStat[x2-1]/100.0;
                 float f3 = iDayStat[x2-1+96]/(e3dc_config.speichergroesse*10*3600);
-                float f4 = (t_alt%(24*3600))/3600.0;
+                float f4 = (t%(24*3600))/3600.0;
 
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
@@ -4792,7 +4798,7 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
-                int x2 = (t_alt%(24*4*900))/900;
+                int x2 = (t%(24*4*900))/900;
                 if (x2 > 0)
                 {
 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
