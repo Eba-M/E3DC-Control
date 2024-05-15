@@ -1465,7 +1465,7 @@ int LoadDataProcess() {
         if (w.size() > 0)
         {
             if (iDayStat[x2]==0)
-            iDayStat[x2] = w[0].solar*100;
+            iDayStat[x2] = w[0].solar*100.0;
             iDayStat[x2+92] = iDayStat[x2+92]+ iPower_PV*(t-t_alt);
         }
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
@@ -1476,7 +1476,12 @@ int LoadDataProcess() {
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
             iWeekhour[sizeweekhour+1] = 0;
+            
+            char fname[100];
+            int day = (t_alt%(24*3600*28))/(24*3600);
+            
             if ((t_alt%(24*3600))>(t%(24*3600)))
+                //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
                 iWeekhour[sizeweekhour+2] = 0;
                 FILE * pFile;
@@ -1486,17 +1491,34 @@ int LoadDataProcess() {
                     fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
-                char fname[100];
-                int day = (t_alt%(24*3600*28))/(24*3600);
                 sprintf(fname,"%s.%i.dat","PVStat",day);
                 pFile = fopen(fname,"wb");       // altes logfile löschen
-
+                
                 if (pFile!=NULL)
                 {
                     x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
+            }
+            
+            // alle 15min wird diese Routine durchlaufen
+            if (iDayStat[x2]+iDayStat[x2+92]>0)
+            {
+                // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
+                float f2 = iDayStat[x2-1]/100.0;
+                float f3 = iDayStat[x2-1+92]/(e3dc_config.speichergroesse*10*3600);
+                float f4 = (t_alt%(24*3600))/3600.0;
 
+                sprintf(fname,"Ertrag.%i.txt",day);
+                fp = fopen(fname, "a");
+                if(!fp)
+                    fp = fopen(fname, "w");
+                if(fp)
+                {
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f\n",f4,f2,f3,f3/f2);
+                    fclose(fp);
+                }
+                
             }
         }
     }
