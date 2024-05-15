@@ -4769,14 +4769,14 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
-                int x2 = (t%(24*4*900))/900;
+                int x2 = (t_alt%(24*4*900))/900;
                 if (x2 > 0)
                 {
 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                     float f2 = iDayStat[x2-1]/100.0;
-                    float f3 = iDayStat[x2-1+92]/(e3dc_config.speichergroesse*1000);
+                    float f3 = iDayStat[x2-1+92]/(e3dc_config.speichergroesse*10*3600);
                     float f4 = iDayStat[x2]/100.0;
-                    float f5 = iDayStat[x2+92]/(e3dc_config.speichergroesse*1000*3600);
+                    float f5 = iDayStat[x2+92]/(e3dc_config.speichergroesse*10*3600);
 
 //                    if (f2>0)
                     printf(" %0.02f%% %0.02f%% %0.02f%% %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5); // erwartete PV Ertrag
