@@ -1463,17 +1463,18 @@ int LoadDataProcess() {
         iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
+        static int myt_alt;
         if (w.size() > 0)
         {
 //            if (iDayStat[x2]==0)
-            if (w[0].hh<t_alt)
+            if (w[0].hh<myt_alt)
                 iDayStat[x2] = (w[0].solar+0.005)*100;
-            iDayStat[x2+96] = iDayStat[x2+96]+ iPower_PV*(t-t_alt);
+            iDayStat[x2+96] = iDayStat[x2+96]+ iPower_PV*(t-myt_alt);
         }
-        if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
+        if ((myt_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
             iDayStat[x2+96] = iPower_PV*(t-t_alt);
-            int x1 = (t_alt%(24*7*4*900))/900;
+            int x1 = (myt_alt%(24*7*4*900))/900;
             if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
@@ -1481,7 +1482,7 @@ int LoadDataProcess() {
             iWeekhour[sizeweekhour+1] = 0;
             
             char fname[100];
-            int day = (t_alt%(24*3600*28))/(24*3600);
+            int day = (myt_alt%(24*3600*28))/(24*3600);
             FILE * pFile;
             sprintf(fname,"%s.%i.dat","PVStat",day);
             pFile = fopen(fname,"wb");       // altes logfile löschen
@@ -1492,7 +1493,7 @@ int LoadDataProcess() {
                 fclose (pFile);
             }
 
-            if ((t_alt%(24*3600))>(t%(24*3600)))
+            if ((myt_alt%(24*3600))>(t%(24*3600)))
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
   // Tagestabelle iDayStat um Mitternacht löschen.
@@ -1514,7 +1515,7 @@ int LoadDataProcess() {
                 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                 float f2 = iDayStat[x2-1]/100.0;
                 float f3 = iDayStat[x2-1+96]/(e3dc_config.speichergroesse*10*3600);
-                float f4 = (t%(24*3600))/3600.0;
+                float f4 = (myt_alt%(24*3600))/3600.0;
 
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
@@ -1527,7 +1528,9 @@ int LoadDataProcess() {
                 }
                 
             }
+           
         }
+        myt_alt = t;
     }
     
     if (fDCDC > high.fah) {
