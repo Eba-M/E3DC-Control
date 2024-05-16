@@ -1762,11 +1762,15 @@ int LoadDataProcess() {
                     float f1 = t%(24*3600)/3600.0;
                     if (temp[17]==0&&               // Wenn Pelletskessel aus
                         (e3dc_config.WPHK2off>e3dc_config.WPHK2on)
-                        &&(f1>e3dc_config.WPHK2off||f1<e3dc_config.WPHK2on))
+                        &&
+                        (f1>e3dc_config.WPHK2off||f1<e3dc_config.WPHK2on)
+                        )
                         bHK2off |= 1;
                     if (temp[17]==0&&           // Wenn Pelletskessel aus
                         (e3dc_config.WPHK2off<e3dc_config.WPHK2on)
-                        &&(f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on))
+                        &&
+                        (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
+                        )
                         bHK2off |= 1;
                     
                     if  (
@@ -1852,7 +1856,7 @@ int LoadDataProcess() {
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° über der HK2 liegt.
 
-                     (temp[7]>0&&temp[10]>temp[11]+10&&temp[14]<(temp[11]+20))
+                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[11]+20))
 //                    ||
 //                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
