@@ -1461,17 +1461,18 @@ int LoadDataProcess() {
         
         iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
         iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
-        int x2 = (t_alt%(24*4*900))/900;
-        int x3 = t_alt%900;
-        if (w.size() > 1)
+        int x2 = (t%(24*4*900))/900;
+        int x3 = t%900;
+        if (w.size() > 0)
         {
 //            if (iDayStat[x2]==0)
-            if ((w[1].hh)>t&&(w[0].hh<t))
+            if (w[0].hh<t_alt)
                 iDayStat[x2] = (w[0].solar+0.005)*100;
             iDayStat[x2+96] = iDayStat[x2+96]+ iPower_PV*(t-t_alt);
         }
         if ((t_alt%900)>(t%900)) // Verbrauchwerte alle 15min erfassen
         {
+            iDayStat[x2+96] = iPower_PV*(t-t_alt);
             int x1 = (t_alt%(24*7*4*900))/900;
             if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
