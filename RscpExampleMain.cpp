@@ -1621,7 +1621,12 @@ int LoadDataProcess() {
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
-            if (temp[17]==1&&(temp[19]==4||(temp[18]>400&&temp[19]<99))) // Kessel an + Leistungsbrand
+            if 
+                (temp[17]==1&&
+                    (temp[19]==4||
+                        (temp[18]>400)
+                )
+            ) // Kessel an + Leistungsbrand
             {
                 // LWWP ausschalten wenn der Pelletskessel läuft
                 // und keine Anforderungen anliegen
@@ -1774,7 +1779,7 @@ int LoadDataProcess() {
                         )
                         bHK2off |= 1;
                     printf("%c[K\n", 27 );
-                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, tasmota_status[0],myiLength,iLength);
+                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],myiLength,iLength);
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
