@@ -698,9 +698,10 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
         x3 = atoi(value);
     }
 
-   if (x1>0&&x2>0&&x3>0)
+   if (x3>0)
       {
-
+          if (e3dc.debug)
+              printf("om.1");
           sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
 
           fp = NULL;
@@ -714,11 +715,17 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     
     
         int timeout = 0;
-        while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
+          if (e3dc.debug)
+              printf("om.2");
+
+          while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
         {
             sleep(1);
             timeout++;
         }
+          if (e3dc.debug)
+              printf("om.3");
+
           if (timeout >= 30)
           {
               if (fp!=NULL) pclose(fp);
@@ -778,6 +785,9 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             if (fp!=NULL) pclose(fp);
         }
     }
+    if (e3dc.debug)
+        printf("om.5");
+
     return;
 }
             
