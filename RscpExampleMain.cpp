@@ -1714,7 +1714,7 @@ int LoadDataProcess() {
   
                 if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
                 {
-                        
+                    
                     if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
                         (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
@@ -1727,25 +1727,25 @@ int LoadDataProcess() {
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                     }
-// Überprüfen ob die Solltemperatur der FBH bei PV-Ertragsmangel heruntergesetzt werden muss
-
+                    // Überprüfen ob die Solltemperatur der FBH bei PV-Ertragsmangel heruntergesetzt werden muss
+                    
                     if ( t-HK1_t>60 &&
                         (
-// Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
-
+                         // Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
+                         
                          (bHK1off ||m1 > (sunsetAt+60) || (PVon<(-iMinLade/4)&&temp[14]<(temp[4]+50)))
-                          &&
+                         &&
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
-                          )
-                         || 
+                           )
+                          ||
                           (
                            (temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max)
                            )
-                         )
+                          )
                          
+                         )
                         )
-                    )
                     {
                         if ((temp[2]-5)>= e3dc_config.WPHK1*10)
                             iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
@@ -1755,7 +1755,7 @@ int LoadDataProcess() {
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                     }
-                    
+                }
                     // HK2 zwischen WPHK2off und WPHK2on ausschalten
                     if  (bHK2off&1)
                         bHK2off ^= 1;
@@ -1799,7 +1799,7 @@ int LoadDataProcess() {
                     
                     
                     
-                }
+                
             }
 // Steuerung LWWP über shelly 0-10V
             
