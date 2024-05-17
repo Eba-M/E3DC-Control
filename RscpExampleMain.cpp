@@ -2459,7 +2459,7 @@ bDischarge = false;
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
     if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende)
     {
-        if (fBatt_SOC<fLadeende-1)
+        if (fBatt_SOC<fLadeende-1||t<tLadezeitende3)
         {
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
