@@ -838,7 +838,7 @@ bool GetConfig()
 int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
-long iLength;
+long iLength,myiLength;
 const char * relay_ip;
 //const char * cmd;
 static std::vector<uint8_t> send;
@@ -1010,6 +1010,7 @@ int iModbusTCP()
                 
                 {
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
+                    myiLength = iLength;
                 }
             }
         }
@@ -1773,7 +1774,7 @@ int LoadDataProcess() {
                         )
                         bHK2off |= 1;
                     printf("%c[K\n", 27 );
-                    printf(" T%0.4f %0.2f %0.2f %1i %1i %1i ",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, tasmota_status[0]);
+                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, tasmota_status[0],myiLength,iLength);
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
