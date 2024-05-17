@@ -2035,7 +2035,7 @@ int LoadDataProcess() {
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
-                fPVSoll = fPVdirect*2+(-fBatt_SOC+fLadeende2)*2+20;
+                fPVSoll = fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*3+10;
                 break;
             }
         }
@@ -2459,7 +2459,7 @@ bDischarge = false;
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
     if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende)
     {
-        if (fBatt_SOC<fLadeende-1||t<tLadezeitende3)
+        if (fBatt_SOC<fLadeende-1||(t<tLadezeitende3&&fBatt_SOC<fLadeende2-1))
         {
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
