@@ -2467,8 +2467,11 @@ bDischarge = false;
             if (iFc < iMinLade*e3dc_config.powerfaktor)
                 iFc = iMinLade*e3dc_config.powerfaktor;
         } else {
-            iMinLade = 0;
-            iFc = 0;
+            if (fBatt_SOC<fLadeende||(t<tLadezeitende3&&fBatt_SOC<e3dc_config.ladeende))
+            {
+                iMinLade = 0;
+                iFc = 0;
+            }
             //            iBattLoad = e3dc_config.maximumLadeleistung*.5;
         }
     }
