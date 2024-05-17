@@ -25,6 +25,7 @@
 #include <vector>
 #include "cJSON.h"
 #include <fcntl.h>
+#include <thread>
 
 //typedef struct {int hh; float pp;}watt_s;
 
@@ -659,7 +660,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
 }
 int fp_status = -1;  //
 
-void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t e3dc,int anlage)
+void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage)
 {
     FILE * fp;
     char line[256];
@@ -713,12 +714,16 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     
     
         int timeout = 0;
-        while (fgets(path, 65000, fp) == NULL&&timeout < 30)
+        while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
         {
             sleep(1);
             timeout++;
         }
-        if (timeout >= 30) return;
+          if (timeout >= 30)
+          {
+              if (fp!=NULL) pclose(fp);
+              return;
+          }
         {
             const cJSON *item = NULL;
             const cJSON *item1 = NULL;
@@ -773,7 +778,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             if (fp!=NULL) pclose(fp);
         }
     }
-        
+    return;
 }
             
 void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
@@ -1082,8 +1087,11 @@ if (wetter.size()==0) return;
 if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
-    for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++)
-    openmeteo(w,wetter, e3dc, j);
+    for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++){
+
+//        std::thread  t1(openmeteo(w,wetter, e3dc, j));
+        openmeteo(w,wetter, e3dc, j);
+    }
 }
 else
         

@@ -2459,7 +2459,7 @@ bDischarge = false;
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
     if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende)
     {
-        if (fBatt_SOC<fLadeende-1||(t<tLadezeitende3&&fBatt_SOC<fLadeende2-1))
+        if (fBatt_SOC<fLadeende-1||(t<tLadezeitende3&&fBatt_SOC<e3dc_config.ladeende-1))
         {
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
@@ -2467,7 +2467,10 @@ bDischarge = false;
             if (iFc < iMinLade*e3dc_config.powerfaktor)
                 iFc = iMinLade*e3dc_config.powerfaktor;
         } else {
-            iBattLoad = e3dc_config.maximumLadeleistung*.5;}
+            iMinLade = 0;
+            iFc = 0;
+            //            iBattLoad = e3dc_config.maximumLadeleistung*.5;
+        }
     }
     
     
@@ -3061,7 +3064,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             case 3:
 
 //                iPower = iPower_Bat-fPower_Grid-iRefload;
-                iPower = -fPower_Grid;
+                iPower = -fPower_Grid*2;
                 if (iFc>iRefload) iRefload = (iRefload+iFc)/2;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
