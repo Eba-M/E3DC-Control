@@ -3073,7 +3073,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
-                if (iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
+//                if (iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
                 break;
             case 4:
 
