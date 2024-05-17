@@ -917,8 +917,9 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
     return iLength;
 }
-static int bWP = 0;
+
 static int dummy[100];
+static int bWP = 0;
 static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK1off = 0;
 
