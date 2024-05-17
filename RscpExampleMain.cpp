@@ -1621,7 +1621,7 @@ int LoadDataProcess() {
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
-            if (temp[17]==1&&(temp[19]==4||temp[18]>400)) // Kessel an + Leistungsbrand
+            if (temp[17]==1&&(temp[19]==4||(temp[18]>400&&temp[19]<99))) // Kessel an + Leistungsbrand
             {
                 // LWWP ausschalten wenn der Pelletskessel läuft
                 // und keine Anforderungen anliegen
@@ -3073,7 +3073,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
-//                if (iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
+                if (iMinLade > 100&&iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
                 break;
             case 4:
 
