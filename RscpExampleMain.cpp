@@ -1772,7 +1772,8 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
-                    printf(" T%0.4f %0.2f %0.2f %2i",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off);
+                    printf("%c[K\n", 27 );
+                    printf(" T%0.4f %0.2f %0.2f %1i %1i %1i ",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, tasmota_status[0]);
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
