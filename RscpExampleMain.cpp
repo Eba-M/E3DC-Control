@@ -1293,6 +1293,8 @@ int wolfstatus()
         }
         if (fgets(path, 4096, fp) != NULL)
         {
+            if (e3dc_config.debug) printf("Wo2");
+
             const cJSON *item = NULL;
             cJSON *wolf_json = cJSON_Parse(path);
             wolf_t = now;
