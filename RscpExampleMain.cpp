@@ -938,19 +938,13 @@ int iModbusTCP()
         if (isocket < 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
-            if (e3dc_config.debug)
-                printf("SC");
             isocket = SocketConnect(server_ip, 502);
-            if (e3dc_config.debug)
-                printf("PSC");
             ret = 0;
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
         {
             brequest = true;
             tlast = now;
-            if (e3dc_config.debug)
-                printf("SE");
             send.resize(12);
             if (e3dc_config.debug)
                 printf("RV");
@@ -1020,7 +1014,11 @@ int iModbusTCP()
             {
                 
                 {
+                    if (e3dc_config.debug)
+                        printf("BGE");
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
+                    if (e3dc_config.debug)
+                        printf("AGE");
                     myiLength = iLength;
                 }
             }
