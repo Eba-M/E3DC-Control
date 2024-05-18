@@ -1100,6 +1100,8 @@ if (e3dc.openmeteo)
     for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++){
 
 //        std::thread  t1(openmeteo(w,wetter, e3dc, j));
+
+        if (e3dc.debug) printf("openmeteo%i",j);
         openmeteo(w,wetter, e3dc, j);
     }
 }
