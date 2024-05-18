@@ -938,16 +938,26 @@ int iModbusTCP()
         if (isocket < 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
+            if (e3dc_config.debug)
+                printf("SC");
             isocket = SocketConnect(server_ip, 502);
+            if (e3dc_config.debug)
+                printf("PSC");
             ret = 0;
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
         {
             brequest = true;
             tlast = now;
+            if (e3dc_config.debug)
+                printf("SE");
             send.resize(12);
+            if (e3dc_config.debug)
+                printf("RV");
             receive.resize(1024);
-  
+            if (e3dc_config.debug)
+                printf("ARV");
+
 // Heizkreise schalten in Abhängigkeit vom EVU und Status des jeweiligen heizkreis
 // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
 // Wenn WP oder oekofen laufen Heizkreise einschalten
