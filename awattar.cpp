@@ -954,13 +954,13 @@ int ladedauer = 0;
     if (
         oldhour == 0
         ||
-        ((rawtime-oldhour)>=3600&&ptm->tm_min==0)
+        ((rawtime-oldhour)>=3600&&ptm->tm_min==1) // erst eine Minute später
         ||
-        ((ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<12))
-        || 
-        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==0)
+        ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
-        (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==0)&&(ptm->tm_sec==0)&&(w.size()<48))
+        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==1)
+        ||
+        (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<48))
         ||
         (w.size()==0)
         )
