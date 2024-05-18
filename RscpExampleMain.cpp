@@ -950,7 +950,7 @@ int iModbusTCP()
     Modbus_send Msend;
     if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
-        if (isocket < 0)
+        if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
             if (e3dc_config.debug)
@@ -1486,7 +1486,8 @@ int LoadDataProcess() {
         int ret = wolfstatus();
     time (&t);
     
-    
+    if (e3dc_config.debug) printf("D1a");
+
     mqtt();
     
     if (e3dc_config.debug) printf("D2");
@@ -4807,6 +4808,8 @@ static void mainLoop(void)
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
+            if (e3dc_config.debug) printf("M3a");
+
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             WBProcess(&frameBuffer);
             if (e3dc_config.debug) printf("M4");

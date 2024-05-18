@@ -185,7 +185,7 @@ void SocketClose(int iSocket)
 int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength)
 {
     // sanity check
-    if(iSocket < 0) {
+    if(iSocket <= 0) {
         return iSocket;
     }
 
@@ -206,7 +206,7 @@ int SocketSendData(int iSocket, const unsigned char * ucBuffer, int iLength)
 int SocketRecvData(int iSocket, unsigned char * ucBuffer, int iLength)
 {
     // sanity check
-    if(iSocket < 0) {
+    if(iSocket <= 0) {
         return iSocket;
     }
 
