@@ -888,8 +888,16 @@ int iModbusTCP_Set(int reg,int val,int tac)
     Msend.Count = (val%256)*256; // Inhalt    int size = send.size();
     Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
     memcpy(&send[0],&Msend,send.size());
+    if (e3dc_config.debug)
+        printf("BSE");
+
     iLength = SocketSendData(isocket,&send[0],send.size());
+    if (e3dc_config.debug)
+        printf("BRC");
+
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
+    if (e3dc_config.debug)
+        printf("ARC");
 
     return iLength;
 }
@@ -913,8 +921,15 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
 
     memcpy(&send[0],&Msend,send.size());
+    if (e3dc_config.debug)
+        printf("BRQ");
+
     iLength = SocketSendData(isocket,&send[0],send.size());
+    if (e3dc_config.debug)
+        printf("BRCV");
     iLength = SocketRecvData(isocket,&receive[0],receive.size());
+    if (e3dc_config.debug)
+        printf("ARCV");
     return iLength;
 }
 
@@ -938,7 +953,13 @@ int iModbusTCP()
         if (isocket < 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
+            if (e3dc_config.debug)
+                printf("BSC");
+
             isocket = SocketConnect(server_ip, 502);
+            if (e3dc_config.debug)
+                printf("ASC");
+
             ret = 0;
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
