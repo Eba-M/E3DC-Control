@@ -1173,6 +1173,7 @@ int wolfstatus()
 {
     time_t now;
     time(&now);
+    static time_t wolf_t;
     //           Test zur Abfrage des Tesmota Relais
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
@@ -1252,12 +1253,20 @@ int wolfstatus()
             flags |= O_NONBLOCK;
             fcntl(fd, F_SETFL, flags);
             WP_status = 2;
+            wolf_t = now;
+        }
+        if (now-wolf_t > 900)
+        {
+            if (fp != NULL)
+                status = pclose(fp);
+            fp = NULL;
+            WP_status = 1;
         }
         if (fgets(path, 4096, fp) != NULL)
         {
             const cJSON *item = NULL;
             cJSON *wolf_json = cJSON_Parse(path);
-        
+            wolf_t = now;
             for(int x1=0;x1<wolf.size();x1++)
             {
                 char * c = &wolf[x1].feld[0];
@@ -1779,8 +1788,11 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
+                if (e3dc_config.debug)
+                {
                     printf("%c[K\n", 27 );
                     printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],myiLength,iLength);
+                }
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
