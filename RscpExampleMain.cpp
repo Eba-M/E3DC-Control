@@ -1284,7 +1284,7 @@ int wolfstatus()
             WP_status = 2;
             wolf_t = now;
         }
-        if (now-wolf_t > 300)
+        if (now-wolf_t > 150)
         {
             if (e3dc_config.debug) printf("Wo1b");
             if (fp != NULL)
