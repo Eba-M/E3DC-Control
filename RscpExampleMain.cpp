@@ -1193,7 +1193,7 @@ static char buf[127];
 static int WP_status = -1;
 int status,vdstatus;
 std::string sverdichterstatus;
-char path[4096];
+static char path[4096];
 wolf_s wo;
 static int ALV = -1;
 
@@ -1291,6 +1291,7 @@ int wolfstatus()
             fp = NULL;
             WP_status = 1;
         }
+        if (e3dc_config.debug) printf("Wo1");
         if (fgets(path, 4096, fp) != NULL)
         {
             if (e3dc_config.debug) printf("Wo2");
@@ -1483,7 +1484,7 @@ int LoadDataProcess() {
     
     // Speicher SoC selbst berechnen
     // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
-    if (e3dc_config.debug) printf("D1");
+    if (e3dc_config.debug) printf("D1%1",t);
     if (e3dc_config.WPWolf)
         int ret = wolfstatus();
     time (&t);
