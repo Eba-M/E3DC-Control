@@ -1275,7 +1275,7 @@ int wolfstatus()
                 
                 
             fp = NULL;
-           sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/# -c -i 11",e3dc_config.mqtt_ip);
+           sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/#",e3dc_config.mqtt_ip);
             fp = popen(buf, "r");
             int fd = fileno(fp);
             int flags = fcntl(fd, F_GETFL, 0);
