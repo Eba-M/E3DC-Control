@@ -1484,7 +1484,7 @@ int LoadDataProcess() {
     
     // Speicher SoC selbst berechnen
     // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
-    if (e3dc_config.debug) printf("D1%1",t);
+    if (e3dc_config.debug) printf("D1%i2",t%60);
     if (e3dc_config.WPWolf)
         int ret = wolfstatus();
     time (&t);
