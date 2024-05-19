@@ -1295,7 +1295,7 @@ int wolfstatus()
         if (e3dc_config.debug) printf("Wo1");
         if (fp != NULL)
         {
-            if (e3dc_config.debug) printf("Wo1a");
+            if (e3dc_config.debug) printf("Wo%i",now-wolf_t);
 
             if (fgets(path, 4096, fp) != NULL)
             {
