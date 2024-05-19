@@ -3005,6 +3005,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  */
 
     if (iWBStatus == 0)  {
+        if (e3dc_config.debug) printf("WB1");
 
         iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
         
@@ -3219,6 +3220,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 break;
 // Auswertung
         }
+        if (e3dc_config.debug) printf("WB2");
 
 // im Sonnenmodus nur bei PV-Produktion regeln
         if (iPower > e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
@@ -3317,7 +3319,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[4] = 1; // Laden starten
                     bWBLademodusSave=bWBLademodus;    //Sonne = true
                     bWBLademodus = false;  // Netz
+                    if (e3dc_config.debug) printf("WB4");
                     createRequestWBData(frameBuffer);
+                    if (e3dc_config.debug) printf("WB5");
+
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
                     return(0);
@@ -3367,7 +3372,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
             if ((WBchar6[1]<e3dc_config.wbmaxladestrom)&&(fBatt_SOC>(cMinimumladestand+2))) {
                 WBchar6[1]=e3dc_config.wbmaxladestrom;
+                if (e3dc_config.debug) printf("WB6");
+
                 createRequestWBData(frameBuffer);
+                if (e3dc_config.debug) printf("WB7");
+
                 WBChar_alt = WBchar6[1];
                 }
         }
@@ -3379,7 +3388,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 bWBChanged = false;
                 WBchar6[1] = 7;  // Laden von 6A aus
                 WBchar6[4] = 0; // Toggle aus
+                if (e3dc_config.debug) printf("WB8");
+
                 createRequestWBData(frameBuffer);
+                if (e3dc_config.debug) printf("WB9");
+
                 WBChar_alt = WBchar6[1];
 
 
@@ -3394,7 +3407,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBchar6[1] = 30;
                 iWBSoll = 30;
                 WBchar6[4] = 1; // Laden starten
+                if (e3dc_config.debug) printf("WB10");
+
                 createRequestWBData(frameBuffer);
+                if (e3dc_config.debug) printf("WB11");
+
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 30;
@@ -3412,7 +3429,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[1] = 6;  // Laden von 6A aus
                             WBchar6[4] = 1; // Laden starten
                             bWBOn = true;
+                        if (e3dc_config.debug) printf("WB12");
+
                         createRequestWBData(frameBuffer);
+                        if (e3dc_config.debug) printf("WB13");
+
                         WBchar6[4] = 0; // Toggle aus
                         WBChar_alt = WBchar6[1];
                         iWBStatus = 30;
@@ -3421,7 +3442,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         {
                             WBchar6[1] = 6;  // Laden von 6A aus
                             WBchar6[4] = 0; // Toggle aus
+                            if (e3dc_config.debug) printf("WB14");
+
                             createRequestWBData(frameBuffer);
+                            if (e3dc_config.debug) printf("WB15");
+
                             WBChar_alt = WBchar6[1];
                         }
                 }
@@ -3448,7 +3473,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                WBchar[2] = WBchar6[1];
                 if (icurrent == 6&&WBchar6[1]>16)
                     WBchar6[1] = 16;
+                if (e3dc_config.debug) printf("WB16");
+
                 createRequestWBData(frameBuffer);
+                if (e3dc_config.debug) printf("WB17");
+
                 WBChar_alt = WBchar6[1];
                 if ((icurrent <=16)&&WBchar6[1]>16)
                 iWBStatus = 30;
@@ -3464,8 +3493,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
                 WBchar[2] = WBchar6[1];
 //                createRequestWBData2(frameBuffer);
+                      if (e3dc_config.debug) printf("WB18");
 
                 createRequestWBData(frameBuffer);
+                      if (e3dc_config.debug) printf("WB19");
+
                 if (WBchar6[1]==6)
                     iWBStatus = 30;
                 WBChar_alt = WBchar6[1];
@@ -3492,7 +3524,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             WBchar6[4] = 1;
                             bWBOn = false;
                         } // Laden beenden
+                    if (e3dc_config.debug) printf("WB20");
+
                         createRequestWBData(frameBuffer);
+                    if (e3dc_config.debug) printf("WB21");
+
                     WBchar6[1]=5;
                     WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
@@ -4813,7 +4849,10 @@ static void mainLoop(void)
             if (e3dc_config.debug) printf("M3a");
 
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
-            WBProcess(&frameBuffer);
+            {
+                if (e3dc_config.debug) printf("M3b");
+                WBProcess(&frameBuffer);
+            }
             if (e3dc_config.debug) printf("M4");
 
             if(frameBuffer.dataLength == 0)
