@@ -1329,9 +1329,10 @@ int wolfstatus()
                 
             }
         }
-        if (WP_status < 2)
+        if (fp == NULL) WP_status = 1;
 //            status = pclose(fp);
         return WP_status;
+        
 }
     return 0;
 }
