@@ -102,8 +102,8 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
-u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
-u_int32_t iDayStat[24*4*2]; // Tagesertragstatisik SOLL/IST Vergleich
+static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
+static u_int32_t iDayStat[24*4*2]; // Tagesertragstatisik SOLL/IST Vergleich
 
 
 SunriseCalc * location;
