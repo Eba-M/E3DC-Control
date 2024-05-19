@@ -3536,10 +3536,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }}
     }
         }}
+    if (e3dc_config.debug) printf("WB22");
     printf("%c[K\n", 27 );
+    if (e3dc_config.debug) printf("WB23");
     printf("AVal %0i/%01i/%01i Power %0i WBMode %0i ", iAvalPower,iPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
     printf("iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
+    if (e3dc_config.debug) printf("WBend");
 return 0;
 }
 
