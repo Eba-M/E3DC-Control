@@ -1286,42 +1286,48 @@ int wolfstatus()
         }
         if (now-wolf_t > 900)
         {
+            if (e3dc_config.debug) printf("Wo1b");
             if (fp != NULL)
                 status = pclose(fp);
             fp = NULL;
             WP_status = 1;
         }
         if (e3dc_config.debug) printf("Wo1");
-        if (fgets(path, 4096, fp) != NULL)
+        if (fp != NULL)
         {
-            if (e3dc_config.debug) printf("Wo2");
+            if (e3dc_config.debug) printf("Wo1a");
 
-            const cJSON *item = NULL;
-            cJSON *wolf_json = cJSON_Parse(path);
-            wolf_t = now;
-            for(int x1=0;x1<wolf.size();x1++)
+            if (fgets(path, 4096, fp) != NULL)
             {
-                char * c = &wolf[x1].feld[0];
-                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-                if (item != NULL)
+                if (e3dc_config.debug) printf("Wo2");
+                
+                const cJSON *item = NULL;
+                cJSON *wolf_json = cJSON_Parse(path);
+                wolf_t = now;
+                for(int x1=0;x1<wolf.size();x1++)
                 {
-                    wolf[x1].wert = item->valuedouble;
-                    wolf[x1].t = now;
-                    if (item->valuestring!= NULL)
-                    wolf[x1].status = item->valuestring;
-                    
-                    if ((wolf[x1].feld=="Verdichterstatus")||
-                        (wolf[x1].feld=="Betriebsart Heizgerät"))
+                    char * c = &wolf[x1].feld[0];
+                    item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                    if (item != NULL)
                     {
-                        item = item->child;
-                        item = item->next;
-                        wolf[x1].status = item->valuestring;
+                        wolf[x1].wert = item->valuedouble;
+                        wolf[x1].t = now;
+                        if (item->valuestring!= NULL)
+                            wolf[x1].status = item->valuestring;
+                        
+                        if ((wolf[x1].feld=="Verdichterstatus")||
+                            (wolf[x1].feld=="Betriebsart Heizgerät"))
+                        {
+                            item = item->child;
+                            item = item->next;
+                            wolf[x1].status = item->valuestring;
+                        }
                     }
                 }
-            }
-            
-            cJSON_Delete(wolf_json);
                 
+                cJSON_Delete(wolf_json);
+                
+            }
         }
         if (WP_status < 2)
 //            status = pclose(fp);
