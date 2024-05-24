@@ -1188,7 +1188,7 @@ int iRelayEin(const char * cmd)
   }
     return receive[0];
 }
-FILE *fp;
+FILE *wolf_fp;
 static char buf[127];
 static int WP_status = -1;
 int status,vdstatus;
@@ -1207,7 +1207,7 @@ int wolfstatus()
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0&&e3dc_config.WPWolf)
     {
         
- 
+        
         if (WP_status < 2)
         {
             if (wolf.size()==0)
@@ -1219,10 +1219,10 @@ int wolfstatus()
                 wo.AK = "VL";
                 wpvl = wolf.size();
                 wolf.push_back(wo);
-/*                wo.feld = "Sammlertemperatur";
-                wo.AK = "ST";
-                wolf.push_back(wo);
-*/                wo.feld = "Kesseltemperatur";
+                /*                wo.feld = "Sammlertemperatur";
+                 wo.AK = "ST";
+                 wolf.push_back(wo);
+                 */                wo.feld = "Kesseltemperatur";
                 wo.AK = "KT";
                 wpkt = wolf.size();
                 wolf.push_back(wo);
@@ -1272,12 +1272,12 @@ int wolfstatus()
                 vdstatus = wolf.size();
                 wolf.push_back(wo);
             }
-                
-                
-            fp = NULL;
-           sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/#",e3dc_config.mqtt_ip);
-            fp = popen(buf, "r");
-            int fd = fileno(fp);
+            
+            
+            wolf_fp = NULL;
+            sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/#",e3dc_config.mqtt_ip);
+            wolf_fp = popen(buf, "r");
+            int fd = fileno(wolf_fp);
             int flags = fcntl(fd, F_GETFL, 0);
             flags |= O_NONBLOCK;
             fcntl(fd, F_SETFL, flags);
@@ -1286,18 +1286,19 @@ int wolfstatus()
         }
         if (now-wolf_t > 150)
         {
-            if (e3dc_config.debug) printf("Wo1b");
-            if (fp != NULL)
-                status = pclose(fp);
-            fp = NULL;
+            if (e3dc_config.debug) printf("Wo1b\n");
+            if (wolf_fp != NULL)
+                status = pclose(wolf_fp);
+            wolf_fp = NULL;
             WP_status = 1;
         }
-        if (e3dc_config.debug) printf("Wo1");
-        if (fp != NULL)
+        if (e3dc_config.debug) printf("Wo1\n");
+        if (wolf_fp != NULL)
         {
-            if (e3dc_config.debug) printf("Wo%i",now-wolf_t);
-
-            if (fgets(path, 4096, fp) != NULL)
+//            if (e3dc_config.debug)
+                printf("Wo%i",now-wolf_t);
+            
+            while (fgets(path, 4096, wolf_fp) != NULL)
             {
                 if (e3dc_config.debug) printf("Wo2");
                 
@@ -1329,11 +1330,12 @@ int wolfstatus()
                 
             }
         }
-        if (fp == NULL) WP_status = 1;
+    }
+        if (wolf_fp == NULL) WP_status = 1;
 //            status = pclose(fp);
         return WP_status;
         
-}
+
     return 0;
 }
 
@@ -1567,7 +1569,7 @@ int LoadDataProcess() {
                 float f2 = iDayStat[x2-1]/100.0;
                 float f3 = iDayStat[x2-1+96]/(e3dc_config.speichergroesse*10*3600);
                 float f4 = (myt_alt%(24*3600))/3600.0;
-
+                FILE *fp;
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
                 if(!fp)
