@@ -1276,11 +1276,18 @@ int wolfstatus()
             
             wolf_fp = NULL;
             sprintf(buf,"mosquitto_sub -h %s -t Wolf/+/#",e3dc_config.mqtt_ip);
+//            if (e3dc_config.debug)
+            printf("Wo0a");
             wolf_fp = popen(buf, "r");
+//            if (e3dc_config.debug)
+            printf("Wo0b");
             int fd = fileno(wolf_fp);
             int flags = fcntl(fd, F_GETFL, 0);
             flags |= O_NONBLOCK;
             fcntl(fd, F_SETFL, flags);
+//            if (e3dc_config.debug)
+            printf("Wo0c");
+
             WP_status = 2;
             wolf_t = now;
         }
@@ -4032,7 +4039,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 fPower_Bat = fVoltage*fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 if (e3dc_config.statistik)
-                    printf(" %0.04fkWh",iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                {
+                    int x1 = (t_alt%(24*7*4*900))/900;
+                    int x2 = (t_alt%(24*7*4*900))/900;
+                    int x3 = (t_alt%(24*7*4*900))/900;
+                    if (x1 == 0) x1 = dayhour-1; else x1--;
+                    if (x3 == dayhour) x3 = 0; else x3++;
+                    printf(" %0.04f %0.04f %0.04f %0.04fkWh",iWeekhour[x1]/3600000.0,iWeekhour[x2]/3600000.0,iWeekhour[x3]/3600000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                }
                 printf("%c[K\n", 27 );
 
                 break;
