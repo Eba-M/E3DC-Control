@@ -1542,7 +1542,7 @@ int LoadDataProcess() {
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
-            iWeekhour[sizeweekhour+1] = 0;
+            iWeekhour[weekhour] = iPowerHome*(t-t_alt);
             
             char fname[100];
             int day = (myt_alt%(24*3600*28))/(24*3600);
@@ -2097,10 +2097,29 @@ int LoadDataProcess() {
         {
             int hh = (w[x1].hh%(24*3600));
             int x2 = (w[x1].hh%(24*7*4*900))/900;
+            int x5 = (w[x1].hh%(24*4*900))/900;
+
             if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
             {
+                        
                 if (e3dc_config.statistik&&iWeekhour[x2]>0)
-                    f3 = f3 + iWeekhour[x2]/36000.0/e3dc_config.speichergroesse; else
+                {
+                    int x4 = 0;
+                    float f4 = 0;
+                    for (int y1=-1;y1<2;y1++)
+                    {
+                        int x3 = x5 + y1;
+                        for (int y2=0;y2<7;y2++)
+                        {
+                            x3=x3+4*24;
+                            if (x3 < 0) x3 = x3 + 24*4*7;
+                            if (x3 > 24*4*7) x3 = x3 -24*4*7;
+                            if (iWeekhour[x3] > 0) x4++;
+                            f4 = f4 + iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+                        }
+                    }
+                    if (x4 > 0) f3 = f3 + f4 / x4;
+                } else
                     f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
                     f2 = f2 + w[x1].solar;
             }
@@ -2453,8 +2472,13 @@ bDischarge = false;
          tLadezeitende = tLadezeitende2;
          if (fLadeende < fLadeende2)
          fLadeende = fLadeende2;
-
      }
+    if (t_alt <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+    {
+        iAvBatt_Count = iFc;
+        iAvBatt_Count900 = iFc;
+    }
+
     if (t < tLadezeitende2)
     // Berechnen der linearen Ladeleistung bis tLadezeitende2 = Sommerladeende
     {
@@ -2551,7 +2575,12 @@ bDischarge = false;
             //            iBattLoad = e3dc_config.maximumLadeleistung*.5;
         }
     }
-    
+    if ((t_alt%24*3600) <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+    {
+        iAvBatt_Count = iFc;
+        iAvBatt_Count900 = iFc;
+    }
+
     
     printf("%c[K\n", 27 );
 
@@ -4050,7 +4079,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 
                     if (x1 == 0) x1 = dayhour-1; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
-                    printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[dayhour-1]/x4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,float(iWeekhour[weekhour])/x4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
                 }
                 printf("%c[K\n", 27 );
 
