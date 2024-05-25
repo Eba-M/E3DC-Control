@@ -1284,11 +1284,14 @@ int wolfstatus()
             WP_status = 2;
             wolf_t = now;
         }
-        if (now-wolf_t > 150)
+        if (now-wolf_t > 300)
         {
-            if (e3dc_config.debug) printf("Wo1b\n");
+//            if (e3dc_config.debug)
+                printf("Wo1b\n");
             if (wolf_fp != NULL)
                 status = pclose(wolf_fp);
+//            if (e3dc_config.debug)
+            printf("Wo1c");
             wolf_fp = NULL;
             WP_status = 1;
         }
