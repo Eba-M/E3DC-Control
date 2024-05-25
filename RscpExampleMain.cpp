@@ -2096,8 +2096,11 @@ int LoadDataProcess() {
         for (int x1=0; x1<w.size(); x1++) // nur die nächsten 24h
         {
             int hh = (w[x1].hh%(24*3600));
+            int x2 = (w[x1].hh%(24*7*4*900))/900;
             if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
             {
+                if (e3dc_config.statistik&&iWeekhour[x2]>0)
+                    f3 = f3 + iWeekhour[x2]/36000.0/e3dc_config.speichergroesse; else
                     f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
                     f2 = f2 + w[x1].solar;
             }
@@ -2105,7 +2108,7 @@ int LoadDataProcess() {
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
-                fPVSoll = fPVdirect*1.5+(-fBatt_SOC+fLadeende2)*3+10;
+                fPVSoll = fPVdirect+(-fBatt_SOC+fLadeende2)*3+10;
                 break;
             }
         }
