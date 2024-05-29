@@ -1340,6 +1340,11 @@ int wolfstatus()
                 
                 cJSON_Delete(wolf_json);
                 iPower_WP = wolf[wppw].wert*1000;
+                if (iPower_WP==0&&ALV>0)
+                    iPower_WP = 700; 
+                else
+                if (iPower_WP>0&&ALV==0)
+                    iPower_WP = 0;
             }
         }
     }
@@ -1546,13 +1551,15 @@ int LoadDataProcess() {
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
-            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
-            
+//            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
+            iWeekhour[weekhour] = 0;
+
             if (iWeekhourWP[x1]>0)
                 iWeekhourWP[x1] = iWeekhourWP[x1]*.9 + iWeekhourWP[weekhour]*.1;
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
-            iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
+//            iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
+            iWeekhourWP[weekhour] = 0;
 
             char fname[100];
             int day = (myt_alt%(24*3600*28))/(24*3600);
