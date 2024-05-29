@@ -2505,22 +2505,6 @@ bDischarge = false;
          if (fLadeende < fLadeende2)
          fLadeende = fLadeende2;
      }
-    if (
-        (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
-        ||
-        (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
-        )
-    {
-        iAvBatt_Count = iFc;
-        iAvBatt_Count900 = iFc;
-    }
-    if (
-        (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
-        )
-    {
-        iAvBatt_Count = 0;
-        iAvBatt_Count900 = 0;
-    }
 
     if (t < tLadezeitende2)
     // Berechnen der linearen Ladeleistung bis tLadezeitende2 = Sommerladeende
@@ -2566,10 +2550,32 @@ bDischarge = false;
                       iFc = iMinLade2/2;
                   if (iFc<0) iFc = 0;
               }
+
               if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
                   iFc = 0;
           }
-        if (iFc > e3dc_config.maximumLadeleistung)
+          if (
+              (t_alt%(24*3600) <=(tLadezeitende3-1800)&&t>=(tLadezeitende3-1800)) // Wechsel Ladezeitzone
+              ||
+              (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
+              ||
+              (t_alt%(24*3600) <=(tLadezeitende1-7200)&&t>=(tLadezeitende1-7200))
+              ||
+              (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
+              )
+          {
+              iAvBatt_Count = iFc;
+              iAvBatt_Count900 = iFc;
+          }
+          if (
+              (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+              )
+          {
+              iAvBatt_Count = 0;
+              iAvBatt_Count900 = 0;
+          }
+
+          if (iFc > e3dc_config.maximumLadeleistung)
         iMinLade = e3dc_config.maximumLadeleistung;
           else
           iMinLade = iFc;
