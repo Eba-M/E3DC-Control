@@ -1339,7 +1339,7 @@ int wolfstatus()
                 }
                 
                 cJSON_Delete(wolf_json);
-                iPower_WP = wolf[wppw].wert;
+                iPower_WP = wolf[wppw].wert*1000;
             }
         }
     }
