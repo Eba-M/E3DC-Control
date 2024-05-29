@@ -1527,15 +1527,14 @@ int LoadDataProcess() {
     {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
+        static int myt_alt;
 
-        
-        iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-t_alt);
-        iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-t_alt);
-        iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-t_alt);
-        iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-t_alt);
+        iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+        iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+        iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
+        iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
-        static int myt_alt;
         if (w.size() > 0)
         {
 //            if (iDayStat[x2]==0)
@@ -1558,7 +1557,7 @@ int LoadDataProcess() {
                 iWeekhourWP[x1] = iWeekhourWP[x1]*.9 + iWeekhourWP[weekhour]*.1;
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
-//            iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
+            iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
             iWeekhourWP[weekhour] = 0;
 
             char fname[100];
@@ -2506,10 +2505,21 @@ bDischarge = false;
          if (fLadeende < fLadeende2)
          fLadeende = fLadeende2;
      }
-    if (t_alt <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+    if (
+        (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
+        ||
+        (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
+        )
     {
         iAvBatt_Count = iFc;
         iAvBatt_Count900 = iFc;
+    }
+    if (
+        (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+        )
+    {
+        iAvBatt_Count = 0;
+        iAvBatt_Count900 = 0;
     }
 
     if (t < tLadezeitende2)
