@@ -66,6 +66,7 @@ static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
+static int32_t iPower_WP; // Leistungsaufnahme WP
 static float fPower_Bat;
 static int ireq_Heistab; // verfügbare Leistung
 static uint8_t iPhases_WB;
@@ -103,6 +104,7 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
+static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[24*4*2]; // Tagesertragstatisik SOLL/IST Vergleich
 
 
@@ -1337,7 +1339,7 @@ int wolfstatus()
                 }
                 
                 cJSON_Delete(wolf_json);
-                
+                iPower_WP = wolf[wppw].wert;
             }
         }
     }
@@ -1522,8 +1524,10 @@ int LoadDataProcess() {
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
 
         
-        iWeekhour[weekhour] = iWeekhour[weekhour] + iPowerHome*(t-t_alt);
-        iWeekhour[dayhour] = iWeekhour[dayhour] + iPowerHome*(t-t_alt);
+        iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-t_alt);
+        iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-t_alt);
+        iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-t_alt);
+        iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-t_alt);
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
         static int myt_alt;
@@ -1542,8 +1546,14 @@ int LoadDataProcess() {
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
-            iWeekhour[weekhour] = iPowerHome*(t-t_alt);
+            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
             
+            if (iWeekhourWP[x1]>0)
+                iWeekhourWP[x1] = iWeekhourWP[x1]*.9 + iWeekhourWP[weekhour]*.1;
+            else
+                iWeekhourWP[x1] = iWeekhourWP[weekhour];
+            iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
+
             char fname[100];
             int day = (myt_alt%(24*3600*28))/(24*3600);
             FILE * pFile;
@@ -1563,11 +1573,18 @@ int LoadDataProcess() {
                 for(int x1=0;x1<sizeof(iDayStat)/sizeof(u_int32_t);x1++)
                     iDayStat[x1]=0;
                 
-                iWeekhour[sizeweekhour+2] = 0;
+                iWeekhour[dayhour] = 0;
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
                 {
                     fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                iWeekhourWP[dayhour] = 0;
+                pFile = fopen ("WeekhourWP.dat","wb");
+                if (pFile!=NULL)
+                {
+                    fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
             }
@@ -2118,10 +2135,19 @@ int LoadDataProcess() {
                             f4 = f4 + iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
                         }
                     }
-                    if (x4 > 0) f3 = f3 + f4 / x4;
+                    if (x4 > 0)
+                    {
+                        if (x1==0)  // die ersten 15min anteilig berechnen
+                            f3 = (f4/x4)/900*(900-t%900);
+                        else
+                            f3 = f3 + f4 / x4;
+                    }
                 } else
                     f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
-                    f2 = f2 + w[x1].solar;
+                if (x1==0)  // die ersten 15min anteilig berechnen
+                    f2 = w[x1].solar/900*(900-t%900);
+                else
+                f2 = f2 + w[x1].solar;
             }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
@@ -2577,8 +2603,8 @@ bDischarge = false;
     }
     if ((t_alt%24*3600) <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
     {
-        iAvBatt_Count = iFc;
-        iAvBatt_Count900 = iFc;
+        iAvBatt_Count = iMinLade*e3dc_config.powerfaktor;
+        iAvBatt_Count900 = iMinLade*e3dc_config.powerfaktor;
     }
 
     
@@ -3179,7 +3205,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
-                if (iMinLade > 100&&iPower > (fPower_Bat-fPower_Grid)) iPower = fPower_Bat-fPower_Grid;
+                if (iMinLade > 100&&iPower > (fPower_Bat-fPower_Grid)) 
+                    iPower = fPower_Bat-fPower_Grid;
                 break;
             case 4:
 
@@ -4077,9 +4104,14 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     int x3 = (t_alt%(24*7*4*900))/900;
                     int x4 = (t_alt%(900));
 
-                    if (x1 == 0) x1 = dayhour-1; else x1--;
+                    if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
                     printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,float(iWeekhour[weekhour])/x4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    if (e3dc_config.WP)
+                    {
+                        printf("%c[K\n", 27 );
+                        printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/x4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
+                    }
                 }
                 printf("%c[K\n", 27 );
 
@@ -5038,10 +5070,18 @@ static int iEC = 0;
         if (pFile!=NULL)
         {
             size_t x1 = sizeof(iWeekhour);
-//            x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             x1 = fread (&iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
+        pFile = NULL;
+        pFile = fopen ("WeekhourWP.dat","rb");
+        if (pFile!=NULL)
+        {
+            size_t x1 = sizeof(iWeekhourWP);
+            x1 = fread (&iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
+
         pFile = NULL;
         char fname[100];
         time(&t);
@@ -5138,6 +5178,12 @@ static int iEC = 0;
         if (pFile!=NULL)
         {
             fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
+        pFile = fopen ("WeekhourWP.dat","wb");
+        if (pFile!=NULL)
+        {
+            fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
         char fname[100];
