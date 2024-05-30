@@ -1762,7 +1762,7 @@ int LoadDataProcess() {
  
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*11.0;
+                iWPHK1max = iWPHK1max - (fatemp-8)*12.0;
 
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
@@ -2537,43 +2537,6 @@ bDischarge = false;
           if ((tLadezeitende-t) > 300)
               iFc = iFc / (tLadezeitende-t); else
           iFc = iFc / (300);
-// weniger als 2h vor Ladeende2 Angleichung der Ladeleistung an die nächste Ladeperiode
-// Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
-
-// weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
-          if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
-          {
-              if (iMinLade2 > iFc)
-              {
-                  iFc = (iFc + iMinLade2)/2;
-                  if (iFc < iMinLade2/2)
-                      iFc = iMinLade2/2;
-                  if (iFc<0) iFc = 0;
-              }
-
-              if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
-                  iFc = 0;
-          }
-          if (
-              (t_alt%(24*3600) <=(tLadezeitende3-1800)&&t>=(tLadezeitende3-1800)) // Wechsel Ladezeitzone
-              ||
-              (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
-              ||
-              (t_alt%(24*3600) <=(tLadezeitende1-7200)&&t>=(tLadezeitende1-7200))
-              ||
-              (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
-              )
-          {
-              fAvBatterie = iFc;
-              fAvBatterie900 = iFc;
-          }
-          if (
-              (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
-              )
-          {
-              fAvBatterie = 0;
-              fAvBatterie900 = 0;
-          }
 
           if (iFc > e3dc_config.maximumLadeleistung)
         iMinLade = e3dc_config.maximumLadeleistung;
@@ -2601,6 +2564,44 @@ bDischarge = false;
                     else
                     iMinLade =  0;
             }
+    // weniger als 2h vor Ladeende2 Angleichung der Ladeleistung an die nächste Ladeperiode
+    // Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
+
+    // weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
+              if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
+              {
+                  if (iMinLade2 > iFc)
+                  {
+                      iFc = (iFc + iMinLade2)/2;
+                      if (iFc < iMinLade2/2)
+                          iFc = iMinLade2/2;
+                      if (iFc<0) iFc = 0;
+                  }
+
+                  if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
+                      iFc = 0;
+              }
+              if (
+                  (t_alt%(24*3600) <=(tLadezeitende3-1800)&&t>=(tLadezeitende3-1800)) // Wechsel Ladezeitzone
+                  ||
+                  (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
+                  ||
+                  (t_alt%(24*3600) <=(tLadezeitende1-7200)&&t>=(tLadezeitende1-7200))
+                  ||
+                  (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
+                  )
+              {
+                  fAvBatterie = iMinLade*e3dc_config.powerfaktor;
+                  fAvBatterie900 = iMinLade*e3dc_config.powerfaktor;
+              }
+              if (
+                  (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
+                  )
+              {
+                  fAvBatterie = 0;
+                  fAvBatterie900 = 0;
+              }
+
 // Wenn der noch zu erwartende Solarertrag kleiner ist als der Speicherbedarf und der Stromverbrauch
 // multipliziert mit einem Unsicherheitsfaktor von 2, dann wird das Laden freigegeben.
     if (fPVtoday>0&&(fPVtoday<fPVSoll)&&t<tLadezeitende)
