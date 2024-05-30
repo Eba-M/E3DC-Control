@@ -2564,15 +2564,15 @@ bDischarge = false;
               (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
               )
           {
-              iAvBatt_Count = iFc;
-              iAvBatt_Count900 = iFc;
+              fAvBatterie = iFc;
+              fAvBatterie900 = iFc;
           }
           if (
               (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
               )
           {
-              iAvBatt_Count = 0;
-              iAvBatt_Count900 = 0;
+              fAvBatterie = 0;
+              fAvBatterie900 = 0;
           }
 
           if (iFc > e3dc_config.maximumLadeleistung)
@@ -2626,8 +2626,8 @@ bDischarge = false;
     }
     if ((t_alt%24*3600) <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
     {
-        iAvBatt_Count = iMinLade*e3dc_config.powerfaktor;
-        iAvBatt_Count900 = iMinLade*e3dc_config.powerfaktor;
+        fAvBatterie = iMinLade*e3dc_config.powerfaktor;
+        fAvBatterie900 = iMinLade*e3dc_config.powerfaktor;
     }
 
     
