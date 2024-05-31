@@ -1533,6 +1533,7 @@ int LoadDataProcess() {
         iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
         iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
         iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
+
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
         if (w.size() > 0)
@@ -1546,6 +1547,8 @@ int LoadDataProcess() {
         {
             iDayStat[x2+96] = iPower_PV*(t-t_alt);
             int x1 = (myt_alt%(24*7*4*900))/900;
+            if (iWeekhourWP[weekhour] == 0)
+                iWeekhourWP[weekhour] = 1;
             if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
@@ -1558,7 +1561,6 @@ int LoadDataProcess() {
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
-            iWeekhourWP[weekhour] = 1;
 
             char fname[100];
             int day = (myt_alt%(24*3600*28))/(24*3600);
