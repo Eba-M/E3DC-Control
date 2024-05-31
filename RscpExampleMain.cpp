@@ -1558,7 +1558,7 @@ int LoadDataProcess() {
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
-            iWeekhourWP[weekhour] = 0;
+            iWeekhourWP[weekhour] = 1;
 
             char fname[100];
             int day = (myt_alt%(24*3600*28))/(24*3600);
@@ -1828,13 +1828,14 @@ int LoadDataProcess() {
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
                            )
+                          ))
                           ||
                           (
                            (temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max)
                            )
-                          )
+                          
                          
-                         )
+                         
                         )
                     {
                         if ((temp[2]-5)>= e3dc_config.WPHK1*10)
@@ -2122,13 +2123,15 @@ int LoadDataProcess() {
             int x2 = (w[x1].hh%(24*7*4*900))/900;
             int x5 = (w[x1].hh%(24*4*900))/900;
 
-            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
             {
                         
-                if (e3dc_config.statistik&&iWeekhour[x2]>0)
+                if (e3dc_config.statistik)
                 {
                     int x4 = 0;
+                    int x6 = 0;
                     float f4 = 0;
+                    float f6 = 0;
+
                     for (int y1=-1;y1<2;y1++)
                     {
                         int x3 = x5 + y1;
@@ -2137,23 +2140,53 @@ int LoadDataProcess() {
                             x3=x3+4*24;
                             if (x3 < 0) x3 = x3 + 24*4*7;
                             if (x3 > 24*4*7) x3 = x3 -24*4*7;
-                            if (iWeekhour[x3] > 0) x4++;
+                            if (iWeekhour[x3] > 0) 
+                                x4++;
                             f4 = f4 + iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+                            if (iWeekhourWP[x3] > 0) 
+                                x6++;
+                            f6 = f6 + iWeekhourWP[x3]/36000.0/e3dc_config.speichergroesse;
+
                         }
                     }
                     if (x4 > 0)
                     {
                         if (x1==0)  // die ersten 15min anteilig berechnen
+                        {
                             f3 = (f4/x4)/900*(900-t%900);
+                        }
                         else
-                            f3 = f3 + f4 / x4;
+                        {
+                            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                                f3 = f3 + f4 / x4;
+                        }
+                        w[x1].hourly = f4/x4;
+
                     }
+                    if (x6 > 0)
+                    {
+                        if (x1==0)  // die ersten 15min anteilig berechnen
+                        {                            
+                            f3 = f3 + (f6/x6)/900*(900-t%900);
+                        }
+                        else
+                        {
+                            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                                f3 = f3 + f6 / x6;
+
+                        }
+                        w[x1].wpbedarf = (f6/x6);
+
+                    }
+
                 } else
-                    f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
+                    if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                        f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
                 if (x1==0)  // die ersten 15min anteilig berechnen
                     f2 = w[x1].solar/900*(900-t%900);
                 else
-                f2 = f2 + w[x1].solar;
+                    if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                        f2 = f2 + w[x1].solar;
             }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
