@@ -2193,7 +2193,7 @@ int LoadDataProcess() {
                 fPVtoday=f2;
                 fPVdirect=f3;
                 fPVSoll = fPVdirect+(-fBatt_SOC+fLadeende2)*3+10;
-                break;
+//                break;
             }
         }
 
