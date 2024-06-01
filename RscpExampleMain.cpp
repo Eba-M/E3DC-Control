@@ -105,7 +105,7 @@ int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
-static u_int32_t iDayStat[24*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
+static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 
 
@@ -1529,9 +1529,11 @@ int LoadDataProcess() {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
         static int myt_alt;
-
-        iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
-        iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+        if (iPower_WP < iPowerHome) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
+        {
+            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+        }
         iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
         iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
 
@@ -1542,7 +1544,11 @@ int LoadDataProcess() {
         {
             iDayStat[DayStat] = iDayStat[DayStat]+ iPower_PV*(t-myt_alt);
         }
-        if ((myt_alt%900)>(t%900)&&w.size()>0) // Verbrauchwerte alle 15min erfassen
+        int schalter900 = 0;
+        int schalter3600 = 0;
+
+        if (((myt_alt%900)>(t%900)||schalter900)
+            &&w.size()>0) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (myt_alt%(24*7*4*900))/900;
             if (iWeekhourWP[weekhour] == 0)
@@ -1603,25 +1609,31 @@ int LoadDataProcess() {
                 iDayStat[x2] = (w_alt.solar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + w[x1].solar;
+            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
+            float f2 = 0;
+            float f3 = 0;
+            float f4 = 0;
+            float f5 = 0;
+            FILE *fp;
 
             if (iDayStat[x2]+iDayStat[x2+96]>0)
             {
-
-                // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
-                float f2 = iDayStat[x2]/100.0;
-                float f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
-                float f4 = (w_alt.hh%(24*3600))/3600.0;
-                float f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
-
-                FILE *fp;
+ 
+                {
+                    // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
+                    f2 = iDayStat[x2]/100.0;
+                    f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
+                    f4 = (w_alt.hh%(24*3600))/3600.0;
+                    f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
+                }
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
                 if(!fp)
                     fp = fopen(fname, "w");
                 if(fp)
                 {
-//
-                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar);
+                        fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar);
                     fclose(fp);
                 }
                 if (w.size()>0)
@@ -1630,6 +1642,32 @@ int LoadDataProcess() {
             }
 
             iDayStat[DayStat] = iPower_PV*(t-t_alt);
+            if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
+            {
+                    // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
+                    f2 = iDayStat[DayStat-1]/(e3dc_config.speichergroesse*10*3600);
+                    f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600);
+                sprintf(fname,"Ertrag.%i.txt",day);
+                fp = fopen(fname, "a");
+                if(!fp)
+                    fp = fopen(fname, "w");
+                if(fp)
+                {
+                    
+                    fprintf(fp,"Summary %0.2f%% %0.2f%% %0.2f %\n",f2,f3,f3/f2);
+                    iDayStat[DayStat-1]=0;
+                    iDayStat[DayStat-2]=0;
+                    fclose(fp);
+                }
+// folgende Tagesdatei löschen
+                day++;
+                if (day > 27) day = 0;
+                sprintf(fname,"Ertrag.%i.txt",day);
+                fp = fopen(fname, "w");
+                if (fp!=NULL)
+                    fclose(fp);
+
+            }
 
         }
         myt_alt = t;
