@@ -1609,7 +1609,7 @@ int LoadDataProcess() {
                 iDayStat[x2] = (w_alt.solar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
-            iDayStat[DayStat-1] = iDayStat[DayStat-1] + w[x1].solar;
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + w[0].solar;
             iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
@@ -1645,7 +1645,7 @@ int LoadDataProcess() {
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
             {
                     // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
-                    f2 = iDayStat[DayStat-1]/(e3dc_config.speichergroesse*10*3600);
+                f2 = iDayStat[DayStat-1]/100;
                     f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600);
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
