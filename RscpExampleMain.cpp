@@ -965,9 +965,10 @@ int iModbusTCP()
 
             ret = 0;
         }
-        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 20sec Anfrage starten
+        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
-            brequest = true;
+//            brequest = true;
+            iLength = 0;
             tlast = now;
             send.resize(12);
             if (e3dc_config.debug)
@@ -980,7 +981,8 @@ int iModbusTCP()
 // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
 // Wenn WP oder oekofen laufen Heizkreise einschalten
             
-            if (temp[13] > 0) // Temperatur Puffer gesetzt?
+            if (temp[13] > 0 && not brequest)
+// Temperatur Puffer gesetzt?
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
 //  Regelgröße ist die Zulufttemperatur der LWWP
@@ -997,11 +999,13 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
+                    brequest = true;
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
+                    brequest = true;
                 }
 
 
@@ -1012,6 +1016,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
+                    brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1019,6 +1024,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
+                    brequest = true;
                 }
                 if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
@@ -1026,6 +1032,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,0,7); //FBH?
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
+                    brequest = true;
                 }
                 if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
@@ -1033,6 +1040,8 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
+                    brequest = true;
+
                 }
             }
             {
@@ -1041,6 +1050,7 @@ int iModbusTCP()
                     if (e3dc_config.debug)
                         printf("BGE");
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
+                    brequest = true;
                     if (e3dc_config.debug)
                         printf("AGE");
                     myiLength = iLength;
@@ -1923,7 +1933,7 @@ int LoadDataProcess() {
                 if (e3dc_config.debug)
                 {
                     printf("%c[K\n", 27 );
-                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],myiLength,iLength);
+                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength);
                 }
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
@@ -3377,8 +3387,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    iPower = iPower + idynPower;
                     if (fBatt_SOC>fwbminSoC)
                     iPower = idynPower;
-//                    else
-                      if (iPower < (iPower_Bat-fPower_Grid))
+                    else
+//                      if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
                           }
 // Nur bei PV-Ertrag
