@@ -1011,7 +1011,6 @@ int iModbusTCP()
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
-            brequest = true;
             iLength = 0;
             tlast = now;
             send.resize(12);
@@ -1049,7 +1048,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
-//                    brequest = true;
+                    brequest = true;
                 }
 
 
@@ -1076,7 +1075,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,0,7); //FBH?
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-//                    brequest = true;
+                    brequest = true;
                 }
                 if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
@@ -1084,12 +1083,12 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-//                    brequest = true;
+                    brequest = true;
 
                 }
             }
             {
-                if (brequest)
+                if (not brequest)
                 {
                     if (e3dc_config.debug)
                         printf("BGE");
