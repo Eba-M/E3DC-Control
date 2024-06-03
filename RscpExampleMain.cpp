@@ -894,7 +894,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BSE%i",isocket);
-    
+/*
     if (isocket > 0)
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
     if (iLength < 0)
@@ -914,7 +914,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-
+*/
 
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
@@ -948,10 +948,10 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-
+/*
     if (isocket > 0)
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
-    if (iLength <= 0)
+    if (iLength < 0)
     {
         SocketClose(isocket);
         isocket = -1;
@@ -968,7 +968,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             printf("ASC");
 
     }
-
+*/
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
         printf("BRCV");
@@ -1011,7 +1011,7 @@ int iModbusTCP()
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
-//            brequest = true;
+            brequest = true;
             iLength = 0;
             tlast = now;
             send.resize(12);
@@ -1043,13 +1043,13 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
-                    brequest = true;
+//                    brequest = true;
                 }
 
 
@@ -1060,7 +1060,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1068,7 +1068,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
@@ -1076,7 +1076,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,0,7); //FBH?
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
@@ -1084,17 +1084,17 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-                    brequest = true;
+//                    brequest = true;
 
                 }
             }
             {
-                if (not brequest)
+                if (brequest)
                 {
                     if (e3dc_config.debug)
                         printf("BGE");
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
-//                    if (iLength > 0)
+                    if (iLength > 0)
                         brequest = true;
                     if (e3dc_config.debug)
                         printf("AGE");
