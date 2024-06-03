@@ -873,6 +873,7 @@ std::array<int, 20> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,10
 static int x1 = 0;
 static int16_t temp[oekofen.size()];
 static uint8_t tn = 1;
+char server_ip[16];
 
 int iModbusTCP_Set(int reg,int val,int tac)
 {
@@ -892,7 +893,28 @@ int iModbusTCP_Set(int reg,int val,int tac)
     Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
-        printf("BSE");
+        printf("BSE%i",isocket);
+    
+    if (isocket > 0)
+        iLength = SocketRecvData(isocket,&receive[0],receive.size());
+    if (iLength < 0)
+    {
+        SocketClose(isocket);
+        isocket = -1;
+    }
+
+    if (isocket <= 0)
+        {
+            sprintf(server_ip,e3dc_config.heizung_ip);
+            if (e3dc_config.debug)
+                printf("BSC");
+
+            isocket = SocketConnect(server_ip, 502);
+            if (e3dc_config.debug)
+                printf("ASC");
+
+        }
+
 
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
@@ -927,6 +949,26 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     if (e3dc_config.debug)
         printf("BRQ");
 
+    if (isocket > 0)
+        iLength = SocketRecvData(isocket,&receive[0],receive.size());
+    if (iLength <= 0)
+    {
+        SocketClose(isocket);
+        isocket = -1;
+    }
+
+    if (isocket<0)
+    {
+        sprintf(server_ip,e3dc_config.heizung_ip);
+        if (e3dc_config.debug)
+            printf("BSC");
+
+        isocket = SocketConnect(server_ip, 502);
+        if (e3dc_config.debug)
+            printf("ASC");
+
+    }
+
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
         printf("BRCV");
@@ -949,7 +991,6 @@ int iModbusTCP()
     time_t now;
     time(&now);
     static int  ret = 0;
-    char server_ip[16];
     Modbus_send Msend;
     if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
@@ -958,7 +999,7 @@ int iModbusTCP()
             sprintf(server_ip,e3dc_config.heizung_ip);
             if (e3dc_config.debug)
                 printf("BSC");
-
+            
             isocket = SocketConnect(server_ip, 502);
             if (e3dc_config.debug)
                 printf("ASC");
@@ -1045,12 +1086,13 @@ int iModbusTCP()
                 }
             }
             {
-                
+                if (not brequest)
                 {
                     if (e3dc_config.debug)
                         printf("BGE");
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
-                    brequest = true;
+//                    if (iLength > 0)
+                        brequest = true;
                     if (e3dc_config.debug)
                         printf("AGE");
                     myiLength = iLength;
@@ -1060,10 +1102,14 @@ int iModbusTCP()
         else
             if (brequest)
             {
-                if (iLength <= 0)
-                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
-                if (iLength > 0)
+                static time_t ÖK;
+                printf("ÖK%i",t-ÖK);
+
+                //                if (iLength < 0)
+//                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (iLength > 200)
                 {
+                    ÖK = t;
                     int x2 = 9;
                     int x3 = 0;
                     x1 = oekofen[receive[0]]; // Startregister
@@ -1087,12 +1133,13 @@ int iModbusTCP()
                     isocket = -1;
                     brequest = false;
                 } else
-                    if (iLength == 0)
+//                    if (iLength <= 0)
                     {
                         SocketClose(isocket);
                         isocket = -1;
                         brequest = false;
                     }
+
             }}
     return iLength;
 }
@@ -1646,10 +1693,9 @@ int LoadDataProcess() {
                         fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar);
                     fclose(fp);
                 }
-                if (w.size()>0)
-                    w_alt = w[0];
-
             }
+            if (w.size()>0)
+                w_alt = w[0];
 
             iDayStat[DayStat] = iPower_PV*(t-t_alt);
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
@@ -5127,12 +5173,12 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
-                int x2 = (t%(24*4*900))/900;
+                int x2 = (t%(24*4*900))/900+1;
                 if (x2 > 0&&e3dc_config.statistik)
                 {
 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
-                    float f2 = iDayStat[x2-1]/100.0;
-                    float f3 = iDayStat[x2-1+96]/(e3dc_config.speichergroesse*10*3600);
+                    float f2 = iDayStat[x2]/100.0;
+                    float f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
                     float f4 = 0;
                     if (w.size()>0)
                         f4 = w[0].solar;

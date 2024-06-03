@@ -162,12 +162,12 @@ int SocketConnect_noblock(const char *cpIpAddress, int iPort) {
     if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
         printf("Cannot connect to server. errno %i.\n", errno);
         sleep(1);
-//        if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
-//            printf("Cannot connect to server. errno %i.\n", errno);
+        if(connect(iSocket, (struct sockaddr *) &server_addr, sizeof(struct sockaddr)) < 0) {
+            printf("Cannot connect to server. errno %i.\n", errno);
             if (errno != 36) {
             close(iSocket);
                 return -1;}
-//            }
+            }
     }
 
     return iSocket;
