@@ -948,7 +948,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-
+/*
     if (isocket > 0)
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
     if (iLength <= 0)
@@ -968,7 +968,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             printf("ASC");
 
     }
-
+*/
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
         printf("BRCV");
@@ -1105,8 +1105,8 @@ int iModbusTCP()
                 static time_t t_OeK;
                 printf("ÖK%i",t-t_OeK);
 
-                //                if (iLength < 0)
-//                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (iLength < 0)
+                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 200)
                 {
                     t_OeK = t;
