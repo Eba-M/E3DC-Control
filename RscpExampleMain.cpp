@@ -1011,7 +1011,7 @@ int iModbusTCP()
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
-            brequest = true;
+//            brequest = true;
             iLength = 0;
             tlast = now;
             send.resize(12);
