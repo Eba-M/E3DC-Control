@@ -991,7 +991,10 @@ int iModbusTCP()
     time_t now;
     time(&now);
     static int  ret = 0;
+    static time_t t_OeK;
+
     Modbus_send Msend;
+    printf("ÖK%i",t-t_OeK);
     if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
@@ -1102,7 +1105,6 @@ int iModbusTCP()
         else
             if (brequest)
             {
-                static time_t t_OeK;
                 printf("ÖK%i",t-t_OeK);
 
                 if (iLength < 0)
