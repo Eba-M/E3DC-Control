@@ -1713,7 +1713,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
-                    fprintf(fp,"Summary %0.2f%% %0.2f%% %0.2f %\n",f2,f3,f3/f2);
+                    fprintf(fp,"Summary %0.2f%kWh %0.2f%kWh %0.2f% %\n",f2,f3,f3/f2);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
