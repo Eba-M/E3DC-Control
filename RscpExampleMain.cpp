@@ -948,7 +948,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-/*
+
     if (isocket > 0)
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
     if (iLength <= 0)
@@ -968,7 +968,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             printf("ASC");
 
     }
-*/
+
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
         printf("BRCV");
@@ -1105,8 +1105,6 @@ int iModbusTCP()
         else
             if (brequest)
             {
-                printf("ÖK%i",t-t_OeK);
-
                 if (iLength < 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 200)
@@ -5341,35 +5339,36 @@ static int iEC = 0;
         SocketClose(iSocket);
         iSocket = -1;
         if (!e3dc_config.stop)
-            sleep(10);
-    }
-    if (e3dc_config.statistik)
-    {
-        FILE * pFile;
-        pFile = NULL;
-        pFile = fopen ("Weekhour.dat","wb");
-        if (pFile!=NULL)
-        {
-            fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
-            fclose (pFile);
-        }
-        pFile = fopen ("WeekhourWP.dat","wb");
-        if (pFile!=NULL)
-        {
-            fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
-            fclose (pFile);
-        }
-        char fname[100];
-        time(&t);
-        int day = (t%(24*3600*28))/(24*3600);
-        sprintf(fname,"%s.dat","PVStat");
-        pFile = fopen(fname,"wb");       // altes logfile löschen
+            sleep(1);
+            if (e3dc_config.statistik)
+            {
+                FILE * pFile;
+                pFile = NULL;
+                pFile = fopen ("Weekhour.dat","wb");
+                if (pFile!=NULL)
+                {
+                    fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                pFile = fopen ("WeekhourWP.dat","wb");
+                if (pFile!=NULL)
+                {
+                    fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                char fname[100];
+                time(&t);
+                int day = (t%(24*3600*28))/(24*3600);
+                sprintf(fname,"%s.dat","PVStat");
+                pFile = fopen(fname,"wb");       // altes logfile löschen
 
-        if (pFile!=NULL)
-        {
-            x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
-            fclose (pFile);
-        }
+                if (pFile!=NULL)
+                {
+                    x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+
+            }
 
     }
 
