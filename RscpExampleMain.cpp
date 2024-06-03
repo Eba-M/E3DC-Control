@@ -1102,14 +1102,14 @@ int iModbusTCP()
         else
             if (brequest)
             {
-                static time_t ÖK;
-                printf("ÖK%i",t-ÖK);
+                static time_t t_OeK;
+                printf("ÖK%i",t-t_OeK);
 
                 //                if (iLength < 0)
 //                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 200)
                 {
-                    ÖK = t;
+                    t_OeK = t;
                     int x2 = 9;
                     int x3 = 0;
                     x1 = oekofen[receive[0]]; // Startregister
