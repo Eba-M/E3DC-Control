@@ -1109,7 +1109,7 @@ int iModbusTCP()
             {
                 if (iLength < 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
-                if (iLength > 200)
+                if (iLength > 10)
                 {
                     t_OeK = t;
                     int x2 = 9;
