@@ -1024,7 +1024,7 @@ int iModbusTCP()
 // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
 // Wenn WP oder oekofen laufen Heizkreise einschalten
             
-            if (temp[13] > 0 && not brequest)
+            if (temp[13] > 0 && not brequest && (t-t_OeK<20))
 // Temperatur Puffer gesetzt?
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
@@ -1713,7 +1713,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
-                    fprintf(fp,"Summary %0.2f%kWh %0.2f%kWh %0.2f% %\n",f2,f3,f3/f2);
+                    fprintf(fp,"\nSummary %0.2f%kWh %0.2f%kWh %0.2f%% \n",f2,f3,f3/f2);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
