@@ -948,7 +948,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-
+/*
     if (isocket > 0)
     {
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
@@ -958,7 +958,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             isocket = -1;
         }
     }
-
+*/
     if (isocket<0)
     {
         sprintf(server_ip,e3dc_config.heizung_ip);
