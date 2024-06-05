@@ -998,7 +998,7 @@ int iModbusTCP()
 
     Modbus_send Msend;
     printf("ÖK%i",t-t_OeK);
-    if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
+    if (brequest||(not brequest&&(now-tlast)>20)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
@@ -1027,7 +1027,7 @@ int iModbusTCP()
 // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
 // Wenn WP oder oekofen laufen Heizkreise einschalten
             
-            if (temp[13] > 0 && not brequest && (t-t_OeK<20))
+            if (temp[13] > 0 && not brequest && (t-t_OeK<40))
 // Temperatur Puffer gesetzt?
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
@@ -1109,7 +1109,7 @@ int iModbusTCP()
             {
                 if (iLength < 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
-                if (iLength > 10)
+                if (iLength > 0)
                 {
                     if (iLength > 100)
                         t_OeK = t;
