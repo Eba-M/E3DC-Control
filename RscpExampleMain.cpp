@@ -5230,7 +5230,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
  */
-    signal(EPIPE, SIG_IGN);
+//    signgam(EPIPE, SIG_IGN);
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
