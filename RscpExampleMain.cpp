@@ -902,7 +902,6 @@ int iModbusTCP_Set(int reg,int val,int tac)
         SocketClose(isocket);
         isocket = -1;
     }
-*/
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -914,16 +913,17 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-
-
-    iLength = SocketSendData(isocket,&send[0],send.size());
-    if (e3dc_config.debug)
-        printf("BRC");
-
-    iLength = SocketRecvData(isocket,&receive[0],receive.size());
-    if (e3dc_config.debug)
-        printf("ARC");
-
+*/
+    if (isocket > 0)
+    {
+        iLength = SocketSendData(isocket,&send[0],send.size());
+        if (e3dc_config.debug)
+            printf("BRC");
+        
+        iLength = SocketRecvData(isocket,&receive[0],receive.size());
+        if (e3dc_config.debug)
+            printf("ARC");
+    }
     return iLength;
 }
 int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
@@ -958,7 +958,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             isocket = -1;
         }
     }
-*/
+
     if (isocket<0)
     {
         sprintf(server_ip,e3dc_config.heizung_ip);
@@ -970,7 +970,8 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             printf("ASC");
 
     }
-    if (isocket > 0)
+*/
+ if (isocket > 0)
     {
         iLength = SocketSendData(isocket,&send[0],send.size());
     }    if (e3dc_config.debug)
@@ -5229,6 +5230,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
  */
+    signal(SIGPIPE, SIG_IGN);
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
