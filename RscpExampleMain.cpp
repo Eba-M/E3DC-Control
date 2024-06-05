@@ -902,7 +902,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
         SocketClose(isocket);
         isocket = -1;
     }
-
+*/
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -914,7 +914,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-*/
+
 
     iLength = SocketSendData(isocket,&send[0],send.size());
     if (e3dc_config.debug)
@@ -1700,10 +1700,13 @@ int LoadDataProcess() {
                     fclose(fp);
                 }
             }
-            if (w.size()>0)
+            if (w.size()>0&&w_alt.hh<w[0].hh)
                 w_alt = w[0];
+            else
+                if (w.size()>0&&w_alt.hh<w[1].hh)
+                    w_alt = w[1];
 
-            iDayStat[DayStat] = iPower_PV*(t-t_alt);
+            iDayStat[DayStat] = iPower_PV*(t-myt_alt);
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
             {
                     // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
@@ -1733,6 +1736,7 @@ int LoadDataProcess() {
 
         }
         myt_alt = t;
+//        nächsten Eintrag suchen
         if (w.size()>0&&w_alt.hh==0)
             w_alt = w[0];
     }
@@ -1934,6 +1938,7 @@ int LoadDataProcess() {
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
+                    
                     }
                     // Überprüfen ob die Solltemperatur der FBH bei PV-Ertragsmangel heruntergesetzt werden muss
                     
