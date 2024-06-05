@@ -902,6 +902,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
         SocketClose(isocket);
         isocket = -1;
     }
+*/
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -913,7 +914,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-*/
+
     if (isocket > 0)
     {
         iLength = SocketSendData(isocket,&send[0],send.size());
@@ -926,6 +927,8 @@ int iModbusTCP_Set(int reg,int val,int tac)
     }
     return iLength;
 }
+static bool brequest = false;
+
 int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 {
     send.resize(12);
@@ -972,12 +975,15 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     }
 */
  if (isocket > 0)
-    {
-        iLength = SocketSendData(isocket,&send[0],send.size());
-    }    if (e3dc_config.debug)
-        printf("BRCV");
-    iLength = SocketRecvData(isocket,&receive[0],receive.size());
-    if (e3dc_config.debug)
+ {
+     iLength = SocketSendData(isocket,&send[0],send.size());
+     if (e3dc_config.debug)
+         printf("BRCV");
+     iLength = SocketRecvData(isocket,&receive[0],receive.size());
+//     if (iLength > 0)
+         brequest = true;
+ }
+        if (e3dc_config.debug)
         printf("ARCV");
     return iLength;
 }
@@ -986,7 +992,6 @@ static int dummy[100];
 static int bWP = 0;
 static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK1off = 0;
-static bool brequest = false;
 
 int iModbusTCP()
 {
@@ -999,7 +1004,7 @@ int iModbusTCP()
 
     Modbus_send Msend;
     printf("ÖK%i",t-t_OeK);
-    if (brequest||(not brequest&&(now-tlast)>20)) // 10 Sekunden auf die Antwoert warten
+    if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
@@ -1011,11 +1016,10 @@ int iModbusTCP()
             if (e3dc_config.debug)
                 printf("ASC");
 
-            ret = 0;
+            iLength = 0;
         }
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
-            iLength = 0;
             tlast = now;
             send.resize(12);
             if (e3dc_config.debug)
@@ -1046,13 +1050,13 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
                     iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
                     iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
-                    brequest = true;
+//                    brequest = true;
                 }
 
 
@@ -1063,7 +1067,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-                    brequest = true;
+  //                  brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1071,7 +1075,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
@@ -1079,7 +1083,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,0,7); //FBH?
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-                    brequest = true;
+//                    brequest = true;
                 }
                 if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
@@ -1087,7 +1091,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,0,7); //HZK?
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-                    brequest = true;
+//                    brequest = true;
 
                 }
             }
@@ -1097,8 +1101,6 @@ int iModbusTCP()
                     if (e3dc_config.debug)
                         printf("BGE");
                     iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
-                    if (iLength > 0)
-                        brequest = true;
                     if (e3dc_config.debug)
                         printf("AGE");
                     myiLength = iLength;
@@ -1108,16 +1110,18 @@ int iModbusTCP()
         else
             if (brequest)
             {
-                if (iLength < 0)
+                if (isocket > 0&&iLength < 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 0)
                 {
-                    if (iLength > 100)
+//                    if (iLength > 100)
                         t_OeK = t;
                     int x2 = 9;
                     int x3 = 0;
                     x1 = oekofen[receive[0]]; // Startregister
 //                    x3 = x1;
+                    for (x3=0;oekofen[x3] != x1&&x3<oekofen.size();x3++);
+                    
                     if (receive[7]==3)
                         while (x2 < iLength)
                         {
