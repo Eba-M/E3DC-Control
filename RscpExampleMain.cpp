@@ -985,11 +985,11 @@ static int dummy[100];
 static int bWP = 0;
 static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK1off = 0;
+static bool brequest = false;
 
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
-    static bool brequest = false;
     static time_t tlast = 0;
     time_t now;
     time(&now);
@@ -1045,7 +1045,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
                     iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
-//                    brequest = true;
+                    brequest = true;
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
@@ -1062,7 +1062,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,7); //FBH?
-//                    brequest = true;
+                    brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1070,7 +1070,7 @@ int iModbusTCP()
                 {
                     iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,7); //HZK?
-//                    brequest = true;
+                    brequest = true;
                 }
                 if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
@@ -1908,6 +1908,8 @@ int LoadDataProcess() {
                     iLength  = iModbusTCP_Get(12,1,12); //FBH?
                     if (iLength > 0)
                         bHK1off ^= 1;
+                    brequest = true;
+
                 }
                 if (
                     temp[17]==0   // Pellets muss aus sein
@@ -1938,6 +1940,8 @@ int LoadDataProcess() {
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
+                        brequest = true;
+
                     
                     }
                     // Überprüfen ob die Solltemperatur der FBH bei PV-Ertragsmangel heruntergesetzt werden muss
@@ -1968,6 +1972,7 @@ int LoadDataProcess() {
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
+                        brequest = true;
                     }
                 }
                     // HK2 zwischen WPHK2off und WPHK2on ausschalten
