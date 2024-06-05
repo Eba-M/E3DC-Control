@@ -1111,7 +1111,8 @@ int iModbusTCP()
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 10)
                 {
-                    t_OeK = t;
+                    if (iLength > 100)
+                        t_OeK = t;
                     int x2 = 9;
                     int x3 = 0;
                     x1 = oekofen[receive[0]]; // Startregister
