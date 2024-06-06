@@ -840,7 +840,7 @@ bool GetConfig()
 
 int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
-static int isocket = -1;
+static int isocket;
 long iLength,myiLength;
 const char * relay_ip;
 //const char * cmd;
@@ -902,7 +902,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
         SocketClose(isocket);
         isocket = -1;
     }
-
+*/
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -914,7 +914,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-*/
+
     if (isocket > 0)
     {
         iLength = SocketSendData(isocket,&send[0],send.size());
@@ -1048,14 +1048,14 @@ int iModbusTCP()
                 if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
 //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                 {
-                    iLength  = iModbusTCP_Set(101,1,1); //Heizkessel register 101
-                    iLength  = iModbusTCP_Get(101,0,1); //Heizkessel
+                    iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
+                    iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
 //                    brequest = true;
                 }
                 if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                 {
-                    iLength  = iModbusTCP_Set(101,0,7); //Heizkessel
-                    iLength  = iModbusTCP_Get(101,0,7); //Heizkessel
+                    iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
+                    iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
 //                    brequest = true;
                 }
 
@@ -1065,32 +1065,32 @@ int iModbusTCP()
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(11,1,7); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,1,7); //FBH?
+                    iLength  = iModbusTCP_Set(11,1,11); //FBH? register 11
+                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
   //                  brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(31,1,7); //HZK? register 31
-                    iLength  = iModbusTCP_Get(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Set(31,1,31); //HZK? register 31
+                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
                 }
                 if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK1off>0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-                    iLength  = iModbusTCP_Set(11,0,7); //FBH?
-                    iLength  = iModbusTCP_Get(11,1,7); //FBH?
+                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
                 if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-                    iLength  = iModbusTCP_Set(31,0,7); //HZK?
-                    iLength  = iModbusTCP_Get(31,1,7); //HZK?
+                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
+                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
 
                 }
@@ -1100,7 +1100,7 @@ int iModbusTCP()
                 {
                     if (e3dc_config.debug)
                         printf("BGE");
-                    iLength = iModbusTCP_Get(2,105,0); // Alle Register auf einmal abfragen
+                    iLength = iModbusTCP_Get(2,105,2); // Alle Register auf einmal abfragen
                     if (e3dc_config.debug)
                         printf("AGE");
                     myiLength = iLength;
@@ -1118,7 +1118,7 @@ int iModbusTCP()
                         t_OeK = t;
                     int x2 = 9;
                     int x3 = 0;
-                    x1 = oekofen[receive[0]]; // Startregister
+                    x1 = receive[0]; // Startregister tan
 //                    x3 = x1;
                     for (x3=0;oekofen[x3] != x1&&x3<oekofen.size();x3++);
                     
