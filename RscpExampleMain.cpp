@@ -1114,7 +1114,7 @@ int iModbusTCP()
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (iLength > 0)
                 {
-//                    if (iLength > 100)
+                    if (iLength > 100)
                         t_OeK = t;
                     int x2 = 9;
                     int x3 = 0;
@@ -1139,7 +1139,7 @@ int iModbusTCP()
                     //                SocketClose(isocket);
 //                    SocketClose(isocket);
 //                    isocket = -1;
-//                    brequest = false;
+                    brequest = false;
                 } else
 //                    if (iLength <= 0)
                     {
