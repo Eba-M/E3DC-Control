@@ -1102,8 +1102,9 @@ int iModbusTCP()
                 }
             }
             {
-                if (not brequest)
+                if (not brequest||t-t_OeK>30)
                 {
+                    brequest = false;
                     if (e3dc_config.debug)
                         printf("BGE");
                     iLength = iModbusTCP_Get(2,105,2); // Alle Register auf einmal abfragen
