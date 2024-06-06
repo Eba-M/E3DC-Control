@@ -876,7 +876,7 @@ static uint8_t tn = 1;
 char server_ip[16];
 static bool brequest = false;
 
-int iModbusTCP_Set(int reg,int val,int tac)
+long iModbusTCP_Set(int reg,int val,int tac)
 {
     send.resize(12);
     receive.resize(125);
@@ -905,7 +905,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
     }
 */
     if (brequest)
-        return -2;
+        return iLength;
 
     if (isocket <= 0)
         {
@@ -932,7 +932,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
     return iLength;
 }
 
-int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
+long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 {
     send.resize(12);
     receive.resize(2048);
@@ -978,7 +978,7 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     }
 */
     if (brequest) 
-        return -2;
+        return iLength;
 if (isocket > 0)
  {
      iLength = SocketSendData(isocket,&send[0],send.size());
