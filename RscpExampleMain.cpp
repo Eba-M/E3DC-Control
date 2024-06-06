@@ -842,6 +842,7 @@ int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv;  //heizleistung und stroma
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket;
 long iLength,myiLength;
+int iRegister;
 const char * relay_ip;
 //const char * cmd;
 static std::vector<uint8_t> send;
@@ -1124,6 +1125,7 @@ int iModbusTCP()
                     int x2 = 9;
                     int x3 = 0;
                     x1 = receive[0]; // Startregister tan
+                    iRegister = receive[0]; // Startregister tan
 //                    x3 = x1;
                     for (x3=0;oekofen[x3] != x1&&x3<oekofen.size();x3++);
                     
@@ -2003,10 +2005,10 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
-                if (e3dc_config.debug)
+                if (e3dc_config.debug||(strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0))
                 {
                     printf("%c[K\n", 27 );
-                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i %1i i%3li %2li",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength);
+                    printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i %1i i%3li %2li %i",f1,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister);
                 }
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
