@@ -1010,6 +1010,11 @@ int iModbusTCP()
 
     Modbus_send Msend;
     printf("ÖK%i",t-t_OeK);
+    if (t-t_OeK>40&&isocket>0)
+    {
+        SocketClose(isocket);
+        isocket = -1;
+    }
     if (brequest||(not brequest&&(now-tlast)>5)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
