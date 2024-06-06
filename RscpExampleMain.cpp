@@ -902,7 +902,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
         SocketClose(isocket);
         isocket = -1;
     }
-*/
+
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -914,7 +914,7 @@ int iModbusTCP_Set(int reg,int val,int tac)
                 printf("ASC");
 
         }
-
+*/
     if (isocket > 0)
     {
         iLength = SocketSendData(isocket,&send[0],send.size());
