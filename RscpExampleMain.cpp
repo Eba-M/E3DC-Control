@@ -1010,7 +1010,7 @@ int iModbusTCP()
 
     Modbus_send Msend;
     printf("ÖK%i",t-t_OeK);
-    if (brequest||(not brequest&&(now-tlast)>3)) // 10 Sekunden auf die Antwoert warten
+    if (brequest||(not brequest&&(now-tlast)>5)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
@@ -1024,7 +1024,7 @@ int iModbusTCP()
             iLength = 0;
 
         }
-        if (isocket > 0&&not brequest&&(now-tlast)>3) // Nur alle 10sec Anfrage starten
+        if (isocket > 0&&not brequest&&(now-tlast)>5) // Nur alle 10sec Anfrage starten
         {
             tlast = now;
             send.resize(12);
