@@ -874,6 +874,7 @@ static int x1 = 0;
 static int16_t temp[oekofen.size()];
 static uint8_t tn = 1;
 char server_ip[16];
+static bool brequest = false;
 
 int iModbusTCP_Set(int reg,int val,int tac)
 {
@@ -903,6 +904,9 @@ int iModbusTCP_Set(int reg,int val,int tac)
         isocket = -1;
     }
 */
+    if (brequest)
+        return -2;
+
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -927,7 +931,6 @@ int iModbusTCP_Set(int reg,int val,int tac)
     }
     return iLength;
 }
-static bool brequest = false;
 
 int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 {
@@ -974,7 +977,9 @@ int iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 
     }
 */
- if (isocket > 0)
+    if (brequest) 
+        return -2;
+if (isocket > 0)
  {
      iLength = SocketSendData(isocket,&send[0],send.size());
      if (e3dc_config.debug)
@@ -1004,7 +1009,7 @@ int iModbusTCP()
 
     Modbus_send Msend;
     printf("ÖK%i",t-t_OeK);
-    if (brequest||(not brequest&&(now-tlast)>5)) // 10 Sekunden auf die Antwoert warten
+    if (brequest||(not brequest&&(now-tlast)>3)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
@@ -1018,7 +1023,7 @@ int iModbusTCP()
             iLength = 0;
 
         }
-        if (isocket > 0&&not brequest&&(now-tlast)>5) // Nur alle 10sec Anfrage starten
+        if (isocket > 0&&not brequest&&(now-tlast)>3) // Nur alle 10sec Anfrage starten
         {
             tlast = now;
             send.resize(12);
