@@ -1137,9 +1137,9 @@ int iModbusTCP()
                         WWTemp = float(receive[10]*256+receive[11])/10;
                     
                     //                SocketClose(isocket);
-                    SocketClose(isocket);
-                    isocket = -1;
-                    brequest = false;
+//                    SocketClose(isocket);
+//                    isocket = -1;
+//                    brequest = false;
                 } else
 //                    if (iLength <= 0)
                     {
