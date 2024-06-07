@@ -327,6 +327,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             }
         }
         if (w.size()==0) return;
+        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
         {
             {
                 if (e3dc.WPLeistung>0) {
