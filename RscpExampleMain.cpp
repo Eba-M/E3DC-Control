@@ -1698,7 +1698,7 @@ int LoadDataProcess() {
                 iDayStat[x2] = (w_alt.solar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
-            iDayStat[DayStat-1] = iDayStat[DayStat-1] + w[0].solar;
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (w[0].solar+0.005)*100;
             iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
@@ -1736,8 +1736,8 @@ int LoadDataProcess() {
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
             {
                     // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
-                f2 = iDayStat[DayStat-1] * 2 / 10.0;
-                f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600)*2/10.0;
+                f2 = iDayStat[DayStat-1] * e3dc_config.speichergroesse/10000.0;
+                f3 = iDayStat[DayStat-2]/3600.0/1000.0;
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
                 if(!fp)
@@ -1995,8 +1995,11 @@ int LoadDataProcess() {
                          )
                         )
                     {
-                        if ((temp[2]-5)>= e3dc_config.WPHK1*10)
-                            iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
+                        if ((temp[2]-1)> e3dc_config.WPHK1*10)
+                            if (iWPHK1max*10-temp[4]>5&&((temp[2]-5)>= e3dc_config.WPHK1*10))
+                                iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
+                            else
+                                iLength  = iModbusTCP_Set(12,temp[2]-1,12); //FBH? Solltemperatur
                         else
                             iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
