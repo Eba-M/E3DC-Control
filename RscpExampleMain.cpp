@@ -1009,9 +1009,11 @@ int iModbusTCP()
     static time_t t_OeK;
 
     Modbus_send Msend;
-    printf("ÖK%i",t-t_OeK);
+    printf("ÖK%i",now-t_OeK);
     if ((now-t_OeK)>40)
     {
+        if (t_OeK>0&&(now-t_OeK)>300)
+            e3dc_config.stop = 100;
         t_OeK = now;
         if (isocket>0)
         {
@@ -1048,7 +1050,7 @@ int iModbusTCP()
 // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
 // Wenn WP oder oekofen laufen Heizkreise einschalten
             
-            if (temp[13] > 0 && not brequest && (t-t_OeK<20))
+            if (temp[13] > 0 && not brequest && (now-t_OeK<20))
 // Temperatur Puffer gesetzt?
             {
 //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
@@ -1132,7 +1134,7 @@ int iModbusTCP()
                 if (iLength > 0)
                 {
                     if (iLength > 100)
-                        t_OeK = t;
+                        t_OeK = now;
                     int x2 = 9;
                     int x3 = 0;
                     x1 = receive[0]; // Startregister tan
@@ -1927,13 +1929,15 @@ int LoadDataProcess() {
                     m1 < sunriseAt+720 && bHK1off&1
                 )
                 {
-// HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
-//                    iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
-//                    iLength  = iModbusTCP_Get(12,1,12); //FBH?
-//                    if (iLength > 0)
-                        bHK1off ^= 1;
-//                    brequest = true;
-
+                    if (temp[2]>e3dc_config.WPHK1*10)
+                    {
+                        // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
+                        iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
+                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        if (iLength > 0)
+                            bHK1off ^= 1;
+                        brequest = true;
+                    }
                 }
                 if (
                     temp[17]==0   // Pellets muss aus sein
@@ -1962,8 +1966,10 @@ int LoadDataProcess() {
                             if (temp[4]<(iWPHK1max))
                                 iLength  = iModbusTCP_Set(12,temp[2]+1,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                        if (iLength>0 ) HK1_t = t;
-                        else HK1_t++;
+                        if (iLength>0 ) 
+                            HK1_t = t;
+                        else 
+                            HK1_t++;
                         brequest = true;
 
                     
@@ -1974,7 +1980,7 @@ int LoadDataProcess() {
                         (
                          // Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
                          
-                         (bHK1off ||m1 > (sunsetAt+60) || (PVon<(-iMinLade/4)&&temp[14]<(temp[4]+50)))
+                         ((bHK1off ||m1 > (sunsetAt+60) || (PVon<(-iMinLade/4)&&temp[14]<(temp[4]+50)))
                          &&
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
@@ -1986,7 +1992,7 @@ int LoadDataProcess() {
                            )
                           
                          
-                         
+                         )
                         )
                     {
                         if ((temp[2]-5)>= e3dc_config.WPHK1*10)
@@ -5311,8 +5317,10 @@ static int iEC = 0;
 
     }
     
-        while(iEC < 10&&!e3dc_config.stop)
+        while(iEC < 10&&e3dc_config.stop==0||e3dc_config.stop>99)
         {
+            printf("Program stop Reason e3dc_config.stop=%i",e3dc_config.stop);
+            e3dc_config.stop=0;
             iEC++; // Schleifenzähler erhöhen
             ptm = gmtime(&t);
             //      Berechne Sonnenaufgang-/untergang
@@ -5337,11 +5345,12 @@ static int iEC = 0;
             {
 //                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
 //            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
-        }
+            }
         LoadDataProcess();
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
-        if(iSocket < 0) {
+        if(iSocket < 0) 
+        {
             printf("Connection failed\n");
             sleep(1);
             continue;
