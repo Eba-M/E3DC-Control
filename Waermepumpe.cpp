@@ -327,7 +327,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             }
         }
         if (w.size()==0) return;
-        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
         {
             {
                 if (e3dc.WPLeistung>0) {
@@ -391,8 +390,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
                                         float f8 =  f7*f4/f5;
                                         float f6 =  f7/f2;
-                                        
-                                        w[x1].wpbedarf = wetter[x1].kosten;
+
+                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+                                            w[x1].wpbedarf = wetter[x1].kosten;
                                         
                                         int bHK1on = 0;
                                         int bHK2on = 1;
@@ -408,8 +408,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             if ((e3dc.WPHK2off<e3dc.WPHK2on)
                                                 &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
                                                 bHK2on = 0;
-                                            
-                                            w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
+
+                                            if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+                                                w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
                                             
                                         }
                                         
@@ -420,14 +421,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             // Pelletskessel übernimmt und die WP läuft auf Minimum weiter
                                             if (e3dc.openmeteo)
                                                 //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
+                                                if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                                 w[x1].wpbedarf = 0;
                                             
                                             else
                                                 //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
+                                                if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                                 w[x1].wpbedarf = 0;
                                             
                                             // wenn der Wärmepreis der WP günstiger ist als Pellets
                                             if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
+                                                if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                                 if (e3dc.openmeteo)
                                                     w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                                                 else
