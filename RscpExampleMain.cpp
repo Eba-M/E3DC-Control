@@ -959,7 +959,7 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     if (isocket > 0)
     {
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
-        if (iLength == 0)
+        if (iLength < 0)
         {
             SocketClose(isocket);
             isocket = -1;
@@ -986,7 +986,6 @@ if (isocket > 0)
      if (e3dc_config.debug)
          printf("BRCV");
      iLength = SocketRecvData(isocket,&receive[0],receive.size());
-//     if (iLength > 0)
          brequest = true;
  }
         if (e3dc_config.debug)
@@ -1965,8 +1964,9 @@ int LoadDataProcess() {
                         else
                             if (temp[4]<(iWPHK1max))
                                 iLength  = iModbusTCP_Set(12,temp[2]+1,12); //FBH? Solltemperatur
+                        if (iLength>0 )
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                        if (iLength>0 ) 
+                        if (iLength>0 )
                             HK1_t = t;
                         else 
                             HK1_t++;
@@ -1988,7 +1988,7 @@ int LoadDataProcess() {
                           ))
                           ||
                           (
-                           (temp[4]+10>iWPHK1max)&&(temp[5]>iWPHK1max)
+                           (temp[4]+2>iWPHK1max)&&(temp[5]>iWPHK1max)
                            )
                           
                          
@@ -1996,13 +1996,14 @@ int LoadDataProcess() {
                         )
                     {
                         if ((temp[2]-1)> e3dc_config.WPHK1*10)
-                            if (iWPHK1max*10-temp[4]>5&&((temp[2]-5)>= e3dc_config.WPHK1*10))
+                            if (-iWPHK1max+temp[4]>5&&((temp[2]-5)>= e3dc_config.WPHK1*10))
                                 iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                             else
                                 iLength  = iModbusTCP_Set(12,temp[2]-1,12); //FBH? Solltemperatur
                         else
                             iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
-                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        if (iLength>0)
+                            iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                         brequest = true;
