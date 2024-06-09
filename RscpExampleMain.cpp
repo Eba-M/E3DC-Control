@@ -1083,7 +1083,7 @@ int iModbusTCP()
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,11); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
+                    iLength  = iModbusTCP_Get(11,0,11); //FBH?
   //                  brequest = true;
                 }
                 if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
@@ -1156,8 +1156,8 @@ int iModbusTCP()
                         WWTemp = float(receive[10]*256+receive[11])/10;
                     
                     //                SocketClose(isocket);
-//                    SocketClose(isocket);
-//                    isocket = -1;
+                    SocketClose(isocket);
+                    isocket = -1;
                     brequest = false;
                 } else
 //                    if (iLength <= 0)
@@ -1612,7 +1612,7 @@ int LoadDataProcess() {
     {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
-        static int myt_alt;
+        static time_t myt_alt;
         if (iPower_WP < iPowerHome) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
@@ -1655,7 +1655,14 @@ int LoadDataProcess() {
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
 
             char fname[100];
-            int day = (myt_alt%(24*3600*28))/(24*3600);
+            struct tm * ptm;
+            myt_alt=myt_alt+24*3600;
+            ptm = gmtime(&myt_alt);
+            int nextday = ptm->tm_mday;
+            myt_alt=myt_alt-24*3600;
+            ptm = gmtime(&myt_alt);
+            int day = ptm->tm_mday;
+
             FILE * pFile;
             sprintf(fname,"%s.dat","PVStat");
             pFile = fopen(fname,"wb");       // altes logfile löschen
@@ -1750,9 +1757,7 @@ int LoadDataProcess() {
                     fclose(fp);
                 }
 // folgende Tagesdatei löschen
-                day++;
-                if (day > 27) day = 0;
-                sprintf(fname,"Ertrag.%i.txt",day);
+                sprintf(fname,"Ertrag.%i.txt",nextday);
                 fp = fopen(fname, "w");
                 if (fp!=NULL)
                     fclose(fp);
@@ -1909,7 +1914,7 @@ int LoadDataProcess() {
  
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*12.0;
+                iWPHK1max = iWPHK1max - (fatemp-8)*15.0;
 
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
