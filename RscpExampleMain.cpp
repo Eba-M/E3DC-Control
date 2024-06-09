@@ -1744,6 +1744,15 @@ int LoadDataProcess() {
                     // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                 f2 = iDayStat[DayStat-1] * e3dc_config.speichergroesse/10000.0;
                 f3 = iDayStat[DayStat-2]/3600.0/1000.0;
+                f4 = 0;
+                f5 = 0;
+                for(x1=0;x1<96;x1++)
+                {
+                    f4 = f4 + iDayStat[x1];
+                    f5 = f5 + iDayStat[x1+96];
+                }
+                f4 = f4 * e3dc_config.speichergroesse/10000.0;
+                f5 = f5 /3600.0/1000.0;
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
                 if(!fp)
@@ -1751,6 +1760,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
+                    fprintf(fp,"\nDay %0.2f%kWh %0.2f%kWh %0.2f%% \n",f4,f5,f5/f4);
                     fprintf(fp,"\nSummary %0.2f%kWh %0.2f%kWh %0.2f%% \n",f2,f3,f3/f2);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
