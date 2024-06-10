@@ -1021,7 +1021,7 @@ int iModbusTCP()
         }
     }
  
-    if (brequest||(not brequest&&(now-tlast)>5)) // 10 Sekunden auf die Antwoert warten
+    if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
@@ -1035,7 +1035,7 @@ int iModbusTCP()
             iLength = 0;
 
         }
-        if (isocket > 0&&not brequest&&(now-tlast)>5) // Nur alle 10sec Anfrage starten
+        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
             tlast = now;
             send.resize(12);
@@ -1760,8 +1760,8 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
-                    fprintf(fp,"\nDay %0.2f%kWh %0.2f%kWh %0.2f%% \n",f4,f5,f5/f4);
-                    fprintf(fp,"\nSummary %0.2f%kWh %0.2f%kWh %0.2f%% \n",f2,f3,f3/f2);
+                    fprintf(fp,"\nDay %0.2f%kWh %0.2f%kWh %0.2f%% \n",f2,f3,f3/f2);
+                    fprintf(fp,"\nSummary %0.2f%kWh %0.2f%kWh %0.2f%% \n",f4,f5,f5/f4);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
