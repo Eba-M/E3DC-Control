@@ -1967,13 +1967,16 @@ int LoadDataProcess() {
                         brequest = true;
                     }
                 }
-                if (
+                if 
+                (
                     temp[17]==0   // Pellets muss aus sein
                     &&
                     (m1 < (sunriseAt+60)
                     ||
-                    (m1 > (sunriseAt+720) && m1 > sunsetAt)
-                    ))
+//                    (m1 > (sunriseAt+720) && m1 > sunsetAt)
+                     (m1 > (sunriseAt+720)) //FBH 10h Laufzeit fest
+                    )
+                )
                 {
                         bHK1off |= 1;
 
@@ -2083,7 +2086,10 @@ int LoadDataProcess() {
             }
             if (e3dc_config.debug||(strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
-                float f2 = iDayStat[DayStat-1] * e3dc_config.speichergroesse/10000.0;
+                float f4 = 0;
+                if (w.size()>0)
+                    f4 = (t%900)*(w[0].solar+0.005)*100.0/900.0;
+                float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
                 printf("%c[K\n", 27 );
