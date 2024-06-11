@@ -1084,8 +1084,7 @@ int iModbusTCP()
                      ||
                         temp[17]>0)
                     )
-//                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
-                    // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
+// EVU Aus und Heizkreis Aus und fbh Anforderung ein -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,11); //FBH? register 11
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
@@ -1110,7 +1109,7 @@ int iModbusTCP()
                      (tasmota_status[0]==0&&bHK1off>0)
                      )
                     )
-// EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
+// EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(11,0,11); //FBH?
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
@@ -1642,6 +1641,7 @@ int LoadDataProcess() {
         if (w.size() > 0)
         {
             iDayStat[DayStat] = iDayStat[DayStat]+ iPower_PV*(t-myt_alt);
+            iDayStat[DayStat-2] = iDayStat[DayStat-2]+ iPower_PV*(t-myt_alt);
             f2 = iDayStat[DayStat-1] * 2 / 10.0;
             f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600)*2/10.0;
 
@@ -1719,7 +1719,7 @@ int LoadDataProcess() {
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
             iDayStat[DayStat-1] = iDayStat[DayStat-1] + (w[0].solar+0.005)*100;
-            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
+//            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
             float f4 = 0;
@@ -1774,8 +1774,8 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
-                    fprintf(fp,"\nDay %0.2f%kWh %0.2f%kWh %0.2f%% \n",f2,f3,f3/f2);
-                    fprintf(fp,"\nSummary %0.2f%kWh %0.2f%kWh %0.2f%% \n",f4,f5,f5/f4);
+                    fprintf(fp,"\nDay %0.2f%kWh %0.2fkWh %0.2f \n",f2,f3,f3/f2);
+                    fprintf(fp,"\nSummary %0.2f%kWh %0.2fkWh %0.2f \n",f4,f5,f5/f4);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
@@ -2083,8 +2083,11 @@ int LoadDataProcess() {
             }
             if (e3dc_config.debug||(strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
+                float f2 = iDayStat[DayStat-1] * e3dc_config.speichergroesse/10000.0;
+                float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
+
                 printf("%c[K\n", 27 );
-                printf("T%0.4f %0.2f %0.2f %1i %1i h%1i f%1i %1i %1i i%3li %2li %i",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister);
+                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
             }
 
 // Steuerung LWWP über shelly 0-10V
