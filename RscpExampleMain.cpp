@@ -1078,15 +1078,24 @@ int iModbusTCP()
 
 
 // Heizkreise schalten
-                if (temp[1]==0&&((tasmota_status[0]==0&&bHK1off==0)||temp[17]>0))
+                if (temp[1]==0&&
+                    (
+                        (tasmota_status[0]==0&&bHK1off==0)
+                     ||
+                        temp[17]>0)
+                    )
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[1]==0&&bHK1off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
                     iLength  = iModbusTCP_Set(11,1,11); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,0,11); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
   //                  brequest = true;
                 }
-                if (temp[7]==0&&((tasmota_status[0]==0&&bHK2off==0)||temp[17]>0))
+                if (temp[7]==0&&
+                    (
+                     (tasmota_status[0]==0&&bHK2off==0)
+                     ||temp[17]>0)
+                    )
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
@@ -1094,8 +1103,13 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
                 }
-                if (temp[1]==1&&((tasmota_status[0]==1&&temp[17]==0)
-                    ||(tasmota_status[0]==0&&bHK1off>0)))
+                if (temp[1]==1&&
+                    (
+                     (tasmota_status[0]==1&&temp[17]==0)
+                    ||
+                     (tasmota_status[0]==0&&bHK1off>0)
+                     )
+                    )
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(11,0,11); //FBH?
@@ -2070,7 +2084,7 @@ int LoadDataProcess() {
             if (e3dc_config.debug||(strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
                 printf("%c[K\n", 27 );
-                printf("T%0.4f %0.2f %0.2f %1i %1i %1i %1i %1i i%3li %2li %i",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister);
+                printf("T%0.4f %0.2f %0.2f %1i %1i h%1i f%1i %1i %1i i%3li %2li %i",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister);
             }
 
 // Steuerung LWWP über shelly 0-10V
