@@ -1465,7 +1465,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
-    if (e3dc_config.debug) printf("D4");
+    if (e3dc_config.debug) printf("D4b");
 
 }
     return 0;
@@ -1947,8 +1947,7 @@ int LoadDataProcess() {
             if   ((sunsetAt-sunriseAt) > 10*60)  // 300% vom Soc = 60kWh
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
-                if (bHK1off > 1)
-                    bHK1off = 0;
+//                    bHK1off = 0;
 
                 if 
                 (
@@ -1964,8 +1963,7 @@ int LoadDataProcess() {
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength > 0)
                             bHK1off ^= 1;
-                        brequest = true;
-                    }
+                    } else bHK1off ^= 1;
                 }
                 if 
                 (
