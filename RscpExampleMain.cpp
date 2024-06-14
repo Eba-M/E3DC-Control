@@ -1438,8 +1438,8 @@ int wolfstatus()
                 
                 cJSON_Delete(wolf_json);
                 iPower_WP = wolf[wppw].wert*1000;
-                if (iPower_WP==0&&ALV>0)
-                    iPower_WP = 700; 
+                if (iPower_WP==0&&ALV>0&&tasmota_status[0]==0) // keine EVU sperre
+                    iPower_WP = 700;
                 else
                 if (iPower_WP>0&&ALV==0)
                     iPower_WP = 0;
