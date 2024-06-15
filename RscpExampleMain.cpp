@@ -1605,6 +1605,7 @@ int LoadDataProcess() {
     static time_t wpofftime = t;
     static time_t wpontime = t;  //
     static int PVon;
+    time_t t_sav;
     
     // Speicher SoC selbst berechnen
     // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
@@ -1612,6 +1613,7 @@ int LoadDataProcess() {
     if (e3dc_config.WPWolf)
         int ret = wolfstatus();
     time (&t);
+    t_sav = t;
     
     if (e3dc_config.debug) printf("D1a");
 
@@ -2427,8 +2429,8 @@ int LoadDataProcess() {
         fSavedtotal=0; fSavedWB=0;
         
     }
-    t_alt = t;
-    t = tE3DC % (24*3600);
+//    t_alt = t;
+    t = t % (24*3600);
     
     static time_t t_config = tE3DC;
     if ((tE3DC-t_config) > 5)
@@ -2800,7 +2802,7 @@ bDischarge = false;
     // Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
 
     // weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
-              if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
+/*              if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
               {
                   if (iMinLade2 > iFc)
                   {
@@ -2813,7 +2815,8 @@ bDischarge = false;
                   if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
                       iFc = 0;
               }
-              if (
+*/
+            if (
                   (t_alt%(24*3600) <=(tLadezeitende3-1800)&&t>=(tLadezeitende3-1800)) // Wechsel Ladezeitzone
                   ||
                   (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
@@ -3236,7 +3239,7 @@ bDischarge = false;
     sprintf(buffer,"echo %i > /var/www/html/openWB/ramdisk/hausleistung",iPowerHome);
 //    system(buffer);
     }
-
+    t_alt = t_sav;
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
