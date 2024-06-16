@@ -1395,8 +1395,8 @@ int wolfstatus()
         {
 //            if (e3dc_config.debug)
                 printf("Wo1b\n");
-            if (wolf_fp != NULL)
-                status = pclose(wolf_fp);
+//            if (wolf_fp != NULL)
+//                status = pclose(wolf_fp);
 //            if (e3dc_config.debug)
             printf("Wo1c");
             wolf_fp = NULL;
@@ -2801,8 +2801,8 @@ bDischarge = false;
     // weniger als 2h vor Ladeende2 Angleichung der Ladeleistung an die nächste Ladeperiode
     // Im Winter verringert sich der zeitliche Abstand zwischen RE und LE
 
-    // weniger als 2h vor Ladeende2 bzw. LE oder 1h vor RE
-/*              if ((tLadezeitende-t) < 1800||(tLadezeitende2-t) < 7200)
+    // weniger als 15 vor Ladeende2 bzw. LE oder 1h vor RE
+              if ((tLadezeitende-t) < 900||(tLadezeitende2-t) < 900) // statt 7200
               {
                   if (iMinLade2 > iFc)
                   {
@@ -2815,13 +2815,13 @@ bDischarge = false;
                   if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
                       iFc = 0;
               }
-*/
+
             if (
-                  (t_alt%(24*3600) <=(tLadezeitende3-1800)&&t>=(tLadezeitende3-1800)) // Wechsel Ladezeitzone
+                  (t_alt%(24*3600) <=(tLadezeitende3-900)&&t>=(tLadezeitende3-900)) // Wechsel Ladezeitzone
                   ||
                   (t_alt%(24*3600) <=tLadezeitende3&&t>=tLadezeitende3) // Wechsel Ladezeitzone
                   ||
-                  (t_alt%(24*3600) <=(tLadezeitende1-7200)&&t>=(tLadezeitende1-7200))
+                  (t_alt%(24*3600) <=(tLadezeitende1-900)&&t>=(tLadezeitende1-900))
                   ||
                   (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
                   )
