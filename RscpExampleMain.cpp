@@ -1689,7 +1689,7 @@ int LoadDataProcess() {
                 fclose (pFile);
             }
 
-            if ((myt_alt%(24*3600))>(t%(24*3600)))
+            if ((myt_alt%(4*3600))>(t%(4*3600)))
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
                 
@@ -1941,7 +1941,6 @@ int LoadDataProcess() {
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
                 iWPHK1max = iWPHK1max - (fatemp-8)*15.0;
-
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
@@ -1973,9 +1972,10 @@ int LoadDataProcess() {
                     &&
                     (m1 < (sunriseAt+60)
                     ||
-//                    (m1 > (sunriseAt+720) && m1 > sunsetAt)
                      (m1 > (sunriseAt+720)) //FBH 10h Laufzeit fest
-                    )
+// AT zu hoch und Soll unter 24°
+                    || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<240)
+                     )
                 )
                 {
                         bHK1off |= 1;
@@ -2291,8 +2291,9 @@ int LoadDataProcess() {
                 if (tasmota_status[0]==0)
                 {
                     //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
-                    tasmotaon(1);   // EVU = ON  Sperre
-                    // Leistung ALV der WP auf Minimum
+//                    tasmotaon(1);   // EVU = ON  Sperre
+                    ALV = 0;
+                    // Leistung ALV auf 0 ausschalten
                 }
             
             if (btasmota_ch2)
