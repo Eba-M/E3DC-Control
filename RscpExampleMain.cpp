@@ -1693,14 +1693,18 @@ int LoadDataProcess() {
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
                 
-                iWeekhour[dayhour] = 0;
+                if ((myt_alt%(24*3600))>(t%(24*3600)))
+                {
+                    iWeekhour[dayhour] = 0;
+                    iWeekhourWP[dayhour] = 0;
+
+                }
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
                 {
                     fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
-                iWeekhourWP[dayhour] = 0;
                 pFile = fopen ("WeekhourWP.dat","wb");
                 if (pFile!=NULL)
                 {
