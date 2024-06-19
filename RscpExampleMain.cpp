@@ -1744,7 +1744,7 @@ int LoadDataProcess() {
                     fp = fopen(fname, "w");
                 if(fp)
                 {
-                        fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar);
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
                     fclose(fp);
                 }
             }
@@ -2816,7 +2816,8 @@ bDischarge = false;
                   if ((tLadezeitende1+tLadezeitende2)/2-t < 0 && iFc < 0)
                       iFc = 0;
               }
-
+    time_t t_day;
+    t_day = t_alt%(24*3600);
             if (
                   (t_alt%(24*3600) <=(tLadezeitende3-900)&&t>=(tLadezeitende3-900)) // Wechsel Ladezeitzone
                   ||
@@ -2827,8 +2828,10 @@ bDischarge = false;
                   (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
                   )
               {
-                  fAvBatterie = iMinLade*e3dc_config.powerfaktor;
-                  fAvBatterie900 = iMinLade*e3dc_config.powerfaktor;
+                  fAvBatterie = iFc*e3dc_config.powerfaktor;
+                  fAvBatterie900 = iFc*e3dc_config.powerfaktor;
+                  if (fAvBatterie900 <= 0)
+                      fAvBatterie900 = iMinLade2;
               }
               if (
                   (t_alt%(24*3600) <=tLadezeitende2&&t>=tLadezeitende2) // Wechsel Ladezeitzone
