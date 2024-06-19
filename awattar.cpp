@@ -1040,7 +1040,7 @@ if (e3dc.AWLand == 2)
                 if (e3dc.debug)
                 {
                     fp = fopen("debug.out","a");
-                    if (fp = NULL)
+                    if(!fp)
                         fp = fopen("debug.out","w");
                     fprintf(fp,"%s",line);
                     fclose(fp);
