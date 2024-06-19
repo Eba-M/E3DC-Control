@@ -2296,7 +2296,11 @@ int LoadDataProcess() {
                 {
                     //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
 //                    tasmotaon(1);   // EVU = ON  Sperre
-                    ALV = 0;
+                    if (ALV > 0)
+                    {
+                        ALV = 0;
+                        shelly(ALV);
+                    }
                     // Leistung ALV auf 0 ausschalten
                 }
             
