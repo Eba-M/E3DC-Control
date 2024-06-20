@@ -3568,6 +3568,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = -fPower_Grid*3; else
                         iPower = -fPower_Grid;
                 break;
+            case 20:
+                if (fPower_WB <= 0) //Start
+                    iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower + iPower_Bat;
+                else
+                    iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower/6 + iPower_Bat;
+                break;
 // Auswertung
         }
         if (e3dc_config.debug) printf("WB2");
