@@ -2966,7 +2966,8 @@ bDischarge = false;
         &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
           ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
         &&
-        ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10))
+        ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10)&&e3dc_config.wbmode<20)
+// wbmade < 20
 // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
 // und wenn die Wallbox gestoppt wurde, dann wird für bis zu 2h weitergeladen
 // oder bis der SoC ladeende2 erreicht hat
@@ -3572,8 +3573,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (fPower_WB <= 0) //Start
                 {
                     iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower*.9 + iPower_Bat;
-                    if (iPower > iWBMinimumPower)
-                        iAvalPower = iPower;
+                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+                        iAvalPower = iPower + iWBMinimumPower*.9;
                 }
                 else
                     iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
@@ -3582,8 +3583,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (fPower_WB <= 0) 
                 {   //Start
                     iPower = -fPower_Grid -iWBMinimumPower*.9 + iPower_Bat;
-                    if (iPower > iWBMinimumPower)
-                        iAvalPower = iPower;
+                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+                        iAvalPower = iPower + iWBMinimumPower*.9;
                 }
                 else
                 {
