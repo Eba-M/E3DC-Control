@@ -2963,10 +2963,17 @@ bDischarge = false;
               iPower = e3dc_config.maximumLadeleistung;
         
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
-        &&(((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))||
-          ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC)))
         &&
-        ((tE3DC-tWBtime)<7200)&&((tE3DC-tWBtime)>10)&&e3dc_config.wbmode<20)
+        (
+           ((t<tLadezeitende1)&&(e3dc_config.ladeende>fBatt_SOC))
+           ||
+           ((t>tLadezeitende1)&&(e3dc_config.ladeende2>fBatt_SOC))
+        )
+        &&
+        ((tE3DC-tWBtime)<7200)
+        &&((tE3DC-tWBtime)>10)
+        &&e3dc_config.wbmode<20
+        )
 // wbmade < 20
 // Wenn Wallbox vorhanden und das letzte Laden liegt nicht länger als 900sec zurück
 // und wenn die Wallbox gestoppt wurde, dann wird für bis zu 2h weitergeladen
@@ -3573,8 +3580,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (fPower_WB <= 0) //Start
                 {
                     iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower*.9 + iPower_Bat;
-                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
-                        iAvalPower = iPower + iWBMinimumPower*.9;
+//                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+//                        iAvalPower = iPower + iWBMinimumPower*.9;
+                    if (abs(iPower)>abs(iAvalPower))
+                        iAvalPower = iPower;
                 }
                 else
                     iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
@@ -3583,8 +3592,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if (fPower_WB <= 0) 
                 {   //Start
                     iPower = -fPower_Grid -iWBMinimumPower*.9 + iPower_Bat;
-                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
-                        iAvalPower = iPower + iWBMinimumPower*.9;
+//                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+//                        iAvalPower = iPower + iWBMinimumPower*.9;
+                    if (abs(iPower)>abs(iAvalPower))
+                        iAvalPower = iPower;
                 }
                 else
                 {
