@@ -3582,6 +3582,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower*.9 + iPower_Bat;
 //                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
 //                        iAvalPower = iPower + iWBMinimumPower*.9;
+                    if (abs(iPower)>abs(iAvalPower))
+                        iAvalPower = iPower;
                 }
                 else
                     iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
@@ -3607,8 +3609,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         }
         if (e3dc_config.debug) printf("WB2");
 
-        if (abs(iPower)>abs(iAvalPower))
-            iAvalPower = iPower;
+        if (abs(iPower)/2>abs(iAvalPower))
+            iAvalPower = iPower/2;
 
 // im Sonnenmodus nur bei PV-Produktion regeln
         if (iPower > e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
