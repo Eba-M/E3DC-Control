@@ -433,7 +433,7 @@ bool GetConfig()
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
         e3dc_config.tasmota = false;
-        e3dc_config.statistik = false;
+        e3dc_config.statistik = true;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.WPSperre = false;
@@ -3591,7 +3591,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             case 21:
                 if (fPower_WB <= 0) 
                 {   //Start
-                    iPower = -fPower_Grid -iWBMinimumPower*.9 + iPower_Bat;
+                    iPower = -fPower_Grid -iWBMinimumPower*.8 + iPower_Bat;
 //                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
 //                        iAvalPower = iPower + iWBMinimumPower*.9;
                     if (abs(iPower)>abs(iAvalPower))
@@ -3600,7 +3600,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 else
                 {
                     iPower = -fPower_Grid + iPower_Bat;
-                    if (iPower > 0)
+                    if (WBchar6[1]>6)
                         iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
                 }
                 break;
