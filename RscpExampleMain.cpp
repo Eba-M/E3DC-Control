@@ -3600,7 +3600,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 else
                 {
                     iPower = -fPower_Grid + iPower_Bat;
-                    if (WBchar6[1]>6)
+                    if ((-fPower_Grid - iPower_PV_E3DC + iPower_Bat) > 0||WBchar6[1]>6)
                         iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
                 }
                 break;
