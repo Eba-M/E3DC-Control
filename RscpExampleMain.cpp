@@ -3089,7 +3089,7 @@ bDischarge = false;
 //                            iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
 
                             
-                            if (iPower_PV>0)  // Nur wenn die Sonne scheint
+                            if (iPower_PV>0||e3dc_config.unload<0)  // Nur wenn die Sonne scheint
                             {
                                 
                                 static int iLastReq;
