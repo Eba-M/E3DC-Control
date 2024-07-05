@@ -2876,9 +2876,9 @@ bDischarge = false;
     }
 
     //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
+    int idauer = 0;
     if (e3dc_config.unload<0)
     {
-        int idauer = 0;
         if (t>sunsetAt*60)
         {
             idauer = 24*3600-t+sunriseAt*60;
@@ -2890,6 +2890,7 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iMinLade = iFc;
+            iBattLoad = iFc;
         }
     }
 
@@ -2983,6 +2984,8 @@ bDischarge = false;
 //            if (fBatt_SOC < cLadeende) iPower = 3000;
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
+// wenn unload < 0 Power setzen
+    if (iPower > iFc&&idauer > 0&&e3dc_config.unload<0) iPower = iFc;
         
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&
