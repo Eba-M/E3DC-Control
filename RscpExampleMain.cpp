@@ -2890,7 +2890,7 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
-            average = average * .9 + iFc/10;
+            average = average * .99 + iFc/100;
             iFc = average;
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
