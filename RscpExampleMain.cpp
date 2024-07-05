@@ -2464,7 +2464,10 @@ int LoadDataProcess() {
 //    iModbusTCP_Heizstab(500);
     fLadeende = e3dc_config.ladeende;
     fLadeende2 = e3dc_config.ladeende2;
-    fLadeende3 = e3dc_config.unload;
+    if (e3dc_config.unload<0)
+        fLadeende3 = 100;      // wenn über Nacht entladen wird, dann nicht am Tag
+    else
+        fLadeende3 = e3dc_config.unload;
 
 
     if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
@@ -2759,7 +2762,6 @@ bDischarge = false;
     else
         if (fLadeende2 <= fBatt_SOC) iMinLade2 = 0;
         else iMinLade2 = e3dc_config.maximumLadeleistung;
-    
     if (t < tLadezeitende)
     {
          if ((fBatt_SOC!=fBatt_SOC_alt)||(t-tLadezeit_alt>300)||(tLadezeitende!=tLadezeitende_alt)||(iFc == 0)||bCheckConfig)
@@ -2872,6 +2874,26 @@ bDischarge = false;
             //            iBattLoad = e3dc_config.maximumLadeleistung*.5;
         }
     }
+
+    //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
+    if (e3dc_config.unload<0)
+    {
+        int idauer = 0;
+        if (t>sunsetAt*60)
+        {
+            idauer = 24*3600-t+sunriseAt*60;
+        }
+        if (t<sunriseAt*60-e3dc_config.unload*60)
+            idauer = sunriseAt*60 - t -e3dc_config.unload*60;
+        if (idauer > 0&&fBatt_SOC>5)
+        {
+            iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
+            iFc = iFc / idauer *-1;
+            iMinLade = iFc;
+        }
+    }
+
+
     if ((t_alt%(24*3600)) <=tLadezeitende1&&t>=tLadezeitende2) // Wechsel Ladezeitzone
     {
         fAvBatterie = iMinLade*e3dc_config.powerfaktor;
