@@ -2877,6 +2877,7 @@ bDischarge = false;
 
     //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
     int idauer = 0;
+    static float average = 0;
     if (e3dc_config.unload<0)
     {
         if (t>sunsetAt*60)
@@ -2889,6 +2890,8 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
+            average = average * .9 + iFc/10;
+            iFc = average;
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
