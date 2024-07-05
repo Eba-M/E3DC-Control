@@ -2889,6 +2889,7 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
+            if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
         }
