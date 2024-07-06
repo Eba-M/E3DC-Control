@@ -4007,15 +4007,16 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
             iBattPowerStatus = 1;
         }
 // request Power Meter information
+        static int32_t Mode;
+
         if (e3dc_config.wrsteuerung==0)
             printf("\n Achtung WR-Steuerung inaktiv %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,iLMStatus);
         if (e3dc_config.wrsteuerung==2) // Text ausgeben
-            printf("\n WR-Steuerung aktiv %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,iLMStatus);
+            printf("\n WR-Steuerung aktiv %i %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,Mode,iLMStatus);
 
         if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
-            int32_t Mode;
             if (iE3DC_Req_Load==0) Mode = 1; else
                 if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
                 {
