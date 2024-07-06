@@ -2732,7 +2732,7 @@ bDischarge = false;
  }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    if (t < tLadezeitende3) {
+    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3) {
 //            tLadezeitende = tLadezeitende3;
 // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
@@ -2743,7 +2743,7 @@ bDischarge = false;
 // Es wird bis tLadezeitende3 auf fLadeende3 entladen
                 fLadeende = fLadeende3;
             tLadezeitende = tLadezeitende3;}
-        else fLadeende = fLadeende3;
+//        else fLadeende = fLadeende3;
                 }
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
