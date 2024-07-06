@@ -3055,10 +3055,10 @@ bDischarge = false;
 // Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
 //                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
 //                 iPower = e3dc_config.maximumLadeleistung*-1;
-                if (e3dc_config.wrsteuerung>0)
+//                if (e3dc_config.wrsteuerung>0)
                     iBattLoad = iPower;
-                else 
-                    iBattLoad = 0;
+//                else
+//                    iBattLoad = 0;
                  tE3DC_alt = t;
 
                         {
@@ -4008,9 +4008,9 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         }
 // request Power Meter information
         if (e3dc_config.wrsteuerung==0)
-            printf("\n Achtung WR-Steuerung inaktiv %i Status %i\n",iE3DC_Req_Load,iLMStatus);
+            printf("\n Achtung WR-Steuerung inaktiv %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,iLMStatus);
         if (e3dc_config.wrsteuerung==2) // Text ausgeben
-            printf("\n WR-Steuerung aktiv %i Status %i\n",iE3DC_Req_Load,iLMStatus);
+            printf("\n WR-Steuerung aktiv %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,iLMStatus);
 
         if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
