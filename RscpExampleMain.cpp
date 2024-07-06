@@ -2732,7 +2732,7 @@ bDischarge = false;
  }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3) {
+    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3&&e3dc_config.unload >= 0) {
 //            tLadezeitende = tLadezeitende3;
 // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
 // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
@@ -2880,11 +2880,13 @@ bDischarge = false;
     static float average = 0;
     if (e3dc_config.unload<0)
     {
-        if (t>sunsetAt*60)
+        int itime = (sunsetAt*60+e3dc_config.unload*60);
+        
+        if (t>itime)
         {
-            idauer = 24*3600-t+sunriseAt*60;
+            idauer = 24*3600-t+sunriseAt*60-e3dc_config.unload*60;
         }
-        if (t<sunriseAt*60-e3dc_config.unload*60)
+        if (t<(sunriseAt*60-e3dc_config.unload*60))
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
         if (idauer > 0&&fBatt_SOC>5)
         {
