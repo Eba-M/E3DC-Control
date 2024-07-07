@@ -2892,7 +2892,7 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
-            iFc = iFc + iPower_PV;
+            iFc = iFc + iPower_PV_E3DC;
             if (iFc > -200) iFc = -200;
             average = average * .99 + iFc/100;
             iFc = average;
