@@ -2888,10 +2888,12 @@ bDischarge = false;
         }
         if (t<(sunriseAt*60-e3dc_config.unload*60))
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
-        if (idauer > 0&&fBatt_SOC>5)
+        if (idauer > 0&&fBatt_SOC>0)
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
+            iFc = iFc + iPower_PV;
+            if (iFc > 0) iFc = 0;
             average = average * .99 + iFc/100;
             iFc = average;
             if (iFc < -8000) iFc = -8000;
