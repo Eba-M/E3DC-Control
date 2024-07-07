@@ -621,8 +621,8 @@ bool GetConfig()
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPSperre = true;
                   else if((strcmp(var, "statistik") == 0)&&
-                          (strcmp(value, "true") == 0))
-                      e3dc_config.statistik = true;
+                          (strcmp(value, "false") == 0))
+                      e3dc_config.statistik = false;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -2893,7 +2893,7 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV;
-            if (iFc > 0) iFc = 0;
+            if (iFc < -200) iFc = -200;
             average = average * .99 + iFc/100;
             iFc = average;
             if (iFc < -8000) iFc = -8000;
