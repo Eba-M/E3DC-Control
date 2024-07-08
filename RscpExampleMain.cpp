@@ -1607,6 +1607,8 @@ int LoadDataProcess() {
     static time_t wpontime = t;  //
     static int PVon;
     time_t t_sav;
+    static int idauer = 0;
+
     
     // Speicher SoC selbst berechnen
     // Bei Sonnenuntergang wird je ein Datensatz mit den höchsten und niedrigsten SoC-Werten erstellt.
@@ -2636,7 +2638,8 @@ bDischarge = false;
     }
 // printf("ret %i",ret);
 //        if (ret<2)
-        if (not bDischarge) // Entladen soll unterdrückt werden
+
+        if (not bDischarge&&idauer==0) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat>=-100)&&(iPower_Bat<=100))  // es wird eingespeist Entladesperre solange aufheben
                 {
 //                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
@@ -2652,7 +2655,7 @@ bDischarge = false;
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
                     iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
-    //                    printf("\nEntladen stoppen ");
+                    printf("\nEntladen stoppen ");
                     iLMStatus = -7;
 //                    return 0;
                 }
@@ -2877,7 +2880,6 @@ bDischarge = false;
     }
 
     //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
-    int idauer = 0;
     static float average = 0;
     if (e3dc_config.unload<0)
     {
