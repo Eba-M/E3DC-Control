@@ -2641,7 +2641,7 @@ bDischarge = false;
 // printf("ret %i",ret);
 //        if (ret<2)
 
-        if (not bDischarge&&idauer==0) // Entladen soll unterdrückt werden
+        if (not bDischarge) // Entladen soll unterdrückt werden
         { if ((fPower_Grid < -100)&&(iPower_Bat>=-100)&&(iPower_Bat<=100))  // es wird eingespeist Entladesperre solange aufheben
                 {
 //                    iE3DC_Req_Load = fPower_Grid*-1;  // Es wird eingespeist
@@ -2662,8 +2662,9 @@ bDischarge = false;
 //                    return 0;
                 }
         }
+
         else          // Entladen ok
-        if ((fPower_Grid > 100)&&(iPower_Bat < 200)&&fBatt_SOC>0.5)  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid > 100)&&(iPower_Bat < 200)&&fBatt_SOC>0.5&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = fPower_Grid*-1;  //Automatik anstossen
                    if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
