@@ -3071,7 +3071,11 @@ bDischarge = false;
                             (iPower<e3dc_config.maximumLadeleistung)
                             &&
                             (
-                             ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
+                             (
+                              (iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))
+                              &&
+                              (fPower_Grid>100) // Netzbezug
+                              )
 //                             ||
 //                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
                             )
