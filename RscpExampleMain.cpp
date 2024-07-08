@@ -3176,7 +3176,8 @@ bDischarge = false;
                                     (iE3DC_Req_Load<0&&
                                      (
                                       (
-                                       ((iPower_Bat+100)<iE3DC_Req_Load&& fPower_Grid>-100)||
+                                       ((iPower_Bat+100)<iE3DC_Req_Load&& fPower_Grid>-100
+                                        &&idauer==0)||
                                        fPower_Grid>100)
                                       )
                                      ))
@@ -3186,7 +3187,7 @@ bDischarge = false;
                                     
                                 {
                                     //                                    if (bDischarge)  // Entladen ist zugelassen?
-                                    if (e3dc_config.debug) printf("RQ2 %i2",iPower);
+                                    if (e3dc_config.debug) printf("RQ3 %i2",iPower);
                                     iLMStatus = 3;
                                     if (iLastReq>0)
                                     {sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
