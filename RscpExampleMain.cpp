@@ -68,6 +68,7 @@ static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, 
 static int32_t iPower_Bat;
 static int32_t iPower_WP; // Leistungsaufnahme WP
 static float fPower_Bat;
+static float fPower_Ext[7];
 static int ireq_Heistab; // verfügbare Leistung
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
@@ -2892,8 +2893,8 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
-            iFc = iFc + iPower_PV;
-            if (iFc > 0) 
+            iFc = iFc + iPower_PV_E3DC + fPower_Ext[1] + fPower_Ext[2];
+            if (iFc > 0)
                 iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
             else
             {
@@ -4539,7 +4540,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf("%0.1fW %0.1fW ", fPower2, fPower3);
                         printf("#%0.1fW ", fPower1+fPower2+fPower3);
                         printf("%c[K\n", 27 );
-
+                            fPower_Ext[ucPMIndex] = fPower1+fPower2+fPower3;
                         }
                         if (ucPMIndex==e3dc_config.wurzelzaehler) {
                                 sprintf(buffer,"openWB/set/evu/APhase1 -m %0.1f",float(fPower1/fL1V));
