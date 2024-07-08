@@ -3164,7 +3164,8 @@ bDischarge = false;
                             
                             if (iPower_PV>0||e3dc_config.unload<0)  // Nur wenn die Sonne scheint
                             {
-                                
+                                if (e3dc_config.debug) printf("RQ4 %i2",iPower);
+
                                 static int iLastReq;
                                 if (
                                     (
@@ -3200,7 +3201,7 @@ bDischarge = false;
                                     if (iE3DC_Req_Load == e3dc_config.maximumLadeleistung)
                                     {
                                         //                                        if (bDischarge)  // Entladen ist zugelassen?
-                                        if (e3dc_config.debug) printf("RQ3 %i",iPower);
+                                        if (e3dc_config.debug) printf("RQ5 %i",iPower);
                                         
                                         iLMStatus = 3;
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
