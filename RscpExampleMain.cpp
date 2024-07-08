@@ -3066,12 +3066,16 @@ bDischarge = false;
                  tE3DC_alt = t;
 
                         {
-                        if (
+                        if 
+                        (
                             (iPower<e3dc_config.maximumLadeleistung)
                             &&
                             (
-                            ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))))
+                             ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
+                             ||
+                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
                             )
+                        )
 // Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
 // Wenn über der Wallbox geladen wird, Freilauf beenden
 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
@@ -3164,9 +3168,10 @@ bDischarge = false;
           }
     }
 // peakshaving erforderlich?
-    if ((e3dc_config.peakshave != 0)&&(iLMStatus==2))
+    if ((e3dc_config.peakshave != 0)&&(iLMStatus==1))
     {
-        if ((fPower_Grid-iPower_Bat) != e3dc_config.peakshave)
+// Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
+        if ((fPower_Grid) > e3dc_config.peakshave-500)
         {
             iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
             if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
