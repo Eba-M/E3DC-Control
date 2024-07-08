@@ -3127,7 +3127,7 @@ bDischarge = false;
                                    &&
                                    //                              (fPower_Grid>100) // Netzbezug
                                    //                              &&
-                                   (iPower*1.5<iPower_Bat) // Netzbezug
+                                   (iPower*2<iPower_Bat) // Netzbezug
                                    )
                                   //                             ||
                                   //                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
@@ -3140,7 +3140,7 @@ bDischarge = false;
                                 if (e3dc_config.debug) printf("RQ1 %i",iPower);
                                 if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
                                     // es liegt Netzbezug vor und System war nicht im Freilauf
-                                {
+                                {   if (idauer==0)
                                     iPower = iPower_Bat - int32_t(fPower_Grid);
                                     // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
                                     if (e3dc_config.debug) printf("RQ2 %i",iPower);
