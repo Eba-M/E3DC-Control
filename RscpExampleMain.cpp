@@ -2894,6 +2894,7 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV_E3DC - fPower_Ext[1] - fPower_Ext[2];
+            printf("shaving = %i2",iFc);
             if (iFc > 0||iPower_PV>iPowerHome)
             {
                 iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
