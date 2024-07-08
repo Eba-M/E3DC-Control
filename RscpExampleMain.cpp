@@ -3072,8 +3072,8 @@ bDischarge = false;
                             &&
                             (
                              ((iPower > ((iPower_Bat - int32_t(fPower_Grid))/2)))
-                             ||
-                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
+//                             ||
+//                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
                             )
                         )
 // Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
@@ -3086,11 +3086,15 @@ bDischarge = false;
                             {
                                 iPower = iPower_Bat - int32_t(fPower_Grid);
                                 // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
+                                if (e3dc_config.debug) printf("RQ2 %i",iPower);
+
                                 if (iPower < e3dc_config.maximumLadeleistung*-1)
                                     iPower = e3dc_config.maximumLadeleistung*-1;
                             }
                             else
+                            {
                                 iPower = e3dc_config.maximumLadeleistung;
+                            }
                         }
 // Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
 // wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
