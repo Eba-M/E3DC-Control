@@ -2892,7 +2892,7 @@ bDischarge = false;
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
-            iFc = iFc + iPower_PV_E3DC;
+            iFc = iFc + iPower_PV;
             if (iFc > -200) iFc = -200;
             average = average * .99 + iFc/100;
             iFc = average;
@@ -3052,72 +3052,106 @@ bDischarge = false;
 // Steuerung direkt über vorgabe der Batterieladeleistung
 // -iPower_Bat + int32_t(fPower_Grid)
                 if (iLMStatus == 1) {
-// Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
-// Danach wird nur bis auf ladeende2 entladen.  #Funktion entfernt 28.5.23
-//                     if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
-//                     iPower = 0;
-// Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
-//                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
-//                 iPower = e3dc_config.maximumLadeleistung*-1;
-//                if (e3dc_config.wrsteuerung>0)
+                    // Es wird nur Morgens bis zum Winterminimum auf ladeende entladen;
+                    // Danach wird nur bis auf ladeende2 entladen.  #Funktion entfernt 28.5.23
+                    //                     if ((iPower < 0)&&((t>e3dc_config.winterminimum*3600)&&(fBatt_SOC<e3dc_config.ladeende2)))
+                    //                     iPower = 0;
+                    // Wenn der SoC > >e3dc_config.ladeende2 wird mit der Speicher max verfügbaren Leistung entladen
+                    //                    if ((iPower < 0)&&((t>tLadezeitende1)&&(fBatt_SOC>e3dc_config.ladeende2)))
+                    //                 iPower = e3dc_config.maximumLadeleistung*-1;
+                    //                if (e3dc_config.wrsteuerung>0)
                     iBattLoad = iPower;
-//                else
-//                    iBattLoad = 0;
-                 tE3DC_alt = t;
-
+                    //                else
+                    //                    iBattLoad = 0;
+                    tE3DC_alt = t;
+                    
+                    {
+                        // peakshaving erforderlich?
+                        if (e3dc_config.peakshave != 0)
                         {
-                        if 
-                        (
-                            (iPower<e3dc_config.maximumLadeleistung)
-                            &&
-                            (
-                             (
-                              (iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))
-                              &&
-//                              (fPower_Grid>100) // Netzbezug
-//                              &&
-                              (iPower*2<iPower_Bat) // Netzbezug
-                              )
-//                             ||
-//                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
-                            )
-                        )
-// Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
-// Wenn über der Wallbox geladen wird, Freilauf beenden
-// die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
-                        {
-                            if (e3dc_config.debug) printf("RQ1 %i",iPower);
-                            if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
-                                // es liegt Netzbezug vor und System war nicht im Freilauf
+                            // Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
+                            if ((fPower_Grid) > e3dc_config.peakshave-500)
                             {
-                                iPower = iPower_Bat - int32_t(fPower_Grid);
-                                // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
-                                if (e3dc_config.debug) printf("RQ2 %i",iPower);
-
-                                if (iPower < e3dc_config.maximumLadeleistung*-1)
-                                    iPower = e3dc_config.maximumLadeleistung*-1;
+                                iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
+                                if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
+                                if (iDiffLadeleistung2 < 0) iDiffLadeleistung2 = 0;
+                                //            iBattLoad = e3dc_config.peakshave-iPowerHome;
+                                //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome+iDiffLadeleistung2;
+                                //          Es soll die Netzeinspeisung auf einen Mindestwert gesetzt werden
+                                //            iBattLoad = e3dc_config.peakshave-fPower_Grid+iPower_Bat;
+                                // wenn iPower_Bat < 0 es wird ausgespeichert oder fPower_Grid > e3dc_config.peakshave
+                                if ((iPower_Bat < 0)||(e3dc_config.peakshave<(fPower_Grid)*.9))
+                                    iE3DC_Req_Load = e3dc_config.peakshave-fPower_Grid+iPower_Bat+iDiffLadeleistung2;
+                                else
+                                    iE3DC_Req_Load = 0;
+                                //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
+                                if ((iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
+                                    iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
+                                else if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
+                                    iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
+                                // Keine Laden aus dem Netz zulassen, nur von der PV
+                                if (iE3DC_Req_Load > iPower_PV) iE3DC_Req_Load = iPower_PV;
+                                //            if (iE3DC_Req_Load > iPower_Bat)
+                                if (abs(iE3DC_Req_Load) > 100)
+                                    iLMStatus = -7;
+                                sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
+                                WriteLog();
+                                
                             }
-                            else
+                        };
+                        if (iLMStatus == 1){
+                            if
+                                (
+                                 (iPower<e3dc_config.maximumLadeleistung)
+                                 &&
+                                 (
+                                  (
+                                   (iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))
+                                   &&
+                                   //                              (fPower_Grid>100) // Netzbezug
+                                   //                              &&
+                                   (iPower*2<iPower_Bat) // Netzbezug
+                                   )
+                                  //                             ||
+                                  //                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
+                                  )
+                                 )
+                                // Freilauf, solange die angeforderte Ladeleistung höher ist als die Batterieladeleistung abzüglich
+                                // Wenn über der Wallbox geladen wird, Freilauf beenden
+                                // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                             {
-                                iPower = e3dc_config.maximumLadeleistung;
+                                if (e3dc_config.debug) printf("RQ1 %i",iPower);
+                                if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
+                                    // es liegt Netzbezug vor und System war nicht im Freilauf
+                                {
+                                    iPower = iPower_Bat - int32_t(fPower_Grid);
+                                    // Einspeichern begrenzen oder Ausspeichern anfordern, begrenzt auf e3dc_config.maximumLadeleistung
+                                    if (e3dc_config.debug) printf("RQ2 %i",iPower);
+                                    
+                                    if (iPower < e3dc_config.maximumLadeleistung*-1)
+                                        iPower = e3dc_config.maximumLadeleistung*-1;
+                                }
+                                else
+                                {
+                                    iPower = e3dc_config.maximumLadeleistung;
+                                }
                             }
-                        }
-// Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
-// wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
-//                        if (iPower >0)
-//                        ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
-//                        Es wird nur die Variable mit dem Sollwert gefüllt
-//                        die Variable wird im Mainloop überprüft und im E3DC gesetzt
-//                        wenn iLMStatus einen negativen Wert hat
+                            // Wenn die angeforderte Leistung großer ist als die vorhandene Leistung
+                            // wird auf Automatik umgeschaltet, d.h. Anforderung Maximalleistung;
+                            //                        if (iPower >0)
+                            //                        ControlLoadData(frameBuffer,(iPower+iDiffLadeleistung),3);
+                            //                        Es wird nur die Variable mit dem Sollwert gefüllt
+                            //                        die Variable wird im Mainloop überprüft und im E3DC gesetzt
+                            //                        wenn iLMStatus einen negativen Wert hat
                             if (iPower > e3dc_config.maximumLadeleistung)
-                            iE3DC_Req_Load = e3dc_config.maximumLadeleistung-1; else
-                            iE3DC_Req_Load = iPower+iDiffLadeleistung;
+                                iE3DC_Req_Load = e3dc_config.maximumLadeleistung-1; else
+                                    iE3DC_Req_Load = iPower+iDiffLadeleistung;
                             if (iE3DC_Req_Load >e3dc_config.maximumLadeleistung)
                                 iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
-// Testen Heizstab
-//                            ireq_Heistab++;
-//                            iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
-
+                            // Testen Heizstab
+                            //                            ireq_Heistab++;
+                            //                            iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
+                            
                             
                             if (iPower_PV>0||e3dc_config.unload<0)  // Nur wenn die Sonne scheint
                             {
@@ -3129,87 +3163,49 @@ bDischarge = false;
                                      &&(iE3DC_Req_Load>=(e3dc_config.maximumLadeleistung-1))
                                      )
                                     ||
-// Wenn ein negativer Wert angefordert wird und die Batterie stärker entladen wird sowie aus dem Netz > 100W Strom bezogen wird wird der Freilauf eingeschaltet
+                                    // Wenn ein negativer Wert angefordert wird und die Batterie stärker entladen wird sowie aus dem Netz > 100W Strom bezogen wird wird der Freilauf eingeschaltet
                                     (iE3DC_Req_Load<0&&
                                      (
                                       (
                                        ((iPower_Bat+100)<iE3DC_Req_Load&& fPower_Grid>-100)||
-                                      fPower_Grid>100)
-                                     )
-                                    ))
-// Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
-// und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
-// war, bleibt der Freilauf erhalten
-
-                                {   
-//                                    if (bDischarge)  // Entladen ist zugelassen?
+                                       fPower_Grid>100)
+                                      )
+                                     ))
+                                    // Wenn der aktuelle Wert >= e3dc_config.maximumLadeleistung-1 ist
+                                    // und der zuletzt angeforderte Werte auch >= e3dc_config.maximumLadeleistung-1
+                                    // war, bleibt der Freilauf erhalten
+                                    
+                                {
+                                    //                                    if (bDischarge)  // Entladen ist zugelassen?
                                     if (e3dc_config.debug) printf("RQ2 %i2",iPower);
                                     iLMStatus = 3;
                                     if (iLastReq>0)
                                     {sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                         WriteLog();
                                         iLastReq--;}
-                                        }
+                                }
                                 else
                                 {
-// testweise kein Freilauf
+                                    // testweise kein Freilauf
                                     if (iE3DC_Req_Load == e3dc_config.maximumLadeleistung)
                                     {
-//                                        if (bDischarge)  // Entladen ist zugelassen?
+                                        //                                        if (bDischarge)  // Entladen ist zugelassen?
                                         if (e3dc_config.debug) printf("RQ3 %i",iPower);
-
+                                        
                                         iLMStatus = 3;
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
                                     }else
-                                iLMStatus = -6;
-                                iLastReq = 6;
-                                sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
-                                WriteLog();}
+                                        iLMStatus = -6;
+                                    iLastReq = 6;
+                                    sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                    WriteLog();}
                             } else
-                            iLMStatus = 11;
-                            }
-/*                    else if (fPower_Grid>50){
-// Zurück in den Automatikmodus
-                        ControlLoadData(frameBuffer,0,0);
-                        iLMStatus = 7;}
-*/
+                                iLMStatus = 11;
+                        }
+                    }
                 }
-
           }
     }
-// peakshaving erforderlich?
-    if ((e3dc_config.peakshave != 0)&&(iLMStatus==1))
-    {
-// Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
-        if ((fPower_Grid) > e3dc_config.peakshave-500)
-        {
-            iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
-            if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
-            if (iDiffLadeleistung2 < 0) iDiffLadeleistung2 = 0;
-//            iBattLoad = e3dc_config.peakshave-iPowerHome;
-//            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome+iDiffLadeleistung2;
-//          Es soll die Netzeinspeisung auf einen Mindestwert gesetzt werden
-//            iBattLoad = e3dc_config.peakshave-fPower_Grid+iPower_Bat;
-// wenn iPower_Bat < 0 es wird ausgespeichert oder fPower_Grid > e3dc_config.peakshave
-            if ((iPower_Bat < 0)||(e3dc_config.peakshave<(fPower_Grid)*.9))
-            iE3DC_Req_Load = e3dc_config.peakshave-fPower_Grid+iPower_Bat+iDiffLadeleistung2;
-            else
-                iE3DC_Req_Load = 0;
-                //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
-           if ((iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
-               iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
-           else if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
-                iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
-// Keine Laden aus dem Netz zulassen, nur von der PV
-           if (iE3DC_Req_Load > iPower_PV) iE3DC_Req_Load = iPower_PV;
-//            if (iE3DC_Req_Load > iPower_Bat)
-           if (abs(iE3DC_Req_Load) > 100)
-              iLMStatus = -7;
-            sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
-            WriteLog();
-
-}
-    };
     if (iLMStatus>1) iLMStatus--;
     printf("AVB %0.1f %0.1f ",fAvBatterie,fAvBatterie900);
     printf("DisC %i ",iDischarge);
