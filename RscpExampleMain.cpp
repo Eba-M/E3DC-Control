@@ -2532,7 +2532,7 @@ int LoadDataProcess() {
     int ret; // Steuerung Netzladen = 2, Entladen = 1
         ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
-        if (e3dc_config.debug) printf("D6");
+        if (e3dc_config.debug) printf("D6 %i ",ret);
 
         
         switch (e3dc_config.AWtest) // Testfunktion
@@ -2542,6 +2542,7 @@ int LoadDataProcess() {
             case 3: ret = 2; break;
             case 1: ret = 1;
         }
+        if (e3dc_config.debug) printf("D7 %i ",ret);
 
         if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&
              (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
