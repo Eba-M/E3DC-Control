@@ -3074,7 +3074,9 @@ bDischarge = false;
                              (
                               (iPower > ((iPower_Bat - int32_t(fPower_Grid))/2))
                               &&
-                              (fPower_Grid>100) // Netzbezug
+//                              (fPower_Grid>100) // Netzbezug
+//                              &&
+                              (iPower*2<iPower_Bat) // Netzbezug
                               )
 //                             ||
 //                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
