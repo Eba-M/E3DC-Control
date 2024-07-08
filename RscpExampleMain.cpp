@@ -2549,6 +2549,7 @@ int LoadDataProcess() {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
 //            printf("Netzladen an");
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
+            if (e3dc_config.debug) printf("RQ7 %i ",ret);
             iLMStatus = -7;
             bDischargeDone = false;
             fAvBatterie=0;
@@ -2668,6 +2669,7 @@ bDischarge = false;
                     iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
 //                 printf("Entladen starten ");
             if (e3dc_config.AWtest == 1||e3dc_config.AWtest == 4){
+                printf("\nEntladen %i",iE3DC_Req_Load);
                 iLMStatus = -7;
 //                return 0;
             } else
