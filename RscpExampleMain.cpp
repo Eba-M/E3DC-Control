@@ -2685,7 +2685,8 @@ bDischarge = false;
     
     // HT Endeladeleistung freigeben  ENDE
     
-    
+    if (e3dc_config.debug) printf("D8 %i ",iLMStatus);
+
     
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     
