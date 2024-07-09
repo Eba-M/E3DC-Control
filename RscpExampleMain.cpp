@@ -3164,6 +3164,7 @@ bDischarge = false;
                                 }
                                 else
                                 {
+                                    if (e3dc_config.debug) printf("RQ3 %i",iPower);
                                     iPower = e3dc_config.maximumLadeleistung;
                                 }
                             }
@@ -3212,7 +3213,7 @@ bDischarge = false;
                                     
                                 {
                                     //                                    if (bDischarge)  // Entladen ist zugelassen?
-                                    if (e3dc_config.debug) printf("RQ3 %i2",iPower);
+                                    if (e3dc_config.debug) printf("RQ5 %i2",iPower);
                                     iLMStatus = 3;
                                     if (iLastReq>0)
                                     {sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
@@ -3225,7 +3226,7 @@ bDischarge = false;
                                     if (iE3DC_Req_Load == e3dc_config.maximumLadeleistung)
                                     {
                                         //                                        if (bDischarge)  // Entladen ist zugelassen?
-                                        if (e3dc_config.debug) printf("RQ5 %i",iPower);
+                                        if (e3dc_config.debug) printf("RQ6 %i",iPower);
                                         
                                         iLMStatus = 3;
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
