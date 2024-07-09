@@ -3094,7 +3094,7 @@ bDischarge = false;
                     
                     {
                         // peakshaving erforderlich?
-                        if (e3dc_config.peakshave > 0)
+/*                        if (e3dc_config.peakshave > 0)
                         {
                             // Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
                             if ((fPower_Grid) > e3dc_config.peakshave-500)
@@ -3129,7 +3129,7 @@ bDischarge = false;
                                 
                             }
                         };
-
+*/
                         if (iLMStatus == 1){
                             if
                                 (
