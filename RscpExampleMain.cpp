@@ -2920,7 +2920,7 @@ bDischarge = false;
             }
             else
             {
-                average = average * .99 + iFc/100;
+                average = average * .95 + (iFc/100)*5;
                 iFc = average;
             }
             if (iFc < -8000) iFc = -8000;
