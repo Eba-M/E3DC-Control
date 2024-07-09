@@ -2901,6 +2901,15 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
+            if (e3dc_config.peakshave>0)
+            {
+                if (fPower_Grid>e3dc_config.peakshave)
+                    iFc = iFc - fPower_Grid + e3dc_config.peakshave;
+                else
+                if (fPower_Grid<-100&&iFc<0)
+                    iFc = iFc - fPower_Grid;
+
+            }
             printf("shaving = %i %2.0f %2.0f",iFc,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0||iPower_PV>iPowerHome)
             {
@@ -3083,7 +3092,7 @@ bDischarge = false;
                     
                     {
                         // peakshaving erforderlich?
-/*                        if (e3dc_config.peakshave > 0)
+                        if (e3dc_config.peakshave > 0)
                         {
                             // Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
                             if ((fPower_Grid) > e3dc_config.peakshave-500)
@@ -3109,13 +3118,16 @@ bDischarge = false;
                                 if (iE3DC_Req_Load > iPower_PV) iE3DC_Req_Load = iPower_PV;
                                 //            if (iE3DC_Req_Load > iPower_Bat)
                                 if (abs(iE3DC_Req_Load) > 100)
+                                {
                                     iLMStatus = -7;
-                                sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
-                                WriteLog();
+                                    sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
+                                    WriteLog();
+//                                    return 0;
+                                }
                                 
                             }
                         };
-*/
+
                         if (iLMStatus == 1){
                             if
                                 (
@@ -3127,7 +3139,7 @@ bDischarge = false;
                                    &&
                                    //                              (fPower_Grid>100) // Netzbezug
                                    //                              &&
-                                   (iPower*2<iPower_Bat) // Netzbezug
+                                   (iPower*2>iPower_Bat) // Netzbezug
                                    )
                                   //                             ||
                                   //                             (iPower<iPower_Bat/2)  // er lädt zuviel im Freilauf
@@ -3220,8 +3232,11 @@ bDischarge = false;
                                     iLastReq = 6;
                                     sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
                                     WriteLog();}
-                            } else
+                            } else 
+                            {
+                                if (iLMStatus > 0)
                                 iLMStatus = 11;
+                            }
                         }
                     }
                 }
