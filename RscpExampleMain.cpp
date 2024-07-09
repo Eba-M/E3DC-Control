@@ -2888,8 +2888,8 @@ bDischarge = false;
     static float average = 0;
     if (e3dc_config.unload<0)
     {
-        int itime = (sunsetAt*60+e3dc_config.unload*60);
-        
+        int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
+        idauer = 0;
         if (t>itime)
         {
             idauer = 24*3600-t+sunriseAt*60-e3dc_config.unload*60;
