@@ -2904,10 +2904,12 @@ bDischarge = false;
             if (e3dc_config.peakshave>0)
             {
                 if (fPower_Grid>e3dc_config.peakshave)
-                    iFc = iFc - fPower_Grid + e3dc_config.peakshave;
+//                    iFc = iFc - fPower_Grid + e3dc_config.peakshave;
+                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave;
                 else
                 if (fPower_Grid<-100&&iFc<0)
-                    iFc = iFc - fPower_Grid;
+//                    iFc = iFc - fPower_Grid;
+                    iFc = iBattLoad - fPower_Grid;
 
             }
             printf("shaving = %i %2.0f %2.0f",iFc,fPower_Ext[2],fPower_Ext[3]);
