@@ -3152,6 +3152,8 @@ bDischarge = false;
                                 // die angeforderte Ladeleistung liegt über der verfügbaren Ladeleistung
                             {
                                 if (e3dc_config.debug) printf("RQ1 %i",iPower);
+                                if (idauer>0) iE3DC_Req_Load = iPower;
+                                else
                                 if ((fPower_Grid > 100)&&(iE3DC_Req_Load_alt<(e3dc_config.maximumLadeleistung-1)))
                                     // es liegt Netzbezug vor und System war nicht im Freilauf
                                 {   if (idauer==0)
