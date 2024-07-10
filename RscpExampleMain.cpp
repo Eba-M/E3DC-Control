@@ -1470,6 +1470,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
+
     if (e3dc_config.debug) printf("D4b");
 
 }
@@ -1552,7 +1553,7 @@ int MQTTE3DC()
         return status;
 
     }
-    return -1;
+    return ireq_Heistab;
 }
 
 int tasmotaon(int ch)
@@ -2955,7 +2956,7 @@ bDischarge = false;
                     iFc = iBattLoad - fPower_Grid;
 
             }
-            printf("shaving = %i %i %2.0f %2.0f",idauer,iFc,fPower_Ext[2],fPower_Ext[3]);
+            printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0)
             {
                 iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
