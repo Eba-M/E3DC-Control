@@ -2912,7 +2912,7 @@ bDischarge = false;
                     iFc = iBattLoad - fPower_Grid;
 
             }
-            printf("shaving = %i %2.0f %2.0f",iFc,fPower_Ext[2],fPower_Ext[3]);
+            printf("shaving = %i %i %2.0f %2.0f",idauer,iFc,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0)
             {
                 iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
