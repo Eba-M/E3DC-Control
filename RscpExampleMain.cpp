@@ -108,6 +108,7 @@ static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
+static int iMQTTAval;
 
 
 SunriseCalc * location;
@@ -422,6 +423,7 @@ bool GetConfig()
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
+        strcpy(e3dc_config.mqtt3_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
@@ -553,6 +555,8 @@ bool GetConfig()
                         strcpy(e3dc_config.mqtt_ip, value);
                     else if(strcmp(var, "mqtt2_ip") == 0)
                         strcpy(e3dc_config.mqtt2_ip, value);
+                    else if(strcmp(var, "mqtt3_ip") == 0)
+                        strcpy(e3dc_config.mqtt3_ip, value);
                     else if(strcmp(var, "forecast1") == 0)
                         strcpy(e3dc_config.Forecast[0], value);
                     else if(strcmp(var, "forecast2") == 0)
@@ -1513,6 +1517,44 @@ int tasmotastatus(int ch)
 }
     return 0;
 }
+int MQTTE3DC()
+{
+    //           Test zur Abfrage eines zweiten E3DC
+    if (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
+    {
+        
+        char buf[127];
+        static int WP_status = -1;
+        int status;
+        char path[1024];
+        if (WP_status < 2)
+        {
+            if (e3dc_config.debug) printf("W1");
+            mfp == NULL;
+            sprintf(buf,"mosquitto_sub -h %s -t E3DC-Control/Aval -W 1 -C 1",e3dc_config.mqtt3_ip);
+            mfp = popen(buf, "r");
+            //            int fd = fileno(mfp);
+            //            int flags = fcntl(fd, F_GETFL, 0);
+            //            flags |= O_NONBLOCK;
+            //            fcntl(fd, F_SETFL, flags);
+            WP_status = 2;
+        }
+        if (mfp != NULL)
+            if (fgets(path, 1024, mfp) != NULL)
+            {
+                status = atoi(path);
+            }
+        //        if (WP_status < 2)
+        if (mfp != NULL)
+            pclose(mfp);
+        if (e3dc_config.debug) printf("W2");
+        WP_status = 0;
+        return status;
+
+    }
+    return -1;
+}
+
 int tasmotaon(int ch)
 {
     char buf[127];
@@ -2890,6 +2932,7 @@ bDischarge = false;
     {
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
+        iMQTTAval = MQTTE3DC();
         if (t>itime)
         {
             idauer = 24*3600-t+sunriseAt*60-e3dc_config.unload*60;
@@ -2926,7 +2969,8 @@ bDischarge = false;
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
-        }
+        } else
+            printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
     }
 
 
