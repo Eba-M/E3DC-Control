@@ -1470,6 +1470,8 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
+    sprintf(buf,"E3DC-Control/Grid -m '%i' ",fPower_Grid);
+    MQTTsend(e3dc_config.mqtt2_ip,buf);
 
     if (e3dc_config.debug) printf("D4b");
 
@@ -1532,7 +1534,7 @@ int MQTTE3DC()
         {
             if (e3dc_config.debug) printf("W1");
             mfp == NULL;
-            sprintf(buf,"mosquitto_sub -h %s -t E3DC-Control/Aval -W 1 -C 1",e3dc_config.mqtt3_ip);
+            sprintf(buf,"mosquitto_sub -h %s -t E3DC-Control/Grid -W 1 -C 1",e3dc_config.mqtt3_ip);
             mfp = popen(buf, "r");
             //            int fd = fileno(mfp);
             //            int flags = fcntl(fd, F_GETFL, 0);
