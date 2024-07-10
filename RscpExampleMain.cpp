@@ -2913,14 +2913,14 @@ bDischarge = false;
 
             }
             printf("shaving = %i %2.0f %2.0f",iFc,fPower_Ext[2],fPower_Ext[3]);
-            if (iFc > 0||iPower_PV>iPowerHome)
+            if (iFc > 0)
             {
                 iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
                 average = 0;
             }
             else
             {
-                average = average * .95 + (iFc/100)*5;
+                average = average * .95 + float(iFc)*0.05;
                 iFc = average;
             }
             if (iFc < -8000) iFc = -8000;
