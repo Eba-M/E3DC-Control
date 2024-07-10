@@ -2947,16 +2947,25 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
-            if (e3dc_config.peakshave>0)
+            if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
+// Master E3DC sendet die grid-werte
             {
+
                 if (fPower_Grid>e3dc_config.peakshave)
-//                    iFc = iFc - fPower_Grid + e3dc_config.peakshave;
                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave;
+//                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
+// Besteht noch PV Überschuss?
                 if (fPower_Grid<-100&&iFc<0)
-//                    iFc = iFc - fPower_Grid;
                     iFc = iBattLoad - fPower_Grid;
 
+            }
+            if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
+// Slave E3DC
+            {
+
+                if (iMQTTAval>e3dc_config.peakshave)
+                    iFc = iFc - iMQTTAval + e3dc_config.peakshave;
             }
             printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0)
