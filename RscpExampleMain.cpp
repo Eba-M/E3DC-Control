@@ -2942,7 +2942,16 @@ bDischarge = false;
         }
         if (t<(sunriseAt*60-e3dc_config.unload*60))
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
-        if (idauer > 0&&fBatt_SOC>0)
+// muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
+        if (idauer > 0&&fBatt_SOC>0&&
+            (
+             (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
+            )
+            ||
+            (
+             (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iMQTTAval>500
+            )
+        )
         {
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
@@ -2951,8 +2960,8 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 
-                if (fPower_Grid>e3dc_config.peakshave)
-                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave;
+                if (fPower_Grid>e3dc_config.peakshave-100)
+                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave-100;
 //                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
 // Besteht noch PV Überschuss?
