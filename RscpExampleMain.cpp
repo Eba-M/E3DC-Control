@@ -384,6 +384,7 @@ static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
 static time_t t,t_alt;
 static time_t tm_CONF_dt;
 static bool bCheckConfig;
+struct tm * ptm;
 bool CheckConfig()
 {
     struct stat stats;
@@ -838,6 +839,15 @@ bool GetConfig()
             e3dc_config.htsat = false;
             e3dc_config.htsun = false;        }
     }
+    
+    ptm = gmtime(&t);
+    //      Berechne Sonnenaufgang-/untergang
+    location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
+    location->date(1900+ptm->tm_year, 12,21,  0); // Wintersonnewende
+    sunriseWSW = location->sunrise();
+    location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
+    sunriseAt = location->sunrise();
+    sunsetAt = location->sunset();
 
 
     if ((!fp)||not (fpread)) printf("Configurationsdatei %s nicht gefunden",CONF_FILE);
@@ -1677,11 +1687,17 @@ int LoadDataProcess() {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
         static time_t myt_alt;
-        if (iPower_WP < iPowerHome) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
+        if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
+        } else
+        if (not e3dc_config.WP)
+        {
+            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
+            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
+
         iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
         iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
 
@@ -5532,7 +5548,7 @@ static int iEC = 0;
  time(&t);
     t_alt = t;
 
- struct tm * ptm;
+ 
 
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
@@ -5580,14 +5596,6 @@ static int iEC = 0;
             printf("Program stop Reason e3dc_config.stop=%i",e3dc_config.stop);
             e3dc_config.stop=0;
             iEC++; // Schleifenzähler erhöhen
-            ptm = gmtime(&t);
-            //      Berechne Sonnenaufgang-/untergang
-            location = new SunriseCalc(e3dc_config.hoehe, e3dc_config.laenge, 0);
-            location->date(1900+ptm->tm_year, 12,21,  0); // Wintersonnewende
-            sunriseWSW = location->sunrise();
-            location->date(1900+ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday,  0);
-            sunriseAt = location->sunrise();
-            sunsetAt = location->sunset();
             int hh1 = sunsetAt / 60;
             int mm1 = sunsetAt % 60;
             int hh = sunriseAt / 60;
