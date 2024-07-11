@@ -1695,6 +1695,7 @@ int LoadDataProcess() {
         if (not e3dc_config.WP)
         {
 //            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
+            if ( iWeekhour[weekhour]>893062444) iWeekhour[weekhour]= 0;
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
