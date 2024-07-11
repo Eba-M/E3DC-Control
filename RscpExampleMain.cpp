@@ -1694,6 +1694,7 @@ int LoadDataProcess() {
         } else
         if (not e3dc_config.WP)
         {
+            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
