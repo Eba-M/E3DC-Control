@@ -1723,7 +1723,7 @@ int LoadDataProcess() {
             int x1 = (myt_alt%(24*7*4*900))/900;
             if (iWeekhourWP[weekhour] == 0)
                 iWeekhourWP[weekhour] = 1;
-            if (iWeekhour[x1]>0&&iWeekhour[x1]<2000*900)
+            if (iWeekhour[x1]>0)
                 iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
