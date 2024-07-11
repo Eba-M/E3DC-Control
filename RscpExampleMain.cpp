@@ -2136,7 +2136,7 @@ int LoadDataProcess() {
                     
                 
             }
-            if (e3dc_config.debug||(strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
+            if ((strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
                 float f4 = 0;
                 if (w.size()>0)
@@ -2945,11 +2945,13 @@ bDischarge = false;
 // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
         if (idauer > 0&&fBatt_SOC>0&&
             (
-             (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
-            )
+             (
+              (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
+              )
             ||
-            (
-             (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iMQTTAval>500
+             (
+              (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)&&iMQTTAval>500
+              )
             )
         )
         {
