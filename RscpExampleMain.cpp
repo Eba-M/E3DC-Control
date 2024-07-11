@@ -1695,7 +1695,6 @@ int LoadDataProcess() {
         if (not e3dc_config.WP)
         {
 //            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
-            if ( iWeekhour[weekhour]>893062444) iWeekhour[weekhour]= 0;
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
@@ -1779,7 +1778,10 @@ int LoadDataProcess() {
                     fclose (pFile);
                 }
             }
-            
+
+            if (w.size()>0)
+            {
+
             // alle 15min wird diese Routine durchlaufen
             if (iDayStat[x2]>0)  // war schon vorbelegt
             {
@@ -1828,7 +1830,7 @@ int LoadDataProcess() {
             iDayStat[DayStat] = iPower_PV*(t-myt_alt);
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
             {
-                    // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
+                // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                 f2 = iDayStat[DayStat-1] * e3dc_config.speichergroesse/10000.0;
                 f3 = iDayStat[DayStat-2]/3600.0/1000.0;
                 f4 = 0;
@@ -1853,6 +1855,7 @@ int LoadDataProcess() {
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
                 }
+            }
 // folgende Tagesdatei löschen
                 sprintf(fname,"Ertrag.%i.txt",nextday);
                 fp = fopen(fname, "w");
