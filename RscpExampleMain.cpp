@@ -1694,7 +1694,7 @@ int LoadDataProcess() {
         } else
         if (not e3dc_config.WP)
         {
-            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
+//            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
@@ -1717,8 +1717,8 @@ int LoadDataProcess() {
         int schalter900 = 0;
         int schalter3600 = 0;
 
-        if (((myt_alt%900)>(t%900)||schalter900)
-            &&w.size()>0) // Verbrauchwerte alle 15min erfassen
+        if (((myt_alt%900)>(t%900)||schalter900))
+//            &&w.size()>0) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (myt_alt%(24*7*4*900))/900;
             if (iWeekhourWP[weekhour] == 0)
