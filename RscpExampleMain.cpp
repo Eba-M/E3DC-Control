@@ -66,14 +66,15 @@ static int32_t iPower_PV, iPower_PV_E3DC;
 static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
-static int32_t iPower_WP; // Leistungsaufnahme WP
+static int32_t iPower_WP = 0; // Leistungsaufnahme WP
 static float fPower_Bat;
 static float fPower_Ext[7];
 static int ireq_Heistab; // verfügbare Leistung
 static uint8_t iPhases_WB;
 static uint8_t iCyc_WB;
 static int32_t iBattLoad;
-static int iPowerBalance,iPowerHome;
+static int iPowerBalance = 0;
+static int iPowerHome = 0;
 static uint8_t iNotstrom = 0;
 static time_t tE3DC, tWBtime;
 static int hh,mm,ss;
@@ -2940,7 +2941,8 @@ bDischarge = false;
         {
             idauer = 24*3600-t+sunriseAt*60-e3dc_config.unload*60;
         }
-        if (t<(sunriseAt*60-e3dc_config.unload*60))
+         itime = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
+        if (t<itime)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
 // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
         if (idauer > 0&&fBatt_SOC>0&&
