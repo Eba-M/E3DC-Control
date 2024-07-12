@@ -5617,7 +5617,7 @@ static int iEC = 0;
 //                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
 //            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
             }
-            while (true)
+//            while (true)
                 LoadDataProcess();
                 
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
