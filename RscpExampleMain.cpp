@@ -2981,12 +2981,16 @@ bDischarge = false;
             iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
+            
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
 
                 if (fPower_Grid>e3dc_config.peakshave-100)
-                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave-100;
+// Peakshave höchstens bis zum doppelt Wert erlauben.
+                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
+                        iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave-100;
+                    else iFc = iFc*2;
 //                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
 // Besteht noch PV Überschuss?
@@ -2999,7 +3003,12 @@ bDischarge = false;
             {
 
                 if (iMQTTAval>e3dc_config.peakshave)
-                    iFc = iFc - iMQTTAval + e3dc_config.peakshave;
+// peakshave max. verdoppelung von iFc
+                {
+                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
+                        iFc = iFc - iMQTTAval + e3dc_config.peakshave;
+                    else iFc = iFc*2;
+                }
             }
             if (iFc > 0)
             {
