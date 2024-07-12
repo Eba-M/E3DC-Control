@@ -2962,8 +2962,8 @@ bDischarge = false;
         {
             idauer = 24*3600-t+e3dc_config.unload*60;
         }
-         itime = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
-        if (t<itime)
+         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
+        if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
 // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
         if (idauer > 0&&fBatt_SOC>0&&
@@ -3004,7 +3004,7 @@ bDischarge = false;
             printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0)
             {
-                iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
+//                iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
                 average = 0;
             }
             else
