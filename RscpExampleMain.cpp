@@ -2960,7 +2960,7 @@ bDischarge = false;
         iMQTTAval = MQTTE3DC();
         if (t>itime)
         {
-            idauer = 24*3600-t+e3dc_config.unload*60;
+            idauer = 24*3600-t + sunriseAt*60 - e3dc_config.unload*60;
         }
          int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         if (t<itime2)
@@ -3001,10 +3001,9 @@ bDischarge = false;
                 if (iMQTTAval>e3dc_config.peakshave)
                     iFc = iFc - iMQTTAval + e3dc_config.peakshave;
             }
-            printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
             if (iFc > 0)
             {
-//                iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
+                iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
                 average = 0;
             }
             else
@@ -3015,6 +3014,8 @@ bDischarge = false;
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
+            printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+
         } else
             printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
     }
