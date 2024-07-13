@@ -3028,7 +3028,7 @@ bDischarge = false;
 
         } else
         {
-            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
+//            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
             printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
         
