@@ -2956,6 +2956,7 @@ bDischarge = false;
     if (e3dc_config.unload<0)
     {
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
+        int minsoc = 5;
         idauer = 0;
         iMQTTAval = MQTTE3DC();
         if (t>itime)
@@ -2966,7 +2967,7 @@ bDischarge = false;
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
 // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
-        if (idauer > 0&&fBatt_SOC>0&&
+        if (idauer > 0&&fBatt_SOC>minsoc&&
             (
              (
               (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
@@ -2978,7 +2979,7 @@ bDischarge = false;
             )
         )
         {
-            iFc = fBatt_SOC*e3dc_config.speichergroesse*10*3600;
+            iFc = (fBatt_SOC-minsoc)*e3dc_config.speichergroesse*10*3600;
             iFc = iFc / idauer *-1;
             iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             
@@ -3026,7 +3027,11 @@ bDischarge = false;
             printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
 
         } else
+        {
+            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
             printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+        }
+        
     }
 
 
