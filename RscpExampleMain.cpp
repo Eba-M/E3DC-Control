@@ -109,7 +109,9 @@ static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
-static int iMQTTAval;
+static int iMQTTAval = 0;
+static int iGridStat[31*24*4]; //15min Gridbezug Monat
+static int Gridstat;
 
 
 SunriseCalc * location;
@@ -1702,6 +1704,10 @@ int LoadDataProcess() {
         iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
         iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
 
+        Gridstat = (ptm->tm_mday-1)*24*4;
+        Gridstat = Gridstat+t%(24*3600)/900;
+        iGridStat[Gridstat] = iGridStat[Gridstat] + fPower_Grid*(t-myt_alt);
+
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
         float f2,f3;
@@ -2958,7 +2964,7 @@ bDischarge = false;
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int minsoc = 5;
         idauer = 0;
-        iMQTTAval = MQTTE3DC();
+        iMQTTAval = iMQTTAval*.95 + MQTTE3DC()*.05;
         if (t>itime)
         {
             idauer = 24*3600-t + sunriseAt*60 - e3dc_config.unload*60;
@@ -3006,9 +3012,9 @@ bDischarge = false;
                 if (iMQTTAval>e3dc_config.peakshave)
 // peakshave max. verdoppelung von iFc
                 {
-                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
+//                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
                         iFc = iFc - iMQTTAval + e3dc_config.peakshave;
-                    else iFc = iFc*2;
+//                    else iFc = iFc*2;
                 }
             }
             if (iFc > 0)
@@ -4618,10 +4624,15 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
                     printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,float(iWeekhour[weekhour])/x4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
-                    if (e3dc_config.WP)
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/x4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
+                        printf(" %0.04f/%0.04f/%0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/x4/1000.0); // Tages Hausverbrauch
+                    }
+// Grid
+                    if (e3dc_config.WP)
+                    {
+//                        printf("%c[K\n", 27 );
+                        printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/x4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                     }
                 }
                 printf("%c[K\n", 27 );
