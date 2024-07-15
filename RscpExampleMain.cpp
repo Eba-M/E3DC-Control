@@ -110,7 +110,9 @@ static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int iMQTTAval = 0;
-static int iGridStat[31*24*4]; //15min Gridbezug Monat
+static u_int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
+static char fnameGrid[100];
+
 static int Gridstat;
 
 
@@ -478,6 +480,7 @@ bool GetConfig()
         e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = 0;
+        e3dc_config.peakshavesoc = 0;
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
@@ -757,6 +760,8 @@ bool GetConfig()
                         e3dc_config.AWSimulation = atoi(value); // max länge eines Wintertages
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
+                    else if(strcmp(var, "peakshavesoc") == 0)
+                        e3dc_config.peakshavesoc = atoi(value); // in Watt
                     else if(strcmp(var, "soc") == 0)
                         e3dc_config.soc = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -1764,7 +1769,23 @@ int LoadDataProcess() {
             if ((myt_alt%(4*3600))>(t%(4*3600)))
                 //              if ((t_alt%(900))>(t%(900)))  // alle 15 min wegschreiben
             {
+// Gridwerte speichern, wenn Monatswechsel, speichern, Werte löschen, neue Monatdatei anlegen
                 
+                pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
+                if (pFile!=NULL)
+                {
+                    x1 = fwrite (iGridStat , sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                sprintf(fname,"Grid.%i.%i.dat",ptm->tm_year%100,ptm->tm_mon+1);
+                if (strcmp(fname,fnameGrid)!=0)
+                {
+                    for (int x1=0;x1<sizeof(iGridStat)/sizeof(uint32_t);x1++)
+                        iGridStat[x1]=0;
+                    strcpy(fnameGrid,fname);
+                }
+
+
                 if ((myt_alt%(24*3600))>(t%(24*3600)))
                 {
                     iWeekhour[dayhour] = 0;
@@ -2962,7 +2983,6 @@ bDischarge = false;
     if (e3dc_config.unload<0)
     {
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
-        int minsoc = 5;
         idauer = 0;
         iMQTTAval = iMQTTAval*.95 + MQTTE3DC()*.05;
         if (t>itime)
@@ -2973,7 +2993,10 @@ bDischarge = false;
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
 // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
-        if (idauer > 0&&fBatt_SOC>minsoc&&
+// innerhalb des Nachtbetriebs und tagsüber wenn < minsoc und iPowerhome > peakshave
+// dann wird nur auf e3dc_config.peakshave geregelt (Master)
+        if ((idauer > 0||fBatt_SOC<e3dc_config.peakshavesoc)
+            &&
             (
              (
               (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
@@ -2985,19 +3008,22 @@ bDischarge = false;
             )
         )
         {
-            iFc = (fBatt_SOC-minsoc)*e3dc_config.speichergroesse*10*3600;
-            iFc = iFc / idauer *-1;
-            iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
-            
+            if (idauer>0&&fBatt_SOC-e3dc_config.peakshavesoc>0)
+            {
+                iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
+                iFc = iFc / idauer *-1;
+                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
+            }
+            else iFc = 0;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
 
                 if (fPower_Grid>e3dc_config.peakshave-100)
 // Peakshave höchstens bis zum doppelt Wert erlauben.
-                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
+//                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
                         iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave-100;
-                    else iFc = iFc*2;
+//                    else iFc = iFc*2;
 //                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
 // Besteht noch PV Überschuss?
@@ -3009,11 +3035,11 @@ bDischarge = false;
 // Slave E3DC
             {
 
-                if (iMQTTAval>e3dc_config.peakshave)
+                if (iMQTTAval>e3dc_config.peakshave-100)
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iFc - iMQTTAval + e3dc_config.peakshave;
+                        iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave;
 //                    else iFc = iFc*2;
                 }
             }
@@ -3026,7 +3052,9 @@ bDischarge = false;
             {
                 average = average * .95 + float(iFc)*0.05;
                 iFc = average;
+                if (idauer == 0) idauer = 1;
             }
+            
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
@@ -4619,20 +4647,20 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     int x1 = (t_alt%(24*7*4*900))/900;
                     int x2 = (t_alt%(24*7*4*900))/900;
                     int x3 = (t_alt%(24*7*4*900))/900;
-                    int x4 = (t_alt%(900))+1; //(0..899) daher +1 
+                    float f4 = (t_alt%(900))+1; //(0..899) daher +1
 
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
-                    printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,float(iWeekhour[weekhour])/x4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.04f/%0.04f/%0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/x4/1000.0); // Tages Hausverbrauch
+                        printf(" %0.04f/%0.04f/%0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0); // Tages Hausverbrauch
                     }
 // Grid
                     if (e3dc_config.WP)
                     {
 //                        printf("%c[K\n", 27 );
-                        printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/x4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
+                        printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                     }
                 }
                 printf("%c[K\n", 27 );
@@ -5620,6 +5648,16 @@ static int iEC = 0;
             x1 = fread (&iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
+        pFile = NULL;
+        sprintf(fnameGrid,"Grid.%i.%i.dat",ptm->tm_year%100,ptm->tm_mon+1);
+        pFile = fopen(fnameGrid,"rb");       // altes logfile löschen
+
+        if (pFile!=NULL)
+        {
+            size_t x1 = sizeof(iGridStat);
+            x1 = fread (&iGridStat, sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
 
     }
     
@@ -5716,6 +5754,12 @@ static int iEC = 0;
                 if (pFile!=NULL)
                 {
                     x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
+                if (pFile!=NULL)
+                {
+                    x1 = fwrite (iGridStat , sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
 
