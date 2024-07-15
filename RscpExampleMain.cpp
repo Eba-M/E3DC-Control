@@ -4619,7 +4619,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     int x1 = (t_alt%(24*7*4*900))/900;
                     int x2 = (t_alt%(24*7*4*900))/900;
                     int x3 = (t_alt%(24*7*4*900))/900;
-                    int x4 = (t_alt%(900));
+                    int x4 = (t_alt%(900))+1; //(0..899) daher +1 
 
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
