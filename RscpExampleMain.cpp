@@ -110,7 +110,7 @@ static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int iMQTTAval = 0;
-static u_int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
+static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
 static char fnameGrid[100];
 
 static int Gridstat;
@@ -1774,13 +1774,14 @@ int LoadDataProcess() {
                 pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
                 if (pFile!=NULL)
                 {
-                    x1 = fwrite (iGridStat , sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
+                    x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
                     fclose (pFile);
                 }
+                ptm = gmtime(&t);
                 sprintf(fname,"Grid.%i.%i.dat",ptm->tm_year%100,ptm->tm_mon+1);
                 if (strcmp(fname,fnameGrid)!=0)
                 {
-                    for (int x1=0;x1<sizeof(iGridStat)/sizeof(uint32_t);x1++)
+                    for (int x1=0;x1<sizeof(iGridStat)/sizeof(int32_t);x1++)
                         iGridStat[x1]=0;
                     strcpy(fnameGrid,fname);
                 }
@@ -5655,7 +5656,7 @@ static int iEC = 0;
         if (pFile!=NULL)
         {
             size_t x1 = sizeof(iGridStat);
-            x1 = fread (&iGridStat, sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
+            x1 = fread (&iGridStat, sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
             fclose (pFile);
         }
 
@@ -5759,7 +5760,7 @@ static int iEC = 0;
                 pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
                 if (pFile!=NULL)
                 {
-                    x1 = fwrite (iGridStat , sizeof(uint32_t), sizeof(iGridStat)/sizeof(uint32_t), pFile);
+                    x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
                     fclose (pFile);
                 }
 
