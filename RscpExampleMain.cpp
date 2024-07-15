@@ -3046,8 +3046,12 @@ bDischarge = false;
             }
             if (iFc > 0)
             {
-                iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
-                average = 0;
+                average = average * .95 + float(iFc)*0.05;
+                if (average > 0) 
+                {
+                    iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
+                    average = 0;
+                }
             }
             else
             {
@@ -3064,6 +3068,12 @@ bDischarge = false;
         } else
         {
 //            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
+            if (idauer>0&&average>500)
+            {
+                average = average * .95;
+                iFc = average;
+            }
+            else
             idauer = 0;
             printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
