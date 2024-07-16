@@ -2698,7 +2698,9 @@ if (                             // Das Entladen aus dem Speicher
     ||(iNotstrom==4)  //Inselbetrieb
    ){
             // ENdladen einschalten)
-        if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5)
+        if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5
+            &&(e3dc_config.peakshave==0||fBatt_SOC>e3dc_config.peakshavesoc)  //peakshave?
+            )
 {            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
         WriteLog();
     iLMStatus = 10;
@@ -3000,11 +3002,11 @@ bDischarge = false;
             &&
             (
              (
-              (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-500
+              (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-200
               )
             ||
              (
-              (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)&&iMQTTAval>500
+              (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)&&iMQTTAval>0
               )
             )
         )
@@ -3019,7 +3021,8 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
-
+                if (iPowerHome<iFc*-1)
+                    iFc = iPowerHome*-1;
                 if (fPower_Grid>e3dc_config.peakshave-100)
 // Peakshave höchstens bis zum doppelt Wert erlauben.
 //                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
@@ -3035,7 +3038,9 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
-
+                if (iMQTTAval<500)  // Leistung sanft zusteuern
+                    iFc = iFc/500.0*iMQTTAval;
+                
                 if (iMQTTAval>e3dc_config.peakshave-100)
 // peakshave max. verdoppelung von iFc
                 {
@@ -3068,7 +3073,7 @@ bDischarge = false;
         } else
         {
 //            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
-            if (idauer>0&&average>500)
+            if (idauer>0&&average<-500)
             {
                 average = average * .95;
                 iFc = average;
