@@ -3021,7 +3021,7 @@ bDischarge = false;
               )
             ||
              (
-              (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)&&iMQTTAval>0
+              (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
               )
             )
         )
