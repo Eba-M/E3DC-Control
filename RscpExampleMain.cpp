@@ -100,6 +100,8 @@ static float fht; // Reserve aus ht berechnet
 // 
 int forecastpeaktime;  //
 float forecastpeak;    //
+float fpeakshaveminsoc; // Wenn peakshave dann wird hier der MindestSoc im Tagesverlauf berechnet
+// am Morgen, d.h. sonnenaufgang + zeitversatz aus unload mit ziel 50% bei Sonnenuntergang - Zeitversatz unload. Wird der wert unterschritten, wird das entladen gestoppt, ist er um 10% unterschritten wird aus dem Netz geladen, soweit der Netzbezug unter peakshave liegt.
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
@@ -2699,7 +2701,7 @@ if (                             // Das Entladen aus dem Speicher
    ){
             // ENdladen einschalten)
         if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5
-            &&(e3dc_config.peakshave==0||fBatt_SOC>e3dc_config.peakshavesoc)  //peakshave?
+            &&(e3dc_config.peakshave==0||fBatt_SOC>fpeakshaveminsoc)  //peakshave?
             )
 {            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
         WriteLog();
@@ -2995,7 +2997,20 @@ bDischarge = false;
          int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
-// muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
+        if (idauer == 0) 
+        {
+// Tagesbetrieb
+            fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
+            fpeakshaveminsoc = (t-itime2)/fpeakshaveminsoc;      //% restregeldauer
+            fpeakshaveminsoc = (50-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+        } else // Nachtbetrieb
+        {
+            fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
+            fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
+            fpeakshaveminsoc = (50-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+
+        }
+        // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
 // innerhalb des Nachtbetriebs und tagsüber wenn < minsoc und iPowerhome > peakshave
 // dann wird nur auf e3dc_config.peakshave geregelt (Master)
         if ((idauer > 0||fBatt_SOC<e3dc_config.peakshavesoc)
@@ -3011,7 +3026,8 @@ bDischarge = false;
             )
         )
         {
-            if (idauer>0&&fBatt_SOC-e3dc_config.peakshavesoc>0)
+
+            if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / idauer *-1;
@@ -3031,32 +3047,41 @@ bDischarge = false;
 //                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
 // Besteht noch PV Überschuss?
-                if (fPower_Grid<-100&&iFc<0)
-                    iFc = iBattLoad - fPower_Grid;
-
+                {
+// Nachladen aus dem Netz
+                    if (fpeakshaveminsoc > fBatt_SOC&&fPower_Grid-100<e3dc_config.peakshave)
+                        iFc = -fPower_Grid+e3dc_config.peakshave-100;
+                        
+                    if (fPower_Grid<-100&&iFc<0)
+                        iFc = iBattLoad - fPower_Grid;
+                }
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
                 if (iMQTTAval<500)  // Leistung sanft zusteuern
-                    iFc = iFc/500.0*iMQTTAval;
+                    iFc = (iFc/500.0)*iMQTTAval;
                 
                 if (iMQTTAval>e3dc_config.peakshave-100)
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave;
+                        iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 100;
 //                    else iFc = iFc*2;
                 }
             }
+            int iFc2 = iFc;
             if (iFc > 0)
             {
                 average = average * .95 + float(iFc)*0.05;
-                if (average > 0) 
+/*
+                if (average > 0)
                 {
                     iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
                     average = 0;
                 }
+  */
+                iFc = average;
             }
             else
             {
@@ -3068,7 +3093,8 @@ bDischarge = false;
             if (iFc < -8000) iFc = -8000;
             iMinLade = iFc;
             iBattLoad = iFc;
-            printf("shaving = %i %i %i %2.0f %2.0f",idauer,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+            printf("%c[K\n", 27 );
+            printf("shavingA = %i %i %i %i %2.0f %2.0f",idauer,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
 
         } else
         {
@@ -3080,7 +3106,8 @@ bDischarge = false;
             }
             else
             idauer = 0;
-            printf("shaving = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+            printf("%c[K\n", 27 );
+            printf("shavingB = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
         
     }
