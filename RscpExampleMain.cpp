@@ -437,6 +437,7 @@ bool GetConfig()
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.stop = 0; // 1 = Programm beenden
+        e3dc_config.test = 0; // 1 = Programm beenden
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
         e3dc_config.openmeteo = false;
@@ -586,6 +587,8 @@ bool GetConfig()
                         e3dc_config.wrsteuerung = atoi(value);
                     else if(strcmp(var, "stop") == 0)
                         e3dc_config.stop = atoi(value);
+                    else if(strcmp(var, "test") == 0)
+                        e3dc_config.test = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
                         if
                            (strcmp(value, "true") == 0)
@@ -1684,7 +1687,7 @@ int LoadDataProcess() {
     t_sav = t;
     
     if (e3dc_config.debug) printf("D1a");
-
+    if (not e3dc_config.test)
     mqtt();
     
     if (e3dc_config.debug) printf("D2");
@@ -2989,7 +2992,10 @@ bDischarge = false;
     {
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
+        if (not e3dc_config.test)
         iMQTTAval = iMQTTAval*.95 + MQTTE3DC()*.05;
+        else
+            iMQTTAval = 500;
         if (t>itime)
         {
             idauer = 24*3600-t + sunriseAt*60 - e3dc_config.unload*60;
@@ -3013,11 +3019,21 @@ bDischarge = false;
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
 // innerhalb des Nachtbetriebs und tagsüber wenn < minsoc und iPowerhome > peakshave
 // dann wird nur auf e3dc_config.peakshave geregelt (Master)
-        if ((idauer > 0||fBatt_SOC<e3dc_config.peakshavesoc)
+        if (e3dc_config.test) // testparameter einstellen
+        {
+//            idauer = 100;
+//            fpeakshaveminsoc = 10;
+            fBatt_SOC = 29;
+            iPowerHome = 1000;
+            fPower_Grid = 0;
+            
+        }
+
+        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc)
             &&
             (
              (
-              (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)&&iPower_PV<iPowerHome-200
+              (strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0)
               )
             ||
              (
@@ -3049,9 +3065,9 @@ bDischarge = false;
 // Besteht noch PV Überschuss?
                 {
 // Nachladen aus dem Netz
-                    if (fpeakshaveminsoc > fBatt_SOC&&fPower_Grid-100<e3dc_config.peakshave)
+                    if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&fPower_Grid+100<e3dc_config.peakshave)
                         iFc = -fPower_Grid+e3dc_config.peakshave-100;
-                        
+// Einspeisung
                     if (fPower_Grid<-100&&iFc<0)
                         iFc = iBattLoad - fPower_Grid;
                 }
@@ -3073,8 +3089,8 @@ bDischarge = false;
             int iFc2 = iFc;
             if (iFc > 0)
             {
-                if (iFc >1000) iFc = 1000;
-                average = average * .95 + float(iFc)*0.05;
+                if (iFc >8000) iFc = 8000;
+                average = average * .99 + float(iFc)*0.01;
 /*
                 if (average > 0)
                 {
@@ -3087,30 +3103,33 @@ bDischarge = false;
             else
             {
                 if (iFc < -8000) iFc = -8000;
-                average = average * .95 + float(iFc)*0.05;
+                average = average * .98 + float(iFc)*0.02;
                 iFc = average;
-                if (idauer == 0) idauer = 1;
             }
+//            if (iFc != 0 && idauer == 0)
+            if (idauer == 0)
+                idauer = 1;
+
             
             if (iFc < -8000) iFc = -8000;
-            if (iFc > 1000) iFc = 1000;
+            if (iFc > 8000) iFc = 8000;
             iMinLade = iFc;
             iBattLoad = iFc;
             printf("%c[K\n", 27 );
-            printf("shavingA = %i %i %i %i %2.0f %2.0f",idauer,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+            printf("shavingA = %i %.2f %i %i %i %2.0f %2.0f",idauer,fpeakshaveminsoc,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
 
         } else
         {
 //            iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
             if (idauer>0&&average<-500)
             {
-                average = average * .95;
+                average = average * .98;
                 iFc = average;
             }
             else
             idauer = 0;
             printf("%c[K\n", 27 );
-            printf("shavingB = %i %i %i %2.0f %2.0f",t-itime,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+            printf("shavingB = %i %.2f %i %i %2.0f %2.0f",t-itime,fpeakshaveminsoc,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
         
     }
@@ -5728,9 +5747,11 @@ static int iEC = 0;
 //                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
 //            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
             }
-//            while (true)
+            while (e3dc_config.test)
                 LoadDataProcess();
-                
+
+            LoadDataProcess();
+
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) 
