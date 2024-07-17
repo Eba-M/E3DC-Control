@@ -3073,6 +3073,7 @@ bDischarge = false;
             int iFc2 = iFc;
             if (iFc > 0)
             {
+                if (iFc >1000) iFc = 1000;
                 average = average * .95 + float(iFc)*0.05;
 /*
                 if (average > 0)
@@ -3085,12 +3086,14 @@ bDischarge = false;
             }
             else
             {
+                if (iFc < -8000) iFc = -8000;
                 average = average * .95 + float(iFc)*0.05;
                 iFc = average;
                 if (idauer == 0) idauer = 1;
             }
             
             if (iFc < -8000) iFc = -8000;
+            if (iFc > 1000) iFc = 1000;
             iMinLade = iFc;
             iBattLoad = iFc;
             printf("%c[K\n", 27 );
