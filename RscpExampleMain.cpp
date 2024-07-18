@@ -475,6 +475,7 @@ bool GetConfig()
         e3dc_config.ladeende = LADEENDE;
         e3dc_config.ladeende2 = LADEENDE2;
         e3dc_config.wbmaxladestrom = WBMAXLADESTROM;
+        e3dc_config.wbminladestrom = 6;
         e3dc_config.unload = 100;
         e3dc_config.ht = 0;
         e3dc_config.htsat = false;
@@ -749,6 +750,8 @@ bool GetConfig()
                         e3dc_config.wbminlade = atoi(value);
                     else if(strcmp(var, "wbmaxladestrom") == 0)
                         e3dc_config.wbmaxladestrom = atoi(value);
+                    else if(strcmp(var, "wbminladestrom") == 0)
+                        e3dc_config.wbminladestrom = atoi(value);
                     else if(strcmp(var, "wbhour") == 0)
                         e3dc_config.wbhour = atoi(value);
                     else if(strcmp(var, "wbvon") == 0)
@@ -3742,7 +3745,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     }
                 }
 
-                if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == 6)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
+                if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == e3dc_config.wbminladestrom)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
                 {//iPower = -20000;
 // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
@@ -4149,9 +4152,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBChar_alt = WBchar6[1];
                         iWBStatus = 30;
                     } else
-                    if (WBchar[2] != 6)
+                    if (WBchar[2] != e3dc_config.wbminladestrom)
                         {
-                            WBchar6[1] = 6;  // Laden von 6A aus
+                            WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
                             WBchar6[4] = 0; // Toggle aus
                             if (e3dc_config.debug) printf("WB14");
 

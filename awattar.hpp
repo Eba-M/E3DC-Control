@@ -46,7 +46,7 @@ typedef struct {
     char openweathermap[50];
     char BWWPTasmota[50];
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo,statistik;
-    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wrsteuerung,stop,test;
+    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wbminladestrom,wrsteuerung,stop,test;
     int32_t ht, unload,untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshavesoc,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl,shelly0V10Vmin,shelly0V10Vmax;
     float_t RB,RE,LE,speichergroesse,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,
