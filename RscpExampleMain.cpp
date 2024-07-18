@@ -3096,7 +3096,7 @@ bDischarge = false;
             int iFc2 = iFc;
             if (iFc > 0)
             {
-                if (iFc >8000) iFc = 8000;
+//                if (iFc >8000) iFc = 8000;
                 average = average * .99 + float(iFc)*0.01;
 /*
                 if (average > 0)
