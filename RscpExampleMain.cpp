@@ -3028,8 +3028,9 @@ bDischarge = false;
             fPower_Grid = 0;
             
         }
-
         if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc)
+
+//        if (((idauer > 0||fBatt_SOC<fpeakshaveminsoc)&&fPower_Grid>100)
             &&
             (
              (
@@ -3049,7 +3050,11 @@ bDischarge = false;
                 iFc = iFc / idauer *-1;
                 iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
-            else iFc = 0;
+            else 
+                if( fPower_Grid < -100)   
+                    iFc = fPower_Grid*-1;
+                else
+                    iFc = 0;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
@@ -3075,7 +3080,7 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
-                if (iMQTTAval<500)  // Leistung sanft zusteuern
+                if (iMQTTAval<500&&iMQTTAval>-500)  // Leistung sanft zusteuern
                     iFc = (iFc/500.0)*iMQTTAval;
                 
                 if (iMQTTAval>e3dc_config.peakshave-100)
@@ -3085,6 +3090,8 @@ bDischarge = false;
                         iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 100;
 //                    else iFc = iFc*2;
                 }
+//                if (iPower_PV_E3DC > 100)
+//                    iFc = iPower_PV_E3DC;
             }
             int iFc2 = iFc;
             if (iFc > 0)
