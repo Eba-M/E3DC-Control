@@ -3119,7 +3119,7 @@ bDischarge = false;
 
             
             if (iFc < -8000) iFc = -8000;
-            if (iFc > 8000) iFc = 8000;
+//            if (iFc > 8000) iFc = 8000;
 //            iMinLade = iFc;
             iBattLoad = iFc;
             printf("%c[K\n", 27 );
