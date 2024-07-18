@@ -3091,7 +3091,7 @@ bDischarge = false;
 //                    else iFc = iFc*2;
                 }
                 if (iPower_PV_E3DC > 100&&iMQTTAval<-500)
-                    iFc = iPower_PV_E3DC;
+                    iFc = iPower_PV_E3DC-iMQTTAval;
             }
             int iFc2 = iFc;
             if (iFc > 0)
@@ -3120,7 +3120,7 @@ bDischarge = false;
             
             if (iFc < -8000) iFc = -8000;
             if (iFc > 8000) iFc = 8000;
-            iMinLade = iFc;
+//            iMinLade = iFc;
             iBattLoad = iFc;
             printf("%c[K\n", 27 );
             printf("shavingA = %i %.2f %i %i %i %2.0f %2.0f",idauer,fpeakshaveminsoc,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
