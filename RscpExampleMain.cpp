@@ -3090,8 +3090,8 @@ bDischarge = false;
                         iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 100;
 //                    else iFc = iFc*2;
                 }
-//                if (iPower_PV_E3DC > 100)
-//                    iFc = iPower_PV_E3DC;
+                if (iPower_PV_E3DC > 100&&iMQTTAval<-500)
+                    iFc = iPower_PV_E3DC;
             }
             int iFc2 = iFc;
             if (iFc > 0)
