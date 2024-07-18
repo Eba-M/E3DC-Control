@@ -2995,7 +2995,7 @@ bDischarge = false;
         if (not e3dc_config.test)
         iMQTTAval = iMQTTAval*.95 + MQTTE3DC()*.05;
         else
-            iMQTTAval = 500;
+            iMQTTAval = 4000;
         if (t>itime)
         {
             idauer = 24*3600-t + sunriseAt*60 - e3dc_config.unload*60;
@@ -3068,7 +3068,7 @@ bDischarge = false;
                     if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&fPower_Grid+100<e3dc_config.peakshave)
                         iFc = -fPower_Grid+e3dc_config.peakshave-100;
 // Einspeisung
-                    if (fPower_Grid<-100&&iFc<0)
+                    if (fPower_Grid<-100&&iFc<=0)
                         iFc = iBattLoad - fPower_Grid;
                 }
             }
