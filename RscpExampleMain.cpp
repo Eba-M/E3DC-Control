@@ -3089,6 +3089,9 @@ bDischarge = false;
             {
                 if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern
                     iFc = (iFc/500.0)*iMQTTAval;
+                else
+                    if (iMQTTAval <= 100) iFc = 0;
+                
                 
                 if (iMQTTAval>e3dc_config.peakshave-100)
 // peakshave max. verdoppelung von iFc
@@ -3097,6 +3100,7 @@ bDischarge = false;
                         iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 100;
 //                    else iFc = iFc*2;
                 }
+// Laden aus dem PV-Überschuss da unter der fpeakshaveminsoc gefallen ist
                 static int MQTTAval;
                 if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
                 else
