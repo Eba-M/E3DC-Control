@@ -3123,7 +3123,7 @@ bDischarge = false;
             if (iFc > 0)
             {
 //                if (iFc >8000) iFc = 8000;
-                average = average * .99 + float(iFc)*0.02;
+                average = average * .98 + float(iFc)*0.02;
 /*
                 if (average > 0)
                 {
