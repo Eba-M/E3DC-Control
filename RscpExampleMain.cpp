@@ -3083,7 +3083,7 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
-                if (iMQTTAval<500&&iMQTTAval>-500)  // Leistung sanft zusteuern
+                if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern
                     iFc = (iFc/500.0)*iMQTTAval;
                 
                 if (iMQTTAval>e3dc_config.peakshave-100)
