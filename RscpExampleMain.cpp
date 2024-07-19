@@ -3011,12 +3011,12 @@ bDischarge = false;
 // Tagesbetrieb
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             fpeakshaveminsoc = (t-itime2)/fpeakshaveminsoc;      //% restregeldauer
-            fpeakshaveminsoc = (50-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            fpeakshaveminsoc = (90-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
-            fpeakshaveminsoc = (50-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            fpeakshaveminsoc = (90-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
 
         }
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
@@ -3120,7 +3120,7 @@ bDischarge = false;
             if (iFc > 0)
             {
 //                if (iFc >8000) iFc = 8000;
-                average = average * .99 + float(iFc)*0.01;
+                average = average * .99 + float(iFc)*0.02;
 /*
                 if (average > 0)
                 {
