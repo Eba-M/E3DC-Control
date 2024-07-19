@@ -3113,7 +3113,7 @@ bDischarge = false;
                     else
                         iFc = iPower_PV_E3DC;
                 }
-                if (iFc < -22000) iFc = -22000;
+                if (iFc > 22000) iFc = 22000;
                 
             }
             int iFc2 = iFc;
