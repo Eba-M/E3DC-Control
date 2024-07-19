@@ -3029,6 +3029,7 @@ bDischarge = false;
         {
 //            idauer = 100;
 //            fpeakshaveminsoc = 10;
+            iMQTTAval = 4000;
             fBatt_SOC = 29;
             iPowerHome = 1000;
             fPower_Grid = 0;
@@ -3112,9 +3113,9 @@ bDischarge = false;
                 if (iPower_PV_E3DC > 100)
                 {
                     if (iMQTTAval<-500)
-                        iFc = iPower_PV_E3DC-MQTTAval;
+                        iFc = iFc + iPower_PV_E3DC-MQTTAval;
                     else
-                        iFc = iPower_PV_E3DC;
+                        iFc = iFc + iPower_PV_E3DC;
                 }
                 if (iFc > 22000) iFc = 22000;
                 
