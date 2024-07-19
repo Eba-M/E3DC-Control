@@ -3094,8 +3094,8 @@ bDischarge = false;
 //                    else iFc = iFc*2;
                 }
                 static int MQTTAval;
-                if (MQTTAval > iMQTTAval) MQTTAval = MQTTAval;
-                else 
+                if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
+                else
                 {
                     if
                         (iMQTTAval<-1000)
