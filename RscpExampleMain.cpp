@@ -485,6 +485,7 @@ bool GetConfig()
         e3dc_config.htsockel = 0;
         e3dc_config.peakshave = 0;
         e3dc_config.peakshavesoc = 0;
+        e3dc_config.peakshaveuppersoc = 50;
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
@@ -770,6 +771,8 @@ bool GetConfig()
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "peakshavesoc") == 0)
                         e3dc_config.peakshavesoc = atoi(value); // in Watt
+                    else if(strcmp(var, "peakshaveuppersoc") == 0)
+                        e3dc_config.peakshaveuppersoc = atoi(value); // in Watt
                     else if(strcmp(var, "soc") == 0)
                         e3dc_config.soc = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -3011,12 +3014,12 @@ bDischarge = false;
 // Tagesbetrieb
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             fpeakshaveminsoc = (t-itime2)/fpeakshaveminsoc;      //% restregeldauer
-            fpeakshaveminsoc = (90-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
-            fpeakshaveminsoc = (90-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
 
         }
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
