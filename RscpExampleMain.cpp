@@ -3104,6 +3104,8 @@ bDischarge = false;
                         MQTTAval = MQTTAval + 10;
                     
                 }
+                if (MQTTAval < -20000)
+                    MQTTAval = -20000;
                 if (iPower_PV_E3DC > 100)
                 {
                     if (iMQTTAval<-500)
@@ -3111,6 +3113,8 @@ bDischarge = false;
                     else
                         iFc = iPower_PV_E3DC;
                 }
+                if (iFc < -22000) iFc = -22000;
+                
             }
             int iFc2 = iFc;
             if (iFc > 0)
