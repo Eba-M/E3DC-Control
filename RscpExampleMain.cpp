@@ -3058,9 +3058,9 @@ bDischarge = false;
                 iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else 
-                if( fPower_Grid < -100)   
-                    iFc = fPower_Grid*-1;
-                else
+//                if( fPower_Grid < -100)
+//                    iFc = fPower_Grid*-1;
+//                else
                     iFc = 0;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
@@ -3078,12 +3078,12 @@ bDischarge = false;
                 {
 // Nachladen aus dem Netz
                     if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&fPower_Grid+100<e3dc_config.peakshave)
-                        iFc = iBattLoad - fPower_Grid*3;
+                        iFc = iBattLoad - fPower_Grid;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
 
                     // Einspeisung
                     if (fPower_Grid<-100&&iFc<=0)
-                        iFc = iBattLoad - fPower_Grid*2;
+                        iFc = iBattLoad - fPower_Grid;
                 }
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
