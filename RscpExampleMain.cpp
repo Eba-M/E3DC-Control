@@ -3082,9 +3082,10 @@ bDischarge = false;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
 
                     // Einspeisung
-                    if (fPower_Grid<-100&&iFc<=0)
+                    if (fPower_Grid<-200&&iFc<=0)
                         iFc = iBattLoad - fPower_Grid*2;
-                    
+                    if (fPower_Grid<0&&iFc<=0)
+                        iFc = iBattLoad;
                 }
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
