@@ -3078,8 +3078,10 @@ bDischarge = false;
                 {
 // Nachladen aus dem Netz
                     if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&fPower_Grid+100<e3dc_config.peakshave)
-                        iFc = -fPower_Grid+e3dc_config.peakshave-100;
-// Einspeisung
+                        iFc = -fPower_Grid;
+//                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
+
+                    // Einspeisung
                     if (fPower_Grid<-100&&iFc<=0)
                         iFc = iBattLoad - fPower_Grid;
                 }
@@ -3112,8 +3114,8 @@ bDischarge = false;
                         MQTTAval = MQTTAval + 10;
                     
                 }
-                if (MQTTAval < -20000)
-                    MQTTAval = -20000;
+                if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
+                    MQTTAval = e3dc_config.maximumLadeleistung*-1;
                 if (iPower_PV_E3DC > 100)
                 {
                     if (iMQTTAval<-500)
@@ -3121,7 +3123,7 @@ bDischarge = false;
                     else
                         iFc = iFc + iPower_PV_E3DC;
                 }
-                if (iFc > 22000) iFc = 22000;
+                if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
                 
             }
             int iFc2 = iFc;
@@ -3140,7 +3142,7 @@ bDischarge = false;
             }
             else
             {
-                if (iFc < -8000) iFc = -8000;
+                if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
                 average = average * .98 + float(iFc)*0.02;
                 iFc = average;
             }
@@ -3149,7 +3151,7 @@ bDischarge = false;
                 idauer = 1;
 
             
-            if (iFc < -8000) iFc = -8000;
+            if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
 //            if (iFc > 8000) iFc = 8000;
 //            iMinLade = iFc;
             iBattLoad = iFc;
