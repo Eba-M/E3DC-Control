@@ -3078,12 +3078,13 @@ bDischarge = false;
                 {
 // Nachladen aus dem Netz
                     if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&fPower_Grid+100<e3dc_config.peakshave)
-                        iFc = iBattLoad - fPower_Grid;
+                        iFc = iBattLoad - fPower_Grid*3;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
 
                     // Einspeisung
                     if (fPower_Grid<-100&&iFc<=0)
-                        iFc = iBattLoad - fPower_Grid;
+                        iFc = iBattLoad - fPower_Grid*2;
+                    
                 }
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
