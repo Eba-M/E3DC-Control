@@ -3118,12 +3118,9 @@ bDischarge = false;
                 }
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
-                if (iPower_PV_E3DC > 100)
+                if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
-                    if (iMQTTAval<-500)
-                        iFc = iFc + iPower_PV_E3DC-MQTTAval;
-                    else
-                        iFc = iFc + iPower_PV_E3DC;
+                        iFc = iBattLoad + MQTTAval;
                 }
                 if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
                 
