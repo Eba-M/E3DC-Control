@@ -3120,7 +3120,7 @@ bDischarge = false;
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
                 if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
-                        iFc = iBattLoad + MQTTAval;
+                        iFc = iBattLoad - MQTTAval;
                 }
                 if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
                 
