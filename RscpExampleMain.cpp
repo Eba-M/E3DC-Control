@@ -3116,7 +3116,7 @@ bDischarge = false;
                         (iMQTTAval<-1000)
                         MQTTAval = MQTTAval + iMQTTAval/100;
                     else
-                        MQTTAval = MQTTAval + 10;
+                        MQTTAval = MQTTAval + 100;
                     
                 }
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
@@ -3125,7 +3125,11 @@ bDischarge = false;
                 {
                         iFc = iBattLoad - MQTTAval;
                 }
-                if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
+                else
+                    if ((iMQTTAval) < -100)
+                        iFc = iBattLoad;
+
+                    if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
                 
             }
             int iFc2 = iFc;
