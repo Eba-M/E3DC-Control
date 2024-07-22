@@ -3082,6 +3082,8 @@ bDischarge = false;
                         iFc = iBattLoad - fPower_Grid*3;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
 
+                    iFc3 = iFc;
+
                     // Einspeisung
                     if (fPower_Grid<-500&&iFc<=0)
                         iFc = iBattLoad - fPower_Grid*2;
@@ -3092,7 +3094,6 @@ bDischarge = false;
                     }
                 }
             }
-            iFc3 = iFc;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
