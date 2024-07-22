@@ -3119,27 +3119,30 @@ bDischarge = false;
                         (iMQTTAval<-1000)
                         MQTTAval = MQTTAval + iMQTTAval/100;
                     else
-                        MQTTAval = MQTTAval + 100;
+                        MQTTAval = MQTTAval + 20;
                     
                 }
+                iFc3 = MQTTAval;
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
+
                 if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
                         iFc = iBattLoad - MQTTAval;
                 }
                 else
-                    if ((iMQTTAval) < -100)
+                    if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
 
-                    if (iFc > e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung*-1;
+                if (iFc > e3dc_config.maximumLadeleistung)
+                    iFc = e3dc_config.maximumLadeleistung;
                 
             }
             int iFc2 = iFc;
             if (iFc > 0)
             {
 //                if (iFc >8000) iFc = 8000;
-                average = average * .98 + float(iFc)*0.02;
+                average = average * .95 + float(iFc)*0.05;
 /*
                 if (average > 0)
                 {
