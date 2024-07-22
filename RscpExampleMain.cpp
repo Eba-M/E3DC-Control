@@ -3133,6 +3133,9 @@ bDischarge = false;
                 else
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
+                    else 
+                        if (iMQTTAval>100&&iFc>0)
+                            iFc = iMQTTAval*-1;
 
                 if (iFc > e3dc_config.maximumLadeleistung)
                     iFc = e3dc_config.maximumLadeleistung;
