@@ -3062,6 +3062,7 @@ bDischarge = false;
 //                    iFc = fPower_Grid*-1;
 //                else
                     iFc = 0;
+            int iFc3 = iFc;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
@@ -3162,7 +3163,7 @@ bDischarge = false;
 //            iMinLade = iFc;
             iBattLoad = iFc;
             printf("%c[K\n", 27 );
-            printf("shavingA = %i %.2f %i %i %i %2.0f %2.0f",idauer,fpeakshaveminsoc,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
+            printf("shavingA = %i %.2f %i %i %i %i %2.0f %2.0f",idauer,fpeakshaveminsoc,iFc3,iFc2,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
 
         } else
         {
