@@ -3092,6 +3092,7 @@ bDischarge = false;
                     }
                 }
             }
+            iFc3 = iFc;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
