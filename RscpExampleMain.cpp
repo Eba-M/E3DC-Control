@@ -3086,11 +3086,14 @@ bDischarge = false;
 
                     // Einspeisung
                     if (fPower_Grid<-500&&iFc<=0)
-                        iFc = iBattLoad - fPower_Grid*2;
+                        iFc = iBattLoad - fPower_Grid;
                     else 
                     {
                         if (fPower_Grid<-200&&iFc<=0)
                             iFc = iBattLoad;
+                        else if (fPower_Grid>500)
+// Strombezug aus dem Netz
+                            iFc =  -fPower_Grid;
                     }
                 }
             }
