@@ -3078,12 +3078,15 @@ bDischarge = false;
 // Besteht noch PV Überschuss?
                 {
 // Nachladen aus dem Netz
-                    if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&(fPower_Grid+100)>e3dc_config.peakshave)
+/*                    if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&(fPower_Grid+100)>e3dc_config.peakshave)
                         iFc = iBattLoad - fPower_Grid*3;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
-
+*/
                     iFc3 = iFc;
 
+                    if (iFc > iBattLoad)
+                        iFc = iFc - iBattLoad;
+                    
                     // Einspeisung
                     if (iFc == 0)
                     {
