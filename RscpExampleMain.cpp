@@ -3085,7 +3085,7 @@ bDischarge = false;
                     iFc3 = iFc;
 
                     if (iFc > iBattLoad)
-                        iFc = iFc - iBattLoad;
+                        iFc = iFc - iBattLoad/2;
                     
                     // Einspeisung
                     if (iFc == 0)
@@ -3120,7 +3120,7 @@ bDischarge = false;
 //                    else iFc = iFc*2;
                 } else
                     if (iFc > iBattLoad)
-                        iFc = iFc - iBattLoad;
+                        iFc = iFc - iBattLoad/2;
 // Laden aus dem PV-Überschuss da unter der fpeakshaveminsoc gefallen ist
                 static int MQTTAval;
                 if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
