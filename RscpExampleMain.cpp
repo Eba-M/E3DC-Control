@@ -3112,13 +3112,15 @@ bDischarge = false;
                     if (iMQTTAval <= 100) iFc = 0;
                 
                 
-                if (iMQTTAval>e3dc_config.peakshave-100)
+                if (iMQTTAval>e3dc_config.peakshave-200)
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 100;
+                        iFc = iBattLoad - iMQTTAval + e3dc_config.peakshave - 200;
 //                    else iFc = iFc*2;
-                }
+                } else
+                    if (iFc > iBattLoad)
+                        iFc = iFc - iBattLoad;
 // Laden aus dem PV-Überschuss da unter der fpeakshaveminsoc gefallen ist
                 static int MQTTAval;
                 if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
