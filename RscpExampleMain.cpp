@@ -3071,7 +3071,7 @@ bDischarge = false;
                 if (fPower_Grid>e3dc_config.peakshave-200)
 // Peakshave höchstens bis zum doppelt Wert erlauben.
 //                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
-                        iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave)*2;
+                        iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave)*5;
 //                    else iFc = iFc*2;
 //                iFc = iBattLoad - (-fPower_Grid + e3dc_config.peakshave)*2;
                 else
@@ -3116,7 +3116,7 @@ bDischarge = false;
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*2;
+                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*5;
 //                    else iFc = iFc*2;
                 } else
                     if (iFc > iBattLoad)
