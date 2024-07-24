@@ -3035,7 +3035,7 @@ bDischarge = false;
             fPower_Grid = 0;
             
         }
-        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc||iMinLade2>fAvBatterie900)
+        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc||iMinLade>fAvBatterie900)
 
 //        if (((idauer > 0||fBatt_SOC<fpeakshaveminsoc)&&fPower_Grid>100)
             &&
@@ -3055,7 +3055,7 @@ bDischarge = false;
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / idauer *-1;
-//                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
+                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else 
 //                if( fPower_Grid < -100)
@@ -3069,7 +3069,7 @@ bDischarge = false;
                 if (iPowerHome<iFc*-1)
                     iFc = iPowerHome*-1;
                 if (fPower_Grid>e3dc_config.peakshave-200)
-// Peakshave höchstens bis zum doppelt Wert erlauben.
+// Peakshave Grenze erreich Entladeleistung erhöhen
 //                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
                         iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave)*5;
 //                    else iFc = iFc*2;
@@ -3077,11 +3077,11 @@ bDischarge = false;
                 else
 // Besteht noch PV Überschuss?
                 {
-// Nachladen aus dem Netz
-/*                    if (fpeakshaveminsoc > fBatt_SOC+e3dc_config.peakshavesoc&&(fPower_Grid+100)>e3dc_config.peakshave)
-                        iFc = iBattLoad - fPower_Grid*3;
-//                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
-*/
+// Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 10% unter Soll
+                   if (fpeakshaveminsoc-2 > fBatt_SOC&&(fPower_Grid+100)<e3dc_config.peakshave)
+//                        iFc = iBattLoad - fPower_Grid*3;
+                    iFc =  -fPower_Grid+e3dc_config.peakshave;
+
                     iFc3 = iFc;
                     if (iFc<0)
                     {
