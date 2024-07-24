@@ -3055,7 +3055,7 @@ bDischarge = false;
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / idauer *-1;
-                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
+//                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else 
 //                if( fPower_Grid < -100)
@@ -3083,10 +3083,14 @@ bDischarge = false;
 //                    iFc = -fPower_Grid+e3dc_config.peakshave-100;
 */
                     iFc3 = iFc;
-
-                    if (iFc > iBattLoad)
-                        iFc = iFc - iBattLoad/2;
-                    
+                    if (iFc<0)
+                    {
+                        if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
+                            iFc = iBattLoad + fPower_Grid;
+                        else
+                            if (iFc > iBattLoad)
+                                iFc = iFc - iBattLoad/2;
+                    }
                     // Einspeisung
                     if (iFc == 0)
                     {
