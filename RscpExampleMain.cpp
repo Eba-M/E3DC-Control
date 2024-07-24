@@ -3035,7 +3035,7 @@ bDischarge = false;
             fPower_Grid = 0;
             
         }
-        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc)
+        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc||iMinLade2>fAvBatterie900)
 
 //        if (((idauer > 0||fBatt_SOC<fpeakshaveminsoc)&&fPower_Grid>100)
             &&
