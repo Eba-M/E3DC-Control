@@ -3089,7 +3089,7 @@ bDischarge = false;
                             iFc = 0;
                         else
                         if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
-                            iFc = iBattLoad - fPower_Grid/2;
+                            iFc = iBattLoad + fPower_Grid/2;
                         else
                             if (iFc > iBattLoad)
                                 iFc = iFc - iBattLoad/2;
