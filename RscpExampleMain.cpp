@@ -3068,6 +3068,10 @@ bDischarge = false;
             {
                 if (iPowerHome<iFc*-1)
                     iFc = iPowerHome*-1;
+                if (iFc<fPower_Grid*-1) // mehr ausspeisen als netzbezug?
+                    iFc = fPower_Grid*-1;
+                if (fPower_Grid < -100) // es wird eingspeist
+                    iFc = 0;
                 if (fPower_Grid>e3dc_config.peakshave-200)
 // Peakshave Grenze erreich Entladeleistung erhöhen
 //                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
@@ -3078,15 +3082,15 @@ bDischarge = false;
 // Besteht noch PV Überschuss?
                 {
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 10% unter Soll
-                   if (fpeakshaveminsoc-2 > fBatt_SOC&&(fPower_Grid+100)<e3dc_config.peakshave)
+                   if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid+200)<e3dc_config.peakshave)
 //                        iFc = iBattLoad - fPower_Grid*3;
-                    iFc =  -fPower_Grid+e3dc_config.peakshave;
+                       iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave;
 
                     iFc3 = iFc;
                     if (iFc<0)
                     {
                         if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
-                            iFc = iBattLoad + fPower_Grid;
+                            iFc = iBattLoad + fPower_Grid/2;
                         else
                             if (iFc > iBattLoad)
                                 iFc = iFc - iBattLoad/2;
