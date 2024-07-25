@@ -3066,12 +3066,6 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
-                if (iPowerHome<iFc*-1)
-                    iFc = iPowerHome*-1;
-                if (iFc<fPower_Grid*-1) // mehr ausspeisen als netzbezug?
-                    iFc = fPower_Grid*-1;
-                if (fPower_Grid < -100) // es wird eingspeist
-                    iFc = 0;
                 if (fPower_Grid>e3dc_config.peakshave-200)
 // Peakshave Grenze erreich Entladeleistung erhöhen
 //                    if ((iBattLoad - fPower_Grid + e3dc_config.peakshave-100)<iFc*2)
@@ -3089,6 +3083,11 @@ bDischarge = false;
                     iFc3 = iFc;
                     if (iFc<0)
                     {
+                        if (iPowerHome<iFc*-1)
+                            iFc = iPowerHome*-1;
+                        if (fPower_Grid < -100) // es wird eingspeist
+                            iFc = 0;
+                        else
                         if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
                             iFc = iBattLoad + fPower_Grid/2;
                         else
