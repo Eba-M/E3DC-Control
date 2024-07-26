@@ -3036,6 +3036,8 @@ bDischarge = false;
             fPower_Grid = 0;
             
         }
+
+        static int MQTTAval;
         if (
             (idauer > 0
              ||
@@ -3057,7 +3059,6 @@ bDischarge = false;
             )
         )
         {
-
             if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
@@ -3136,7 +3137,6 @@ bDischarge = false;
                     if (iFc > iBattLoad)
                         iFc = iFc - iBattLoad/2;
 // Laden aus dem PV-Überschuss da unter der fpeakshaveminsoc gefallen ist
-                static int MQTTAval;
                 if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
                 else
                 {
@@ -3208,6 +3208,7 @@ bDischarge = false;
             }
             else
             idauer = 0;
+            MQTTAval = MQTTAval*.95;
             printf("%c[K\n", 27 );
             printf("shavingB = %i %.2f %i %i %2.0f %2.0f",t-itime,fpeakshaveminsoc,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
