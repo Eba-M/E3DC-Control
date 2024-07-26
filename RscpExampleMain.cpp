@@ -3036,7 +3036,13 @@ bDischarge = false;
             fPower_Grid = 0;
             
         }
-        if ((idauer > 0||fBatt_SOC<fpeakshaveminsoc||iMinLade>fAvBatterie900)
+        if (
+            (idauer > 0
+             ||
+             fBatt_SOC<fpeakshaveminsoc
+             ||
+             (iMinLade>fAvBatterie900&&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
+             )
 
 //        if (((idauer > 0||fBatt_SOC<fpeakshaveminsoc)&&fPower_Grid>100)
             &&
