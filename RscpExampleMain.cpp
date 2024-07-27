@@ -3013,7 +3013,7 @@ bDischarge = false;
         {
 // Tagesbetrieb
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
-            fpeakshaveminsoc = (t-itime2-2*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
+            fpeakshaveminsoc = (t-itime2-0*3600)/(fpeakshaveminsoc-0*3600);      //% restregeldauer
             // Beginn um 3h nach hinten verschieben
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
         } else // Nachtbetrieb
