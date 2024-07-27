@@ -3146,7 +3146,7 @@ bDischarge = false;
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*5;
+                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*2;
 //                    else iFc = iFc*2;
                 } else
                     if (iFc > iBattLoad)
