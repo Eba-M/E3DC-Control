@@ -3183,9 +3183,10 @@ bDischarge = false;
                 iFc = average;
             }
             else
+            if (iFc < 0)
             {
                 if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
-                average = average * .98 + float(iFc)*0.02;
+                average = average * .95 + float(iFc)*0.05;
                 iFc = average;
             }
 //            if (iFc != 0 && idauer == 0)
