@@ -3120,8 +3120,8 @@ bDischarge = false;
                     }
                 }
 
-                if (iFc > e3dc_config.maximumLadeleistung-100)
-                    iFc = e3dc_config.maximumLadeleistung-100;
+                if (iFc > e3dc_config.maximumLadeleistung-500)
+                    iFc = e3dc_config.maximumLadeleistung-500;
 
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
@@ -3176,14 +3176,14 @@ bDischarge = false;
                 iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
 
             
-                if (iFc > e3dc_config.maximumLadeleistung-100)
-                    iFc = e3dc_config.maximumLadeleistung-100;
+                if (iFc > e3dc_config.maximumLadeleistung-500)
+                    iFc = e3dc_config.maximumLadeleistung-500;
                 
             }
             int iFc2 = iFc;
             if (iFc > 0)
             {
-//                if (iFc >8000) iFc = 8000;
+                if (iFc >e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung-500;
                 average = average * .95 + float(iFc)*0.05;
 /*
                 if (average > 0)
