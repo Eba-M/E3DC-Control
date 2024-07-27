@@ -3168,7 +3168,7 @@ bDischarge = false;
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
                     else 
-                        if (iMQTTAval>200)
+//                        if (iMQTTAval>200)
                             iFc = iBattLoad - iMQTTAval;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
