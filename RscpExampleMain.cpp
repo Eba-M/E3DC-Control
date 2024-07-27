@@ -3165,7 +3165,7 @@ bDischarge = false;
                 iFc3 = MQTTAval;
 // von der aktuellen Bezugsleistung starten
                 
-                if (iBattLoad > iPower_PV) iBattLoad = iPower_PV;
+                if (iBattLoad > iPower_Bat) iBattLoad = iPower_Bat;
 
                 
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
@@ -3257,7 +3257,7 @@ bDischarge = false;
     {
         fAvBatterie = iMinLade*e3dc_config.powerfaktor;
         fAvBatterie900 = iMinLade*e3dc_config.powerfaktor;
-        if (iMinLade > e3dc_config.maximumLadeleistung) 
+        if (fAvBatterie900  > e3dc_config.maximumLadeleistung)
         {
             iMinLade = e3dc_config.maximumLadeleistung;
             fAvBatterie = e3dc_config.maximumLadeleistung;
