@@ -3146,7 +3146,7 @@ bDischarge = false;
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*2;
+                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*0.5;
 //                    else iFc = iFc*2;
                 } else
                     if (iFc > iBattLoad)
@@ -3162,7 +3162,8 @@ bDischarge = false;
                         MQTTAval = MQTTAval + iMQTTAval/100;
                     
                 }
-                iFc3 = MQTTAval;
+                    iFc3 = iFc;
+//                iFc3 = MQTTAval;
 // von der aktuellen Bezugsleistung starten
                 
 //                if (iBattLoad > iPower_Bat) iBattLoad = iPower_Bat;
@@ -3182,7 +3183,7 @@ bDischarge = false;
 //                        if (iMQTTAval>200)
 // Überschuss es kann eingespeichert werden
 //                        iFc = iBattLoad - iMQTTAval*2;
-                            iFc = iFc - iMQTTAval*2;
+                            iFc = iFc - iMQTTAval;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
