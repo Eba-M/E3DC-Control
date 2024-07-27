@@ -3172,10 +3172,13 @@ bDischarge = false;
                             iFc = iMQTTAval*-1;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                if (fpeakshaveminsoc-5 > fBatt_SOC&&(iMQTTAval)<e3dc_config.peakshave-500)
-                iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
+                if (fpeakshaveminsoc-5 > fBatt_SOC)
+                    if (iMQTTAval<e3dc_config.peakshave-500)
+                        iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
+                    else
+                        iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
 
-            
+                        
                 if (iFc > e3dc_config.maximumLadeleistung-500)
                     iFc = e3dc_config.maximumLadeleistung-500;
                 
