@@ -3165,7 +3165,7 @@ bDischarge = false;
                 iFc3 = MQTTAval;
 // von der aktuellen Bezugsleistung starten
                 
-                if (iBattLoad > iPower_Bat) iBattLoad = iPower_Bat;
+//                if (iBattLoad > iPower_Bat) iBattLoad = iPower_Bat;
 
                 
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
@@ -3180,7 +3180,9 @@ bDischarge = false;
                         iFc = iBattLoad;
                     else 
 //                        if (iMQTTAval>200)
-                            iFc = iBattLoad - iMQTTAval*2;
+// Überschuss es kann eingespeichert werden
+//                        iFc = iBattLoad - iMQTTAval*2;
+                            iFc = iMQTTAval*2;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
