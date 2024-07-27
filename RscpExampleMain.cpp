@@ -2710,7 +2710,7 @@ if (                             // Das Entladen aus dem Speicher
    ){
             // ENdladen einschalten)
         if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5
-            &&(e3dc_config.peakshave==0||fBatt_SOC>fpeakshaveminsoc)  //peakshave?
+            &&(e3dc_config.peakshave==0)  //peakshave?
             )
 {            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
         WriteLog();
