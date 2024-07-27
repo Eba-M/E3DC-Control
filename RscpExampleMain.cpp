@@ -3201,6 +3201,14 @@ bDischarge = false;
                 average = average * .95 + float(iFc)*0.05;
                 iFc = average;
             }
+            else
+                if (iFc ==0)
+                {
+                    average = average * .9;
+                    if (average < 100) average = 0;
+                    iFc = average;
+
+                }
 //            if (iFc != 0 && idauer == 0)
             if (idauer == 0)
                 idauer = 1;
