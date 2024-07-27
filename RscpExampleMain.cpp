@@ -3148,7 +3148,7 @@ bDischarge = false;
 // peakshave max. verdoppelung von iFc
                 {
 //                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
-                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*0.5;
+                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave)*2;
 //                    else iFc = iFc*2;
                 } else
                     if (iFc > iBattLoad)
@@ -3180,7 +3180,7 @@ bDischarge = false;
                 else
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
-//                    else 
+//                    else
 //                        if (iMQTTAval>200)
 // Überschuss es kann eingespeichert werden
 //                        iFc = iBattLoad - iMQTTAval*2;
