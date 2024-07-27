@@ -3229,6 +3229,7 @@ bDischarge = false;
             if (idauer == 0)
                 idauer = 1;
 
+            if (abs(iFc)<100) iFc = 0;
             
             if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
 //            if (iFc > 8000) iFc = 8000;
