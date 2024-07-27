@@ -3111,10 +3111,10 @@ bDischarge = false;
                         {
                             if (fPower_Grid<-200)
                                 iFc = iBattLoad;
-                            else if (fPower_Grid>500)
+/*                            else if (fPower_Grid>500)
                                 // Strombezug aus dem Netz
                                 iFc =  -fPower_Grid;
-                        }
+*/                        }
                     }
                 }
             }
@@ -3208,7 +3208,7 @@ bDischarge = false;
             }
             else
             idauer = 0;
-            MQTTAval = MQTTAval*.95;
+            MQTTAval = MQTTAval*.9;
             printf("%c[K\n", 27 );
             printf("shavingB = %i %.2f %i %i %2.0f %2.0f",t-itime,fpeakshaveminsoc,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
