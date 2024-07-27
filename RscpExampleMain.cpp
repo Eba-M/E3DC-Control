@@ -3085,10 +3085,10 @@ bDischarge = false;
                 else
 // Besteht noch PV Überschuss?
                 {
-// Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 10% unter Soll
-                   if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid+200)<e3dc_config.peakshave)
+// Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
+                   if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
 //                        iFc = iBattLoad - fPower_Grid*3;
-                       iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave;
+                       iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
 
                     iFc3 = iFc;
                     if (iFc<0)
@@ -3119,6 +3119,10 @@ bDischarge = false;
 */                        }
                     }
                 }
+
+                if (iFc > e3dc_config.maximumLadeleistung-100)
+                    iFc = e3dc_config.maximumLadeleistung-100;
+
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
@@ -3150,6 +3154,9 @@ bDischarge = false;
                     
                 }
                 iFc3 = MQTTAval;
+                
+
+                
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
 
@@ -3164,8 +3171,13 @@ bDischarge = false;
                         if (iMQTTAval>100&&iFc>0)
                             iFc = iMQTTAval*-1;
 
-                if (iFc > e3dc_config.maximumLadeleistung-1000)
-                    iFc = e3dc_config.maximumLadeleistung-1000;
+// Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
+                if (fpeakshaveminsoc-5 > fBatt_SOC&&(iMQTTAval)<e3dc_config.peakshave-500)
+                iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
+
+            
+                if (iFc > e3dc_config.maximumLadeleistung-100)
+                    iFc = e3dc_config.maximumLadeleistung-100;
                 
             }
             int iFc2 = iFc;
