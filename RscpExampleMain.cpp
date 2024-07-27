@@ -3135,11 +3135,12 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
+
                 if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern
                     iFc = (iFc/500.0)*iMQTTAval;
                 else
                     if (iMQTTAval <= 100) iFc = 0;
-                
+
                 
                 if (iMQTTAval>e3dc_config.peakshave-200)
 // peakshave max. verdoppelung von iFc
@@ -3162,7 +3163,9 @@ bDischarge = false;
                     
                 }
                 iFc3 = MQTTAval;
+// von der aktuellen Bezugsleistung starten
                 
+                if (iBattLoad > iPower_PV) iBattLoad = iPower_PV;
 
                 
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
