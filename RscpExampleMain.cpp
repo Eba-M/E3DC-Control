@@ -3013,7 +3013,7 @@ bDischarge = false;
         {
 // Tagesbetrieb
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
-            fpeakshaveminsoc = (t-itime2-1*3600)/(fpeakshaveminsoc-1*3600);      //% restregeldauer
+            fpeakshaveminsoc = (t-itime2-2*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
             // Beginn um 3h nach hinten verschieben
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
         } else // Nachtbetrieb
@@ -3148,9 +3148,9 @@ bDischarge = false;
                 {
                     if
                         (iMQTTAval<-1000)
-                        MQTTAval = MQTTAval + iMQTTAval/100;
+                        MQTTAval = MQTTAval + iMQTTAval/20;
                     else
-                        MQTTAval = MQTTAval + 20;
+                        MQTTAval = MQTTAval + iMQTTAval/100;
                     
                 }
                 iFc3 = MQTTAval;
@@ -3168,8 +3168,8 @@ bDischarge = false;
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
                     else 
-                        if (iMQTTAval>100&&iFc>0)
-                            iFc = iMQTTAval*-1;
+                        if (iMQTTAval>200)
+                            iFc = iBattLoad - iMQTTAval;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
