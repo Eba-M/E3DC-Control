@@ -3182,7 +3182,7 @@ bDischarge = false;
 //                        if (iMQTTAval>200)
 // Überschuss es kann eingespeichert werden
 //                        iFc = iBattLoad - iMQTTAval*2;
-                            iFc = iFc + iMQTTAval*2;
+                            iFc = iFc - iMQTTAval*2;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
