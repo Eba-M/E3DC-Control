@@ -1719,7 +1719,15 @@ int LoadDataProcess() {
 
         iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
         iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-
+        if (e3dc_config.tasmota)
+        {
+            if (tasmota_status[3] == 1) // Brauchwasserwärmepumpe
+            {
+                iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
+                iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
+            }
+        }
+        
         Gridstat = (ptm->tm_mday-1)*24*4;
         Gridstat = Gridstat+t%(24*3600)/900;
         iGridStat[Gridstat] = iGridStat[Gridstat] + fPower_Grid*(t-myt_alt);
@@ -3169,7 +3177,7 @@ bDischarge = false;
                         iFc = iBattLoad;
                     else 
 //                        if (iMQTTAval>200)
-                            iFc = iBattLoad - iMQTTAval;
+                            iFc = iBattLoad - iMQTTAval*2;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
