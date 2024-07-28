@@ -3007,7 +3007,7 @@ bDischarge = false;
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
         if (not e3dc_config.test)
-        iMQTTAval = iMQTTAval*.95 + MQTTE3DC()*.05;
+        iMQTTAval = iMQTTAval*.80 + MQTTE3DC()*.20;
         else
             iMQTTAval = 4000;
         if (t>itime)
@@ -3121,6 +3121,8 @@ bDischarge = false;
                         {
                             if (fPower_Grid<-200)
                                 iFc = iBattLoad;
+                            else
+                                iFc = iBattLoad*.9;
 /*                            else if (fPower_Grid>500)
                                 // Strombezug aus dem Netz
                                 iFc =  -fPower_Grid;
