@@ -3119,7 +3119,7 @@ bDischarge = false;
                             if (fPower_Grid<-200)
                                 iFc = iBattLoad;
                             else
-                                iFc = iBattLoad*.9;
+                                iFc = iBattLoad*.7;
 /*                            else if (fPower_Grid>500)
                                 // Strombezug aus dem Netz
                                 iFc =  -fPower_Grid;
