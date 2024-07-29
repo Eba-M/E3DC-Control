@@ -851,7 +851,7 @@ bool GetConfig()
         e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
         if (e3dc_config.powerfaktor < 0)
             e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
-        if (e3dc_config.aWATTar > 0&&e3dc_config.aWATTar <=2) {
+        if (e3dc_config.aWATTar) {
 // wenn awattar dann hton/htoff deaktivieren
             e3dc_config.htoff = e3dc_config.hton+1;
             e3dc_config.htsat = false;
@@ -2641,10 +2641,10 @@ int LoadDataProcess() {
         
         
         
-        if (e3dc_config.debug) printf("D5");
+        if (e3dc_config.debug) printf("D5\n");
 
     int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
-    if (e3dc_config.aWATTar < 2)
+    if (e3dc_config.aWATTar)
         ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
         if (e3dc_config.debug) printf("D6 %i ",ret);
