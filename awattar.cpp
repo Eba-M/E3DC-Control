@@ -1090,7 +1090,7 @@ if (e3dc.AWLand == 2)
                             }
 
                             fclose(fp);
-                            
+printf("GET api.awattar done\n");
 
                         };
                         }

@@ -2643,7 +2643,8 @@ int LoadDataProcess() {
         
         if (e3dc_config.debug) printf("D5");
 
-    int ret; // Steuerung Netzladen = 2, Entladen = 1
+    int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
+    if (e3dc_config.aWATTar < 2)
         ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
         if (e3dc_config.debug) printf("D6 %i ",ret);
