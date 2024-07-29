@@ -3069,7 +3069,8 @@ bDischarge = false;
             )
         )
         {
-            if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
+            if (idauer>0&&fBatt_SOC-e3dc_config.peakshavesoc>0)
+//                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / idauer *-1;
@@ -5741,8 +5742,10 @@ if (e3dc_config.debug) printf("M6");
             else {
                 // go into receive loop and wait for response
                 sleep(1);
-//                printf("%c[2J", 27 );
-                printf("%c[H", 27 );
+                if (e3dc_config.debug)
+                    printf("%c[2J", 27 );
+                else
+                    printf("%c[H", 27 );
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
