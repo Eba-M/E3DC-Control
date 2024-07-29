@@ -851,7 +851,7 @@ bool GetConfig()
         e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
         if (e3dc_config.powerfaktor < 0)
             e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
-        if (e3dc_config.aWATTar > 0) {
+        if (e3dc_config.aWATTar > 0&&e3dc_config.aWATTar <=2) {
 // wenn awattar dann hton/htoff deaktivieren
             e3dc_config.htoff = e3dc_config.hton+1;
             e3dc_config.htsat = false;
@@ -2657,7 +2657,7 @@ int LoadDataProcess() {
             case 3: ret = 2; break;
             case 1: ret = 1;
         }
-        if (e3dc_config.debug) printf("D7 %i ",ret);
+        if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
         if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&
              (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
@@ -5674,7 +5674,7 @@ static void mainLoop(void)
         if(iAuthenticated == 1) {
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1");
-            if (e3dc_config.aWATTar)
+            if (e3dc_config.aWATTar||e3dc_config.openmeteo)
             aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise);
 //            test;
             if (e3dc_config.debug) printf("M2");
@@ -5700,7 +5700,7 @@ static void mainLoop(void)
                  bWBRequest = true;
             else
                  bWBRequest = false;
-if (e3dc_config.debug) printf("M5");
+if (e3dc_config.debug) printf("M5\n");
 
         if(frameBuffer.dataLength == 0)
             LoadDataProcess();
