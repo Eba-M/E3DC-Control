@@ -1096,6 +1096,8 @@ printf("GET api.awattar done\n");
                         }
 
             }
+        if (e3dc.debug)
+            printf("wetter.size = %i\n",wetter.size());
 if (wetter.size()==0) return;
 if (e3dc.openmeteo)
 {
