@@ -5673,28 +5673,28 @@ static void mainLoop(void)
         // create an RSCP frame with requests to some example data
         if(iAuthenticated == 1) {
             int sunrise = sunriseAt;
-            if (e3dc_config.debug) printf("M1");
+            if (e3dc_config.debug) printf("M1\n");
             if (e3dc_config.aWATTar||e3dc_config.openmeteo)
             aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise);
 //            test;
-            if (e3dc_config.debug) printf("M2");
+            if (e3dc_config.debug) printf("M2\n");
             float zulufttemp = -99;
             if (e3dc_config.WPWolf)
                 zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
             mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten
-            if (e3dc_config.debug) printf("M3");
+            if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
-            if (e3dc_config.debug) printf("M3a");
+            if (e3dc_config.debug) printf("M3a\n");
 
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
             {
-                if (e3dc_config.debug) printf("M3b");
+                if (e3dc_config.debug) printf("M3b\n");
                 WBProcess(&frameBuffer);
             }
-            if (e3dc_config.debug) printf("M4");
+            if (e3dc_config.debug) printf("M4\n");
 
             if(frameBuffer.dataLength == 0)
                  bWBRequest = true;
