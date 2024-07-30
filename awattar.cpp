@@ -105,7 +105,7 @@ float fHighprice(std::vector<watt_s> &w,int ab,int bis,float preis,float &maxsoc
     
     for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
     {
-        x3 = w[j].hourly + w[j].wpbedarf - w[j].solar;;
+        x3 = wetter[j].hourly + wetter[j].wpbedarf - wetter[j].solar;;
         // Suchen nach Hoch und Tiefs
         if (w[j].pp > preis) {
             if (x3 > 0)
@@ -586,7 +586,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
                     {
                         SollSoc = ((sunrise+int(offset))%60);
                         SollSoc = SollSoc/60;
-                        SollSoc = SollSoc*(w[l1].hourly+w[l1].wpbedarf);
+                        SollSoc = SollSoc*(wetter[l1].hourly+wetter[l1].wpbedarf);
                     }
                 }
 
@@ -600,7 +600,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
                 {
                     if (w[j].pp < w[0].pp&&SollSoc2<0) break; // war schon überzogen Abruch
                     if (w[j].pp < w[0].pp) SollSoc2 = SollSoc2 + ladeleistung;
-                    if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - w[j].hourly-w[j].wpbedarf;
+                    if (w[j].pp > w[0].pp*aufschlag+Diff) SollSoc2 = SollSoc2 - wetter[j].hourly-wetter[j].wpbedarf;
                     if (SollSoc2 > fmaxSoC-1||SollSoc2<ladeleistung*-1) break;
                 }
                 if (SollSoc2 < 0){
@@ -647,7 +647,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
             {
                 SollSoc = ((sunrise+int(offset))%60);
                 SollSoc = SollSoc/60;
-                SollSoc = SollSoc*(w[x2].hourly+w[x2].wpbedarf)+fConsumption;
+                SollSoc = SollSoc*(wetter[x2].hourly+wetter[x2].wpbedarf)+fConsumption;
             }
         if (float(fSoC-SollSoc) >=0) // x1 Anzahl der Einträge mit höheren Preisen
         return 1;
@@ -752,6 +752,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             int x2 = 0;
             while (item1!=NULL)
             {
+                if (w.size()>0)
                 while (w[x1].hh < item1->valueint&&x1<w.size())
                     x1++;
                 while (wetter[x2].hh < item1->valueint&&x2<wetter.size())
@@ -760,14 +761,10 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 if (wetter[x2].hh == item1->valueint)
                 {
                     if (anlage==0){
-                        if (x1 < w.size())
-                        w[x1].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                         wetter[x2].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                         // (15min Intervall daher /4
                     }
                     else {
-                        if (x1 < w.size())
-                            w[x1].solar = w[x1].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                             wetter[x2].solar = wetter[x2].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                     }
                     x1++;
@@ -865,7 +862,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
                             int x2 = x1%(24*3600)/60;
                             int x3 = x2 - sunriseAt;
                             float pv = atof(value);
-                            float pv2 = w[w1-1].solar;
+                            float pv2 = wetter[w1-1].solar;
                             if (x3>0&&x3<=60)
                             {
                                 if (x3 <=30)
@@ -892,11 +889,12 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
                             }
 
                             pv = pv/e3dc_config.speichergroesse/10;
-
+/*
                             if (anlage == 0)
                                 w[w1-1].solar = pv;
                             else
                                 w[w1-1].solar = w[w1-1].solar + pv;
+*/
                         }
                             w1++;
                     }
@@ -962,7 +960,7 @@ int ladedauer = 0;
         ||
         (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<48))
         ||
-        (w.size()==0)
+        (w.size()==0&&e3dc.aWATTar)
         )
     {
         oldhour = rawtime;
@@ -1022,7 +1020,10 @@ int ladedauer = 0;
 //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-printf("GET api.awattar\n");
+
+        if (e3dc.aWATTar){
+        
+        printf("GET api.awattar\n");
 
 
 if (e3dc.AWLand == 1)
@@ -1036,66 +1037,66 @@ if (e3dc.AWLand == 2)
             (e3dc.openmeteo&&w.size()<48)
             )
             ) // alte aWATTar Datei verarbeiten
+        {
+            if (e3dc.debug)
             {
-                if (e3dc.debug)
-                {
-                    fp = fopen("debug.out","a");
-                    if(!fp)
-                        fp = fopen("debug.out","w");
-                    fprintf(fp,"%s",line);
-                    fclose(fp);
-                }
-    int res = system(line);
-                // Einlesen der letzten aWATTar Datei
-                        if (not simu)
-                        {
-                            fp = fopen("awattar.out","r");
-//                        else
-//            fp = fopen("awattar.out.txt","r");
-//                            fp = fopen("awattar.out","r");
-
-                            if(fp)
-                        {
-                            w.clear();
-
-                            while (fgets(line, sizeof(line), fp))
-                            {
-
-                                ww.hh = atol(line);
-                                if (fgets(line, sizeof(line), fp))
-                                {
-                                    ww.pp = atof(line);
-                                    x2 =ww.hh%(24*3600);
-                                    x2 = x2/3600;
-                                    if (e3dc.openmeteo)
-                                        ww.hourly = strombedarf[x2]/4;
-                                    else
-                                        ww.hourly = strombedarf[x2];
-                                    ww.solar = 0;
-                                    if ((simu)||(ww.hh+3600>rawtime))
-                                    {
-                                        if (e3dc.openmeteo)
-                                        {
-                                            for (int x1=0;x1<=3;x1++)
-                                            {
-                                                w.push_back(ww);
-                                                ww.hh = ww.hh + 900;
-                                            }
-                                        }
-                                        else
-                                            w.push_back(ww);
-
-                                    }
-                                } else break;
-                            }
-
-                            fclose(fp);
-printf("GET api.awattar done\n");
-
-                        };
-                        }
-
+                fp = fopen("debug.out","a");
+                if(!fp)
+                    fp = fopen("debug.out","w");
+                fprintf(fp,"%s",line);
+                fclose(fp);
             }
+            int res = system(line);
+            // Einlesen der letzten aWATTar Datei
+            if (not simu)
+            {
+                fp = fopen("awattar.out","r");
+                //                        else
+                //            fp = fopen("awattar.out.txt","r");
+                //                            fp = fopen("awattar.out","r");
+                
+                if(fp)
+                {
+                    w.clear();
+                    
+                    while (fgets(line, sizeof(line), fp))
+                    {
+                        
+                        ww.hh = atol(line);
+                        if (fgets(line, sizeof(line), fp))
+                        {
+                            ww.pp = atof(line);
+                            x2 =ww.hh%(24*3600);
+                            x2 = x2/3600;
+                            if (e3dc.openmeteo)
+                                ww.hourly = strombedarf[x2]/4;
+                            else
+                                ww.hourly = strombedarf[x2];
+//                            ww.solar = 0;
+                            if ((simu)||(ww.hh+3600>rawtime))
+                            {
+                                if (e3dc.openmeteo)
+                                {
+                                    for (int x1=0;x1<=3;x1++)
+                                    {
+                                        w.push_back(ww);
+                                        ww.hh = ww.hh + 900;
+                                    }
+                                }
+                                else
+                                    w.push_back(ww);
+                                
+                            }
+                        } else break;
+                    }
+                    
+                    fclose(fp);
+                    printf("GET api.awattar done\n");
+                    
+                };
+            }
+        }
+    }
         if (e3dc.debug)
             printf("wetter.size = %i\n",wetter.size());
 if (wetter.size()==0) return;

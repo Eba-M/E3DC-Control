@@ -1735,8 +1735,8 @@ int LoadDataProcess() {
         int x2 = (t%(24*4*900))/900;
         int x3 = t%900;
         float f2,f3;
-        static watt_s w_alt;
-        if (w.size() > 0)
+        static wetter_s w_alt;
+//        if (w.size() > 0)
         {
             iDayStat[DayStat] = iDayStat[DayStat]+ iPower_PV*(t-myt_alt);
             iDayStat[DayStat-2] = iDayStat[DayStat-2]+ iPower_PV*(t-myt_alt);
@@ -1826,7 +1826,7 @@ int LoadDataProcess() {
                 }
             }
 
-            if (w.size()>0)
+//            if (w.size()>0)
             {
 
             // alle 15min wird diese Routine durchlaufen
@@ -1840,7 +1840,7 @@ int LoadDataProcess() {
                 iDayStat[x2] = (w_alt.solar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
-            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (w[0].solar+0.005)*100;
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].solar+0.005)*100;
 //            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
@@ -1868,11 +1868,11 @@ int LoadDataProcess() {
                     fclose(fp);
                 }
             }
-            if (w.size()>0&&w_alt.hh<w[0].hh)
-                w_alt = w[0];
+            if (wetter.size()>0&&w_alt.hh<wetter[0].hh)
+                w_alt = wetter[0];
             else
-                if (w.size()>0&&w_alt.hh<w[1].hh)
-                    w_alt = w[1];
+                if (wetter.size()>0&&w_alt.hh<wetter[1].hh)
+                    w_alt = wetter[1];
 
             iDayStat[DayStat] = iPower_PV*(t-myt_alt);
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
@@ -1914,8 +1914,8 @@ int LoadDataProcess() {
         }
         myt_alt = t;
 //        nächsten Eintrag suchen
-        if (w.size()>0&&w_alt.hh==0)
-            w_alt = w[0];
+        if (wetter.size()>0&&w_alt.hh==0)
+            w_alt = wetter[0];
     }
     
     if (fDCDC > high.fah) {
@@ -2189,7 +2189,7 @@ int LoadDataProcess() {
                         
                         float f3 = 0;
                         int x1;
-                        for (x1=0; x1<w.size()&&(w[x1].hourly+w[x1].wpbedarf)>w[x1].solar; x1++)
+                        for (x1=0; x1<wetter.size()&&(wetter[x1].hourly+wetter[x1].wpbedarf)>wetter[x1].solar; x1++)
                         {
                             int hh1 = w[x1].hh%(24*3600)/3600;
                             if ((hh1<e3dc_config.WPHK2off)||(hh1>e3dc_config.WPHK2on))
@@ -2208,8 +2208,8 @@ int LoadDataProcess() {
             if ((strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
                 float f4 = 0;
-                if (w.size()>0)
-                    f4 = (t%900)*(w[0].solar+0.005)*100.0/900.0;
+                if (wetter.size()>0)
+                    f4 = (t%900)*(wetter[0].solar+0.005)*100.0/900.0;
                 float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
@@ -2444,11 +2444,11 @@ int LoadDataProcess() {
     fPVtoday = -1;
 
     //            for (int x1=0; x1<wetter.size(); x1++) {
-        for (int x1=0; x1<w.size(); x1++) // nur die nächsten 24h
+        for (int x1=0; x1<wetter.size(); x1++) // nur die nächsten 24h
         {
-            int hh = (w[x1].hh%(24*3600));
-            int x2 = (w[x1].hh%(24*7*4*900))/900;
-            int x5 = (w[x1].hh%(24*4*900))/900;
+            int hh = (wetter[x1].hh%(24*3600));
+            int x2 = (wetter[x1].hh%(24*7*4*900))/900;
+            int x5 = (wetter[x1].hh%(24*4*900))/900;
 
             {
                         
@@ -2484,10 +2484,10 @@ int LoadDataProcess() {
                         }
                         else
                         {
-                            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
                                 f3 = f3 + f4 / x4;
                         }
-                        w[x1].hourly = f4/x4;
+                        wetter[x1].hourly = f4/x4;
 
                     }
                     if (x6 > 0)
@@ -2498,22 +2498,22 @@ int LoadDataProcess() {
                         }
                         else
                         {
-                            if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
                                 f3 = f3 + f6 / x6;
 
                         }
-                        w[x1].wpbedarf = (f6/x6);
+                        wetter[x1].wpbedarf = (f6/x6);
 
                     }
 
                 } else
-                    if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                        f3 = f3 + w[x1].hourly+w[x1].wpbedarf;
+                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                        f3 = f3 + wetter[x1].hourly+wetter[x1].wpbedarf;
                 if (x1==0)  // die ersten 15min anteilig berechnen
-                    f2 = w[x1].solar/900*(900-t%900);
+                    f2 = wetter[x1].solar/900*(900-t%900);
                 else
-                    if (w[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                        f2 = f2 + w[x1].solar;
+                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                        f2 = f2 + wetter[x1].solar;
             }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
@@ -5758,7 +5758,7 @@ if (e3dc_config.debug) printf("M6");
                     float f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
                     float f4 = 0;
                     if (w.size()>0)
-                        f4 = w[0].solar;
+                        f4 = wetter[0].solar;
                     float f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
 
 //                    if (f2>0)
@@ -5873,10 +5873,11 @@ static int iEC = 0;
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 //            CheckConfig();
 //            printf("GetConfig done");
-            if (e3dc_config.aWATTar)
+            if (e3dc_config.test&&(e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-//                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
-//            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
+                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+
             }
             while (e3dc_config.test)
                 LoadDataProcess();

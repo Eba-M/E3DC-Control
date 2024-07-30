@@ -217,6 +217,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
         char value[25];
         char var[25];
 
+        if (e3dc.debug) printf("NW1\n");
+
         if (e3dc.openmeteo)
         {
             sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=temperature_2m&timeformat=unixtime&forecast_minutely_15=192'",e3dc.hoehe,e3dc.laenge);
@@ -281,6 +283,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 fatemp = fatemp / x1;
                 if (fp!=NULL) pclose(fp);
             }
+            if (e3dc.debug) printf("NW2\n");
         }
         else
         if (strlen(e3dc.openweathermap)>0)
@@ -392,7 +395,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         float f6 =  f7/f2;
 
                                         if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                            w[x1].wpbedarf = wetter[x1].kosten;
+                                            wetter[x1].wpbedarf = wetter[x1].kosten;
                                         
                                         int bHK1on = 0;
                                         int bHK2on = 1;
@@ -410,7 +413,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 bHK2on = 0;
 
                                             if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                w[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
+                                                wetter[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
                                             
                                         }
                                         
@@ -422,20 +425,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             if (e3dc.openmeteo)
                                                 //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                w[x1].wpbedarf = 0;
+                                                    wetter[x1].wpbedarf = 0;
                                             
                                             else
                                                 //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                w[x1].wpbedarf = 0;
+                                                    wetter[x1].wpbedarf = 0;
                                             
                                             // wenn der Wärmepreis der WP günstiger ist als Pellets
                                             if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                                 if (e3dc.openmeteo)
-                                                    w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
+                                                    wetter[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                                                 else
-                                                    w[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
+                                                    wetter[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
                                         }
                                     }
                             }
@@ -515,7 +518,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     w.erase(w.begin());
 
             int analyse = 0;
-            
+/*
             if (analyse)
             {
                 soc = 12.74;
@@ -537,7 +540,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 if (fp != NULL)
                 fclose(fp);
             }
-
+*/
             
             
             memset(&line, 0, sizeof(line));
@@ -560,13 +563,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
          for (int j = 0;j<w.size();j++)
          {
              soc_alt = soc;
-             anforderung = (w[j].solar - w[j].hourly - w[j].wpbedarf );
+             anforderung = (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf );
              if ( anforderung> e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
                  anforderung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              
              float preis = w[j].pp;
              int ret = SimuWATTar(w ,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
-             float fsolar = w[j].solar;
+             float fsolar = wetter[j].solar;
              if (e3dc.openmeteo)
              {
                  if (fsolar > (e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4))
@@ -576,8 +579,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
 
              if (ret == 0)
-             { if ((w[j].solar - w[j].hourly - w[j].wpbedarf ) > 0)
-                 soc = soc - w[j].hourly - w[j].wpbedarf + fsolar;
+             { if ((wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf ) > 0)
+                 soc = soc - wetter[j].hourly - wetter[j].wpbedarf + fsolar;
                  if (soc > 100) soc = 100;
              } else
                  if (ret == 1) {
@@ -590,7 +593,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              if (e3dc.openmeteo)
              {
                  if (e3dc.AWSimulation == 1)
-                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
+                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),wetter[j].solar);
                  else
                      sprintf(line,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt));
              }
@@ -598,7 +601,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              {
                  
                  if (e3dc.AWSimulation == 1)
-                     sprintf(line,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt),w[j].solar);
+                     sprintf(line,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt),wetter[j].solar);
                  else
                      sprintf(line,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt));
                  
@@ -611,9 +614,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
             for (int j = 0;j<w.size();j++)
                 if (e3dc.openmeteo)
-                    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar,wetter[j].temp);
+                    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                 else
-                    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,w[j].hourly,w[j].wpbedarf,w[j].solar);
+                    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
 
          fclose(fp);
          fclose(fp1);
