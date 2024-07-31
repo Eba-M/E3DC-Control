@@ -5749,7 +5749,7 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf(" %0.02f%% %0.02f%% %0.02f%%", fPVtoday,fPVSoll,fPVdirect); // erwartete PV Ertrag in % des Speichers
+                printf(" %0.02f %0.02f %0.02fkWh", fPVtoday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
                 int x2 = (t%(24*4*900))/900+1;
                 if (x2 > 0&&e3dc_config.statistik)
                 {
@@ -5757,7 +5757,7 @@ if (e3dc_config.debug) printf("M6");
                     float f2 = iDayStat[x2]/100.0;
                     float f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
                     float f4 = 0;
-                    if (w.size()>0)
+                    if (wetter.size()>0)
                         f4 = wetter[0].solar;
                     float f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
 
@@ -5873,7 +5873,7 @@ static int iEC = 0;
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 //            CheckConfig();
 //            printf("GetConfig done");
-            if (e3dc_config.test&&(e3dc_config.aWATTar||e3dc_config.openmeteo))
+            if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
