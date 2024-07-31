@@ -2645,7 +2645,7 @@ int LoadDataProcess() {
 
     int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
     if (e3dc_config.aWATTar)
-        ret =  CheckaWATTar(w,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
+        ret =  CheckaWATTar(w,wetter,sunriseAt,sunsetAt,sunriseWSW,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
         if (e3dc_config.debug) printf("D6 %i ",ret);
 
@@ -5762,7 +5762,9 @@ if (e3dc_config.debug) printf("M6");
                     float f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
 
 //                    if (f2>0)
-                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5); // erwartete PV Ertrag
+//                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5);
+                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f %0.04fkWh", f2,f3,f3/f2,f4*e3dc_config.speichergroesse/100,iDayStat[DayStat]/3600000.0);
+                    // erwartete PV Ertrag
                 }
                 printf("%c[K\n", 27 );
 
