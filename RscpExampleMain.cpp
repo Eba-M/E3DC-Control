@@ -1499,7 +1499,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
-    sprintf(buf,"E3DC-Control/Grid -m '%f0.2 %f0.2 %f0.2'",fPower_Grid,fBatt_SOC,fPower_Bat);
+    sprintf(buf,"E3DC-Control/Grid -m '%0.2f %0.2f %0.2f'",fPower_Grid,fBatt_SOC,fPower_Bat);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
 
     if (e3dc_config.debug) printf("D4b");
