@@ -70,6 +70,7 @@ typedef struct {time_t t; std::string feld; std::string AK; std::string status; 
 // update when new priceinformation is avaiable (once a day) or on request
 typedef struct {time_t hh; int ch; float pp;}ch_s;
 typedef struct {uint32_t verbrauch; uint32_t wp;}stat_s;
+typedef struct {float fgrid; float fsoc; float fbat;}farm_s;
 
 static float fatemp,fcop;
 static int heizbegin;

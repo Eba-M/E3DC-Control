@@ -1499,7 +1499,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
-    sprintf(buf,"E3DC-Control/Grid -m '%i' ",int(fPower_Grid));
+    sprintf(buf,"E3DC-Control/Grid -m '%f0.2 %f0.2 %f0.2'",fPower_Grid,fBatt_SOC,fPower_Bat);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
 
     if (e3dc_config.debug) printf("D4b");
@@ -1549,7 +1549,7 @@ int tasmotastatus(int ch)
 }
     return 0;
 }
-int MQTTE3DC()
+int MQTTE3DC(float f[3])
 {
     //           Test zur Abfrage eines zweiten E3DC
     if (strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
@@ -1559,6 +1559,9 @@ int MQTTE3DC()
         static int WP_status = -1;
         int status;
         char path[1024];
+        char var [4] [20];
+        memset(path, 0x00, sizeof(path));
+
         if (WP_status < 2)
         {
             if (e3dc_config.debug) printf("W1");
@@ -1574,7 +1577,9 @@ int MQTTE3DC()
         if (mfp != NULL)
             if (fgets(path, 1024, mfp) != NULL)
             {
-                status = atoi(path);
+                status = sscanf(path, "%s %s %s", var[0], var[1]), var[2];
+                for (int x1=0;x1<status;x1++)
+                    f[x1]=atof(var[x1]);
             }
         //        if (WP_status < 2)
         if (mfp != NULL)
@@ -3008,7 +3013,12 @@ bDischarge = false;
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
         if (not e3dc_config.test)
-        iMQTTAval = iMQTTAval*.80 + MQTTE3DC()*.20;
+        {
+            float f[3];
+            if (MQTTE3DC(f)>0)
+                iMQTTAval = f[0];
+                //        iMQTTAval = iMQTTAval*.80 + MQTTE3DC()*.20;
+                }
         else
             iMQTTAval = 4000;
         if (t>itime)
