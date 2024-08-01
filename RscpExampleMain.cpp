@@ -1577,7 +1577,7 @@ int MQTTE3DC(float f[3])
         if (mfp != NULL)
             if (fgets(path, 1024, mfp) != NULL)
             {
-                status = sscanf(path, "%s %s %s", var[0], var[1]), var[2];
+                status = sscanf(path, "%s %s %s", var[0], var[1], var[2]);
                 for (int x1=0;x1<status;x1++)
                     f[x1]=atof(var[x1]);
             }
@@ -3008,13 +3008,17 @@ bDischarge = false;
 
     //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
     static float average = 0;
+    float f[3];
+    f[0] = 0;
+    f[1] = 0;
+    f[2] = 0;
+
     if (e3dc_config.unload<0)
     {
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
         if (not e3dc_config.test)
         {
-            float f[3];
             if (MQTTE3DC(f)>0)
                 iMQTTAval = f[0];
                 //        iMQTTAval = iMQTTAval*.80 + MQTTE3DC()*.20;
@@ -3184,6 +3188,8 @@ bDischarge = false;
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
 
+// Es wird vom Master ins Netz eingespeist
+                
                 if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
                         iFc = iBattLoad - MQTTAval;
@@ -3191,12 +3197,17 @@ bDischarge = false;
                 else
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
-//                    else
-//                        if (iMQTTAval>200)
-// Überschuss es kann eingespeichert werden
-//                        iFc = iBattLoad - iMQTTAval*2;
-//                            iFc = iFc - iMQTTAval;
 
+// Überschuss es kann eingespeichert werden
+// Wenn die Speicherleistung vom Master > iFc und der SoC um 2 Punkte höher liegt
+// Wird die Ladeleistung hochgefahren, bis sie gleichauf mit dem Master liegt.
+                if (f[1]-2>fBatt_SOC&&f[2]>1000)
+                {
+                    if (iFc < f[2])
+                        iFc = f[2];
+                }
+                
+                
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
                     if (iMQTTAval<e3dc_config.peakshave-500)
