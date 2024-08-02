@@ -3285,12 +3285,13 @@ bDischarge = false;
     {
         fAvBatterie = iMinLade*e3dc_config.powerfaktor;
         fAvBatterie900 = iMinLade*e3dc_config.powerfaktor;
-        if (fAvBatterie900  > e3dc_config.maximumLadeleistung)
-        {
-            iMinLade = e3dc_config.maximumLadeleistung;
-            fAvBatterie = e3dc_config.maximumLadeleistung;
-            fAvBatterie900 = e3dc_config.maximumLadeleistung;
-        }
+    }
+
+    if (fAvBatterie900  > e3dc_config.maximumLadeleistung)
+    {
+        iMinLade = e3dc_config.maximumLadeleistung;
+        fAvBatterie = e3dc_config.maximumLadeleistung;
+        fAvBatterie900 = e3dc_config.maximumLadeleistung;
     }
 
     
