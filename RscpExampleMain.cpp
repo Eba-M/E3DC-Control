@@ -3205,6 +3205,7 @@ bDischarge = false;
                 {
                     if (iFc < f[2])
                         iFc = f[2];
+                    iFc3 = f[2];
                 }
                 
                 
