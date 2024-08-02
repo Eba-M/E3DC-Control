@@ -3192,7 +3192,7 @@ bDischarge = false;
                 
                 if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
-                        iFc = iBattLoad - MQTTAval;
+                        iFc = iBattLoad - MQTTAval*.2;
                 }
                 else
                     if ((iMQTTAval) < -200)
