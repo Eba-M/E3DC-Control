@@ -1575,7 +1575,7 @@ int MQTTE3DC(float f[3])
             WP_status = 2;
         }
         if (mfp != NULL)
-            if (fgets(path, 1024, mfp) != NULL)
+            while (fgets(path, 1024, mfp) != NULL)
             {
                 status = sscanf(path, "%s %s %s", var[0], var[1], var[2]);
                 for (int x1=0;x1<status;x1++)
