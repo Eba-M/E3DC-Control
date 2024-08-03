@@ -3100,52 +3100,57 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
-                if (fPower_Grid>e3dc_config.peakshave-200)
-// Peakshave Grenze erreich Entladeleistung erhöhen
-                        iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave+200)*2;
+                if (fAvBatterie900-100>iFc) idauer = -1;
                 else
-// Besteht noch PV Überschuss?
                 {
-// Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                   if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
-//                        iFc = iBattLoad - fPower_Grid*3;
-                       iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
-
-                    iFc3 = iFc;
-                    if (iFc<0)
+                    
+                    if (fPower_Grid>e3dc_config.peakshave-200)
+                        // Peakshave Grenze erreich Entladeleistung erhöhen
+                        iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave+200)*2;
+                    else
+                        // Besteht noch PV Überschuss?
                     {
-                        if (iPowerHome<iFc*-1)
-                            iFc = iPowerHome*-1;
-                        if (fPower_Grid < -100) // es wird eingspeist
-                            iFc = 0;
-                        else
-                        if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
-                            iFc = iBattLoad + fPower_Grid/2;
-                        else
-                            if (iFc > iBattLoad)
-                                iFc = iBattLoad/2;
-                    }
-                    // Einspeisung
-                    if (iFc == 0)
-                    {
-                        if (fPower_Grid<-500)
-                            iFc = iBattLoad - fPower_Grid;
-                        else
+                        // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
+                        if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
+                            //                        iFc = iBattLoad - fPower_Grid*3;
+                            iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
+                        
+                        iFc3 = iFc;
+                        if (iFc<0)
                         {
-                            if (fPower_Grid<-200)
-                                iFc = iBattLoad;
+                            if (iPowerHome<iFc*-1)
+                                iFc = iPowerHome*-1;
+                            if (fPower_Grid < -100) // es wird eingspeist
+                                iFc = 0;
                             else
-                                iFc = iBattLoad*.7;
-/*                            else if (fPower_Grid>500)
-                                // Strombezug aus dem Netz
-                                iFc =  -fPower_Grid;
-*/                        }
+                                if (fPower_Grid<500) // bis Netzbezug 500W runterregeln
+                                    iFc = iBattLoad + fPower_Grid/2;
+                                else
+                                    if (iFc > iBattLoad)
+                                        iFc = iBattLoad/2;
+                        }
+                        // Einspeisung
+                        if (iFc == 0)
+                        {
+                            if (fPower_Grid<-500)
+                                iFc = iBattLoad - fPower_Grid;
+                            else
+                            {
+                                if (fPower_Grid<-200)
+                                    iFc = iBattLoad;
+                                else
+                                    iFc = iBattLoad*.7;
+                                /*                            else if (fPower_Grid>500)
+                                 // Strombezug aus dem Netz
+                                 iFc =  -fPower_Grid;
+                                 */                        }
+                        }
                     }
+                    
+                    if (iFc > e3dc_config.maximumLadeleistung-500)
+                        iFc = e3dc_config.maximumLadeleistung-500;
+                    
                 }
-
-                if (iFc > e3dc_config.maximumLadeleistung-500)
-                    iFc = e3dc_config.maximumLadeleistung-500;
-
             }
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
@@ -3253,6 +3258,8 @@ bDischarge = false;
 //            if (iFc != 0 && idauer == 0)
             if (idauer == 0)
                 idauer = 1;
+            if (idauer == -1)
+                idauer = 0;
 
             if (abs(iFc)<100) iFc = 0;
             
