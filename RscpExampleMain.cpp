@@ -3101,7 +3101,7 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-500>iFc||fPower_Grid<-100)
+                if ((fAvBatterie900-200>iFc||fPower_Grid<-100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
 //                    iFc = 0;
@@ -3120,6 +3120,9 @@ bDischarge = false;
                         if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
                             //                        iFc = iBattLoad - fPower_Grid*3;
                             iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
+
+                        iFc3 = iFc;
+
                         
                         if (iFc<0)
                         {
@@ -3134,7 +3137,6 @@ bDischarge = false;
                                     if (iFc > iBattLoad)
                                         iFc = iBattLoad/2;
                         }
-                        iFc3 = iFc;
 
                         // Einspeisung
                         if (iFc == 0)
