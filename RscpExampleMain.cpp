@@ -3104,7 +3104,7 @@ bDischarge = false;
                 if ((fAvBatterie900-500>iFc||fPower_Grid<-100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
-                    iFc = 0;
+//                    iFc = 0;
                     idauer = -1;
                 }
                 else
