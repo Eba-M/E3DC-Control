@@ -3101,9 +3101,12 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-100>iFc||fPower_Grid<100)
+                if ((fAvBatterie900-100>iFc||fPower_Grid<-100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
+                {
+                    iFc = e3dc_config.maximumLadeleistung;
                     idauer = -1;
+                }
                 else
                 {
                     
@@ -3118,7 +3121,6 @@ bDischarge = false;
                             //                        iFc = iBattLoad - fPower_Grid*3;
                             iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
                         
-                        iFc3 = iFc;
                         if (iFc<0)
                         {
                             if (iPowerHome<iFc*-1)
@@ -3132,6 +3134,8 @@ bDischarge = false;
                                     if (iFc > iBattLoad)
                                         iFc = iBattLoad/2;
                         }
+                        iFc3 = iFc;
+
                         // Einspeisung
                         if (iFc == 0)
                         {
@@ -3161,7 +3165,7 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
-
+                iFc3 = iFc;
                 if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern
                     iFc = (iFc/500.0)*iMQTTAval;
                 else
@@ -3169,17 +3173,20 @@ bDischarge = false;
                 
 // Wenn der Master entladen wird und der Master SoC kleiner ist
 // Dann wird anteilig mit entladen
-                if (iFc == 0)
+                if (iFc == 0) // keine Anforderung über Gridbezug
                 {
                     if (f[1]<fBatt_SOC&&f[2]<-500)
                     {
-                        iFc = f[2];
+                        if (iFc3 < f[2]||iFc3 == 0)    // Grundleistung größer Leistung Master
+                            iFc = f[2];
+                        else
+                            iFc = iFc3;     // Grundleistung dazusteuern
                         iFc3 = f[2];
                     }
 
                 }
 
-                iFc3 = iFc;
+//                iFc3 = iFc;
 
                 
                 if (iMQTTAval>e3dc_config.peakshave-200)
