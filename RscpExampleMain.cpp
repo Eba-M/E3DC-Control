@@ -3101,7 +3101,7 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-100>iFc||fPower_Grid<-100)
+                if ((fAvBatterie900-500>iFc||fPower_Grid<-100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
                     iFc = 0;
