@@ -3101,7 +3101,9 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if (fAvBatterie900-100>iFc&&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC) idauer = -1;
+                if ((fAvBatterie900-100>iFc||fPower_Grid<100)
+                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
+                    idauer = -1;
                 else
                 {
                     
@@ -3134,7 +3136,10 @@ bDischarge = false;
                         if (iFc == 0)
                         {
                             if (fPower_Grid<-500)
+                            {
                                 iFc = iBattLoad - fPower_Grid;
+                                if (iFc < 0) iFc = 0;
+                            }
                             else
                             {
                                 if (fPower_Grid<-200)
@@ -3161,6 +3166,18 @@ bDischarge = false;
                     iFc = (iFc/500.0)*iMQTTAval;
                 else
                     if (iMQTTAval <= 100) iFc = 0;
+                
+// Wenn der Master entladen wird und der Master SoC kleiner ist
+// Dann wird anteilig mit entladen
+                if (iFc == 0)
+                {
+                    if (f[1]<fBatt_SOC&&f[2]<-500)
+                    {
+                        iFc = f[2];
+                        iFc3 = f[2];
+                    }
+
+                }
 
                 iFc3 = iFc;
 
