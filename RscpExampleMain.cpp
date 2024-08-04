@@ -3104,7 +3104,7 @@ bDischarge = false;
                 if ((fAvBatterie900-100>iFc||fPower_Grid<-100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
-                    iFc = e3dc_config.maximumLadeleistung;
+                    iFc = 0;
                     idauer = -1;
                 }
                 else
@@ -3284,7 +3284,10 @@ bDischarge = false;
             if (idauer == 0)
                 idauer = 1;
             if (idauer == -1)
+            {
+                iFc = e3dc_config.maximumLadeleistung;
                 idauer = 0;
+            }
 
             if (abs(iFc)<100) iFc = 0;
             
