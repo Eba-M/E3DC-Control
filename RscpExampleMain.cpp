@@ -3150,12 +3150,11 @@ bDischarge = false;
                             {
                                 if (fPower_Grid<-200)
                                     iFc = iBattLoad;
-                                else
-                                    iFc = iBattLoad*.7;
-                                /*                            else if (fPower_Grid>500)
+//                                else
+//                                    iFc = iBattLoad*.7;
                                  // Strombezug aus dem Netz
-                                 iFc =  -fPower_Grid;
-                                 */                        }
+//                                 iFc =  -fPower_Grid;
+                            }
                         }
                     }
                     
