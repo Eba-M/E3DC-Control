@@ -445,7 +445,7 @@ bool GetConfig()
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
         e3dc_config.tasmota = false;
-        e3dc_config.statistik = true;
+        e3dc_config.statistik = false;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.WPSperre = false;
@@ -514,7 +514,7 @@ bool GetConfig()
         e3dc_config.soc = -1;
         e3dc_config.ForcecastSoc = 2; // Faktor zur Berechnung des Ladebedarf
         e3dc_config.ForcecastConsumption = 1; // Faktor zur Berechnung des Verbrauchsbedarf
-        e3dc_config.ForcecastReserve = 1; // Hinzurechnung Reserve zum Strombedarf
+        e3dc_config.ForcecastReserve = 1; // Hinzurechnung Reserve in % zum Strombedarf
 
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
@@ -3114,7 +3114,7 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
+                if ((fAvBatterie900-200>iFc||fAvBatterie+200>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
 //                    iFc = 0;
