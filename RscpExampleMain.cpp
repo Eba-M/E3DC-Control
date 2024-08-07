@@ -3081,7 +3081,7 @@ bDischarge = false;
              ||
              fBatt_SOC<fpeakshaveminsoc
              ||
-             ((iMinLade>fAvBatterie900||fBatt_SOC<e3dc_config.ladeschwelle)&&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
+             ((iMinLade>fAvBatterie900||fBatt_SOC<e3dc_config.ladeschwelle||f[2])<-1000&&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0)
              )
 
 //        if (((idauer > 0||fBatt_SOC<fpeakshaveminsoc)&&fPower_Grid>100)
@@ -3114,7 +3114,7 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fPower_Grid<-100||iPower_Bat>100)
+                if ((fAvBatterie900-200>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
 //                    iFc = 0;
