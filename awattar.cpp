@@ -970,37 +970,39 @@ int ladedauer = 0;
         for (int j1 = 0;j1<24;j1++) {
             strombedarf[j1] = e3dc.Avhourly;
         }
-    // Tagesverbrauchsprofil einlesen.
-        printf("\ne3ec.hourly\n");
-        fp = fopen("e3dc.hourly.txt","r");
-        if (fp){
-            while (fgets(line, sizeof(line), fp))
-            {
-                memset(var, 0x00, sizeof(var));
-                memset(value, 0x00, sizeof(value));
-                sscanf(line, "%s %s", var, value);
-                //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
-                x2 = atoi(var);
-                if (x2>=0&&x2<24&&strlen(var)>0)
-                    if (atof(value) < 100)
-                        strombedarf[x2] = atof(value);
-            }
-            fclose(fp);
-
-            printf("e3ec.hourly done\n");
-            for (int j=0;j<w.size();j++)
-            {
-                x2 =w[j].hh%(24*3600);
-                x2 = x2/3600;
-                if (e3dc.openmeteo)
-                    w[j].hourly = strombedarf[x2]/4;
-                else
-                    w[j].hourly = strombedarf[x2];
-
-            }
-
+    // Tagesverbrauchsprofil einlesen. Nur wenn keine Statistik
+if (not e3dc.statistik)
+{
+    printf("\ne3ec.hourly\n");
+    fp = fopen("e3dc.hourly.txt","r");
+    if (fp){
+        while (fgets(line, sizeof(line), fp))
+        {
+            memset(var, 0x00, sizeof(var));
+            memset(value, 0x00, sizeof(value));
+            sscanf(line, "%s %s", var, value);
+            //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+            x2 = atoi(var);
+            if (x2>=0&&x2<24&&strlen(var)>0)
+                if (atof(value) < 100)
+                    strombedarf[x2] = atof(value);
+        }
+        fclose(fp);
+        
+        printf("e3ec.hourly done\n");
+        for (int j=0;j<w.size();j++)
+        {
+            x2 =w[j].hh%(24*3600);
+            x2 = x2/3600;
+            if (e3dc.openmeteo)
+                w[j].hourly = strombedarf[x2]/4;
+            else
+                w[j].hourly = strombedarf[x2];
+            
         }
         
+    }
+}
         if (simu)
         {
             von = (rawtime-30*24*3600)*1000;

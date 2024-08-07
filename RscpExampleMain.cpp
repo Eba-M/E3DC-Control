@@ -512,6 +512,10 @@ bool GetConfig()
         e3dc_config.BWWPTasmotaDauer = 0;
         memset(e3dc_config.BWWPTasmota,0,sizeof(e3dc_config.BWWPTasmota));
         e3dc_config.soc = -1;
+        e3dc_config.ForcecastSoc = 2; // Faktor zur Berechnung des Ladebedarf
+        e3dc_config.ForcecastConsumption = 1; // Faktor zur Berechnung des Verbrauchsbedarf
+        e3dc_config.ForcecastReserve = 1; // Hinzurechnung Reserve zum Strombedarf
+
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
         e3dc_config.WPHeizgrenze = -1;
@@ -577,6 +581,12 @@ bool GetConfig()
                         strcpy(e3dc_config.Forecast[2], value);
                     else if(strcmp(var, "forecast4") == 0)
                         strcpy(e3dc_config.Forecast[3], value);
+                    else if(strcmp(var, "forecastsoc") == 0)
+                        e3dc_config.ForcecastSoc = atof(value);
+                    else if(strcmp(var, "forecastconsumption") == 0)
+                        e3dc_config.ForcecastConsumption = atof(value);
+                    else if(strcmp(var, "forecastreserve") == 0)
+                        e3dc_config.ForcecastReserve = atof(value);
                     else if(strcmp(var, "openweathermap") == 0)
                         strcpy(e3dc_config.openweathermap, value);
                     else if(strcmp(var, "bwwptasmota") == 0)
@@ -2219,7 +2229,7 @@ int LoadDataProcess() {
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
                 printf("%c[K\n", 27 );
-                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
+                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f\n",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
             }
 
 // Steuerung LWWP über shelly 0-10V
@@ -2524,7 +2534,7 @@ int LoadDataProcess() {
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
-                fPVSoll = fPVdirect+(-fBatt_SOC+fLadeende2)*3+10;
+                fPVSoll = fPVdirect*e3dc_config.ForcecastConsumption+(-fBatt_SOC+fLadeende2)*e3dc_config.ForcecastSoc+e3dc_config.ForcecastReserve;
 //                break;
             }
         }
@@ -2991,8 +3001,11 @@ bDischarge = false;
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
                 iMinLade = e3dc_config.maximumLadeleistung*.5;
-            if (iFc < iMinLade*e3dc_config.powerfaktor)
-                iFc = iMinLade*e3dc_config.powerfaktor;
+//            if (iFc < iMinLade*e3dc_config.powerfaktor)
+//                iFc = iMinLade*e3dc_config.powerfaktor;
+            if (iFc < iMinLade*2)
+                iFc = iMinLade*2;
+
         } else {
             if (fBatt_SOC<fLadeende||(t<tLadezeitende3&&fBatt_SOC<e3dc_config.ladeende))
             {
@@ -3101,7 +3114,7 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fPower_Grid<-100)
+                if ((fAvBatterie900-200>iFc||fPower_Grid<-100||iPower_Bat>100)
                     &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
                 {
 //                    iFc = 0;
@@ -3971,8 +3984,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                 iPower = iPower + idynPower;
-                if (iMinLade > 100&&iPower > (fPower_Bat-fPower_Grid)) 
-                    iPower = fPower_Bat-fPower_Grid;
+                if (iMinLade > 100&&iPower > (iPower_Bat-fPower_Grid))
+                    iPower = iPower_Bat-fPower_Grid;
                 break;
             case 4:
 
