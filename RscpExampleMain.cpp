@@ -650,8 +650,8 @@ bool GetConfig()
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPSperre = true;
                   else if((strcmp(var, "statistik") == 0)&&
-                          (strcmp(value, "false") == 0))
-                      e3dc_config.statistik = false;
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.statistik = true;
                     else if((strcmp(var, "ext1") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.ext1 = true;
@@ -2229,7 +2229,7 @@ int LoadDataProcess() {
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
                 printf("%c[K\n", 27 );
-                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f\n",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
+                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
             }
 
 // Steuerung LWWP über shelly 0-10V
@@ -3180,10 +3180,24 @@ bDischarge = false;
 // Slave E3DC
             {
                 iFc3 = iFc;
-                if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern
+                
+                if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern bei Netzbezug
                     iFc = (iFc/500.0)*iMQTTAval;
                 else
                     if (iMQTTAval <= 100) iFc = 0;
+
+                if (iFc3>0) // Es kann ausgespeichert werden
+                {
+                    if (f[2]+1000 < 0&&f[2]+1000 >-1000) 
+// Batterieentladen des Masters zwischen -1000 und -2000W
+                    {
+                        if (f[2]*-iFc3 < iFc)
+                            iFc = f[2]*-iFc3;
+                    }
+                    else
+                        if ( f[2]<-2000)
+                            iFc = iFc3;
+                }
                 
 // Wenn der Master entladen wird und der Master SoC kleiner ist
 // Dann wird anteilig mit entladen
