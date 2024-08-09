@@ -3186,7 +3186,7 @@ bDischarge = false;
                 else
                     if (iMQTTAval <= 100) iFc = 0;
 
-                if (iFc3>0) // Es kann ausgespeichert werden
+                if (iFc3<0) // Es kann ausgespeichert werden
                 {
                     if (f[2]+1000 < 0&&f[2]+1000 >-1000) 
 // Batterieentladen des Masters zwischen -1000 und -2000W
