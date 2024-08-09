@@ -2850,7 +2850,7 @@ bDischarge = false;
         // LWWP  auf PV Anhebung schalten
         
         
-//        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
+        //        PVon = PVon*.9 + ((-sqrt(iMinLade*iBattLoad) + iPower_Bat - fPower_Grid))/10;
         //       Steuerung der LWWP nach Überschuss
         //       1. Stufe LWWP Ein Nach mind 15min Laufzeit
         //       2. Stufe PV-Anhebung
@@ -2868,24 +2868,36 @@ bDischarge = false;
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
         }
-
-
- }
+        
+    }
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
-    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3&&e3dc_config.unload >= 0) {
-//            tLadezeitende = tLadezeitende3;
-// Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
-// wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
-// damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
-        if ((fBatt_SOC-fLadeende3) > 0){    // Raum lassen zum atmen
-          if ((fBatt_SOC-fLadeende3) < 0.6)
-                fLadeende = fBatt_SOC; else
-// Es wird bis tLadezeitende3 auf fLadeende3 entladen
-                fLadeende = fLadeende3;
-            tLadezeitende = tLadezeitende3;}
-//        else fLadeende = fLadeende3;
-                }
+    static float soc_alt = 100;
+    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3&&e3dc_config.unload >= 0) 
+    {
+        //            tLadezeitende = tLadezeitende3;
+        // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
+        // wenn die Abweichung vom SoC < 0.3% ist wird als Ziel der aktuelle SoC genommen
+        // damit wird ein Wechsel von Laden/Endladen am Ende der Periode verhindert
+        if ((fBatt_SOC-fLadeende3) > 0)
+        {    // Raum lassen zum atmen
+            if ((fBatt_SOC-fLadeende3) < 0.6)
+            {
+                fLadeende = fBatt_SOC;
+                
+                // Es wird bis tLadezeitende3 auf fLadeende3 entladen
+                if (soc_alt<fBatt_SOC&&(fBatt_SOC-fLadeende3)<0.3 )
+                    fLadeende = fLadeende3+0.3;
+                else
+                    soc_alt = fBatt_SOC;
+            }
+            tLadezeitende = tLadezeitende3;
+        }
+            if (soc_alt > fBatt_SOC)
+                soc_alt = fBatt_SOC;
+        //        else fLadeende = fLadeende3;
+        
+    }
  else
      if ((t >= tLadezeitende)&&(fBatt_SOC>=fLadeende)) {
          tLadezeitende = tLadezeitende2;
@@ -3191,15 +3203,18 @@ bDischarge = false;
 
                 if (iFc3<0) // Es kann ausgespeichert werden
                 {
-                    if (f[2]+1000 < 0&&f[2]+1000 >-1000) 
+                    if (f[2] < -1000&&f[2] >-2000)
 // Batterieentladen des Masters zwischen -1000 und -2000W
                     {
-                        if (f[2]*-iFc3 < iFc)
-                            iFc = f[2]*-iFc3;
+                        if ((f[2]+1000)/1000.0*-iFc3 < iFc)
+                            iFc = (f[2]+1000)/1000.0*-iFc3;
                     }
                     else
                         if ( f[2]<-2000)
                             iFc = iFc3;
+                    
+                    if (iMaxBattLade<iFc3)
+                        iFc = iFc3;
                 }
                 
 // Wenn der Master entladen wird und der Master SoC kleiner ist
