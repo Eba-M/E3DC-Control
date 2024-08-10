@@ -3094,7 +3094,7 @@ bDischarge = false;
              fBatt_SOC<fpeakshaveminsoc
              ||
              (
-              (iMinLade>fAvBatterie900||fBatt_SOC<e3dc_config.ladeschwelle||f[2]<-1000)
+              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900)||fBatt_SOC<e3dc_config.ladeschwelle||f[2]<-1000)
               &&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0
               )
             )
