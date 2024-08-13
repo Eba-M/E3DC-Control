@@ -3217,10 +3217,15 @@ bDischarge = false;
                         iFc = iFc3;
                 }
                 
-// Wenn der Master entladen wird und der Master SoC kleiner ist
-// Dann wird anteilig mit entladen
+// Aus den Werten beider Systemen wird eine Leistungsbilanz gebildet
+// Ist diese < 0 wird mehr Verbraucht, ist diese > 0 wird mehr erzeugt
+// Enstsprechend wird der Slave geladen oder entladen
                 if (iFc == 0) // keine Anforderung über Gridbezug
                 {
+                    int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
+                    if (abs(iBilanz)>1000)
+                        iFc = iBilanz *.6;
+
                     if (f[1]<fBatt_SOC&&f[2]<-500)
                     {
                         if (iFc3 < f[2]||iFc3 == 0)    // Grundleistung größer Leistung Master
@@ -3277,13 +3282,13 @@ bDischarge = false;
 // Überschuss es kann eingespeichert werden
 // Wenn die Speicherleistung vom Master > iFc und der SoC um 2 Punkte höher liegt
 // Wird die Ladeleistung hochgefahren, bis sie gleichauf mit dem Master liegt.
-                if (f[1]-2>fBatt_SOC&&f[2]>1000)
+/*                if (f[1]-2>fBatt_SOC&&f[2]>1000)
                 {
                     if (iFc < f[2])
                         iFc = f[2];
                     iFc3 = f[2];
                 }
-                
+*/
                 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                 if (fpeakshaveminsoc-5 > fBatt_SOC)
@@ -3509,8 +3514,10 @@ bDischarge = false;
     {
         
             {
-            if (iBattLoad > (iPower_Bat-iDiffLadeleistung))
+//            if (iBattLoad > iPower_Bat)
             iDiffLadeleistung = iBattLoad-iPower_Bat+iDiffLadeleistung;
+//            else
+//                iDiffLadeleistung = iBattLoad-iPower_Bat;
             if ((iDiffLadeleistung < 0 )||(abs(iBattLoad)<=100)) iDiffLadeleistung = 0;
             if (iDiffLadeleistung > 100 )iDiffLadeleistung = 100; //Maximal 100W vorhalten
             if (abs(iPower+iDiffLadeleistung) > e3dc_config.maximumLadeleistung) iDiffLadeleistung = 0;
