@@ -3086,6 +3086,7 @@ bDischarge = false;
         }
 
         static int MQTTAval;
+        int iFc1 = iFc;  // angefordertete Leistung
         if (
             (idauer > 0
              ||
@@ -3094,7 +3095,7 @@ bDischarge = false;
              fBatt_SOC<fpeakshaveminsoc
              ||
              (
-              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900)||fBatt_SOC<e3dc_config.ladeschwelle||f[2]<-1000)
+              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900)||fBatt_SOC<e3dc_config.ladeschwelle)
               &&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0
               )
             )
@@ -3226,7 +3227,7 @@ bDischarge = false;
                     if (abs(iBilanz)>1000)
                         iFc = iBilanz *.6;
 
-                    if (f[1]<fBatt_SOC&&f[2]<-500)
+                    if (f[1]<fBatt_SOC&&f[2]<-500) // Master entlädt
                     {
                         if (iFc3 < f[2]||iFc3 == 0)    // Grundleistung größer Leistung Master
                             iFc = f[2];
@@ -3234,7 +3235,9 @@ bDischarge = false;
                             iFc = iFc3;     // Grundleistung dazusteuern
                         iFc3 = f[2];
                     }
-
+//angeforderde Ladeleistung
+                    if (iFc1<iFc)
+                        iFc = iMinLade*e3dc_config.powerfaktor;
                 }
 
 //                iFc3 = iFc;
