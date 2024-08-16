@@ -573,6 +573,10 @@ bool GetConfig()
                         strcpy(e3dc_config.mqtt2_ip, value);
                     else if(strcmp(var, "mqtt3_ip") == 0)
                         strcpy(e3dc_config.mqtt3_ip, value);
+                    else if(strcmp(var, "wb_ip") == 0)
+                        strcpy(e3dc_config.WB_ip, value);
+                    else if(strcmp(var, "wb_topic") == 0)
+                        strcpy(e3dc_config.WB_topic, value);
                     else if(strcmp(var, "forecast1") == 0)
                         strcpy(e3dc_config.Forecast[0], value);
                     else if(strcmp(var, "forecast2") == 0)
@@ -1599,7 +1603,49 @@ int MQTTE3DC(float f[3])
         return status;
 
     }
-    return ireq_Heistab;
+    return -1;
+}
+int MQTTWB(float f[3])
+{
+    //           Test zur Abfrage eines zweiten E3DC
+    if (strcmp(e3dc_config.WB_ip,"0.0.0.0")!=0)
+    {
+        
+        char buf[127];
+        static int WP_status = -1;
+        int status;
+        char path[1024];
+        char var [4] [20];
+        memset(path, 0x00, sizeof(path));
+
+        if (WP_status < 2)
+        {
+            if (e3dc_config.debug) printf("W1");
+            mfp == NULL;
+            sprintf(buf,"mosquitto_sub -h %s -t %s -W 1 -C 1",e3dc_config.WB_ip,e3dc_config.WB_topic);
+            mfp = popen(buf, "r");
+            //            int fd = fileno(mfp);
+            //            int flags = fcntl(fd, F_GETFL, 0);
+            //            flags |= O_NONBLOCK;
+            //            fcntl(fd, F_SETFL, flags);
+            WP_status = 2;
+        }
+        if (mfp != NULL)
+            while (fgets(path, 1024, mfp) != NULL)
+            {
+                status = sscanf(path, "%s %s %s", var[0], var[1], var[2]);
+                for (int x1=0;x1<status;x1++)
+                    f[x1]=atof(var[x1]);
+            }
+        //        if (WP_status < 2)
+        if (mfp != NULL)
+            pclose(mfp);
+        if (e3dc_config.debug) printf("W2");
+        WP_status = 0;
+        return status;
+
+    }
+    return -1;
 }
 
 int tasmotaon(int ch)
@@ -3095,7 +3141,7 @@ bDischarge = false;
              fBatt_SOC<fpeakshaveminsoc
              ||
              (
-              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900)||fBatt_SOC<e3dc_config.ladeschwelle)
+              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)
               &&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0
               )
             )

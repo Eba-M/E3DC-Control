@@ -35,7 +35,7 @@ typedef struct {
     char heizstab_ip[20]; // Heizstab
     char heizung_ip[20];  // oekofen
     char mqtt_ip[20],mqtt2_ip[20],mqtt3_ip[20];  // MQTT
-    char BWWP_ip[20];
+    char BWWP_ip[20],WB_ip[20],WB_topic[20];
     char shelly0V10V_ip[20];
     uint32_t  server_port,heizstab_port,BWWP_port;
     char e3dc_user[128];
