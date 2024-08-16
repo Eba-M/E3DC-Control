@@ -3223,6 +3223,8 @@ bDischarge = false;
 // Enstsprechend wird der Slave geladen oder entladen
                 if (iFc == 0) // keine Anforderung über Gridbezug
                 {
+                    iFc3 = f[2];
+
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                         iFc = iBilanz *.6;
@@ -3233,7 +3235,6 @@ bDischarge = false;
                             iFc = f[2];
                         else
                             iFc = iFc3;     // Grundleistung dazusteuern
-                        iFc3 = f[2];
                     }
 //angeforderde Ladeleistung
                     if (iFc1<iFc)
@@ -4666,6 +4667,12 @@ if (e3dc_config.ext7)
         protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_POWER, (uint8_t)1);
         protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_VOLTAGE, (uint8_t)1);
         protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_CURRENT, (uint8_t)1);
+        if (e3dc_config.wrleistung>=30000)  // S20Xnn
+        {
+            protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_POWER, (uint8_t)2);
+            protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_VOLTAGE, (uint8_t)2);
+            protocol.appendValue(&PVIContainer, TAG_PVI_REQ_DC_CURRENT, (uint8_t)2);
+        }
 
         // append sub-container to root container
         protocol.appendValue(&rootValue, PVIContainer);
