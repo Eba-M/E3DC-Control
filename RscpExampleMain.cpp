@@ -3279,14 +3279,12 @@ bDischarge = false;
 
                     if (f[1]<fBatt_SOC&&f[2]<-500) // Master entlädt
                     {
-                        if (iFc3 < f[2]||iFc3 == 0)    // Grundleistung größer Leistung Master
+                        if (iFc < f[2])    // Grundleistung größer Leistung Master
                             iFc = f[2];
-                        else
-                            iFc = iFc3;     // Grundleistung dazusteuern
                     }
 //angeforderde Ladeleistung
-                    if (iFc1<iFc)
-                        iFc = iMinLade*e3dc_config.powerfaktor;
+//                    if (iFc1<iFc)
+//                        iFc = iMinLade*e3dc_config.powerfaktor;
                 }
 
 //                iFc3 = iFc;
