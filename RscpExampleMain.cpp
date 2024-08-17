@@ -3282,7 +3282,7 @@ bDischarge = false;
                             iFc = iBilanz *.6;
                     }
                     if (f[0]<-500)
-                        iFc = iBilanz - f[0];
+                        iFc = iBilanz - f[2];
 
                     if (f[1]<fBatt_SOC&&f[2]<-500) // Master entlädt
                     {
