@@ -3275,7 +3275,12 @@ bDischarge = false;
 
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
-                        iFc = iBilanz *.6;
+                    {
+                        if (f[1]>fBatt_SOC+2)
+                            iFc = iBilanz *.7;
+                        else
+                            iFc = iBilanz *.6;
+                    }
                     if (f[0]<-500)
                         iFc = iBilanz - f[0];
 
