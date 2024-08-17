@@ -432,6 +432,7 @@ bool GetConfig()
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt3_ip, "0.0.0.0");
+        strcpy(e3dc_config.WB_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
@@ -3242,6 +3243,7 @@ bDischarge = false;
 // Slave E3DC
             {
                 iFc3 = iFc;
+                if (f[2]>100) iFc = 0; //Master wird geladen
                 
                 if (iMQTTAval<600&&iMQTTAval>100)  // Leistung sanft zusteuern bei Netzbezug
                     iFc = (iFc/500.0)*iMQTTAval;
@@ -3321,14 +3323,14 @@ bDischarge = false;
 
 // Es wird vom Master ins Netz eingespeist
                 
-                if ((iMQTTAval) < -500&&MQTTAval<0)
+/*                if ((iMQTTAval) < -500&&MQTTAval<0)
                 {
                         iFc = iBattLoad - MQTTAval*.2;
                 }
                 else
                     if ((iMQTTAval) < -200)
                         iFc = iBattLoad;
-
+*/
 // Überschuss es kann eingespeichert werden
 // Wenn die Speicherleistung vom Master > iFc und der SoC um 2 Punkte höher liegt
 // Wird die Ladeleistung hochgefahren, bis sie gleichauf mit dem Master liegt.
