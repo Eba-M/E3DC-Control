@@ -3295,24 +3295,8 @@ bDischarge = false;
                 if (iMQTTAval>e3dc_config.peakshave-200)
 // peakshave max. verdoppelung von iFc
                 {
-//                    if (iFc - iMQTTAval + e3dc_config.peakshave<iFc*2)
                         iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
-//                    else iFc = iFc*2;
-                } else
-                    if (iFc > iBattLoad)
-                        iFc = iFc - iBattLoad/2;
-// Laden aus dem PV-Überschuss da unter der fpeakshaveminsoc gefallen ist
-                if (MQTTAval > iMQTTAval) MQTTAval = iMQTTAval;
-                else
-                {
-                    if
-                        (iMQTTAval<-1000)
-                        MQTTAval = MQTTAval + iMQTTAval/20;
-                    else
-                        MQTTAval = MQTTAval + iMQTTAval/100;
-                    
-                }
-//                iFc3 = MQTTAval;
+                };
 // von der aktuellen Bezugsleistung starten
                 
 //                if (iBattLoad > iPower_Bat) iBattLoad = iPower_Bat;
@@ -3321,34 +3305,14 @@ bDischarge = false;
                 if (MQTTAval < e3dc_config.maximumLadeleistung*-1)
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
 
-// Es wird vom Master ins Netz eingespeist
-                
-/*                if ((iMQTTAval) < -500&&MQTTAval<0)
-                {
-                        iFc = iBattLoad - MQTTAval*.2;
-                }
-                else
-                    if ((iMQTTAval) < -200)
-                        iFc = iBattLoad;
-*/
-// Überschuss es kann eingespeichert werden
-// Wenn die Speicherleistung vom Master > iFc und der SoC um 2 Punkte höher liegt
-// Wird die Ladeleistung hochgefahren, bis sie gleichauf mit dem Master liegt.
-/*                if (f[1]-2>fBatt_SOC&&f[2]>1000)
-                {
-                    if (iFc < f[2])
-                        iFc = f[2];
-                    iFc3 = f[2];
-                }
-*/
-                
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                if (fpeakshaveminsoc-5 > fBatt_SOC)
-                    if (iMQTTAval<e3dc_config.peakshave-500)
-                        iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
-                    else
-                        iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
-
+                    if (fpeakshaveminsoc-5 > fBatt_SOC)
+                    {
+                        if (iMQTTAval<e3dc_config.peakshave-500)
+                            iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
+                        else
+                            iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
+                    }
                         
                 if (iFc > e3dc_config.maximumLadeleistung-500)
                     iFc = e3dc_config.maximumLadeleistung-500;
