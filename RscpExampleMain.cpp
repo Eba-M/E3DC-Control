@@ -3199,7 +3199,7 @@ bDischarge = false;
                             //                        iFc = iBattLoad - fPower_Grid*3;
                             iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
 
-                        iFc3 = iFc;
+//                        iFc3 = iFc;
 
                         
                         if (iFc<0)
