@@ -3288,7 +3288,10 @@ bDischarge = false;
                         iFc = 0;
                     if (f[0]<-500)
                         iFc = iBilanz - f[2];
-
+                    if ((f2) > 1000&&iFc < 0)  // Wenn der Master lädt, wird nicht endladen
+                        iFc = 0;
+                    
+                    
                     if (f[1]<fBatt_SOC&&f[2]<-500) // Master entlädt
                     {
                         if (iFc < f[2])    // Grundleistung größer Leistung Master
