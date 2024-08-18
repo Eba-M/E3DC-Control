@@ -3931,7 +3931,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
         iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
         
-        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",6);
+        memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",e3dc_config.wbminladestrom);
         WBchar6[1]=WBchar[2];
 
         if ((WBchar[2]==e3dc_config.wbmaxladestrom)||(WBchar[2]==30))
@@ -4165,7 +4165,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 else
                 {
                     iPower = -fPower_Grid + iPower_Bat;
-                    if ((-fPower_Grid - iPower_PV_E3DC + iPower_Bat) > 0||WBchar6[1]>6)
+                    if ((-fPower_Grid - iPower_PV_E3DC + iPower_Bat) > 0||WBchar6[1]>e3dc_config.wbminladestrom)
                         iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
                 }
                 break;
@@ -4335,13 +4335,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 WBChar_alt = WBchar6[1];
                 }
         }
-            }     else if ((WBchar6[1] > 6)&&(fPower_WB == 0)) WBchar6[1] = 6;
+            }     else if ((WBchar6[1] > e3dc_config.wbminladestrom)&&(fPower_WB == 0)) WBchar6[1] = e3dc_config.wbminladestrom;
 
 // Wenn der wbmodus neu eingestellt wurde, dann mit 7A starten
 
             if (bWBChanged) {
                 bWBChanged = false;
-                WBchar6[1] = 7;  // Laden von 6A aus
+                WBchar6[1] = e3dc_config.wbminladestrom+1;  // Laden von 6A aus
                 WBchar6[4] = 0; // Toggle aus
                 if (e3dc_config.debug) printf("WB8");
 
@@ -4381,7 +4381,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {
                 if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))
                     {
-                        WBchar6[1] = 6;  // Laden von 6A aus
+                        WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
                             WBchar6[4] = 1; // Laden starten
                             bWBOn = true;
                         if (e3dc_config.debug) printf("WB12");
@@ -4414,7 +4414,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             bWBOn = true; WBchar6[4] = 0;
             WBchar6[1] = WBchar[2];
             int icurrent = WBchar[2];  //Ausgangsstromstärke
-                if (WBchar6[1]==6) iWBMinimumPower = fPower_WB;
+                if (WBchar6[1]==e3dc_config.wbminladestrom) iWBMinimumPower = fPower_WB;
             else
                 if ((iWBMinimumPower == 0) ||
                     (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
@@ -4426,7 +4426,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     
                 if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<e3dc_config.wbmaxladestrom-1)) WBchar6[1]++; else break;
 //                WBchar[2] = WBchar6[1];
-                if (icurrent == 6&&WBchar6[1]>16)
+                if (icurrent == e3dc_config.wbminladestrom&&WBchar6[1]>16)
                     WBchar6[1] = 16;
                 if (e3dc_config.debug) printf("WB16");
 
@@ -4441,11 +4441,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
              } else
 
 // Prüfen Herabsetzung Ladeleistung
-            if ((WBchar6[1] > 6)&&(iAvalPower<=((iWBMinimumPower/6)*-1)))
+            if ((WBchar6[1] > e3dc_config.wbminladestrom)&&(iAvalPower<=((iWBMinimumPower/6)*-1)))
                   { // Mind. 2000W Batterieladen
                 WBchar6[1]--;
                 for (int X1 = 2; X1 < 20; X1++)
-                    if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>7)) WBchar6[1]--; else break;
+                    if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>e3dc_config.wbminladestrom+1)) WBchar6[1]--; else break;
                 WBchar[2] = WBchar6[1];
 //                createRequestWBData2(frameBuffer);
                       if (e3dc_config.debug) printf("WB18");
@@ -4453,7 +4453,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 createRequestWBData(frameBuffer);
                       if (e3dc_config.debug) printf("WB19");
 
-                if (WBchar6[1]==6)
+                if (WBchar6[1]==e3dc_config.wbminladestrom)
                     iWBStatus = 30;
                 WBChar_alt = WBchar6[1];
 
@@ -4471,11 +4471,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
                 || (iAvalPower < iWBMinimumPower*-1)
                 ))  {
-                if ((WBchar6[1] > 5)&&bWBLademodus)
+                if ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
                 {WBchar6[1]--;
 
-                        if (WBchar6[1]==5) {
-                            WBchar6[1]=6;
+                        if (WBchar6[1]==e3dc_config.wbminladestrom-1) {
+                            WBchar6[1]=e3dc_config.wbminladestrom;
                             WBchar6[4] = 1;
                             bWBOn = false;
                         } // Laden beenden
@@ -4484,7 +4484,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         createRequestWBData(frameBuffer);
                     if (e3dc_config.debug) printf("WB21");
 
-                    WBchar6[1]=5;
+                    WBchar6[1]=e3dc_config.wbminladestrom-1;
                     WBchar6[4] = 0;
                     WBChar_alt = WBchar6[1];
                     iWBStatus = 10;  // Warten bis Neustart
