@@ -3271,7 +3271,7 @@ bDischarge = false;
 // Aus den Werten beider Systemen wird eine Leistungsbilanz gebildet
 // Ist diese < 0 wird mehr Verbraucht, ist diese > 0 wird mehr erzeugt
 // Enstsprechend wird der Slave geladen oder entladen
-                if (iFc == 0&&fBatt_SOC-e3dc_config.peakshavesoc>0)
+                if (iFc == 0)
 // keine Anforderung über Gridbezug
                 {
                     iFc3 = f[2];
@@ -3284,6 +3284,8 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                     }
+                    if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
+                        iFc = 0;
                     if (f[0]<-500)
                         iFc = iBilanz - f[2];
 
