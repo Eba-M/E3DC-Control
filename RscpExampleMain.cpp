@@ -3164,7 +3164,9 @@ bDischarge = false;
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
-                iFc = iFc / idauer *-1;
+                iFc = iFc / (idauer+1800) *-1;
+                if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
+                    iFc = iFc / 2;
 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else 
@@ -3269,14 +3271,15 @@ bDischarge = false;
 // Aus den Werten beider Systemen wird eine Leistungsbilanz gebildet
 // Ist diese < 0 wird mehr Verbraucht, ist diese > 0 wird mehr erzeugt
 // Enstsprechend wird der Slave geladen oder entladen
-                if (iFc == 0) // keine Anforderung über Gridbezug
+                if (iFc == 0&&fBatt_SOC-e3dc_config.peakshavesoc>0)
+// keine Anforderung über Gridbezug
                 {
                     iFc3 = f[2];
 
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                     {
-                        if (f[1]>fBatt_SOC+2)
+                        if (f[1]>fBatt_SOC+2&&iFc>1000)
                             iFc = iBilanz *.7;
                         else
                             iFc = iBilanz *.6;
