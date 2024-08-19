@@ -3199,7 +3199,7 @@ bDischarge = false;
                     {
 // Peakshave Grenze erreich Entladeleistung erhöhen
                         if (fsollGrid < 0)
-                            iFc = iBattLoad - fsollGrid*2;
+                            iFc = iBattLoad + fsollGrid*2;
                     }
                     else
                         // Besteht noch PV Überschuss?
