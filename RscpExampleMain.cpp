@@ -3135,7 +3135,7 @@ bDischarge = false;
         static int MQTTAval;
         float f4 = (t_alt%(900))+1; //(0..899) daher +1
         float fcurrentGrid = iGridStat[Gridstat]/f4;
-        float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4);
+        float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4+1);
         static int iFc0 = 0;
         int iFc1 = iFc;  // angefordertete Leistung
         if (
@@ -3198,8 +3198,8 @@ bDischarge = false;
                     if (fcurrentGrid>e3dc_config.peakshave)
                     {
 // Peakshave Grenze erreich Entladeleistung erhöhen
-                        if (fsollGrid < 0)
-                            iFc = iBattLoad + fsollGrid*2;
+                        if (fsollGrid < 200)
+                            iFc = iBattLoad + (fsollGrid-200)*2;
                     }
                     else
                         // Besteht noch PV Überschuss?
