@@ -3133,6 +3133,10 @@ bDischarge = false;
         }
 
         static int MQTTAval;
+        float f4 = (t_alt%(900))+1; //(0..899) daher +1
+        float fcurrentGrid = iGridStat[Gridstat]/f4;
+        float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4);
+        static int iFc0 = 0;
         int iFc1 = iFc;  // angefordertete Leistung
         if (
             (idauer > 0
@@ -3140,6 +3144,8 @@ bDischarge = false;
              fBatt_SOC<e3dc_config.peakshavesoc
              ||
              fBatt_SOC<fpeakshaveminsoc
+             ||
+             fcurrentGrid>e3dc_config.peakshave
              ||
              (
               ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)
@@ -3179,18 +3185,21 @@ bDischarge = false;
 // Master E3DC sendet die grid-werte
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fAvBatterie+200>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
-                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
+                if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
+                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC&&fBatt_SOC>e3dc_config.peakshavesoc)
                 {
 //                    iFc = 0;
                     idauer = -1;
                 }
                 else
                 {
-                    
-                    if (fPower_Grid>e3dc_config.peakshave-200)
-                        // Peakshave Grenze erreich Entladeleistung erhöhen
-                        iFc = iBattLoad - (fPower_Grid - e3dc_config.peakshave+200)*2;
+// peakshaveing notwendig??
+// Es wird auf das exakte 15min Intervall geregelt
+                    if (fcurrentGrid>e3dc_config.peakshave)
+                    {
+// Peakshave Grenze erreich Entladeleistung erhöhen
+                            iFc = iBattLoad - fsollGrid*2;
+                    }
                     else
                         // Besteht noch PV Überschuss?
                     {
@@ -3286,7 +3295,7 @@ bDischarge = false;
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
-                    if (f[0]<-500)
+                    if (f[0]<-500&&f[2]>=0)
                         iFc = iBilanz - f[2];
                     if ((f2) > 1000&&iFc < 0)  // Wenn der Master lädt, wird nicht endladen
                         iFc = 0;
@@ -3342,7 +3351,7 @@ bDischarge = false;
                     iFc = e3dc_config.maximumLadeleistung; // noch kein shaving
                     average = 0;
                 }
-  */
+*/
                 iFc = average;
             }
             else
@@ -4989,13 +4998,15 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     int x2 = (t_alt%(24*7*4*900))/900;
                     int x3 = (t_alt%(24*7*4*900))/900;
                     float f4 = (t_alt%(900))+1; //(0..899) daher +1
-
+//                    float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/900000.0;
+                    float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4)/1000.0;
+                    if (fsollGrid > e3dc_config.peakshave) fsollGrid = e3dc_config.peakshave;
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
                     printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.04f/%0.04f/%0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0); // Tages Hausverbrauch
+                        printf(" %0.04f/%0.04f/%0.04f %0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
                     }
 // Grid
                     if (e3dc_config.WP)
