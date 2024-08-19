@@ -3198,8 +3198,11 @@ bDischarge = false;
                     if (fcurrentGrid>e3dc_config.peakshave)
                     {
 // Peakshave Grenze erreich Entladeleistung erhöhen
-                        if (fsollGrid < 200)
-                            iFc = iBattLoad + (fsollGrid-200)*2;
+                        if (fsollGrid < e3dc_config.peakshave&&f4>800)
+                            iFc = iBattLoad + (fsollGrid-e3dc_config.peakshave);
+                        else
+                            if (fcurrentGrid*.9>e3dc_config.peakshave)
+                                iFc = iBattLoad - fcurrentGrid + e3dc_config.peakshave;
                     }
                     else
                         // Besteht noch PV Überschuss?
