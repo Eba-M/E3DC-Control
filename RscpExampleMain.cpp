@@ -3198,6 +3198,7 @@ bDischarge = false;
                     if (fcurrentGrid>e3dc_config.peakshave)
                     {
 // Peakshave Grenze erreich Entladeleistung erhöhen
+                        if (fsollGrid < 0)
                             iFc = iBattLoad - fsollGrid*2;
                     }
                     else
