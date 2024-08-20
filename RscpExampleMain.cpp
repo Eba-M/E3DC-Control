@@ -2938,11 +2938,11 @@ bDischarge = false;
                 else
                     soc_alt = fBatt_SOC;
             }
+            else fLadeende = fLadeende3;
             tLadezeitende = tLadezeitende3;
         }
             if (soc_alt > fBatt_SOC)
                 soc_alt = fBatt_SOC;
-        //        else fLadeende = fLadeende3;
         
     }
  else
