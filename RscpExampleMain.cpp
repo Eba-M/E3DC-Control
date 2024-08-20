@@ -3203,7 +3203,7 @@ bDischarge = false;
                         else
                             if (fcurrentGrid>e3dc_config.peakshave)
 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
-                                iFc = iBattLoad - fcurrentGrid + fsollGrid;
+                                iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
                     }
                     else
                         // Besteht noch PV Überschuss?
