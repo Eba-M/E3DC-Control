@@ -3202,7 +3202,7 @@ bDischarge = false;
                         if (fsollGrid-100 < fPower_Grid&&f4>800)
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
                         else
-                            if (fcurrentGrid>e3dc_config.peakshave)
+                            if (fcurrentGrid>e3dc_config.peakshave-100)
 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
                     }
