@@ -3301,7 +3301,7 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %2i%%",iBilanz,iFc, (iFc0*100/iBilanz));
+                        printf("iBilanz %i %i %2i%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)));
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
@@ -3327,7 +3327,16 @@ bDischarge = false;
                 if (iMQTTAval>e3dc_config.peakshave-200)
 // peakshave max. verdoppelung von iFc
                 {
-                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
+//                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
+                    int iBilanz = iBattLoad + f[2];
+                    if (fBatt_SOC > f[1])
+                        iFc = iBilanz*.7;
+                    else
+                        iFc = iBilanz*.6;
+                    
+                    printf("%c[K\n", 27 );
+                    printf("iBilanz %i %i %2i%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)));
+
                 };
 // von der aktuellen Bezugsleistung starten
                 
