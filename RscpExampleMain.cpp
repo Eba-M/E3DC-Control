@@ -3301,7 +3301,7 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i2 %i2",iBilanz,iFc);
+                        printf("iBilanz %i %i %.2f",iBilanz,iFc, float(iFc0/iBilanz));
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
@@ -3411,7 +3411,7 @@ bDischarge = false;
             printf("%c[K\n", 27 );
             printf("shavingB = %i %.2f %i %i %2.0f %2.0f",t-itime,fpeakshaveminsoc,iFc,iMQTTAval,fPower_Ext[2],fPower_Ext[3]);
         }
-        
+        iFc0 = iFc;
     }
 
 
