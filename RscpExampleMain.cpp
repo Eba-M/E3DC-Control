@@ -3301,7 +3301,7 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %.2f",iBilanz,iFc, float(iFc0/iBilanz));
+                        printf("iBilanz %i %i %2i%%",iBilanz,iFc, (iFc0*100/iBilanz));
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
