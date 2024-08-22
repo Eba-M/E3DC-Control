@@ -3059,7 +3059,9 @@ bDischarge = false;
         {
             if (iMinLade<iMinLade2) iMinLade = iMinLade2*2;
             if (iMinLade<(e3dc_config.maximumLadeleistung*.5))
+            {
                 iMinLade = e3dc_config.maximumLadeleistung*.5;
+            }
 //            if (iFc < iMinLade*e3dc_config.powerfaktor)
 //                iFc = iMinLade*e3dc_config.powerfaktor;
             if (iFc < iMinLade*2)
@@ -3294,10 +3296,12 @@ bDischarge = false;
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                     {
-                        if (f[1]>fBatt_SOC+2&&iBilanz>1000)
+                        if ((f[1]>fBatt_SOC+2&&iBilanz>1000)||(f[1]<fBatt_SOC&&iBilanz<-1000))
                             iFc = iBilanz *.7;
                         else
                             iFc = iBilanz *.6;
+                        printf("%c[K\n", 27 );
+                        printf("iBilanz %i2 %i2",iBilanz,iFc);
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
