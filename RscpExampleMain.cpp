@@ -3147,7 +3147,7 @@ bDischarge = false;
              ||
              fBatt_SOC<fpeakshaveminsoc
              ||
-             (fcurrentGrid>e3dc_config.peakshave&&iPower_PV<100) // nur in der Nacht
+             (fcurrentGrid>e3dc_config.peakshave-200&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")==0)) // nur Master
              ||
              (
               ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)
