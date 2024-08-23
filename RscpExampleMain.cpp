@@ -3334,7 +3334,7 @@ bDischarge = false;
                                 iFc = iBilanz*.6;
                         
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %2i%% %2.0f%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
+                        printf("iBilanz %i %i %i %2i%% %2.0f%% %2.0f%%",iFc3,iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
                         
                     }
                 }
