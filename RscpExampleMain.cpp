@@ -3328,10 +3328,10 @@ bDischarge = false;
                     {
                         iFc3 = iFc;
                         int iBilanz = iBattLoad + f[2];
-                        if (fBatt_SOC > f[1]&&iFc<iBilanz*.7)
+                        if (fBatt_SOC > f[1]&&iFc<(iBilanz*.7))
                             iFc = iBilanz*.7;
                         else
-                            if (iFc<iBilanz*.6)
+                            if (iFc<(iBilanz*.6))
                                 iFc = iBilanz*.6;
                         
                         printf("%c[K\n", 27 );
