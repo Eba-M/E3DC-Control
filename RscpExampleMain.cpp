@@ -3147,7 +3147,7 @@ bDischarge = false;
              ||
              fBatt_SOC<fpeakshaveminsoc
              ||
-             fcurrentGrid>e3dc_config.peakshave
+             (fcurrentGrid>e3dc_config.peakshave&&iPower_PV<100) // nur in der Nacht
              ||
              (
               ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)
@@ -3322,21 +3322,27 @@ bDischarge = false;
                 }
 
 //                iFc3 = iFc;
-
+                else
+                {
+                    if (iFc < 0)  // Angleichen Slave in der Ausspeicherungsleistung an den Master
+                    {
+                        int iBilanz = iBattLoad + f[2];
+                        if (fBatt_SOC > f[1]&&iFc<iBilanz*.7)
+                            iFc = iBilanz*.7;
+                        else
+                            if (iFc<iBilanz*.6)
+                                iFc = iBilanz*.6;
+                        
+                        printf("%c[K\n", 27 );
+                        printf("iBilanz %i %i %2i%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)));
+                        
+                    }
+                }
                 
                 if (iMQTTAval>e3dc_config.peakshave-200)
 // peakshave max. verdoppelung von iFc
                 {
-//                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
-                    int iBilanz = iBattLoad + f[2];
-                    if (fBatt_SOC > f[1])
-                        iFc = iBilanz*.7;
-                    else
-                        iFc = iBilanz*.6;
-                    
-                    printf("%c[K\n", 27 );
-                    printf("iBilanz %i %i %2i%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)));
-
+                        iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
                 };
 // von der aktuellen Bezugsleistung starten
                 
