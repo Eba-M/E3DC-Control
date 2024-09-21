@@ -1538,7 +1538,7 @@ int tasmotastatus(int ch)
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
         
-        char buf[127];
+        char buf[1024];
         static int WP_status = -1;
         int status;
         char path[1024];
@@ -1563,9 +1563,10 @@ int tasmotastatus(int ch)
                 WP_status = 0;
         }
 //        if (WP_status < 2)
+        if (e3dc_config.debug) printf("W2\n");
         if (mfp != NULL)
         status = pclose(mfp);
-        if (e3dc_config.debug) printf("W2\n");
+        if (e3dc_config.debug) printf("W2a\n");
         return WP_status;
 }
     return 0;
