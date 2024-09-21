@@ -1544,7 +1544,7 @@ int tasmotastatus(int ch)
         char path[1024];
         if (WP_status < 2)
         {
-            if (e3dc_config.debug) printf("W1");
+            if (e3dc_config.debug) printf("W1\n");
             mfp == NULL;
             sprintf(buf,"mosquitto_sub -h %s -t stat/tasmota/POWER%i -W 1 -C 1",e3dc_config.mqtt_ip,ch);
             mfp = popen(buf, "r");
@@ -1565,7 +1565,7 @@ int tasmotastatus(int ch)
 //        if (WP_status < 2)
         if (mfp != NULL)
         status = pclose(mfp);
-        if (e3dc_config.debug) printf("W2");
+        if (e3dc_config.debug) printf("W2\n");
         return WP_status;
 }
     return 0;
@@ -2092,7 +2092,6 @@ int LoadDataProcess() {
                     wpofftime = t;
                 }
             }
-            if (e3dc_config.debug) printf("D5\n");
 
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
             //
