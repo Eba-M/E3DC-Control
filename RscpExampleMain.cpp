@@ -1554,6 +1554,7 @@ int tasmotastatus(int ch)
 //            fcntl(fd, F_SETFL, flags);
             WP_status = 2;
         }
+        if (e3dc_config.debug) printf("W2\n");
         if (mfp != NULL)
         if (fgets(path, 1024, mfp) != NULL)
         {
@@ -1563,7 +1564,6 @@ int tasmotastatus(int ch)
                 WP_status = 0;
         }
 //        if (WP_status < 2)
-        if (e3dc_config.debug) printf("W2\n");
         if (mfp != NULL)
         status = pclose(mfp);
         if (e3dc_config.debug) printf("W2a\n");
