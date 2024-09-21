@@ -1760,11 +1760,11 @@ int LoadDataProcess() {
     time (&t);
     t_sav = t;
     
-    if (e3dc_config.debug) printf("D1a");
+    if (e3dc_config.debug) printf("D1a\n");
     if (not e3dc_config.test)
     mqtt();
     
-    if (e3dc_config.debug) printf("D2");
+    if (e3dc_config.debug) printf("D2\n");
     
     
     fDCDC = fDCDC + fCurrent*(t-t_alt);
