@@ -1565,7 +1565,10 @@ int tasmotastatus(int ch)
         }
 //        if (WP_status < 2)
         if (mfp != NULL)
-        status = pclose(mfp);
+        {
+            status = pclose(mfp);
+            mfp = NULL;
+        }
         if (e3dc_config.debug) printf("W2a\n");
         return WP_status;
 }
