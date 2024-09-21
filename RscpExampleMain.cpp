@@ -1500,7 +1500,7 @@ int wolfstatus()
     }
     if (e3dc_config.debug) printf("Wo1d\n");
     if (wolf_fp == NULL) WP_status = 1;
-    else            status = pclose(wolf_fp);
+//    else            status = pclose(wolf_fp);
     if (e3dc_config.debug) printf("Wo1e\n");
 
     return WP_status;
