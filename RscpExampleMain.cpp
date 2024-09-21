@@ -2051,6 +2051,8 @@ int LoadDataProcess() {
             tasmotatime = t;
             
         }
+        if (e3dc_config.debug) printf("D4a\n");
+
         if (tasmota_status[3] > 1)
             tasmota_status[3] = tasmotastatus(4);
         
@@ -2071,6 +2073,7 @@ int LoadDataProcess() {
                 //            bHK2off |= 2;
             }
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
+        if (e3dc_config.debug) printf("D4b\n");
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
             if 
@@ -2092,6 +2095,7 @@ int LoadDataProcess() {
                     wpofftime = t;
                 }
             }
+            if (e3dc_config.debug) printf("D4c\n");
 
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
             //
@@ -2126,7 +2130,8 @@ int LoadDataProcess() {
                 btasmota_ch1 = 0;
             
             // Wie lange reicht der SoC? wird nur außerhalb des Kernwinter genutzt
- 
+            if (e3dc_config.debug) printf("D4d\n");
+
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
                 iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1)*10;
