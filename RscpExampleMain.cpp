@@ -785,7 +785,7 @@ bool GetConfig()
                     else if(strcmp(var, "peakshave") == 0)
                         e3dc_config.peakshave = atoi(value); // in Watt
                     else if(strcmp(var, "peakshavesoc") == 0)
-                        e3dc_config.peakshavesoc = atoi(value); // in Watt
+                        e3dc_config.peakshavesoc = atof(value); // in Watt
                     else if(strcmp(var, "peakshaveuppersoc") == 0)
                         e3dc_config.peakshaveuppersoc = atoi(value); // in Watt
                     else if(strcmp(var, "soc") == 0)
@@ -1428,15 +1428,18 @@ int wolfstatus()
 //            if (e3dc_config.debug)
             printf("Wo0a");
             wolf_fp = popen(buf, "r");
-//            if (e3dc_config.debug)
-            printf("Wo0b");
-            int fd = fileno(wolf_fp);
-            int flags = fcntl(fd, F_GETFL, 0);
-            flags |= O_NONBLOCK;
-            fcntl(fd, F_SETFL, flags);
-//            if (e3dc_config.debug)
+            if (wolf_fp != NULL)
+            {
+                //            if (e3dc_config.debug)
+                printf("Wo0b");
+                int fd = fileno(wolf_fp);
+                int flags = fcntl(fd, F_GETFL, 0);
+                flags |= O_NONBLOCK;
+                fcntl(fd, F_SETFL, flags);
+                //            if (e3dc_config.debug)
+            }
             printf("Wo0c");
-
+            
             WP_status = 2;
             wolf_t = now;
         }
@@ -1495,7 +1498,8 @@ int wolfstatus()
             }
         }
     }
-        if (wolf_fp == NULL) WP_status = 1;
+    if (e3dc_config.debug) printf("Wo1d\n");
+    if (wolf_fp == NULL) WP_status = 1;
 //            status = pclose(fp);
         return WP_status;
         
@@ -2123,7 +2127,7 @@ int LoadDataProcess() {
  
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*15.0;
+                iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1)*10;
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
@@ -2575,7 +2579,14 @@ int LoadDataProcess() {
                     f2 = wetter[x1].solar/900*(900-t%900);
                 else
                     if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                        f2 = f2 + wetter[x1].solar;
+                    {     
+                        int ze = wetter[x1].solar*e3dc_config.speichergroesse*40;
+                        if (ze>e3dc_config.maximumLadeleistung)
+// nur die nutzbare Solarleistung berücksichtigen
+                            f2 = f2 + e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/40;
+                        else
+                            f2 = f2 + wetter[x1].solar;
+                    }
             }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
@@ -3172,8 +3183,8 @@ bDischarge = false;
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
-                iFc = iFc / (idauer+180) *-1;
-// 3 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
+                iFc = iFc / (idauer+600) *-1;
+// 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
@@ -3216,6 +3227,9 @@ bDischarge = false;
                         if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
                             //                        iFc = iBattLoad - fPower_Grid*3;
                             iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
+                        else
+                            if (fpeakshaveminsoc-2 > fBatt_SOC)
+                                iFc = 0;
 
 //                        iFc3 = iFc;
 
