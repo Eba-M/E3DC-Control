@@ -2040,7 +2040,7 @@ int LoadDataProcess() {
     
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
-        if (e3dc_config.debug) printf("D4");
+        if (e3dc_config.debug) printf("D4\n");
         
         if (t-tasmotatime>10)
         {
