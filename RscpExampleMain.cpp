@@ -2092,7 +2092,8 @@ int LoadDataProcess() {
                     wpofftime = t;
                 }
             }
-            
+            if (e3dc_config.debug) printf("D5\n");
+
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
             //
             if (fcop>0)
