@@ -2072,8 +2072,8 @@ int LoadDataProcess() {
                 //            bHK1off |= 2;
                 //            bHK2off |= 2;
             }
+
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
-        if (e3dc_config.debug) printf("D4b\n");
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
             if 
@@ -2510,6 +2510,7 @@ int LoadDataProcess() {
                 }
         }
     }
+    if (e3dc_config.debug) printf("D4c\n");
 
     float f2 = 0;
     float f3 = 0;
