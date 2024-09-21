@@ -2036,7 +2036,7 @@ int LoadDataProcess() {
                 low.fah = fDCDC;
             
         }
-    if (e3dc_config.debug) printf("D3");
+    if (e3dc_config.debug) printf("D3\n");
     
     if (strcmp(e3dc_config.mqtt_ip,"0.0.0.0")!=0)
     {
