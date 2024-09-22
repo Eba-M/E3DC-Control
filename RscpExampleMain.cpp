@@ -2138,7 +2138,8 @@ int LoadDataProcess() {
 
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1)*10;
+                iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1-1);
+            if (iWPHK1max<e3dc_config.WPHK1) iWPHK1max = e3dc_config.WPHK1;
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
