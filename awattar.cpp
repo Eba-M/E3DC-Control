@@ -295,7 +295,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             if (faval >= anforderung*-1||anforderung>=0)
             {
                 fSoC = fSoC + anforderung;
-//                return 1;
+                return 1;
             } else {
                 fSoC = fSoC - faval;
                 anforderung = anforderung + faval;
@@ -310,8 +310,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxsoc);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
+// Es könnte nachgeladen werden
                 {
-//                    fSoC = fConsumption;
+                    fSoC = fSoC + anforderung;
                     return 1;
                 }
             if (h1>l1)
@@ -349,12 +350,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 
                 SollSoc = fHighprice(w,wetter,h,l1,w[h].pp*aufschlag+Diff,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
                 if (SollSoc < fSoC) return 1;
-                SollSoc = SollSoc-maxsoc; // Zielsoc
                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
                 // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc2 = fHighprice(w,wetter,h,w.size()-1,w[h].pp*aufschlag+Diff,maxsoc);
-//                SollSoc = SollSoc +fSoC;
-                SollSoc2 = SollSoc2-maxsoc;
                 if (x2 == x1) // keine weiteren Lows
 //                    SollSoc = SollSoc2 +fSoC;
                 SollSoc = SollSoc2;
@@ -440,7 +438,7 @@ if (mode == 0) // Standardmodus
             fConsumption = fHighprice(w,wetter,0,l1,w[0].pp,maxsoc);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
             if ((w[0].pp>w[l1].pp*aufschlag+Diff)&&fSoC>=Reserve)
-                return 1;
+                return 0;
             if (h1>l1)
                 {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
             else
