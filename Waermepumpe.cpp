@@ -568,16 +568,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                  anforderung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              
              float preis = w[j].pp;
-             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
+             float ladeleistung;
              float fsolar = wetter[j].solar;
              if (e3dc.openmeteo)
              {
                  if (fsolar > (e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4))
                      fsolar = (e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4);
+                 ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10/4;
              } else
+             {
                  if (fsolar > e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
-
+                 ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
+             }
+             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
              if (ret == 0)
              { if ((wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf ) > 0)
                  soc = soc - wetter[j].hourly - wetter[j].wpbedarf + fsolar;

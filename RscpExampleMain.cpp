@@ -543,7 +543,8 @@ bool GetConfig()
                 fpread = true;
                 memset(var, 0, sizeof(var));
                 memset(value, 0, sizeof(value));
-                if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
+//                if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
+                    if(sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^ \n]", var, value) == 2) {
                     for (int i = 0; i < strlen(var); i++)
                     var[i] = tolower(var[i]);
                     if(strcmp(var, "server_ip") == 0)
