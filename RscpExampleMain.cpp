@@ -2432,10 +2432,10 @@ int LoadDataProcess() {
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 ALV = shelly_get();
-                float ALV_Calc = (e3dc_config.WPHK1max+5)*10-temp[14];
+                float ALV_Calc = (e3dc_config.WPHK1max+4)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
-                if (ALV_Calc < 0)
+                if (ALV_Calc < -10)
                 {
                         ALV_Calc = 0;
                 }
