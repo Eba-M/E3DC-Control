@@ -2451,9 +2451,14 @@ int LoadDataProcess() {
                     if (PVon > 0)
                     {
 //  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 5K
+// abhängig von der AT wird das ramp-up gesteuert
+                        float ramp = 10+(fatemp-8)*2.5;  //20° = 40, 8° = 10
+                        if (ramp > 40) ramp = 40;
+                        if (ramp < 10) ramp = 10;
+
                         ALV_Calc =
                         (
-                         ((40-ALV_Calc)/50.0)*
+                         ((ramp-ALV_Calc)/ramp)*
                         (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
                          );
                         ALV_Calc = e3dc_config.shelly0V10Vmax- ALV_Calc;
@@ -2463,6 +2468,7 @@ int LoadDataProcess() {
                             ALV_Calc = e3dc_config.shelly0V10Vmin;
                     } else
                         ALV_Calc = ALV;
+//                    ALV_Calc = 0;  //WP ausschalten
                 }
                 if  (
                         (ALV_Calc > ALV&&PVon>500) //MEHR GAS NUR BEI PV
@@ -2472,7 +2478,7 @@ int LoadDataProcess() {
                         ((ALV_Calc==0)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
                     )
                     {
-                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin)
+                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin&&ALV_Calc>0)
                             ALV_Calc = e3dc_config.shelly0V10Vmin;
                         ALV = ALV_Calc;
                         shelly(ALV);
