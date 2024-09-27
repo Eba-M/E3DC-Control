@@ -2432,25 +2432,23 @@ int LoadDataProcess() {
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 ALV = shelly_get();
-                float ALV_Calc = (e3dc_config.WPHK1max+3)*10-temp[14];
+                float ALV_Calc = (e3dc_config.WPHK1max+5)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
                 if (ALV_Calc < 0)
                 {
-                    if (ALV_Calc<-20)  // 1K Temperaturanstieg zulassen
                         ALV_Calc = 0;
-                    else
-                        if (ALV > 0) ALV_Calc = e3dc_config.shelly0V10Vmin;
                 }
                 else
                 {
-                    if (ALV_Calc>40&&ALV==0)
+                    if (ALV_Calc<60&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
-                    else
+/*                    else
                     if (ALV_Calc>20&&ALV_Calc<30&&PVon<0&&ALV==e3dc_config.shelly0V10Vmin)
                         ALV_Calc = 0;
+*/
                     else
-//                    if (PVon > 0)
+                    if (PVon > 0)
                     {
 //  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 5K
                         ALV_Calc =
@@ -2461,8 +2459,8 @@ int LoadDataProcess() {
                         ALV_Calc = e3dc_config.shelly0V10Vmax- ALV_Calc;
                         if (ALV_Calc >= e3dc_config.shelly0V10Vmax)
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
-                        else
-                            ALV_Calc = ALV_Calc + e3dc_config.shelly0V10Vmin;
+                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin)
+                            ALV_Calc = e3dc_config.shelly0V10Vmin;
                     }
                 }
                 if  (
@@ -2473,6 +2471,8 @@ int LoadDataProcess() {
                         ((ALV_Calc==0)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
                     )
                     {
+                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin)
+                            ALV_Calc = e3dc_config.shelly0V10Vmin;
                         ALV = ALV_Calc;
                         shelly(ALV);
                         wp_t = t;
