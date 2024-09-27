@@ -2453,7 +2453,7 @@ int LoadDataProcess() {
 //  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 5K
                         ALV_Calc =
                         (
-                         ((50-ALV_Calc)/50.0)*
+                         ((40-ALV_Calc)/50.0)*
                         (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
                          );
                         ALV_Calc = e3dc_config.shelly0V10Vmax- ALV_Calc;
@@ -2461,7 +2461,8 @@ int LoadDataProcess() {
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
                         if (ALV_Calc <= e3dc_config.shelly0V10Vmin)
                             ALV_Calc = e3dc_config.shelly0V10Vmin;
-                    }
+                    } else
+                        ALV_Calc = ALV;
                 }
                 if  (
                         (ALV_Calc > ALV&&PVon>500) //MEHR GAS NUR BEI PV
