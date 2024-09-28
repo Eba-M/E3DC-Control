@@ -3653,43 +3653,6 @@ bDischarge = false;
                     tE3DC_alt = t;
                     
                     {
-                        // peakshaving erforderlich?
-/*                        if (e3dc_config.peakshave > 0)
-                        {
-                            // Im Steuerbereich = Zielbereich - 500 in diesem Bereich wird gesteuert
-                            if ((fPower_Grid) > e3dc_config.peakshave-500)
-                            {
-                                iDiffLadeleistung2 = -iPower_Bat-iE3DC_Req_Load;
-                                if (iDiffLadeleistung2 > 100) iDiffLadeleistung2 = 100;
-                                if (iDiffLadeleistung2 < 0) iDiffLadeleistung2 = 0;
-                                //            iBattLoad = e3dc_config.peakshave-iPowerHome;
-                                //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome+iDiffLadeleistung2;
-                                //          Es soll die Netzeinspeisung auf einen Mindestwert gesetzt werden
-                                //            iBattLoad = e3dc_config.peakshave-fPower_Grid+iPower_Bat;
-                                // wenn iPower_Bat < 0 es wird ausgespeichert oder fPower_Grid > e3dc_config.peakshave
-                                if ((iPower_Bat < 0)||(e3dc_config.peakshave<(fPower_Grid)*.9))
-                                    iE3DC_Req_Load = e3dc_config.peakshave-fPower_Grid+iPower_Bat+iDiffLadeleistung2;
-                                else
-                                    iE3DC_Req_Load = 0;
-                                //            iE3DC_Req_Load = e3dc_config.peakshave-iPowerHome;
-                                if ((iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
-                                    iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
-                                else if (abs(iE3DC_Req_Load) > e3dc_config.maximumLadeleistung)
-                                    iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
-                                // Keine Laden aus dem Netz zulassen, nur von der PV
-                                if (iE3DC_Req_Load > iPower_PV) iE3DC_Req_Load = iPower_PV;
-                                //            if (iE3DC_Req_Load > iPower_Bat)
-                                if (abs(iE3DC_Req_Load) > 100)
-                                {
-                                    iLMStatus = -7;
-                                    sprintf(Log,"CPS %s %0.02f %i %i %0.02f %0.02ff", strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid, fAvPower_Grid600);
-                                    WriteLog();
-//                                    return 0;
-                                }
-                                
-                            }
-                        };
-*/
                         if (iLMStatus == 1){
                             if
                                 (

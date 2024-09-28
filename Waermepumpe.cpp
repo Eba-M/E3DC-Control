@@ -394,7 +394,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         float f8 =  f7*f4/f5;
                                         float f6 =  f7/f2;
 
-                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+// Es werden immer die gerechneten Werte genommen
+// die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
+// Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
+//                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                             wetter[x1].wpbedarf = wetter[x1].kosten;
                                         
                                         int bHK1on = 0;
