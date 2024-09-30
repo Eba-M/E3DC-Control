@@ -429,8 +429,8 @@ if (mode == 0) // Standardmodus
 // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         if (float(fSoC-fConsumption) >=Reserve) // x1 Anzahl der Einträge mit höheren Preisen
-            return 1;
-
+            return 0;
+// geändert am 30.0.
 // suche über den gesamten Bereich
         x1 = SucheDiff(w,0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
         do

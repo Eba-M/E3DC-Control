@@ -377,7 +377,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     f4 = f4 + f3/f2; // benötigte elektrische Leistung;
                                 if (e3dc.openmeteo)
                                 {
+//                                    wetter[x1].kosten = f4;
+// absoluter Strombedarf speichern unabhängig vom Speicher??
                                     wetter[x1].kosten = f4/e3dc.speichergroesse*100/4;
+// noch nicht
                                     while (w.size()>0&&(w[0].hh+900<=rawtime))
                                         w.erase(w.begin());
                                     while (wetter.size()>0&&(wetter[0].hh+900<=rawtime))
@@ -654,8 +657,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 */
          
          
-         
-         
+    
         }
     }
 //     */
