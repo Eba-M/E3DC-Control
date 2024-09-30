@@ -2764,6 +2764,7 @@ int LoadDataProcess() {
             if (fBatt_SOC > fht-1) break;  // do nothink
             case 3: ret = 2; break;
             case 1: ret = 1;
+            case 4: ret = 0;
         }
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
