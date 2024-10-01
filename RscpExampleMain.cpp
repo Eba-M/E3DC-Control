@@ -2495,8 +2495,14 @@ int LoadDataProcess() {
                 if ((t%60)==0)
                     ALV = shelly_get();
             }
-        
-        
+// Bei Übertemperatur > 450 WP ausschalten
+// Bei Untertemperatur < 300 WP einschalten
+if ((temp[14]) > 450)
+    btasmota_ch1 = 0;
+
+if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off)) //bWP > 0 LWWP ausschalten
+    btasmota_ch1  |=8;
+
 
             // Auswertung Steuerung
             if (btasmota_ch1)
@@ -2512,7 +2518,7 @@ int LoadDataProcess() {
                 if (tasmota_status[0]==0)
                 {
                     //                if (t-wpofftime > 60)   // 300sek. verzögerung vor der abschaltung
-//                    tasmotaon(1);   // EVU = ON  Sperre
+                    tasmotaon(1);   // EVU = ON  Sperre
                     if (ALV > 0)
                     {
                         ALV = 0;

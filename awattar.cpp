@@ -391,7 +391,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 
 int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
-// Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
+// Returncode 1 = keine Aktion, 0 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
 // Ermitteln Stundenanzahl
 // Analyseergebnisse in die Datei schreiben
