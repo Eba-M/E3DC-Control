@@ -2499,11 +2499,15 @@ int LoadDataProcess() {
             }
 // Bei Übertemperatur > 450 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
-if ((temp[14]) > 450)
-    btasmota_ch1 = 0;
 
-if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off)) //bWP > 0 LWWP ausschalten
-    btasmota_ch1  |=8;
+            if ((temp[13]) > 450)
+                btasmota_ch1 = 0;
+
+            if ((temp[14]) > 430)
+                btasmota_ch1 = 0;
+
+            if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off)) //bWP > 0 LWWP ausschalten
+                btasmota_ch1  |=8;
 
 
             // Auswertung Steuerung
