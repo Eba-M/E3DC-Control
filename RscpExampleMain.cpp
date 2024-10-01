@@ -2096,7 +2096,7 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
             } else
             {
-                if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0) //bWP > 0 LWWP ausschalten
+                if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0) //bWP > 0 LWWP ausschalten
                 {
                     btasmota_ch1 |=1;
                     wpofftime = t;
@@ -2500,14 +2500,18 @@ int LoadDataProcess() {
 // Bei Übertemperatur > 450 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[13]) > 450)
+            if ((temp[13]) > 450||(temp[14]) > 430||bWP<0)
+            {
                 btasmota_ch1 = 0;
-
-            if ((temp[14]) > 430)
-                btasmota_ch1 = 0;
-
-            if (not e3dc_config.WPSperre&&bWP==0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off)) //bWP > 0 LWWP ausschalten
+                bWP = -1;
+            }
+// bWP -1 Abschaltung beibehalten
+            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off))
+            {
                 btasmota_ch1  |=8;
+                bWP = 0;
+            }
+// LWWP wieder bei zu geringer Temperatur einschalten bWP wird nur hier geschaltet
 
 
             // Auswertung Steuerung
