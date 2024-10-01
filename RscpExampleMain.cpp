@@ -1166,8 +1166,13 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
-                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
-                    ||(tasmota_status[0]==0&&bHK2off>0)))
+                if (temp[7]==1&&
+                    (
+                     (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
+                    ||
+                     (tasmota_status[0]==0&&bHK2off>0)
+                     )
+                    )
 // wenn Puffer > 30° läuft die HKZ nach
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
@@ -2099,7 +2104,8 @@ int LoadDataProcess() {
                 if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0) //bWP > 0 LWWP ausschalten
                 {
                     btasmota_ch1 |=1;
-                    wpofftime = t;
+                    if (bWP == 0)
+                        wpofftime = t;
                 }
             }
             if (e3dc_config.debug) printf("D4c\n");
