@@ -1154,7 +1154,8 @@ int iModbusTCP()
                 }
                 if (temp[1]==1&&
                     (
-                     (tasmota_status[0]==1&&temp[17]==0)
+                     (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
+// wenn der Puffer > 30° läuft die FBH nach
                     ||
                      (tasmota_status[0]==0&&bHK1off>0)
                      )
@@ -1165,8 +1166,9 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
-                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0)
+                if (temp[7]==1&&((tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
                     ||(tasmota_status[0]==0&&bHK2off>0)))
+// wenn Puffer > 30° läuft die HKZ nach
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
                     iLength  = iModbusTCP_Set(31,0,31); //HZK?
