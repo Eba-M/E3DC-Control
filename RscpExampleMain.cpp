@@ -1130,7 +1130,7 @@ int iModbusTCP()
 // Heizkreise schalten
                 if (temp[1]==0&&
                     (
-                        (tasmota_status[0]==0&&bHK1off==0)
+                        ((tasmota_status[0]==0||temp[14]>300)&&bHK1off==0)
                      ||
                         temp[17]>0)
                     )
@@ -1142,7 +1142,9 @@ int iModbusTCP()
                 }
                 if (temp[7]==0&&
                     (
-                     (tasmota_status[0]==0&&bHK2off==0)
+                     (
+                      (tasmota_status[0]==0||temp[14]>300)&&bHK2off==0
+                      )
                      ||temp[17]>0)
                     )
 //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
@@ -1157,7 +1159,7 @@ int iModbusTCP()
                      (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
 // wenn der Puffer > 30° läuft die FBH nach
                     ||
-                     (tasmota_status[0]==0&&bHK1off>0)
+                     (bHK1off>0)
                      )
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
@@ -1170,7 +1172,7 @@ int iModbusTCP()
                     (
                      (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
                     ||
-                     (tasmota_status[0]==0&&bHK2off>0)
+                     (bHK2off>0)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
