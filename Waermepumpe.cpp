@@ -630,6 +630,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
          fclose(fp);
          fclose(fp1);
+            if (ptm->tm_min==0)
+            {
+                sprintf(line,"cp awattardebug.out awattardebug.%i.out",ptm->tm_hour);
+                system(line);
+            }
 
              
          
