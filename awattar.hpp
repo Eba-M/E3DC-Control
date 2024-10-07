@@ -61,7 +61,7 @@ typedef struct {
 // update when new priceinformation is avaiable (once a day) or consumption/production (hourly)
 typedef struct {time_t hh; float pp; float hourly;}watt_s;
 // weather information for the next 48h
-typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float wpbedarf;float wärme;}wetter_s;
+typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float wpbedarf;float waerme;}wetter_s;
 // information for the wolf heatpump
 typedef struct {time_t t; std::string feld; std::string AK; std::string status; float wert;}wolf_s;
 // central information for automation depending on price and for various channels

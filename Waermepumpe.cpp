@@ -368,7 +368,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     f4 = f4 + f3/f2; // benötigte elektrische Leistung;
                                 if (e3dc.openmeteo)
                                 {
-                                    wetter[x1].wärme = f3;
+                                    wetter[x1].waerme = f3;
 // absoluter Strombedarf speichern unabhängig vom Speicher??
                                     wetter[x1].kosten = f4;
 // noch nicht
@@ -451,7 +451,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Heizlast bei -15°
                     float heizleistung = 0;
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
-                        heizleistung = heizleistung + wetter[x1].wärme;
+                        heizleistung = heizleistung + wetter[x1].waerme;
                     if (e3dc.WPWolf)
                     {
                         if (waermebedarf < 240)
