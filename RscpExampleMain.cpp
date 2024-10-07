@@ -1787,6 +1787,9 @@ int LoadDataProcess() {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
         static time_t myt_alt;
+        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0)
+//            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
+            iPower_WP = wetter[0].wpbedarf*e3dc_config.speichergroesse*400;
         if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);

@@ -338,17 +338,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // ausreicht
                     int fbitemp = e3dc.WPHeizgrenze-
                     e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)*e3dc.WPLeistung;
-// Ermitteln ob Kernwinterbetrieb oder Sommerbetrieb
-                    float f2 = 0;
-                    bool bsommer = false;
-                    for (int x1=0; x1<wetter.size()&&x1<96; x1++) // nur die nächsten 24h
-                    {
-                        f2 = f2 + wetter[x1].solar;
-                    }
-                    if   ((sunset-sunrise) > 10*60 && f2>200)  // 300% vom Soc = 60kWh
-                        bsommer = true;
-
-                    
+                    // fbitemp Bivalenztemperator unter dieser Schwelle muss Pellets oder Heizstab
+                    // eingesetzt werden EHZ
                     
                     for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                             if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
@@ -377,9 +368,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     f4 = f4 + f3/f2; // benötigte elektrische Leistung;
                                 if (e3dc.openmeteo)
                                 {
-//                                    wetter[x1].kosten = f4;
+                                    wetter[x1].wärme = f3;
 // absoluter Strombedarf speichern unabhängig vom Speicher??
-                                    wetter[x1].kosten = f4/e3dc.speichergroesse*100/4;
+                                    wetter[x1].kosten = f4;
 // noch nicht
                                     while (w.size()>0&&(w[0].hh+900<=rawtime))
                                         w.erase(w.begin());
@@ -387,7 +378,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         wetter.erase(wetter.begin());
                                 }
                                 else
-                                    wetter[x1].kosten = f4/e3dc.speichergroesse*100;
+                                    wetter[x1].kosten = f4;
                                 
                                 if ((w.size()>0)&&x1<=w.size())
                                     if (wetter[x1].hh == w[x1].hh){
@@ -400,12 +391,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
-//                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                            wetter[x1].wpbedarf = wetter[x1].kosten;
+                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+                                            wetter[x1].wpbedarf = wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                         
                                         int bHK1on = 0;
                                         int bHK2on = 1;
-                                        if (bsommer)
                                         {
                                             float f1 = w[x1].hh%(24*3600)/3600.0;
                                             if (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
@@ -419,7 +409,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 bHK2on = 0;
 
                                             if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                wetter[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten;
+                                                wetter[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                             
                                         }
                                         
@@ -441,10 +431,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             // wenn der Wärmepreis der WP günstiger ist als Pellets
                                             if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                if (e3dc.openmeteo)
+                                                { 
+                                                    if (e3dc.openmeteo)
                                                     wetter[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                                                 else
                                                     wetter[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100;
+                                                }
                                         }
                                     }
                             }
@@ -453,58 +445,36 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // die Laufdauer der Wärmepumpe vor
                     // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
                     // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
+                    // Wenn der bHK2on = Heizkörper aktiv ist dann beginn die WP-Start mit bHK2on
                     float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
                     waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
                     // Heizlast bei -15°
-/*
-                    int heizdauer = (waermebedarf / e3dc.WPLeistung)*60;
-                    heizbegin = sunrise + 120;
-                    heizende = (heizbegin + heizdauer)%(24*60);
-                    int w1 = 0;
-                    int x1 = 0;
-                    if (wetter.size()>0&&w.size()>0)
-                        while (wetter[w1].hh < w[0].hh&&x1<wetter.size()) w1++;
-                    
-                    if (heizdauer < 12*60)
-                        for (int j=0;j<w.size();j++)
+                    float heizleistung = 0;
+                    for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
+                        heizleistung = heizleistung + wetter[x1].wärme;
+                    if (e3dc.WPWolf)
+                    {
+                        if (waermebedarf < 240)
+                            // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
+                            int x2 = -1;
+                        
+                        float temp = -99;
+                        std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
+                        wetter1_s wet;
+                        for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                         {
-                            int minuten = (w[j].hh%(24*3600))/60 ;
-                            if (wetter[j].hh == w[j].hh)
-                                if (
-                                    (heizbegin > heizende)
-                                    &&
-                                    ((w[j].hh%(24*3600))/60 < heizbegin)
-                                    &&
-                                    ((w[j].hh%(24*3600))/60 > heizende)
-                                    )
-                                    
-                                    w[j].wpbedarf = 0;
-                            if
-                                (heizbegin < heizende)
-                                
-                                if
-                                    (((w[j].hh%(24*3600))/60 < heizbegin)
-                                     ||
-                                     ((w[j].hh%(24*3600))/60 > heizende)
-                                     )
-                                    
-                                    w[j].wpbedarf = 0;
-                            
-                            if (w[j].wpbedarf > 0) // Leistungsbedarf auf max. korregieren
-                            {
-                                float f1 = (endpunkt - fusspunkt)/e3dc.WPHeizlast*(e3dc.WPHeizgrenze-wetter[w1+j].temp)+fusspunkt; // Temperaturhub
-                                float f2 = ((absolutenull+wetter[w1+j].temp)/f1)*.5; // COP
-                                float f3 = (e3dc.WPHeizgrenze-wetter[w1+j].temp)*e3dc.WPHeizlast/30;
-                                //                     float f4 = f3/f2; // benötigte elektrische Leistung;
-                                float f4 = e3dc.WPLeistung/f2; // benötigte elektrische Leistung;
-                                float f5 = w[j].wpbedarf;
-                                f5 = f4/e3dc.speichergroesse*100;
-                                wetter[w1+j].kosten = f5;
-                                w[j].wpbedarf = f5;
-                            }
-                            
+                            wet.x1 = x1;
+                            wet.temp = wetter[x1].temp;
+                            wetter1.push_back(wet);
                         }
-*/
+                        std::sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
+                            return a.temp > b.temp;});
+                        wetter1.clear();
+                    }
+
+                        
+                    
+
  }
 
             }}
