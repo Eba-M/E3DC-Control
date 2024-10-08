@@ -391,7 +391,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
-                                        if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+                                        if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
                                             wetter[x1].wpbedarf = wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                         
                                         int bHK1on = 0;
@@ -408,7 +408,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
                                                 bHK2on = 0;
 
-                                            if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
+                                            if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
                                                 wetter[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                             
                                         }

@@ -2152,7 +2152,7 @@ int LoadDataProcess() {
 
             int iWPHK1max = e3dc_config.WPHK1max*10;
             if (fatemp>8)
-                iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1-1);
+                iWPHK1max = iWPHK1max - (fatemp-8)*(e3dc_config.WPHK1max-e3dc_config.WPHK1);
             if (iWPHK1max<e3dc_config.WPHK1) iWPHK1max = e3dc_config.WPHK1;
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
@@ -2361,12 +2361,12 @@ int LoadDataProcess() {
                     )
                     &&
                     (
-//  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 5° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[5]+50))
+//  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+30))
                     ||
-//  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° über der HK2 liegt.
+//  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
 
-                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[11]+20))
+                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10]+10))
 //                    ||
 //                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
