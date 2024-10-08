@@ -1689,6 +1689,7 @@ int tasmotaoff(int ch)
         tasmota_status[ch-1] = 0;
     }    return 0;
 }
+static time_t shellytimer = t;
 
 int shelly_get(){
     FILE *fp;
@@ -1697,29 +1698,34 @@ int shelly_get(){
     char path[1024];
     
     fp = NULL;
-    
-    sprintf(line,"curl -s -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
-    fp = popen(line, "r");
-//    system(line);
-    const cJSON *item = NULL;
-    if (fp != NULL)
-    if (fgets(path, 1024, fp) != NULL)
-
+    if (shellytimer < t) 
     {
-        
-        std::string feld;
-        cJSON *wolf_json = cJSON_Parse(path);
-        feld = "brightness";
-        char * c = &feld[0];
-        item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-        
+        sprintf(line,"curl -s -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
+        fp = popen(line, "r");
+        //    system(line);
+        const cJSON *item = NULL;
+        if (fp != NULL)
+            if (fgets(path, 1024, fp) != NULL)
+                
+            {
+                
+                std::string feld;
+                cJSON *wolf_json = cJSON_Parse(path);
+                feld = "brightness";
+                char * c = &feld[0];
+                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                
+            }
+        status = pclose(fp);
+        if (item!=NULL)
+            return(item->valueint);
+        else
+        {
+            shellytimer = t+600;
+            return(-1);
+        }
     }
-    status = pclose(fp);
-    if (item!=NULL)
-        return(item->valueint);
-    else
-        return(-1);
-        
+    return(-2);
 }
 
 
@@ -1728,9 +1734,9 @@ int shelly(int ALV)
     char path[1024];
     char buf[127];
     FILE *fp;
-    if (e3dc_config.shelly0V10V)
+    fp==NULL;
+    if (e3dc_config.shelly0V10V&&shellytimer < t)
     {
-        fp==NULL;
         if (ALV>0)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         else
@@ -1740,9 +1746,9 @@ int shelly(int ALV)
         if (fp != NULL)
             if (fgets(path, 1024, fp) != NULL)
             {}
-    }
     if (fp != NULL)
         pclose(fp);
+    }
     return 0;
 }
 typedef struct {
@@ -2241,10 +2247,12 @@ int LoadDataProcess() {
                         )
                     {
                         if ((temp[2]-1)> e3dc_config.WPHK1*10)
+                        {
                             if (-iWPHK1max+temp[4]>5&&((temp[2]-5)>= e3dc_config.WPHK1*10))
                                 iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
                             else
-                                iLength  = iModbusTCP_Set(12,temp[2]-1,12); //FBH? Solltemperatur
+                                iLength  = iModbusTCP_Set(12,temp[2]-1,12);
+                        } //FBH? Solltemperatur
                         else
                             iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         if (iLength>0)
@@ -2354,10 +2362,10 @@ int LoadDataProcess() {
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 if (
                     (
-                     temp[14]<(e3dc_config.WPHK1max+5)*10
+                     temp[14]<(e3dc_config.WPHK1max+2)*10
                      ||
-                     (temp[14]<(e3dc_config.WPHK1max+6)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+5.0)&&
-                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+6.0))
+                     (temp[14]<(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+3.0)&&
+                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+3.0))
                     )
                     &&
                     (
@@ -2417,10 +2425,10 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+5)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+5.0)&&
+                     (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+3.0)&&
                       wolf[wpvl].wert>0)
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+6)*10)
+                     (temp[14]>(e3dc_config.WPHK1max+4)*10)
                     ||
                      (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
 //                    ||
@@ -2511,13 +2519,13 @@ int LoadDataProcess() {
 // Bei Übertemperatur > 450 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[13]) > 450||(temp[14]) > 430||bWP<0)
+            if ((temp[13]) > 450||(temp[14]) > 450||bWP<0)
             {
                 btasmota_ch1 = 0;
                 bWP = -1;
             }
 // bWP -1 Abschaltung beibehalten
-            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<300&&not(bHK1off&&bHK2off))
+            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<400&&not(bHK1off&&bHK2off))
             {
                 btasmota_ch1  |=8;
                 bWP = 0;
