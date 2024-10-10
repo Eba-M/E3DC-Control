@@ -3414,11 +3414,14 @@ bDischarge = false;
                     {
                         iFc3 = iFc;
                         int iBilanz = iBattLoad + f[2];
-                        if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
-                            iFc = iBilanz*.7;
-                        else
-                            if (iFc>(iBilanz*.6))
-                                iFc = iBilanz*.6;
+                        if (f[2]<0)
+                        {
+                            if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
+                                iFc = iBilanz*.7;
+                            else
+                                if (iFc>(iBilanz*.6))
+                                    iFc = iBilanz*.6;
+                        }
                         
                         printf("%c[K\n", 27 );
                         printf("iBilanz %i %i %i %2i%% %2.0f%% %2.0f%%",iFc3,iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
