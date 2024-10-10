@@ -3392,7 +3392,7 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %2i%% %2.0f%%",iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)));
+                        printf("iBilanz %i %i %2i%% ",iBilanz,iFc, (iFc*100/iBilanz));
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
@@ -3426,6 +3426,7 @@ bDischarge = false;
                             else
                                 if (iFc>(iBilanz*.6))
                                     iFc = iBilanz*.6;
+                            iFc = (2*iFc -iBattLoad);
                         }
                         else
                             iFc = 0;
