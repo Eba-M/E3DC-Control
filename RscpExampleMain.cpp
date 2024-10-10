@@ -3295,9 +3295,9 @@ bDischarge = false;
                         // Besteht noch PV Überschuss?
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                        if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-500)
+                        if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-100)
                             //                        iFc = iBattLoad - fPower_Grid*3;
-                            iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
+                            iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-100;
                         else
                             if (fpeakshaveminsoc-2 > fBatt_SOC)
                                 iFc = 0;
