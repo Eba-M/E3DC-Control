@@ -3295,12 +3295,17 @@ bDischarge = false;
                         // Besteht noch PV Überschuss?
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                        if (fpeakshaveminsoc-5 > fBatt_SOC&&(fPower_Grid)<e3dc_config.peakshave-100)
-                            //                        iFc = iBattLoad - fPower_Grid*3;
-                            iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-100;
+                        if (fpeakshaveminsoc-5 > fBatt_SOC)
+                        {
+                            if ((fPower_Grid)<e3dc_config.peakshave-100)
+                                //                        iFc = iBattLoad - fPower_Grid*3;
+                                iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-100;
+                            else
+                                iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
+                        } 
                         else
-                            if (fpeakshaveminsoc-2 > fBatt_SOC)
-                                iFc = 0;
+                        if (fpeakshaveminsoc-2 > fBatt_SOC)
+                            iFc = 0;
 
 //                        iFc3 = iFc;
 
@@ -3413,7 +3418,7 @@ bDischarge = false;
                     if (iFc < 0)  // Angleichen Slave in der Ausspeicherungsleistung an den Master
                     {
                         iFc3 = iFc;
-                        int iBilanz = iBattLoad + f[2];
+                        int iBilanz = iFc + f[2];
                         if (f[2]<0) // nur wenn der Master auch ausspeichert
                         {
                             if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
