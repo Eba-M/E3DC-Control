@@ -475,6 +475,7 @@ bool GetConfig()
         e3dc_config.ladeschwelle = LADESCHWELLE;
         e3dc_config.ladeende = LADEENDE;
         e3dc_config.ladeende2 = LADEENDE2;
+        e3dc_config.ladeende2rampe = 1;
         e3dc_config.wbmaxladestrom = WBMAXLADESTROM;
         e3dc_config.wbminladestrom = 6;
         e3dc_config.unload = 100;
@@ -755,6 +756,8 @@ bool GetConfig()
                         e3dc_config.ladeende = atoi(value);
                     else if(strcmp(var, "ladeende2") == 0)
                         e3dc_config.ladeende2 = atoi(value);
+                    else if(strcmp(var, "ladeende2rampe") == 0)
+                        e3dc_config.ladeende2rampe = atof(value);
                     else if(strcmp(var, "unload") == 0)
                         e3dc_config.unload = atoi(value);
                     else if(strcmp(var, "htmin") == 0)
@@ -2456,7 +2459,7 @@ int LoadDataProcess() {
                 float ALV_Calc = (e3dc_config.WPHK1max+4)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
-                if (ALV_Calc < -20)
+                if (ALV_Calc < -20&&temp[15]>e3dc_config.WPHK1max*10)
                 {
                         ALV_Calc = 0;
                 }
@@ -2673,7 +2676,10 @@ int LoadDataProcess() {
 
     printf("%c[K\n", 27 );
     tm *ts;
-    ts = gmtime(&tE3DC);
+    if (tE3DC==0)
+        ts = gmtime(&t);
+    else
+        ts = gmtime(&tE3DC);
     hh = t % (24*3600)/3600;
     mm = t % (3600)/60;
     ss = t % (60);
@@ -2729,12 +2735,13 @@ int LoadDataProcess() {
     else
         fLadeende3 = e3dc_config.unload;
 
-
-    if (cos((ts->tm_yday+9)*2*3.14/365) > 0) // im WinterHalbjahr bis auf 100% am 21.12.
+    float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
+    if (fcos > 0.0) // im WinterHalbjahr bis auf 100% am 21.12.
     {
     fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende)+fLadeende;
 //        fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
-    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)+fLadeende2;
+    fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)*e3dc_config.ladeende2rampe+fLadeende2;
+        if (fLadeende2>100) fLadeende2 = 100;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
