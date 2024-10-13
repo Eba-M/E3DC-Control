@@ -59,6 +59,7 @@ static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; /
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static float fPVtoday=0; // Erzeugung heute
+static float fPVcharge=0; // Zum Speicherladen verfügbarer Ertrag
 static float fPVdirect=0;  // Direktverbrauch
 static float fPVSoll=0; // Mindestertrag zur Abdeckung Tagesverbrauch und Speicherladung bis ladeende2
 static float fDCDC = 0; // Strommenge mit rechnen
@@ -2577,10 +2578,12 @@ int LoadDataProcess() {
     }
     if (e3dc_config.debug) printf("D4c\n");
 
-    float f2 = 0;
+    float f2 = 0;  // Tägliche solare Erzeugung
     float f3 = 0;
+    float f7 = 0;  // Zum Speichern zur Verfügung stehende Energie
     fPVdirect = 0;
     fPVtoday = -1;
+    fPVcharge = 0;
 
     //            for (int x1=0; x1<wetter.size(); x1++) {
         for (int x1=0; x1<wetter.size(); x1++) // nur die nächsten 24h
@@ -2649,22 +2652,25 @@ int LoadDataProcess() {
                     if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
                         f3 = f3 + wetter[x1].hourly+wetter[x1].wpbedarf;
                 if (x1==0)  // die ersten 15min anteilig berechnen
-                    f2 = wetter[x1].solar/900*(900-t%900);
+                    f7 = wetter[x1].solar/900*(900-t%900);
                 else
                     if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
                     {     
-                        int ze = wetter[x1].solar*e3dc_config.speichergroesse*40;
+                        int ze = (wetter[x1].solar-wetter[x1].hourly)*e3dc_config.speichergroesse*40;
                         if (ze>e3dc_config.maximumLadeleistung)
-// nur die nutzbare Solarleistung berücksichtigen
-                            f2 = f2 + e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/40;
+// nur die nutzbare Solarleistung berücksichtigen unter Berücksichtigung des Verbrauchs
+                            f7 = f7 + e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/40;
                         else
-                            f2 = f2 + wetter[x1].solar;
+                            if (wetter[x1].solar>wetter[x1].hourly)
+                                f7 = f7 + wetter[x1].solar-wetter[x1].hourly; // Nur Überschuss
                     }
+                f2 = f2 + wetter[x1].solar;
             }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
                 fPVtoday=f2;
                 fPVdirect=f3;
+                fPVcharge = f7*e3dc_config.speichergroesse/100;  // Energiemenge in kWh zum Speichern
                 fPVSoll = fPVdirect*e3dc_config.ForcecastConsumption+(-fBatt_SOC+fLadeende2)*e3dc_config.ForcecastSoc+e3dc_config.ForcecastReserve;
 //                break;
             }
@@ -2974,10 +2980,10 @@ bDischarge = false;
         if (t<tLadezeitende3&&(t/60)>sunriseAt&&fPVtoday>fPVSoll&&fBatt_SOC>5&&iPower_PV>100)
         {
             float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
-            PVon = PVon*.9 + fdynPower+((iPower_PV - iPowerHome - fPower_Grid))/10;
+            PVon = PVon*.9 + fdynPower+((iPower_PV - iPowerHome - fPower_Grid+fPower_WB))/10;
         }
         else
-            PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid))/10;
+            PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid+fPower_WB))/10;
 
 
     if (e3dc_config.WP&&fcop>0)
@@ -3200,7 +3206,7 @@ bDischarge = false;
 // Tagesbetrieb
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             fpeakshaveminsoc = (t-itime2-2*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
-            // Beginn um 3h nach hinten verschieben
+            // Beginn um 2h nach hinten verschieben
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
         } else // Nachtbetrieb
         {
@@ -3265,6 +3271,13 @@ bDischarge = false;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
+                if (iPower_PV_E3DC>500&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>30)
+// Am Morgen wenn die PV > 500 ist, wird der Speicher bis auf 5% freigegeben
+                {
+                    iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
+                    iFc = iFc / (idauer+600) *-1;
+
+                }
 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else 
@@ -5998,8 +6011,8 @@ if (e3dc_config.debug) printf("M6");
                     printf("%c[2J", 27 );
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf("%s %2ld:%2ld:%2ld  ",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf(" %0.02f %0.02f %0.02fkWh", fPVtoday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
+                printf("%s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+                printf(" %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
                 int x2 = (t%(24*4*900))/900+1;
                 if (x2 > 0&&e3dc_config.statistik)
                 {
