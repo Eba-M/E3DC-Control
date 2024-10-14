@@ -2266,13 +2266,16 @@ int LoadDataProcess() {
                         brequest = true;
                     }
                 }
-                    // HK2 zwischen WPHK2off und WPHK2on ausschalten
-                    if  (bHK2off&1)
+
+                
+// HK2 zwischen WPHK2off und WPHK2on ausschalten
+                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0)
+                {
+
+                if  (bHK2off&1)
                         bHK2off ^= 1;
                     
                     float f1 = t%(24*3600)/3600.0;
-                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0)
-                {
                     if (temp[17]==0&&               // Wenn Pelletskessel aus
                         (e3dc_config.WPHK2off>e3dc_config.WPHK2on)
                         &&
