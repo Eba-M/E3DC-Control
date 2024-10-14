@@ -3239,7 +3239,8 @@ bDischarge = false;
         if (
             (idauer > 0
              ||
-             fBatt_SOC<e3dc_config.peakshavesoc
+//             fBatt_SOC<e3dc_config.peakshavesoc
+             fBatt_SOC<5
              ||
              fBatt_SOC<fpeakshaveminsoc
              ||
