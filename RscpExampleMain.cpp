@@ -3277,7 +3277,7 @@ bDischarge = false;
                 {
                     iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
                     iFc = iFc / (idauer+600) *-1;
-
+                    fpeakshaveminsoc = 5;
                 }
 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
