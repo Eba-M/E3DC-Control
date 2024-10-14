@@ -3264,7 +3264,7 @@ bDischarge = false;
             )
         )
         {
-            if (idauer>0&&fBatt_SOC-e3dc_config.peakshavesoc>0&&iPower_PV_E3DC<250)
+            if (idauer>0&&(fBatt_SOC-e3dc_config.peakshavesoc>0||iPower_PV_E3DC>250))
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
