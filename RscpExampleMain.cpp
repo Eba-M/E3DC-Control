@@ -2271,6 +2271,8 @@ int LoadDataProcess() {
                         bHK2off ^= 1;
                     
                     float f1 = t%(24*3600)/3600.0;
+                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0)
+                {
                     if (temp[17]==0&&               // Wenn Pelletskessel aus
                         (e3dc_config.WPHK2off>e3dc_config.WPHK2on)
                         &&
@@ -2283,6 +2285,8 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
+                }
+
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
@@ -3293,7 +3297,7 @@ bDischarge = false;
             {
 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
                 if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
-                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-5 < fBatt_SOC)
+                    &&iPower_PV_E3DC>250&&fpeakshaveminsoc-4 < fBatt_SOC)
                 {
 //                    iFc = 0;
                     idauer = -1;
@@ -5944,7 +5948,7 @@ static void mainLoop(void)
 //            test;
             if (e3dc_config.debug) printf("M2\n");
             float zulufttemp = -99;
-            if (e3dc_config.WPWolf)
+            if (e3dc_config.WPWolf&&wolf.size()>0)
                 zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
             mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten
