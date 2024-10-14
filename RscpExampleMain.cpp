@@ -1854,9 +1854,9 @@ int LoadDataProcess() {
                 iWeekhour[x1] = iWeekhour[weekhour];
 //            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
             iWeekhour[weekhour] = 0;
-
+// Mittelwertbildung von 10% auf 40% angehoben
             if (iWeekhourWP[x1]>0)
-                iWeekhourWP[x1] = iWeekhourWP[x1]*.9 + iWeekhourWP[weekhour]*.1;
+                iWeekhourWP[x1] = iWeekhourWP[x1]*.6 + iWeekhourWP[weekhour]*.4;
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
