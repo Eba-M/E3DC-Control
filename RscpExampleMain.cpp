@@ -3309,7 +3309,7 @@ bDischarge = false;
                 {
 // peakshaveing notwendig??
 // Es wird auf das exakte 15min Intervall geregelt
-                    if (fcurrentGrid>e3dc_config.peakshave)
+                    if (fcurrentGrid>e3dc_config.peakshave-50||fsollGrid<e3dc_config.peakshave+50)
                     {
 // Peakshave Grenze erreich Entladeleistung erhöhen
 //                        if (fsollGrid < e3dc_config.peakshave&&f4>800)

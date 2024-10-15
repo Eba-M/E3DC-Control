@@ -494,29 +494,48 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     w.erase(w.begin());
 
             int analyse = 0;
-/*
+
             if (analyse)
             {
-                soc = 12.74;
+                soc = 100;
                 w.clear();
+                wetter.clear();
+
                 if (fp != NULL)
                 fclose(fp);
-                fp = fopen("awattardebug.in","r");
+                fp = NULL;
+                fp = fopen("awattardebug.15.out","r");
                 watt_s ww;
+                wetter_s we;
                 float temp = 0;
                 float hh = 0;
-                int ret = 0;
-                while (fp != NULL&&ret>=0)
+                char key[] = " Data \n";
+                memset(&line, 0, sizeof(line));
+                int ret = sizeof(line);
+                fgets(line,sizeof(line),fp);
+                while (fp != NULL)
                 {
-//                    int ret =  fscanf(fp,line);
-                    ret =  fscanf(fp,"%f %f %f %f %f %f \n ",&hh,&ww.pp,&ww.hourly,&ww.wpbedarf,&ww.solar, &temp);
-                    ww.hh = hh * 3600;
-                    w.push_back(ww);
+                    if (fgets(line,sizeof(line),fp)==NULL)
+                        break;
+                    ret = (strcmp(key,line));
+                    if (ret == 0)
+                        break;
+                }
+                    while (fp != NULL&&ret>=0)
+                    {
+
+                    ret =  fscanf(fp,"%f %f %f %f %f %f \n ",&hh,&ww.pp,&we.hourly,&we.wpbedarf,&we.solar, &we.temp);
+                    if (ret==6){
+                        ww.hh = hh * 3600;
+                        we.hh = hh * 3600;
+                        wetter.push_back(we);
+                        w.push_back(ww);
+                    }
                 }
                 if (fp != NULL)
                 fclose(fp);
             }
-*/
+
             
             
             memset(&line, 0, sizeof(line));
@@ -536,7 +555,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
     fprintf(fp,"\n Simulation \n\n");
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
-         for (int j = 0;j<w.size();j++)
+//            soc = soc - e3dc.AWReserve; // Berücksichtigung der Reserve
+            for (int j = 0;j<w.size();j++)
          {
              soc_alt = soc;
              anforderung = (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf );
@@ -557,7 +577,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
-             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
+             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10);
              if (ret == 0)
              { if ((wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf ) > 0)
                  soc = soc - wetter[j].hourly - wetter[j].wpbedarf + fsolar;

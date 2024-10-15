@@ -257,7 +257,7 @@ int SuchePos(std::vector<watt_s> &w,int bis)  // ab = Index bis zeitangabe in Mi
     ptm = gmtime (&rawtime);
     return ret;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float anforderung,float Diff,float aufschlag, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float anforderung,float Diff,float aufschlag, float reserve, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -286,7 +286,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     {
         float offset;
         float SollSoc = 0;
-        
+        fSoC = fSoC - reserve;
+
         // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         float faval = fSoC-fConsumption;
@@ -294,7 +295,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         {
             if (faval >= anforderung*-1||anforderung>=0)
             {
-                fSoC = fSoC + anforderung;
+                fSoC = fSoC + anforderung + reserve;
                 return 1;
             } else {
                 fSoC = fSoC - faval;
@@ -310,9 +311,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxsoc);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
-// Es könnte nachgeladen werden
+                    // Es könnte nachgeladen werden
                 {
-                    fSoC = fSoC + anforderung;
+                    fSoC = fSoC + anforderung + reserve;
                     return 1;
                 }
             if (h1>l1)
@@ -347,30 +348,35 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 x3 = w.size()-1;
                 x1 = Lowprice(w,h, hi, w[h].pp);   // bis zum high suchen
                 x2 = Lowprice(w,h, w.size()-1, w[h].pp);   // bis zum high suchen
-
+                
                 SollSoc = fHighprice(w,wetter,h,l1,w[h].pp*aufschlag+Diff,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
                 if (SollSoc < fSoC) return 1;
                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
                 // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 float SollSoc2 = fHighprice(w,wetter,h,w.size()-1,w[h].pp*aufschlag+Diff,maxsoc);
                 if (x2 == x1) // keine weiteren Lows
-//                    SollSoc = SollSoc2 +fSoC;
-                SollSoc = SollSoc2;
+                    //                    SollSoc = SollSoc2 +fSoC;
+                    SollSoc = SollSoc2;
                 if (SollSoc > 95) SollSoc = 95;
                 if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {
-
+                    
                     if ((SollSoc-fSoC)>ladeleistung)
                         fSoC = fSoC + ladeleistung;
                     else
                         fSoC = SollSoc;
-//                    if (fSoC > SollSoc-0.5)
-//                        (fSoC = SollSoc-0.5);
-                    return 2;}
+                    //                    if (fSoC > SollSoc-0.5)
+                    //                        (fSoC = SollSoc-0.5);
+                    fSoC = fSoC + reserve;
+                    return 2;
+                }
                 else
                     //                if ((SollSoc)>fSoC-1)
-                    return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+                {
+                    fSoC = fSoC + reserve;
+                    return 0;
+                } // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
         }
         //        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
@@ -379,15 +385,17 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             
             
             if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+            {
+                fSoC = fSoC + reserve;
                 return 1;
+            }
         }
-        
+        fSoC = fSoC + reserve;
         return 0;  // kein Ergebniss gefunden
         
         
-        return 0;
-        
-    }}
+    }
+}
 
 int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
@@ -425,11 +433,14 @@ if (mode == 0) // Standardmodus
 {
     float offset;
     float SollSoc = 0;
-
+    fSoC = fSoC - Reserve;
 // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        if (float(fSoC-fConsumption) >=Reserve) // x1 Anzahl der Einträge mit höheren Preisen
+        if (float(fSoC-fConsumption) >=0)// x1 Anzahl der Einträge mit höheren Preisen
+        {
+            fSoC = fSoC + Reserve;
             return 1;
+        }
 // geändert am 30.9.
 // suche über den gesamten Bereich
         x1 = SucheDiff(w,0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
@@ -484,16 +495,21 @@ if (mode == 0) // Standardmodus
 
             if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
-            if (SollSoc > 95) SollSoc = 95;
+            if (SollSoc > 95-Reserve) SollSoc = 95-Reserve;
             // Der Speicher soll nicht leer herumstehen, zum Tiefstkurs laden.
             if ((SollSoc < 0.5)&&(fSoC < 0.5)&&(lw==0)) SollSoc = 1;
             if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 2% weniger als das Soll geladen
                 ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
             {
-                return 2;}
+                fSoC = fSoC + Reserve;
+                return 2;
+            }
             else
 //                if ((SollSoc)>fSoC-1) 
-                    return 0; // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
+            {
+                fSoC = fSoC + Reserve;
+                return 0;
+            }
         }
     }
 //        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
