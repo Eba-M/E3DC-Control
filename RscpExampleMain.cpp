@@ -2189,9 +2189,8 @@ int LoadDataProcess() {
                         // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
                         iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                        if (iLength > 0)
-                            bHK1off ^= 1;
-                    } else bHK1off ^= 1;
+                        
+                    }  bHK1off = 0;
                 }
                 if 
                 (
