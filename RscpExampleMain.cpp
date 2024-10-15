@@ -1168,7 +1168,7 @@ int iModbusTCP()
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                 {
-                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+//                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
