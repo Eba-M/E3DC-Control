@@ -1168,7 +1168,7 @@ int iModbusTCP()
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                 {
-//                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
@@ -2180,6 +2180,8 @@ int LoadDataProcess() {
                     (m1 > (sunriseAt+60)||PVon>0)
                     &&
                     m1 < sunriseAt+720 && bHK1off&1
+                    &&
+                    fatemp > 12     // Nur bei Temperaturen über 12° Sommerbetrieb
                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10)
