@@ -2177,11 +2177,11 @@ int LoadDataProcess() {
 
                 if 
                 (
-                    (m1 > (sunriseAt+60)||PVon>0)
+                    ((m1 > (sunriseAt+60)||PVon>0)
                     &&
-                    m1 < sunriseAt+720 && bHK1off&1
-                    &&
-                    fatemp > 12     // Nur bei Temperaturen über 12° Sommerbetrieb
+                    m1 < sunriseAt+720 && bHK1off&1)
+                    ||
+                    fatemp < 12     // Nur bei Temperaturen über 12° Sommerbetrieb
                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10)
@@ -2195,9 +2195,12 @@ int LoadDataProcess() {
                 }
                 if 
                 (
-                    temp[17]==0   // Pellets muss aus sein
+                    (temp[17]==0   // Pellets muss aus sein
                     &&
-                    (m1 < (sunriseAt+60)
+                    fatemp > 12)
+                    &&
+                    (
+                     m1 < (sunriseAt+60)
                     ||
                      (m1 > (sunriseAt+720)) //FBH 10h Laufzeit fest
 // AT zu hoch und Soll unter 24°
