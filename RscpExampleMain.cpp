@@ -3278,7 +3278,7 @@ bDischarge = false;
             )
         )
         {
-            if (idauer>0&&(fBatt_SOC-e3dc_config.peakshavesoc>0||iPower_PV_E3DC>250))
+            if (idauer>0&&(fBatt_SOC-e3dc_config.peakshavesoc>0||iPower_PV_E3DC>100))
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
                 iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
@@ -3286,8 +3286,8 @@ bDischarge = false;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
-                if (iPower_PV_E3DC>250&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>30)
-// Am Morgen wenn die PV > 500 ist, wird der Speicher bis auf 5% freigegeben
+                if (iPower_PV_E3DC>100&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>30)
+// Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
                 {
                     iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
                     iFc = iFc / (idauer+600) *-1;
