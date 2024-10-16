@@ -71,8 +71,8 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      time(&tm);
      stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
-     tm = (tm - tm_dt)/10;
-    if (tm > 1) tm_Wallbox_dt = tm_dt;
+     tm = (tm - tm_dt);
+    if (tm > 24*3600) tm_Wallbox_dt = tm_dt; //älter als 24h?
     if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
     {
         return false;

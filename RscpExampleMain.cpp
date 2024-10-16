@@ -2184,13 +2184,13 @@ int LoadDataProcess() {
                     fatemp < 12     // Nur bei Temperaturen über 12° Sommerbetrieb
                 )
                 {
-                    if (temp[2]>e3dc_config.WPHK1*10)
+                    if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
                     {
                         // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
                         iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                        
-                    }  bHK1off = 0;
+                        bHK1off = 0;
+                    }
                 }
                 if 
                 (
