@@ -2170,7 +2170,7 @@ int LoadDataProcess() {
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
             
-            if   ((sunsetAt-sunriseAt) > 10*60)  // 300% vom Soc = 60kWh
+            if   ((sunsetAt-sunriseAt) > 10*60||fatemp>8)  // Übergangsbetrieb
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
 //                    bHK1off = 0;
@@ -2642,7 +2642,7 @@ int LoadDataProcess() {
                             if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
                                 f3 = f3 + f4 / x4;
                         }
-                        wetter[x1].hourly = f4/x4;
+                        wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
 
                     }
                     if (x6 > 0)
