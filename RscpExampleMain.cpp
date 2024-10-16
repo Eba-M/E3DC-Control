@@ -2657,7 +2657,7 @@ int LoadDataProcess() {
                                 f3 = f3 + f6 / x6;
 
                         }
-                        wetter[x1].wpbedarf = (f6/x6);
+                        wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
 
                     }
 
