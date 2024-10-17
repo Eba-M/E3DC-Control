@@ -950,7 +950,7 @@ long iModbusTCP_Set(int reg,int val,int tac)
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BSE%i",isocket);
-    printf("\nModbus Set %i %i\n",reg, val);
+    printf("Modbus Set %i %i ",reg, val);
 
 /*
     if (isocket > 0)
@@ -1011,7 +1011,7 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-    printf("\nModbus Get %i %i\n",reg, val);
+    printf(" Modbus Get %i %i ",reg, val);
 
 /*
     if (isocket > 0)
