@@ -2169,8 +2169,8 @@ int LoadDataProcess() {
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
-            
-            if   ((sunsetAt-sunriseAt) > 10*60||fatemp>8)  // Übergangsbetrieb
+            float fwintertemp = 8;
+//            if   ((sunsetAt-sunriseAt) > 10*60||fatemp>fwintertemp)  // Übergangsbetrieb
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
 //                    bHK1off = 0;
@@ -2180,8 +2180,8 @@ int LoadDataProcess() {
                     ((m1 > (sunriseAt+60)||PVon>0)
                     &&
                     m1 < sunriseAt+720 && bHK1off&1)
-//                    ||
-//                    fatemp < 12     // Nur bei Temperaturen über 12° Sommerbetrieb
+                    ||
+                    fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
@@ -2196,7 +2196,7 @@ int LoadDataProcess() {
                 (
                     (temp[17]==0   // Pellets muss aus sein
                     &&
-                    fatemp > 12)
+                    fatemp > fwintertemp)
                     &&
                     (
                      m1 < (sunriseAt+60)
@@ -2214,7 +2214,7 @@ int LoadDataProcess() {
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
   
-                if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist
+                if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
                     
                     if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
@@ -2274,8 +2274,8 @@ int LoadDataProcess() {
                 }
 
                 
-// HK2 zwischen WPHK2off und WPHK2on ausschalten
-                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0)
+// HK2 zwischen WPHK2off und WPHK2on ausschalten wenn die AT über fwintertemp liegt
+                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0&&fatemp>fwintertemp)
                 {
 
                 if  (bHK2off&1)
@@ -2294,7 +2294,9 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
-                }
+                } 
+                else
+                    bHK2off = 0;
 
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
@@ -2321,12 +2323,14 @@ int LoadDataProcess() {
                     
                     
                 
-            } else
+            } 
+/*            else
             {
 // Heizung bei niedrigen AT dauerhaft betreiben
                 bHK1off = 0;
                 bHK2off = 0;
             }
+*/
             if ((strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
                 float f4 = 0;
@@ -2407,7 +2411,7 @@ int LoadDataProcess() {
                     {
                         if  (
                              mm>sunriseAt&&mm<sunsetAt&&
-                             temp[14]<(e3dc_config.WPHK1max+5)*10
+                             temp[14]<(e3dc_config.WPHK1max+2)*10
 // nur wenn der Puufer Wärme aufnehmen kann
                             )
                         {
@@ -2475,7 +2479,7 @@ int LoadDataProcess() {
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 ALV = shelly_get();
-                float ALV_Calc = (e3dc_config.WPHK1max+4)*10-temp[14];
+                float ALV_Calc = (e3dc_config.WPHK1max+5)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
                 if (ALV_Calc < -20&&temp[15]>e3dc_config.WPHK1max*10)
@@ -2507,7 +2511,10 @@ int LoadDataProcess() {
                         ALV_Calc = e3dc_config.shelly0V10Vmax- ALV_Calc;
                         if (ALV_Calc >= e3dc_config.shelly0V10Vmax)
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
-                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin)
+                        if (ALV_Calc < e3dc_config.shelly0V10Vmin-2)
+                            ALV_Calc = 0;
+                        else
+                        if (ALV_Calc < e3dc_config.shelly0V10Vmin)
                             ALV_Calc = e3dc_config.shelly0V10Vmin;
                     } else
                         ALV_Calc = ALV;
@@ -4249,7 +4256,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     else
 //                      if (iPower < (iPower_Bat-fPower_Grid))
                           iPower = iPower_Bat-fPower_Grid;
-                          }
+                }
+// Nur wenn SoC > e3dc_config.wbminSoC
+                if  (fBatt_SOC<e3dc_config.wbminSoC) iPower = -2000;
 // Nur bei PV-Ertrag
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
 // Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
