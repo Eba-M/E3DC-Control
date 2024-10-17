@@ -950,6 +950,8 @@ long iModbusTCP_Set(int reg,int val,int tac)
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BSE%i",isocket);
+    printf("\nModbus Set %i %i\n",reg, val);
+
 /*
     if (isocket > 0)
         iLength = SocketRecvData(isocket,&receive[0],receive.size());
@@ -1168,8 +1170,8 @@ int iModbusTCP()
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                 {
-//                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
-//                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
+                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
                 if (temp[7]==1&&
