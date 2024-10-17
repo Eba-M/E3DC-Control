@@ -2209,7 +2209,7 @@ int LoadDataProcess() {
                      )
                 )
                 {
-//                        bHK1off = 1;
+                        bHK1off = 1;
 
                 }
                 // Steuerung der Temperatur der FBH
