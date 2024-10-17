@@ -2180,8 +2180,8 @@ int LoadDataProcess() {
                     ((m1 > (sunriseAt+60)||PVon>0)
                     &&
                     m1 < sunriseAt+720 && bHK1off&1)
-                    ||
-                    fatemp < 12     // Nur bei Temperaturen über 12° Sommerbetrieb
+//                    ||
+//                    fatemp < 12     // Nur bei Temperaturen über 12° Sommerbetrieb
                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
@@ -2321,6 +2321,11 @@ int LoadDataProcess() {
                     
                     
                 
+            } else
+            {
+// Heizung bei niedrigen AT dauerhaft betreiben
+                bHK1off = 0;
+                bHK2off = 0;
             }
             if ((strcmp(e3dc_config.heizung_ip, "0.0.0.0") != 0))
             {
