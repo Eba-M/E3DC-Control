@@ -1054,7 +1054,7 @@ if (isocket > 0)
  }
         if (e3dc_config.debug)
         printf("ARCV");
-    printf(" Modbus len %i ",iLength);
+    printf(" len %i ",iLength);
     return iLength;
 }
 

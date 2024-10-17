@@ -336,8 +336,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Ermitteln des Energiebedarfs für die Wärmepumpe
                     // Die Pelletsheizung wird eingesetzt, wenn die Leistung der WP nicht mehr
                     // ausreicht
-                    int fbitemp = e3dc.WPHeizgrenze-
-                    e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)*e3dc.WPLeistung;
+                    int fbitemp = e3dc.WPHeizgrenze -
+                    e3dc.WPLeistung/(e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze));
                     // fbitemp Bivalenztemperator unter dieser Schwelle muss Pellets oder Heizstab
                     // eingesetzt werden EHZ
                     
@@ -353,7 +353,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
                                 if (f3 < 0) f3=0; // zu warm keine Heizung
                                 float f4 = 0;
-                                float f5 = f3; // angeförderte Heizleistung
+                                float f5 = f3; // angeforderte Heizleistung
                                 // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
                                 if (f3 > e3dc.WPLeistung) {
                                     f4 = f3 - e3dc.WPLeistung;
@@ -385,8 +385,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         // Überprüfen ob WP oder Pelletsheizung günstiger
                                         // Kosten = aktueller Strompreis / COP
                                         float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
-                                        float f8 =  f7*f4/f5;
-                                        float f6 =  f7/f2;
+                                        float f8 =  f7*f4; // kosten = strompreis * Stromaufnahme
+                                        float f6 =  f7/f2;  // preis / cop kosten kWh wärme
 
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
@@ -408,10 +408,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 &&(f1>e3dc.WPHK2off&&f1<e3dc.WPHK2on))
                                                 bHK2on = 0;
 
-                                            if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
+/*                                            if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
                                                 wetter[x1].wpbedarf = (bHK1on+bHK2on)/2.0*wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                             
-                                        }
+ */                                       }
                                         
                                         
                                         
