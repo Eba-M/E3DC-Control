@@ -962,8 +962,10 @@ long iModbusTCP_Set(int reg,int val,int tac)
     }
 */
     if (brequest)
+    {
+        printf(" len %i ",iLength);
         return iLength;
-
+    }
     if (isocket <= 0)
         {
             sprintf(server_ip,e3dc_config.heizung_ip);
@@ -986,6 +988,7 @@ long iModbusTCP_Set(int reg,int val,int tac)
         if (e3dc_config.debug)
             printf("ARC");
     }
+    printf(" len %i ",iLength);
     return iLength;
 }
 
@@ -1011,7 +1014,7 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-    printf(" Modbus Get %i %i ",reg, val);
+    printf(" Get %i %i ",reg, val);
 
 /*
     if (isocket > 0)
@@ -1037,7 +1040,10 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     }
 */
     if (brequest) 
+    {
+        printf(" len %i ",iLength);
         return iLength;
+    }
 if (isocket > 0)
  {
      iLength = SocketSendData(isocket,&send[0],send.size());
@@ -1048,6 +1054,7 @@ if (isocket > 0)
  }
         if (e3dc_config.debug)
         printf("ARCV");
+    printf(" Modbus len %i ",iLength);
     return iLength;
 }
 
