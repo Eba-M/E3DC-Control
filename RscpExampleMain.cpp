@@ -2190,7 +2190,7 @@ int LoadDataProcess() {
                 (
                     ((m1 > (sunriseAt+60)||PVon>0)
                     &&
-                    m1 < sunriseAt+720 && bHK1off&1)
+                    m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0))
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                 )
@@ -2200,10 +2200,10 @@ int LoadDataProcess() {
                         // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
                         iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
-                        bHK1off = 0;
                     }
+                    bHK1off = 0;
                 }
-                if 
+                if
                 (
                     (temp[17]==0   // Pellets muss aus sein
                     &&
