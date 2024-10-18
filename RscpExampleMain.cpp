@@ -2210,9 +2210,11 @@ int LoadDataProcess() {
                     fatemp > fwintertemp)
                     &&
                     (
-                     m1 < (sunriseAt+60)
+                     m1 < (sunriseAt)
                     ||
-                     (m1 > (sunriseAt+720)) //FBH 10h Laufzeit fest
+                     (m1 < (sunriseAt+60)&&PVon<0)
+                    ||
+                     (m1 > (sunriseAt+720)&&PVon<0) //FBH 12h Laufzeit fest
 // AT zu hoch und Soll unter 24°
                     || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<240)
                      )
@@ -2490,7 +2492,7 @@ int LoadDataProcess() {
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 ALV = shelly_get();
-                float ALV_Calc = (e3dc_config.WPHK1max+5)*10-temp[14];
+                float ALV_Calc = (e3dc_config.WPHK1max+3)*10-temp[14];
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
                 if (ALV_Calc < -20&&temp[15]>e3dc_config.WPHK1max*10)
@@ -2516,10 +2518,10 @@ int LoadDataProcess() {
 
                         ALV_Calc =
                         (
-                         ((ramp-ALV_Calc)/ramp)*
+                         ((ALV_Calc/40*(40-ramp)/30))*
                         (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
                          );
-                        ALV_Calc = e3dc_config.shelly0V10Vmax- ALV_Calc;
+                        ALV_Calc = e3dc_config.shelly0V10Vmin + ALV_Calc;
                         if (ALV_Calc >= e3dc_config.shelly0V10Vmax)
                             ALV_Calc = e3dc_config.shelly0V10Vmax;
                         if (ALV_Calc < e3dc_config.shelly0V10Vmin-2)
