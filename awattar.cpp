@@ -257,6 +257,19 @@ int SuchePos(std::vector<watt_s> &w,int bis)  // ab = Index bis zeitangabe in Mi
     ptm = gmtime (&rawtime);
     return ret;
 }
+int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
+// Suchen Zeitpunkt für den ersten solaren Überschuss
+// -1 = kein Überschuss gefunden
+// ansonsten Anzahl der 15min Einträge sowie den aufgelaufenen Verbrauch
+{
+    
+    Verbrauch = 0;
+    for (;x1<w.size()&&w[x1].hourly>w[x1].solar;x1++)
+    {
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf;
+    }
+    return x1;
+}
 int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float anforderung,float Diff,float aufschlag, float reserve, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
@@ -286,9 +299,16 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     {
         float offset;
         float SollSoc = 0;
-        fSoC = fSoC - reserve;
+        float Verbrauch;
+// Verbrauch bis solarenÜberschuss??
+        int ret = 0;
+        ret = suchenSolar(wetter,h, Verbrauch);
 
         // Überprüfen ob entladen werden kann
+        if (ret < reserve)
+            fSoC = fSoC - ret;
+        else
+            fSoC = fSoC - reserve;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         float faval = fSoC-fConsumption;
         if (faval >=0||anforderung>=0) // x1 Anzahl der Einträge mit höheren Preisen
@@ -437,6 +457,15 @@ if (mode == 0) // Standardmodus
 {
     float offset;
     float SollSoc = 0;
+    float Verbrauch;
+// Verbrauch bis solarenÜberschuss??
+    int ret = 0;
+    ret = suchenSolar(wetter,0, Verbrauch);
+
+    // Überprüfen ob entladen werden kann
+    if (ret < Reserve)
+        Reserve = ret;
+
     fSoC = fSoC - Reserve;
 // Überprüfen ob entladen werden kann
         fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen

@@ -497,14 +497,14 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
             if (analyse)
             {
-                soc = 100;
+                soc = 78.91;
                 w.clear();
                 wetter.clear();
 
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
-                fp = fopen("awattardebug.15.out","r");
+                fp = fopen("awattardebug.in","r");
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
