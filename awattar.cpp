@@ -329,7 +329,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         do
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxsoc);  // nächster Nachladepunkt überprüfen
-            if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
                     // Es könnte nachgeladen werden
                 {
@@ -408,7 +408,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,maxsoc);  // folgender Preis höher, dann anteilig berücksichtigen
             
             
-            if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+reserve) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
                 fSoC = fSoC + reserve;
                 return 1;
@@ -480,7 +480,7 @@ if (mode == 0) // Standardmodus
         do
         {
             fConsumption = fHighprice(w,wetter,0,l1,w[0].pp,maxsoc);  // nächster Nachladepunkt überprüfen
-            if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+Reserve) > 1) // x1 Anzahl der Einträge mit höheren Preisen
             if ((w[0].pp>w[l1].pp*aufschlag+Diff))
             {
                 fSoC = fSoC + Reserve;
@@ -1366,7 +1366,7 @@ else
  
     for (int l = 0;(l< w.size()); l++)
     {
-        if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh%3600==0||w[l].hh<=rawtime))
+        if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh||w[l].hh<=rawtime))
         {
             cc.hh = w[l].hh;
             cc.ch = chch;
@@ -1376,7 +1376,7 @@ else
     }
     std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
-    while (ch.size()>ladedauer)
+    while (ch.size()>0&&(ch.size()>ladedauer*4||ch[ch.size()-1].hh>bis))
     {
         ch.erase(ch.end()-1);
     }
@@ -1387,18 +1387,19 @@ else
     std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.hh < b.hh;});
     int ptm_alt;
-    for (int j = 0; j < ch.size(); j++ ){
+    for (int j = 0; j < ch.size(); j=j+4 ){
 //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
-        if ((j==0)||(j>0&&ptm->tm_mday!=ptm_alt))
+//        if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)&&ch[j].hh%3600==0))
+        if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)))
 // Datum und Reihenfolge ausgeben
         {
             if (j%2==1) fprintf(fp,"\n");
             fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
         }
-        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
-        if (ch.size() < 10||j%2==1)
+        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j/4+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+        if (ch.size() < 40||(j/4)%2==1)
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
     }

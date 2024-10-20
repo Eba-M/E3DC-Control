@@ -58,6 +58,7 @@ static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
+static float fMaxPower_WB; // höchste Ladeleistung seit das Fahrzeug verbunden ist
 static float fPVtoday=0; // Erzeugung heute
 static float fPVcharge=0; // Zum Speicherladen verfügbarer Ertrag
 static float fPVdirect=0;  // Direktverbrauch
@@ -2668,6 +2669,17 @@ int LoadDataProcess() {
                                 f3 = f3 + f4 / x4;
                         }
                         wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
+// wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
+                        int wbpower = fMaxPower_WB;
+                        if (wbpower == 0) wbpower = 11000;
+                        if (ch.size()>0)
+                        {
+                            for (int j=0;j<ch.size();j++)
+                                if (ch[j].hh==wetter[x1].hh)
+                                    wetter[x1].hourly = wetter[x1].hourly +
+                                    wbpower/e3dc_config.speichergroesse/40;
+                                    
+                        }
 
                     }
                     if (x6 > 0)
@@ -3993,6 +4005,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     static int32_t iWBMinimumPower,idynPower; // MinimumPower bei 6A
     static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
     static bool bWBLademodusSave,bWBZeitsteuerung;
+    if (bWBConnect&&fPower_WB>fMaxPower_WB)
+        fMaxPower_WB = fPower_WB;
+    else
+        if (not bWBConnect) fMaxPower_WB=0;
 
 /*
  Die Ladeleistung der Wallbox wird nach verfügbaren PV-Überschussleistung gesteuert
