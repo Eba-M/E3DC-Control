@@ -493,18 +493,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 while (w.size()>0&&(w[0].hh+900<=rawtime))
                     w.erase(w.begin());
 
-            int analyse = 0;
+            int analyse = 1;
 
             if (analyse)
             {
-                soc = 78.91;
                 w.clear();
                 wetter.clear();
 
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
-                fp = fopen("awattardebug.in","r");
+                fp = fopen("..//..//..//Downloads/awattardebug.5.out.txt","r");
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
@@ -534,6 +533,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 }
                 if (fp != NULL)
                 fclose(fp);
+                soc = 36.68;
+                float strompreis = 91.91;
+
+//                int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve);
+
+                ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve);                
             }
 
             

@@ -421,7 +421,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     }
 }
 
-int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float Reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 1 = keine Aktion, 0 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -448,10 +448,10 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunris
     if (w.size() == 0) return 0; // Preisvector ist leer
     fstrompreis = w[0].pp;
     ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
-    int taglaenge = sunset-sunrise;
-    int tagoffset = 12*60-taglaenge;
-    tagoffset = tagoffset/2;
-    if (tagoffset < 0) tagoffset = 0;
+//    int taglaenge = sunset-sunrise;
+//    int tagoffset = 12*60-taglaenge;
+//    tagoffset = tagoffset/2;
+//    if (tagoffset < 0) tagoffset = 0;
 
 if (mode == 0) // Standardmodus
 {
@@ -481,8 +481,11 @@ if (mode == 0) // Standardmodus
         {
             fConsumption = fHighprice(w,wetter,0,l1,w[0].pp,maxsoc);  // nächster Nachladepunkt überprüfen
             if (float(fSoC-fConsumption) > 1) // x1 Anzahl der Einträge mit höheren Preisen
-            if ((w[0].pp>w[l1].pp*aufschlag+Diff)&&fSoC>=Reserve)
-                return 0;
+            if ((w[0].pp>w[l1].pp*aufschlag+Diff))
+            {
+                fSoC = fSoC + Reserve;
+                return 1;
+            }
             if (h1>l1)
                 {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
             else
@@ -526,7 +529,7 @@ if (mode == 0) // Standardmodus
 //            else
 //                SollSoc = SollSoc + fSoC;
 
-            if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
+//            if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset-120)&&(SollSoc > (fmaxSoC-1)))
                 SollSoc = fmaxSoC-1;  //tagsüber laden bis 2h vor sonnenuntergang auf Reserve beschränken
             if (SollSoc > 95-Reserve) SollSoc = 95-Reserve;
             // Der Speicher soll nicht leer herumstehen, zum Tiefstkurs laden.
@@ -569,7 +572,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
             offset = (cos((ptm->tm_yday+9)*2*3.14/365));
 //            offset = (cos((69)*2*3.14/365));
             if (offset > 0)
-            offset = pow(abs(offset),3.5)*(24*60-sunrise);
+                offset = pow(abs(offset),3.5)*(24*60-sunriseAt);
 //            if (offset < ioffset) offset = ioffset;
 
 // Überprüfen ob entladen werden kann
@@ -622,17 +625,17 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
                 x3 = w.size()-1;
 // Wenn die aktuelle tagelänge kleiner ist als die Vorgabe im Wintertag
                 {
-                    if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                        x3 = SuchePos(w,sunrise+offset+60); // eine Stunde weiter suhen
+                    if ((ptm->tm_hour*60+ptm->tm_min)<(sunriseAt+offset))
+                        x3 = SuchePos(w,sunriseAt+offset+60); // eine Stunde weiter suhen
                     else
-                        x3 = SuchePos(w,sunrise+25*60+offset);
+                        x3 = SuchePos(w,sunriseAt+25*60+offset);
                     if (x3 > 0)
                         x3--;
                     if (x3<l1&&x3>=0) l1 = x3;
                     // SollSoC minutengenau berechnen X3 ist die letzte volle Stunde
                 if (w[0].pp*aufschlag+Diff<w[l1].pp)
                     {
-                        SollSoc = ((sunrise+int(offset))%60);
+                        SollSoc = ((sunriseAt+int(offset))%60);
                         SollSoc = SollSoc/60;
                         SollSoc = SollSoc*(wetter[l1].hourly+wetter[l1].wpbedarf);
                     }
@@ -655,7 +658,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
                     SollSoc2 = fSoC-SollSoc2;
                     if (SollSoc2 > SollSoc)
                         SollSoc = SollSoc2;}
-                if ((ptm->tm_hour*60+ptm->tm_min)>(sunrise)&&(ptm->tm_hour*60+ptm->tm_min)<(sunset)&&(SollSoc > (fmaxSoC-1)))
+                if ((ptm->tm_hour*60+ptm->tm_min)>(sunriseAt)&&(ptm->tm_hour*60+ptm->tm_min)<(sunsetAt)&&(SollSoc > (fmaxSoC-1)))
                     SollSoc = fmaxSoC-1;  //tagsüber laden auf Reserve beschränken
                 if ((SollSoc>fSoC+1)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((lw==0)||((SollSoc-fSoC-1)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
@@ -671,17 +674,17 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
 //            float offset = (cos((ptm->tm_yday+9)*2*3.14/365));
 //            offset = pow(offset,3.5)*(24*60-sunrise);
 //            if (offset < ioffset) offset = ioffset;
-            if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise))  // bis Sonnenaufgang
-                x2 = SuchePos(w,sunrise+offset+60); // Suchen bis 2h nach Sonnenaufgang
+            if ((ptm->tm_hour*60+ptm->tm_min)<(sunriseAt))  // bis Sonnenaufgang
+                x2 = SuchePos(w,sunriseAt+offset+60); // Suchen bis 2h nach Sonnenaufgang
             else
             {
-                if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset)) // Zwischen Sonnenaufgang + offset entladen generell freigegben
+                if ((ptm->tm_hour*60+ptm->tm_min)<(sunriseAt+offset)) // Zwischen Sonnenaufgang + offset entladen generell freigegben
                     return 1; // Suchen bis 2h nach Sonnenaufgang
                 else
-                    if ((ptm->tm_hour*60+ptm->tm_min)<(sunrise+offset))
-                        x2 = SuchePos(w,sunrise+offset+60);
+                    if ((ptm->tm_hour*60+ptm->tm_min)<(sunriseAt+offset))
+                        x2 = SuchePos(w,sunriseAt+offset+60);
                     else
-                        x2 = SuchePos(w,sunrise+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
+                        x2 = SuchePos(w,sunriseAt+25*60+offset); // Nein suchen nächsten Tag bis offset + 60
             }
             if (x2<0) x2 = w.size()-1;
             if (x2 > 0)
@@ -693,7 +696,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
             SollSoc = fHighprice(w,wetter,0,x2,w[0].pp,maxsoc);  // Anzahl höhere Preise ermitteln
             if (SollSoc>fConsumption)  // SollSoC minutengenau berechnen
             {
-                SollSoc = ((sunrise+int(offset))%60);
+                SollSoc = ((sunriseAt+int(offset))%60);
                 SollSoc = SollSoc/60;
                 SollSoc = SollSoc*(wetter[x2].hourly+wetter[x2].wpbedarf)+fConsumption;
             }
@@ -1223,7 +1226,7 @@ else
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(w,wetter,0,0,0, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve);
+            ret = CheckaWATTar(w,wetter, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;
