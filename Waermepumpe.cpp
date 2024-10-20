@@ -493,7 +493,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 while (w.size()>0&&(w[0].hh+900<=rawtime))
                     w.erase(w.begin());
 
-            int analyse = 0;
+            int analyse = 1;
 
             if (analyse)
             {
@@ -503,7 +503,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
-                fp = fopen("..//..//..//Downloads/awattardebug.5.out.txt","r");
+                fp = fopen("..//..//..//Downloads/awattardebug.11.out.txt","r");
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
