@@ -3260,10 +3260,12 @@ bDischarge = false;
 // Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
 // Beginn Regelzeitpunkt um 2h nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
-            fpeakshaveminsoc = (t-itime2-2*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
+            fpeakshaveminsoc = (t-itime2-1*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
             // Beginn um 2h nach hinten verschieben
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
+            if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
+                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
