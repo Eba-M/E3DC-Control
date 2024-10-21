@@ -589,8 +589,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              }
              int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, ladeleistung);
              if (ret == 1)
-             { if ((wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf ) > 0)
-                 soc = soc_alt - wetter[j].hourly - wetter[j].wpbedarf + fsolar;
+             { if (anforderung > ladeleistung)
+                 soc = soc_alt + ladeleistung; 
+             else
+                 soc = soc_alt + anforderung;
                  if (soc > 100) soc = 100;
              } else
                  if (ret == 0) {
