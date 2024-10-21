@@ -3234,6 +3234,7 @@ bDischarge = false;
 
     if (e3dc_config.unload<0)
     {
+// sonnenuntergang - unload also vor sonnenunergang
         int itime = (sunsetAt*60+e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         idauer = 0;
         if (not e3dc_config.test)
@@ -3246,15 +3247,19 @@ bDischarge = false;
             iMQTTAval = 4000;
         if (t>itime)
         {
+// idauer bis sonnenaufgang + unload (achtung minus)
             idauer = 24*3600-t + sunriseAt*60 - e3dc_config.unload*60;
         }
+// sonnenaufgang + unload
          int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
         if (idauer == 0) 
         {
 // Tagesbetrieb
+// Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
             fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
+// Beginn Regelzeitpunkt um 2h nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
             fpeakshaveminsoc = (t-itime2-2*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
             // Beginn um 2h nach hinten verschieben
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;

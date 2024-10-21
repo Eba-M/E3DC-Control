@@ -340,7 +340,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     e3dc.WPLeistung/(e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze));
                     // fbitemp Bivalenztemperator unter dieser Schwelle muss Pellets oder Heizstab
                     // eingesetzt werden EHZ
-                    
+                    if (wetter.size()>0&&wetter.size()>0&&w[0].hh>wetter[0].hh)
+                        wetter.erase(wetter.begin());
+
                     for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                             if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
 
@@ -564,6 +566,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             for (int j = 0;j<w.size();j++)
          {
              soc_alt = soc;
+             if (w[j].hh > wetter[j].hh)
+                 soc_alt = soc;
+
              anforderung = (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf );
              if ( anforderung> e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
                  anforderung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
@@ -583,12 +588,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
              int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, ladeleistung);
-             if (ret == 0)
+             if (ret == 1)
              { if ((wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf ) > 0)
-                 soc = soc - wetter[j].hourly - wetter[j].wpbedarf + fsolar;
+                 soc = soc_alt - wetter[j].hourly - wetter[j].wpbedarf + fsolar;
                  if (soc > 100) soc = 100;
              } else
-                 if (ret == 1) {
+                 if (ret == 0) {
                      float soc2 = soc_alt + fsolar;
                      if (soc>soc2)
                          soc = soc2;

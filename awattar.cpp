@@ -305,10 +305,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         ret = suchenSolar(wetter,h, Verbrauch);
 
         // Überprüfen ob entladen werden kann
-        if (ret < reserve)
+/*        if (ret < reserve)
             fSoC = fSoC - ret;
         else
-            fSoC = fSoC - reserve;
+*/
+        fSoC = fSoC - reserve;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         float faval = fSoC-fConsumption;
         if (faval >=0||anforderung>=0) // x1 Anzahl der Einträge mit höheren Preisen
@@ -1374,7 +1375,7 @@ else
             ch.push_back(cc);
         }
     }
-    std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+    std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
     while (ch.size()>0&&(ch.size()>ladedauer*4||ch[ch.size()-1].hh>bis))
     {
