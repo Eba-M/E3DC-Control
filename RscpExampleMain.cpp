@@ -490,6 +490,7 @@ bool GetConfig()
         e3dc_config.peakshave = 0;
         e3dc_config.peakshavesoc = 0;
         e3dc_config.peakshaveuppersoc = 50;
+        e3dc_config.peakshavepvcharge = -1;
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
@@ -794,6 +795,8 @@ bool GetConfig()
                         e3dc_config.peakshavesoc = atof(value); // in Watt
                     else if(strcmp(var, "peakshaveuppersoc") == 0)
                         e3dc_config.peakshaveuppersoc = atoi(value); // in Watt
+                    else if(strcmp(var, "peakshavepvcharge") == 0)
+                        e3dc_config.peakshavepvcharge = atoi(value); // in Watt
                     else if(strcmp(var, "soc") == 0)
                         e3dc_config.soc = atoi(value); // in Watt
                     else if(strcmp(var, "hton") == 0)
@@ -3263,14 +3266,21 @@ bDischarge = false;
             fpeakshaveminsoc = (t-itime2-1*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
             // Beginn um 2h nach hinten verschieben
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
-            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
-            if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
+            if (fpeakshaveminsoc<1)
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
+            else
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*(1/fpeakshaveminsoc);
+
+                if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
                 fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+// Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
+            if (fPVcharge<e3dc_config.peakshavepvcharge)
+                fpeakshaveminsoc = fpeakshaveminsoc + e3dc_config.peakshavesoc;
 
         }
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
@@ -3330,7 +3340,7 @@ bDischarge = false;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
-                if (iPower_PV_E3DC>100&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>30)
+                if (iPower_PV_E3DC>100&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge)
 // Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
                 {
                     iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
@@ -3374,7 +3384,7 @@ bDischarge = false;
                         // Besteht noch PV Überschuss?
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
-                        if (fpeakshaveminsoc-5 > fBatt_SOC)
+                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
                         {
                             if ((fPower_Grid)<e3dc_config.peakshave-100)
                                 //                        iFc = iBattLoad - fPower_Grid*3;
@@ -3383,9 +3393,13 @@ bDischarge = false;
                                 iFc =  iBattLoad -fPower_Grid+e3dc_config.peakshave-500;
                         } 
                         else
-                        if (fpeakshaveminsoc-2 > fBatt_SOC)
+                        if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-500)
+//       nicht weiter entladen sonder
+                        {if (iPower_Bat<500)
+                            iFc = -100;
+                        else
                             iFc = 0;
-
+                            }
 //                        iFc3 = iFc;
 
                         
@@ -3462,7 +3476,7 @@ bDischarge = false;
 // keine Anforderung über Gridbezug
                 {
                     iFc3 = f[2];
-
+// werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                     {
@@ -3475,7 +3489,7 @@ bDischarge = false;
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
-                    if (f[0]<-500&&f[2]>=0)
+                    if (f[0]<-500&&f[2]>=0) // Einspeisung + Master lädt
                         iFc = iBilanz - f[2];
                     if ((f2) > 1000&&iFc < 0)  // Wenn der Master lädt, wird nicht endladen
                         iFc = 0;
@@ -3483,7 +3497,7 @@ bDischarge = false;
                     
                     if (f[1]<fBatt_SOC&&f[2]<-500) // Master entlädt
                     {
-                        if (iFc < f[2])    // Grundleistung größer Leistung Master
+                        if (iFc > f[2])    // Grundleistung größer Leistung Master
                             iFc = f[2];
                     }
 //angeforderde Ladeleistung
@@ -3542,6 +3556,9 @@ bDischarge = false;
                     iFc = e3dc_config.maximumLadeleistung-500;
                 
             }
+            
+// Steuerung Netz
+            
             int iFc2 = iFc;
             if (iFc > 0)
             {
