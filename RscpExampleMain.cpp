@@ -2181,6 +2181,7 @@ int LoadDataProcess() {
             int untereHeizgrenze = 5;
             float f1 = e3dc_config.WPHeizgrenze-fatemp;
             f1 = f1 / (e3dc_config.WPHeizgrenze-untereHeizgrenze);
+// Die max FBH obere Grenze + Temperatur vorgabe FBH + 5K
             iWPHK1max = iWPHK1max - (1-f1) * (e3dc_config.WPHK1max-e3dc_config.WPHK1-5)*10;
             if (iWPHK1max<e3dc_config.WPHK1*10) iWPHK1max = e3dc_config.WPHK1*10;
             if (iWPHK1max>e3dc_config.WPHK1max*10) iWPHK1max = e3dc_config.WPHK1max*10;
@@ -2499,7 +2500,10 @@ int LoadDataProcess() {
                 }
 //                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
                 ALV = shelly_get();
-                float ALV_Calc = (e3dc_config.WPHK1max+3)*10-temp[14];
+                float tempbase = temp[14]/10.0;
+                if (wolf.size()>0&&wolf[wpvl].wert>tempbase)
+                    tempbase = wolf[wpvl].wert;
+                float ALV_Calc = (e3dc_config.WPHK1max+3)-tempbase;
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
                 if (ALV_Calc < -20&&temp[15]>e3dc_config.WPHK1max*10)
