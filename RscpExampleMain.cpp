@@ -2503,16 +2503,16 @@ int LoadDataProcess() {
                 float tempbase = temp[14]/10.0;
                 if (wolf.size()>0&&wolf[wpvl].wert>tempbase)
                     tempbase = wolf[wpvl].wert;
-                float ALV_Calc = (e3dc_config.WPHK1max+3)-tempbase;
+                float ALV_Calc = (e3dc_config.WPHK1max+3-tempbase);
 // Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
 //                ALV_Calc = 33;
-                if (ALV_Calc < -20&&temp[15]>e3dc_config.WPHK1max*10)
+                if (ALV_Calc < -2&&temp[15]>e3dc_config.WPHK1max*10)
                 {
                         ALV_Calc = 0;
                 }
                 else
                 {
-                    if (ALV_Calc>50&&ALV==0)
+                    if (ALV_Calc>5&&ALV==0)
                         ALV_Calc = e3dc_config.shelly0V10Vmin;
 /*                    else
                     if (ALV_Calc>20&&ALV_Calc<30&&PVon<0&&ALV==e3dc_config.shelly0V10Vmin)
@@ -2523,14 +2523,13 @@ int LoadDataProcess() {
                     {
 //  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 5K
 // abhängig von der AT wird das ramp-up gesteuert
-                        float ramp = 10+(fatemp-8)*2.5;  //20° = 40, 8° = 10
+                        float ramp = (e3dc_config.WPHeizgrenze-fatemp)*3;  //20° = 40, 8° = 10
                         if (ramp > 40) ramp = 40;
-                        if (ramp < 10) ramp = 10;
+                        if (ramp < 0) ramp = 0;
 
                         ALV_Calc =
                         (
-                         ((ALV_Calc/40*(40-ramp)/30))*
-                        (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
+                         ALV_Calc/5*(40-ramp)/40*                        (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
                          );
                         ALV_Calc = e3dc_config.shelly0V10Vmin + ALV_Calc;
                         if (ALV_Calc >= e3dc_config.shelly0V10Vmax)
