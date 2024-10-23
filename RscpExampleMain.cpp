@@ -2806,7 +2806,7 @@ int LoadDataProcess() {
     fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*(95-fLadeende)+fLadeende;
 //        fLadeende = (cos((ts->tm_yday+9)*2*3.14/365))*((100+e3dc_config.ladeende2)/2-fLadeende)+fLadeende;
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)*e3dc_config.ladeende2rampe+fLadeende2;
-        if (fLadeende2>100) fLadeende2 = 100;
+        if (fLadeende2>=100) fLadeende2 = 99;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
     }
@@ -3346,7 +3346,20 @@ bDischarge = false;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
-                if (iPower_PV_E3DC>100&&idauer<e3dc_config.unload*-60&&fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge)
+                if (
+                    (
+// Dann nur, wenn die Sonne scheint
+                     (iPower_PV_E3DC>100&&idauer<3600)
+                     ||
+                     (
+// in der ersten Stunde nach Sonnenaufgang darf bis auf e3dc_config.peakshavesoc entladen werden
+
+                      idauer<7200&&idauer>3600&&fBatt_SOC>e3dc_config.peakshavesoc
+                     )
+                    )
+                    &&
+                    (fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge)
+                )
 // Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
                 {
                     iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
@@ -4257,7 +4270,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
-                iPower = iPower + idynPower;
+                if (idynPower > 0)
+                    iPower = iPower + idynPower;
                 if (iMinLade > 100&&iPower > (iPower_Bat-fPower_Grid))
                     iPower = iPower_Bat-fPower_Grid;
                 break;
@@ -4265,10 +4279,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
               if (iRefload > iMinLade2) iRefload = iMinLade2;
-              iPower = iPower_Bat-fPower_Grid*3-iRefload;
               idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-              iPower = iPower + idynPower;
+                iPower = iPower + idynPower;
+                idynPower = iPower_Bat-fPower_Grid*3;
+                if (idynPower>iPower)
+                    iPower = idynPower;
 //                if (iPower > iPower_Bat+fPower_Grid*-3) iPower = iPower_Bat+fPower_Grid*-3;
 
               break;
