@@ -2181,7 +2181,7 @@ int LoadDataProcess() {
             int untereHeizgrenze = 5;
             float f1 = e3dc_config.WPHeizgrenze-fatemp;
             f1 = f1 / (e3dc_config.WPHeizgrenze-untereHeizgrenze);
-            iWPHK1max = iWPHK1max - (1-f1) * (e3dc_config.WPHK1max-e3dc_config.WPHK1)*10;
+            iWPHK1max = iWPHK1max - (1-f1) * (e3dc_config.WPHK1max-e3dc_config.WPHK1-5)*10;
             if (iWPHK1max<e3dc_config.WPHK1*10) iWPHK1max = e3dc_config.WPHK1*10;
             if (iWPHK1max>e3dc_config.WPHK1max*10) iWPHK1max = e3dc_config.WPHK1max*10;
             int m1 = t%(24*3600)/60;
@@ -2416,11 +2416,11 @@ int LoadDataProcess() {
                     &&
                     (
 //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+30))
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+30&&wolf[wpvl].wert*10<temp[4]+30))
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
 
-                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10]+10))
+                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10]+10)&&wolf[wpvl].wert*10<temp[10]+10)
 //                    ||
 //                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
                     )
