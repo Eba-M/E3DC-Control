@@ -1125,26 +1125,28 @@ int iModbusTCP()
 //  Regelgröße ist die Zulufttemperatur der LWWP
 //  daneben die aktuelle Temperatur vom Wetterportal
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
-                float isttemp = wolf[wpzl].wert;
-                if (wetter.size() > 0)
-                    isttemp  = (isttemp  + wetter[0].temp)/2;
-                if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
-                   isttemp = wetter[0].temp;
-
-                if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
-//                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
+                if (wolf.size()>0)
                 {
-                    iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
-                    iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
-//                    brequest = true;
+                    float isttemp = wolf[wpzl].wert;
+                    if (wetter.size() > 0)
+                        isttemp  = (isttemp  + wetter[0].temp)/2;
+                    if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
+                        isttemp = wetter[0].temp;
+                    
+                    if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
+                        //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
+                    {
+                        iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
+                        iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                        //                    brequest = true;
+                    }
+                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
+                    {
+                        iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
+                        iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                        //                    brequest = true;
+                    }
                 }
-                if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
-                {
-                    iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
-                    iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
-//                    brequest = true;
-                }
-
 
 // Heizkreise schalten
                 if (temp[1]==0&&
@@ -2176,8 +2178,9 @@ int LoadDataProcess() {
             if (e3dc_config.debug) printf("D4d\n");
 
             int iWPHK1max = e3dc_config.WPHK1max*10;
+            int untereHeizgrenze = 5;
             float f1 = e3dc_config.WPHeizgrenze-fatemp;
-            f1 = f1 / (e3dc_config.WPHeizgrenze-8);
+            f1 = f1 / (e3dc_config.WPHeizgrenze-untereHeizgrenze);
             iWPHK1max = iWPHK1max - (1-f1) * (e3dc_config.WPHK1max-e3dc_config.WPHK1)*10;
             if (iWPHK1max<e3dc_config.WPHK1*10) iWPHK1max = e3dc_config.WPHK1*10;
             if (iWPHK1max>e3dc_config.WPHK1max*10) iWPHK1max = e3dc_config.WPHK1max*10;
@@ -3268,8 +3271,8 @@ bDischarge = false;
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             if (fpeakshaveminsoc<1)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
-            else
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*(1/fpeakshaveminsoc);
+//            else
+//                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*(1/fpeakshaveminsoc);
 
                 if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
                 fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
@@ -3544,12 +3547,17 @@ bDischarge = false;
                     MQTTAval = e3dc_config.maximumLadeleistung*-1;
 
 // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
+                int x1 = 0;
                     if (fpeakshaveminsoc-5 > fBatt_SOC)
                     {
                         if (iMQTTAval<e3dc_config.peakshave-500)
-                            iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
+                            x1 =  iBattLoad -iMQTTAval+e3dc_config.peakshave-500;
                         else
-                            iFc =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
+                            x1 =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
+// Das Nachladen aus dem Netz erfolgt passiv nach der Ladeleistung des Masters
+// Nachladen weiter reduzieren da Netzbezug zu hoch
+                        if (x1<iFc)
+                            iFc = x1;
                     }
                         
                 if (iFc > e3dc_config.maximumLadeleistung-500)

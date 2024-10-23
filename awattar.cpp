@@ -374,7 +374,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 if (SollSoc < fSoC)
                 {
                     fSoC = fSoC + reserve;
-                    return 1;
+                    return 0;
                 }
                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
                 // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
