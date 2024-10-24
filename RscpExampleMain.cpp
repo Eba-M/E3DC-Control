@@ -2422,10 +2422,10 @@ int LoadDataProcess() {
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
 
                      (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10]+10)&&wolf[wpvl].wert*10<temp[10]+10)
-//                    ||
-//                    (PVon>500&&fPVtoday>fPVSoll&&temp[14]<=(e3dc_config.WPHK1max+2)*10)
+                    ||
+                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>30&&wolf[wpvl].wert*10<temp[10]+10)                    
+                     )
                     )
-                   )
                 {
                     ALV = shelly_get();
                     if (PVon>0)
@@ -3277,8 +3277,8 @@ bDischarge = false;
 //            else
 //                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*(1/fpeakshaveminsoc);
 
-                if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
-                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
+                if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc/100.0)
+                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc/100.0;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
