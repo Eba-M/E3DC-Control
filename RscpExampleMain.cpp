@@ -3283,8 +3283,11 @@ bDischarge = false;
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
             fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
 // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
-            if (fPVcharge<e3dc_config.peakshavepvcharge)
-                fpeakshaveminsoc = fpeakshaveminsoc + e3dc_config.peakshavesoc;
+            int x1 = 2;
+            if (fPVcharge>e3dc_config.peakshavepvcharge)
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            else
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-x1*e3dc_config.peakshavesoc)*fpeakshaveminsoc+x1*e3dc_config.peakshavesoc;
 
             if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
                 fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
