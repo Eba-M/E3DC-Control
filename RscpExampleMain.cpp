@@ -3274,11 +3274,9 @@ bDischarge = false;
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             if (fpeakshaveminsoc<1)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
-//            else
-//                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*(1/fpeakshaveminsoc);
+            else                
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc);
 
-                if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc/100.0)
-                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc/100.0;
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
