@@ -3372,6 +3372,7 @@ bDischarge = false;
 //                else
                     iFc = 0;
             int iFc3 = iFc;
+            
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
 // Master E3DC sendet die grid-werte
             {
@@ -3459,6 +3460,7 @@ bDischarge = false;
                     
                 }
             }
+            
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
 // Slave E3DC
             {
@@ -3570,7 +3572,7 @@ bDischarge = false;
                             x1 =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
 // Das Nachladen aus dem Netz erfolgt passiv nach der Ladeleistung des Masters
 // Nachladen weiter reduzieren da Netzbezug zu hoch
-                        if (x1<iFc)
+//                        if (x1<iFc)
                             iFc = x1;
                     }
                         
