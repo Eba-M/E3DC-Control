@@ -3494,7 +3494,7 @@ bDischarge = false;
                 if (iFc == 0)
 // keine Anforderung über Gridbezug
                 {
-                    iFc3 = f[2];
+//                    iFc3 = f[2];
 // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
@@ -3529,9 +3529,9 @@ bDischarge = false;
                 {
                     if (iFc < 0)  // Angleichen Slave in der Ausspeicherungsleistung an den Master
                     {
-                        iFc3 = iFc;
+//                        iFc3 = iFc;
                         int iBilanz = iFc + f[2];
-                        if (f[2]<0) // nur wenn der Master auch ausspeichert
+                        if (f[2]<500) // nur wenn der Master auch ausspeichert
                         {
                             if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
                                 iFc = iBilanz*.7;
