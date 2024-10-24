@@ -3272,7 +3272,7 @@ bDischarge = false;
             fpeakshaveminsoc = (t-itime2-1*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
             // Beginn um 2h nach hinten verschieben
 //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
-            if (fpeakshaveminsoc<1)
+            if (fpeakshaveminsoc<1.0)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
             else                
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc);
@@ -3285,6 +3285,9 @@ bDischarge = false;
 // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
             if (fPVcharge<e3dc_config.peakshavepvcharge)
                 fpeakshaveminsoc = fpeakshaveminsoc + e3dc_config.peakshavesoc;
+
+            if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
+                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
 
         }
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
