@@ -543,8 +543,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve);
             }
 
-            
-            
+            if (w.size() == 0) return;
+            if (wetter.size() == 0) return;
+
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.out","w");
             sprintf(line,"awattarlog%i.out",ptm->tm_wday);
