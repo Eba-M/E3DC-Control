@@ -3284,7 +3284,12 @@ bDischarge = false;
 // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
             int x1 = 2;
             if (fPVcharge>e3dc_config.peakshavepvcharge)
+            {
+            if (idauer > 7200)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
+            else
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+5;
+            }
             else
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-x1*e3dc_config.peakshavesoc)*fpeakshaveminsoc+x1*e3dc_config.peakshavesoc;
 
@@ -4182,6 +4187,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
+    if (iRefload>iMaxBattLade)
+        iRefload = iMaxBattLade;
 // Morgens soll die volle Leistung zur Verfügung stehen
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
     float fwbminSoC = e3dc_config.wbminSoC;
@@ -4275,7 +4282,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
-                if (idynPower > 0||fBatt_SOC<97)
                     iPower = iPower + idynPower;
                 if (iMinLade > 100&&iPower > (iPower_Bat-fPower_Grid))
                     iPower = iPower_Bat-fPower_Grid;
@@ -4283,11 +4289,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             case 4:
 
 // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
-              if (iRefload > iMinLade2) iRefload = iMinLade2;
-              idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
+                if (iRefload > iMinLade2) 
+                    iRefload = iMinLade2;
+                idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
-                if (idynPower > 0||fBatt_SOC<97)
-                    iPower = iPower + idynPower;
+                iPower = iPower + idynPower;
                 idynPower = iPower_Bat-fPower_Grid*3;
                 if (idynPower>iPower)
                     iPower = idynPower;
