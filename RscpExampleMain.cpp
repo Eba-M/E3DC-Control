@@ -513,6 +513,8 @@ bool GetConfig()
         e3dc_config.BWWP_port = 6722;
         e3dc_config.BWWPein = 0;
         e3dc_config.BWWPaus = 0;
+        e3dc_config.BWWPon = -1;
+        e3dc_config.BWWPoff = -1;
         e3dc_config.BWWPSupport = -1;
         e3dc_config.BWWPTasmotaDauer = 0;
         memset(e3dc_config.BWWPTasmota,0,sizeof(e3dc_config.BWWPTasmota));
@@ -739,6 +741,10 @@ bool GetConfig()
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
                         e3dc_config.BWWPaus = atof(value);
+                    else if(strcmp(var, "bwwpon") == 0)
+                        e3dc_config.BWWPon = atof(value);
+                    else if(strcmp(var, "bwwpoff") == 0)
+                        e3dc_config.BWWPoff = atof(value);
                     else if(strcmp(var, "bwwpsupport") == 0)
                         e3dc_config.BWWPSupport = atof(value);
                     else if(strcmp(var, "rb") == 0)
@@ -2110,7 +2116,17 @@ int LoadDataProcess() {
              bHK2off ^= 2;
              */
         } else
-            if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10)
+            if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10
+                &&
+                (
+                 (e3dc_config.BWWPon<0&&e3dc_config.BWWPoff<0)
+                 ||
+                 (e3dc_config.BWWPon<e3dc_config.BWWPoff&&e3dc_config.BWWPon*3600<t%(24*3600)&&e3dc_config.BWWPoff*3600>t%(24*3600))
+                 ||
+                 (e3dc_config.BWWPon>e3dc_config.BWWPoff&&
+                  (e3dc_config.BWWPon*3600<t%(24*3600)||e3dc_config.BWWPoff*3600>t%(24*3600)))
+                )
+               )
             {
                 tasmotaon(4);
                 //            bHK1off |= 2;
