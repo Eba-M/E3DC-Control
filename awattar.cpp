@@ -714,7 +714,7 @@ if (mode == 1) // Es wird nur soviel nachgeladen, wie es ausreichend ist um die
 }
 int fp_status = -1;  //
 
-void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage)
+void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage,u_int32_t iDayStat[25*4*2+1])
 {
     FILE * fp;
     char line[256];
@@ -814,12 +814,25 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 
                 if (wetter[x2].hh == item1->valueint)
                 {
+                    int y1 = wetter[x2].hh%(24*3600)/900;
+                    float f2 = iDayStat[y1]/100.0;
+                    float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);
+
                     if (anlage==0){
-                        wetter[x2].solar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        wetter[x2].progsolar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        
+                        if (iDayStat[y1]>0&&f2>f3)
+                            wetter[x2].solar = wetter[x2].progsolar*f3/f2;
+                        else
+                            wetter[x2].solar = 0;
+
                         // (15min Intervall daher /4
                     }
                     else {
-                            wetter[x2].solar = wetter[x2].solar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                            wetter[x2].progsolar = wetter[x2].progsolar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        if (iDayStat[y1]>0&&f2>f3)
+                            wetter[x2].solar = wetter[x2].progsolar*f3/f2;
+
                     }
                     x1++;
                     x2++;
@@ -959,7 +972,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, int sunrise)
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -1164,7 +1177,7 @@ if (e3dc.openmeteo)
 //        std::thread  t1(openmeteo(w,wetter, e3dc, j));
 
         if (e3dc.debug) printf("openmeteo%i",j);
-        openmeteo(w,wetter, e3dc, j);
+        openmeteo(w,wetter, e3dc, j, iDayStat);
     }
 }
 else

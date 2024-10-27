@@ -112,6 +112,10 @@ int dayhour     =   weekhour+1;
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
+// in den ersten 96 15min Intervallen steht der prog. Ertrag Durchschnittswerte
+// in den zweiten 96 15min Intervallen steht der tatsächliche Ertrag Durchschnittswerte
+// index 200 heutiger Ertrag
+// index 199 heutige Prognose
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int iMQTTAval = 0;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
@@ -1982,6 +1986,7 @@ int LoadDataProcess() {
                     fp = fopen(fname, "w");
                 if(fp)
                 {
+// Uhrzeit Average prog. Solar real Solar % letzte Progose Ertrag real Ertrag % kumm tagesverbrauch Haus WP
                     fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
                     fclose(fp);
                 }
@@ -6075,7 +6080,8 @@ static void mainLoop(void)
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1\n");
             if (e3dc_config.aWATTar||e3dc_config.openmeteo)
-            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise);
+            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise,iDayStat);
+            
 //            test;
             if (e3dc_config.debug) printf("M2\n");
             float zulufttemp = -99;
@@ -6278,7 +6284,7 @@ static int iEC = 0;
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
-                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt); // im Master nicht aufrufen
+                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt, iDayStat); // im Master nicht aufrufen
 
             }
             while (e3dc_config.test)
