@@ -3052,13 +3052,15 @@ bDischarge = false;
     if (e3dc_config.aWATTar) printf("%.2f",fspreis);
     
 // PVon dynamischer Berechnung unter Ausnutzung des Rest SoC am Morgen
+    int iMinlade = iMinLade;
+    if (iMinlade>iMaxBattLade) iMinlade = iMaxBattLade;
         if (t<tLadezeitende3&&(t/60)>sunriseAt&&fPVtoday>fPVSoll&&fBatt_SOC>5&&iPower_PV>100)
         {
             float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
             PVon = PVon*.9 + fdynPower+((iPower_PV - iPowerHome - fPower_Grid+fPower_WB))/10;
         }
         else
-            PVon = PVon*.9 + ((-iMinLade +  iPower_PV - iPowerHome- fPower_Grid+fPower_WB))/10;
+            PVon = PVon*.9 + ((-iMinlade +  iPower_PV - iPowerHome- fPower_Grid+fPower_WB))/10;
 
 
     if (e3dc_config.WP&&fcop>0)
@@ -3277,6 +3279,8 @@ bDischarge = false;
         }
 // sonnenaufgang + unload
          int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
+        int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
+
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
         if (idauer == 0) 
@@ -3301,12 +3305,13 @@ bDischarge = false;
             int x1 = 2;
             if (fPVcharge>e3dc_config.peakshavepvcharge)
             {
-            if (idauer > 7200)
+            if (idauer > iVorlauf*3600)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             else
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+5;
             }
             else
+// höhere SoC Reserve vorhalten, da PV-Prognose niedrig und der Speicher nicht voll werden könnte
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-x1*e3dc_config.peakshavesoc)*fpeakshaveminsoc+x1*e3dc_config.peakshavesoc;
 
             if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
@@ -3378,7 +3383,7 @@ bDischarge = false;
                      (
 // in der ersten Stunde nach Sonnenaufgang darf bis auf e3dc_config.peakshavesoc entladen werden
 
-                      idauer<7200&&idauer>3600&&fBatt_SOC>e3dc_config.peakshavesoc
+                      idauer<iVorlauf*3600&&idauer>3600&&fBatt_SOC>e3dc_config.peakshavesoc
                      )
                     )
                     &&
@@ -4177,7 +4182,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if (iWBStatus == 0)  {
         if (e3dc_config.debug) printf("WB1");
 
-        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
+//        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
         
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",e3dc_config.wbminladestrom);
         WBchar6[1]=WBchar[2];
@@ -4294,12 +4299,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
 //                iPower = iPower_Bat-fPower_Grid-iRefload;
                 iPower = -fPower_Grid*2;
-                if (iFc>iRefload) iRefload = (iRefload+iFc)/2;
+//                if (iFc>iRefload) iRefload = (iRefload+iFc)/2;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
                     iPower = iPower + idynPower;
-                if (iMinLade > 100&&iPower > (iPower_Bat-fPower_Grid))
+                if (iMinLade > 100&&iMaxBattLade>100&&iPower > (iPower_Bat-fPower_Grid))
                     iPower = iPower_Bat-fPower_Grid;
                 break;
             case 4:
