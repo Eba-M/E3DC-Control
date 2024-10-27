@@ -1954,15 +1954,15 @@ int LoadDataProcess() {
             // alle 15min wird diese Routine durchlaufen
             if (iDayStat[x2]>0)  // war schon vorbelegt
             {
-                iDayStat[x2] = iDayStat[x2]*.9 + (w_alt.solar+0.005)*10; // 10%
+                iDayStat[x2] = iDayStat[x2]*.9 + (w_alt.progsolar+0.005)*10; // 10%
                 iDayStat[x2+96] = iDayStat[x2+96]*.9 + iDayStat[DayStat]/10; // 10%
             }
             else
             {
-                iDayStat[x2] = (w_alt.solar+0.005)*100;
+                iDayStat[x2] = (w_alt.progsolar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
-            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].solar+0.005)*100;
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].progsolar+0.005)*100;
 //            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
@@ -1987,7 +1987,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
 // Uhrzeit Average prog. Solar real Solar % letzte Progose Ertrag real Ertrag % kumm tagesverbrauch Haus WP
-                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.solar,f5,f5/w_alt.solar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
                     fclose(fp);
                 }
             }
