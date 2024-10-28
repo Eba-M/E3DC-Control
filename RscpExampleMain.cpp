@@ -104,6 +104,10 @@ int forecastpeaktime;  //
 float forecastpeak;    //
 float fpeakshaveminsoc; // Wenn peakshave dann wird hier der MindestSoc im Tagesverlauf berechnet
 // am Morgen, d.h. sonnenaufgang + zeitversatz aus unload mit ziel 50% bei Sonnenuntergang - Zeitversatz unload. Wird der wert unterschritten, wird das entladen gestoppt, ist er um 10% unterschritten wird aus dem Netz geladen, soweit der Netzbezug unter peakshave liegt.
+float fpeakshaveendsoc;
+// Ziel-Soc bis zu dieser Grenze darf entladen werden
+// Bei gerigem Ertrag wird dieser verdoppelt  = n x Peakshavesoc
+// hohen Ertrag wird dieser bis auf 5% herabgesetzt d.h. halbiert
 static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
@@ -3308,17 +3312,23 @@ bDischarge = false;
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
 // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
             int x1 = 2;
+            fpeakshaveendsoc = e3dc_config.peakshavesoc;
             if (fPVcharge>e3dc_config.peakshavepvcharge)
             {
-            if (idauer > iVorlauf*3600)
+            if (idauer > iVorlauf*3600||idauer<3600)
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             else
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+5;
+            {
+                fpeakshaveendsoc = 5;
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+fpeakshaveendsoc ;
+            }
             }
             else
 // höhere SoC Reserve vorhalten, da PV-Prognose niedrig und der Speicher nicht voll werden könnte
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-x1*e3dc_config.peakshavesoc)*fpeakshaveminsoc+x1*e3dc_config.peakshavesoc;
-
+            {
+                fpeakshaveendsoc = x1*e3dc_config.peakshavesoc;
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-fpeakshaveendsoc)*fpeakshaveminsoc+fpeakshaveendsoc;
+            }
             if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
                 fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
 
@@ -3375,7 +3385,8 @@ bDischarge = false;
             if (idauer>0&&(fBatt_SOC-e3dc_config.peakshavesoc>0||iPower_PV_E3DC>100))
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
-                iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
+//                iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
+                iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / (idauer+600) *-1;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
