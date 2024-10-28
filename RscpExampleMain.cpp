@@ -3386,7 +3386,10 @@ bDischarge = false;
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
 //                iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
-                iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
+                if (iPower_PV_E3DC>100)
+                    iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
+                else
+                    iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
                 iFc = iFc / (idauer+600) *-1;
 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
@@ -4224,7 +4227,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
     if (iMinLade>iFc) iRefload = iFc;
         else iRefload = iMinLade;
-    if (iRefload>iMaxBattLade)
+    if (iRefload>iMaxBattLade||iRefload==0)
         iRefload = iMaxBattLade;
 // Morgens soll die volle Leistung zur Verfügung stehen
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
