@@ -3386,7 +3386,7 @@ bDischarge = false;
 //                if (idauer>0&&fBatt_SOC-fpeakshaveminsoc>0)
             {
 //                iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
-                if (iPower_PV_E3DC>100)
+                if (iPower_PV_E3DC>100&&idauer>iVorlauf*3600)
                     iFc = (fBatt_SOC-e3dc_config.peakshavesoc)*e3dc_config.speichergroesse*10*3600;
                 else
                     iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
