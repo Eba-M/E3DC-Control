@@ -6172,7 +6172,7 @@ if (e3dc_config.debug) printf("M6");
                 {
 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
 //                    float f2 = iDayStat[x2]/100.0;
-                    float f3 = iDayStat[DayStat-3]/(e3dc_config.speichergroesse*10*3600);
+                    float f3 = iDayStat[DayStat-3]/3600000.0;
                     float f4 = 0;
                     if (wetter.size()>0)
                         f4 = wetter[0].solar;
