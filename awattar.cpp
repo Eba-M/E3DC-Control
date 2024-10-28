@@ -826,21 +826,29 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f7 = 0;
                     if (iDayStat[y1]>0&&f2>f3)
                         f7 = f3/f2;
-// relativer ertrag aus statistik höher als aktueller ertrag
+// absoluter Ertrag des letzen 15min
+                    float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
+                    // relativer ertrag aus statistik höher als aktueller ertrag
                     if (f5 > 1)
-                        f7 = f7*f6;
+                        f6 = f7*f6;
+                    else
+                        f6=f7;
                     if (anlage==0){
                         wetter[x2].progsolar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                         
-                            wetter[x2].solar = wetter[x2].progsolar*f7;
+                            wetter[x2].solar = wetter[x2].progsolar*f6;
 
                         // (15min Intervall daher /4
                     }
                     else {
                             wetter[x2].progsolar = wetter[x2].progsolar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
-                            wetter[x2].solar = wetter[x2].progsolar*f7;
+                            wetter[x2].solar = wetter[x2].progsolar*f6;
 
                     }
+                    if (wetter[x2].solar<f8&&wetter[x2].progsolar>f8)
+                            (wetter[x2].solar=f8);
+                    else
+                        wetter[x2].solar = wetter[x2].progsolar*f7;
                     x1++;
                     x2++;
                     if (x2 > wetter.size())
