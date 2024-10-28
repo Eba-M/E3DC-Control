@@ -2000,7 +2000,7 @@ int LoadDataProcess() {
             else
                 if (wetter.size()>0&&w_alt.hh<wetter[1].hh)
                     w_alt = wetter[1];
-
+            iDayStat[DayStat-3] = iDayStat[DayStat];
             iDayStat[DayStat] = iPower_PV*(t-myt_alt);
             if ((myt_alt%(24*3600))>(t%(24*3600))||schalter3600) // Tageswechsel
             {
@@ -6171,8 +6171,8 @@ if (e3dc_config.debug) printf("M6");
                 if (x2 > 0&&e3dc_config.statistik)
                 {
 // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
-                    float f2 = iDayStat[x2]/100.0;
-                    float f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
+//                    float f2 = iDayStat[x2]/100.0;
+                    float f3 = iDayStat[DayStat-3]/(e3dc_config.speichergroesse*10*3600);
                     float f4 = 0;
                     if (wetter.size()>0)
                         f4 = wetter[0].solar;
@@ -6180,7 +6180,7 @@ if (e3dc_config.debug) printf("M6");
 
 //                    if (f2>0)
 //                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f%% %0.04f%%", f2,f3,f3/f2,f4,f5);
-                    printf(" %0.02f%% %0.02f%% %0.02f %0.02f %0.04fkWh", f2,f3,f3/f2,f4*e3dc_config.speichergroesse/100,iDayStat[DayStat]/3600000.0);
+                    printf(" %0.02f %0.02f %0.04fkWh", f3,f4*e3dc_config.speichergroesse/100,iDayStat[DayStat]/3600000.0);
                     // erwartete PV Ertrag
                 }
                 printf("%c[K\n", 27 );
