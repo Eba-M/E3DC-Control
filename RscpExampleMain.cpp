@@ -3583,10 +3583,11 @@ bDischarge = false;
                         int iBilanz = iFc + f[2];
                         if (f[2]<500) // nur wenn der Master auch ausspeichert
                         {
-                            if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
+//                            if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
+                            if (fBatt_SOC > f[1])
                                 iFc = iBilanz*.7;
                             else
-                                if (iFc>(iBilanz*.6))
+//                                if (iFc>(iBilanz*.6))
                                     iFc = iBilanz*.6;
                             iFc = (2*iFc -iBattLoad);
                         }
