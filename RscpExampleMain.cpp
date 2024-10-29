@@ -3625,7 +3625,7 @@ bDischarge = false;
 // Nachladen weiter reduzieren da Netzbezug zu hoch
                         if (x1>0)
                             iFc = x1;
-                        if (iFc < 0&&iFc<iFc3) iFc = iFc3;
+                        if (iFc <= 0||iFc<iFc3) iFc = iFc3;
                     }
                         
                 if (iFc > e3dc_config.maximumLadeleistung-500)
