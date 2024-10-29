@@ -3580,7 +3580,7 @@ bDischarge = false;
                     if (iFc < 0)  // Angleichen Slave in der Ausspeicherungsleistung an den Master
                     {
 //                        iFc3 = iFc;
-                        int iBilanz = iFc + f[2];
+                        int iBilanz = iBattLoad + f[2];
                         if (f[2]<500) // nur wenn der Master auch ausspeichert
                         {
 //                            if (fBatt_SOC > f[1]&&iFc>(iBilanz*.7))
