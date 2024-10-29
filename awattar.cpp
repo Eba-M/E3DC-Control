@@ -818,7 +818,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     int y1 = wetter[x2].hh%(24*3600)/900;
                     float f2 = iDayStat[y1]/100.0;
                     float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);
-                    // aktuelle PV-Leistung ermitteln
+                    // aktuelle PV-Leistung ermitteln aus Prog
                     float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
                     float f5 = iDayStat[198]/3600.0/1000.0;
                     float f6 = 1;
@@ -833,7 +833,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
                     // relativer ertrag aus statistik höher als aktueller ertrag
                     if (f5 > 1)
-                        f6 = f7*f6;
+                        f6 = (f7+f6)/2;
                     else
                         f6=f7;
                     if (anlage==0){
