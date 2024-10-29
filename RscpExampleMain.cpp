@@ -3554,7 +3554,7 @@ bDischarge = false;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %i %2i%% ",int(f[2]),iBilanz,iFc, (iFc*100/iBilanz));
+                        printf("iBilanzA %i %i %i %2i%% ",int(f[2]),iBilanz,iFc, (iFc*100/iBilanz));
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
@@ -3594,7 +3594,7 @@ bDischarge = false;
                             iFc = 0;
                         
                         printf("%c[K\n", 27 );
-                        printf("iBilanz %i %i %i %2i%% %2.0f%% %2.0f%%",int(f[2]),iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
+                        printf("iBilanzB %i %i %i %2i%% %2.0f%% %2.0f%%",int(f[2]),iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
                         
                     }
                 }
@@ -3623,9 +3623,9 @@ bDischarge = false;
                             x1 =  iBattLoad -iMQTTAval+e3dc_config.peakshave-1000;
 // Das Nachladen aus dem Netz erfolgt passiv nach der Ladeleistung des Masters
 // Nachladen weiter reduzieren da Netzbezug zu hoch
-//                        if (x1<iFc)
+                        if (x1>0)
                             iFc = x1;
-                        if (iFc < 0) iFc = 0;
+                        if (iFc < 0&&iFc<iFc3) iFc = iFc3;
                     }
                         
                 if (iFc > e3dc_config.maximumLadeleistung-500)
