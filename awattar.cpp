@@ -331,7 +331,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxsoc);  // nächster Nachladepunkt überprüfen
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
                 if (w[h].pp>w[l1].pp*aufschlag+Diff)
                     // Es könnte nachgeladen werden
                 {
@@ -483,7 +483,7 @@ if (mode == 0) // Standardmodus
         do
         {
             fConsumption = fHighprice(w,wetter,0,l1,w[0].pp,maxsoc);  // nächster Nachladepunkt überprüfen
-            if (float(fSoC-fConsumption+Reserve) > 1) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+Reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if ((w[0].pp>w[l1].pp*aufschlag+Diff))
             {
                 fSoC = fSoC + Reserve;
@@ -811,7 +811,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     x1++;
                 while (wetter[x2].hh < item1->valueint&&x2<wetter.size())
                     x2++;
-
+                if (x2 >= wetter.size())
+                    break;
                 if (wetter[x2].hh == item1->valueint)
                 {
                     int y1 = wetter[x2].hh%(24*3600)/900;
@@ -820,9 +821,11 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     // aktuelle PV-Leistung ermitteln
                     float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
                     float f5 = iDayStat[198]/3600.0/1000.0;
-                    float f6 = -1;
+                    float f6 = 1;
                     if (f4>0&&(wetter[x2].hh-wetter[0].hh)<12*3600)
                         f6 = f5/f4;
+                    if (f6<0.5) f6 = 0.5;
+                    if (f6>1.5) f6 = 1.5;
                     float f7 = 0;
                     if (iDayStat[y1]>0&&f2>f3)
                         f7 = f3/f2;

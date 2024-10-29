@@ -496,6 +496,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     w.erase(w.begin());
 
             int analyse = 0;
+            float strompreis = 0;
 
             if (analyse)
             {
@@ -505,12 +506,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
-                fp = fopen("..//..//..//Downloads/awattardebug.11.out.txt","r");
+                fp = fopen("..//..//..//Downloads/awattardebug.out","r");
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
                 float hh = 0;
-                char key[] = " Data \n";
+                char key[] = " Simulation \n";
+                char key2[] = " Data \n";
                 memset(&line, 0, sizeof(line));
                 int ret = sizeof(line);
                 fgets(line,sizeof(line),fp);
@@ -522,6 +524,27 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     if (ret == 0)
                         break;
                 }
+
+                while (fp != NULL&&ret>=0)
+                {
+                    
+                    ret =  fscanf(fp,"%f %f %f %f %f \n ",&hh,&strompreis,&soc,&we.wpbedarf,&we.solar);
+                    if (ret==5){
+                       
+
+                        break;
+                    }
+                }
+                while (fp != NULL)
+                {
+                    if (fgets(line,sizeof(line),fp)==NULL)
+                        break;
+                    ret = (strcmp(key2,line));
+                    if (ret == 0)
+                        break;
+                }
+
+
                     while (fp != NULL&&ret>=0)
                     {
 
@@ -535,8 +558,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 }
                 if (fp != NULL)
                 fclose(fp);
-                soc = 36.68;
-                float strompreis = 91.91;
 
 //                int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve);
 
