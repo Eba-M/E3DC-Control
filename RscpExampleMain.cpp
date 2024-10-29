@@ -3603,6 +3603,7 @@ bDischarge = false;
 // peakshave max. verdoppelung von iFc
                 {
                         iFc = iBattLoad - (iMQTTAval - e3dc_config.peakshave+200)*2;
+                        if (iFc < 0) iFc = 0;  // nicht entladen
                 };
 // von der aktuellen Bezugsleistung starten
                 
