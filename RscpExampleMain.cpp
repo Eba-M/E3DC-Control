@@ -3548,7 +3548,7 @@ bDischarge = false;
                 {
 //                    iFc3 = f[2];
 // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
-                    int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
+                    int iBilanz = (f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                     {
                         if ((f[1]>fBatt_SOC&&iBilanz>1000)||(f[1]<fBatt_SOC&&iBilanz<-1000))
