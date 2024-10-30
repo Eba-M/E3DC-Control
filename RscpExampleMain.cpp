@@ -3447,6 +3447,7 @@ bDischarge = false;
                             if (fcurrentGrid>e3dc_config.peakshave-100)
 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
+
                         iFc = (2*iFc -iBattLoad);
                     }
                     else
@@ -3594,7 +3595,9 @@ bDischarge = false;
                         }
                         else
                             iFc = 0;
-                        
+// Freigeben der berechneten Leistung
+                        if (iFc3<iFc)
+                            iFc = iFc3;
                         printf("%c[K\n", 27 );
                         printf("iBilanzB %i %i %i %2i%% %2.0f%% %2.0f%%",int(f[2]),iBilanz,iFc, (iFc0*100/iBilanz),(f[2]*100/float(iFc0)),f[1]);
                         
