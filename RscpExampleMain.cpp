@@ -3551,12 +3551,12 @@ bDischarge = false;
                     int iBilanz = (f[0]*-1+f[2]+iPower_Bat);
                     if (abs(iBilanz)>1000)
                     {
-                        if ((f[1]>fBatt_SOC+2&&iBilanz>1000)||(f[1]<fBatt_SOC&&iBilanz<-1000))
+                        if ((f[1]>fBatt_SOC&&iBilanz>1000)||(f[1]<fBatt_SOC&&iBilanz<-1000))
                             iFc = iBilanz *.7;
                         else
                             iFc = iBilanz *.6;
                         printf("%c[K\n", 27 );
-                        printf("iBilanzA %i %i %i %2i%% ",int(f[2]),iBilanz,iFc, (iFc*100/iBilanz));
+                        printf("iBilanzA %i %i %i %2i%% %2.2f%%",int(f[2]),iBilanz,iFc, (iFc*100/iBilanz), f[1]);
                     }
                     if (fBatt_SOC-e3dc_config.peakshavesoc<0&&iFc<0)
                         iFc = 0;
