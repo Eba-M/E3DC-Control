@@ -1054,7 +1054,8 @@ int ladedauer = 0;
         ||
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
-        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==1)
+// die Wetterdaten alle 15min in der 14ten min holen, 
+        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==14)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<48))
         ||
@@ -1121,7 +1122,9 @@ if (not e3dc.statistik)
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 
-        if (e3dc.aWATTar){
+        if (e3dc.aWATTar||e3dc.unload<0)
+// aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
+        {
         
         printf("GET api.awattar\n");
 
