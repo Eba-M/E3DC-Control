@@ -3560,7 +3560,7 @@ bDischarge = false;
                         iFc = 0;
                     if (f[0]<-500&&f[2]>=0) // Einspeisung + Master lädt
                         iFc = iBilanz - f[2];
-                    if ((f2) > 1000&&iFc < 0)  // Wenn der Master lädt, wird nicht endladen
+                    if ((f[2]) > 1000&&iFc < 0)  // Wenn der Master lädt, wird nicht endladen
                         iFc = 0;
                     
                     
