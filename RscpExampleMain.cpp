@@ -3521,6 +3521,9 @@ bDischarge = false;
                                 iFc = f[2]/.7;
                             else
                                 iFc = f[2]/.6;
+                            
+                            if (iFc3<iFc&&iFc3<0)
+                                iFc = iFc3;
                             printf("%c[K\n", 27 );
                             printf("if[2] %i %i %2i%% %2.2f%%",int(f[2]),iFc, int(f[2])*100/iFc, f[1]);
 
