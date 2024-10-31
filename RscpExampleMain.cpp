@@ -3523,6 +3523,9 @@ bDischarge = false;
                                 iFc = f[2]/.6;
                             printf("%c[K\n", 27 );
                             printf("if[2] %i %i %2i%% %2.2f%%",int(f[2]),iFc, int(f[2])*100/iFc, f[1]);
+
+                            iFc = (2*iFc -iBattLoad);
+
                         }
                     }
                     
