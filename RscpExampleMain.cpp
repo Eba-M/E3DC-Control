@@ -3522,7 +3522,7 @@ bDischarge = false;
                             else
                                 iFc = f[2]/.6;
                             printf("%c[K\n", 27 );
-                            printf("if[2] %i %i %2i%% %2.2f%%",int(f[2]),iFc, (f[2]*100/iFc), f[1]);
+                            printf("if[2] %i %2i%% %2.2f%%",int(f[2]),iFc, (f[2]*100/iFc), f[1]);
                         }
                     }
                     
