@@ -3526,7 +3526,7 @@ bDischarge = false;
                             if (iFc3<iFc&&iFc3<0)
                                 iFc = iFc3;
                             printf("%c[K\n", 27 );
-                            printf("if[2] %i %i %2i%% %2.2f%%",int(f[2]),iFc, int(f[2])*100/iFc, f[1]);
+                            printf("f[0,2] %2.0f %2.0f %i %2i%% %2.2f%%",f[0],f[2],iFc, int(f[2])*100/iFc, f[1]);
 
                             iFc = (2*iFc -iBattLoad);
 
