@@ -3521,7 +3521,8 @@ bDischarge = false;
                                 iFc = f[2]/.7;
                             else
                                 iFc = f[2]/.6;
-                            
+                            if (f[0]>e3dc_config.peakshave)
+                                iFc = iFc + e3dc_config.peakshave - f[0];
                             if (iFc3<iFc&&iFc3<0)
                                 iFc = iFc3;
                             printf("%c[K\n", 27 );
