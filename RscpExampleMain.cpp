@@ -3518,9 +3518,9 @@ bDischarge = false;
                         // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                         {
                             if ((f[1]>fBatt_SOC&&f[2]>0)||(f[1]<fBatt_SOC&&f[2]<0))
-                                iFc = f[2]/.7;
-                            else
                                 iFc = f[2]/.6;
+                            else
+                                iFc = f[2]/.4;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
                             if (iFc3<iFc&&iFc3<0)
