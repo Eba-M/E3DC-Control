@@ -2436,17 +2436,17 @@ int LoadDataProcess() {
                     (
                      temp[14]<(e3dc_config.WPHK1max+2)*10
                      ||
-                     (temp[14]<(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+3.0)&&
-                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+3.0))
+                     (temp[14]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+2.0)&&
+                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+2.0))
                     )
                     &&
                     (
 //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+30&&wolf[wpvl].wert*10<temp[4]+30))
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+20&&wolf[wpvl].wert*10<temp[4]+20))
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
 
-                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10]+10)&&wolf[wpvl].wert*10<temp[10]+10)
+                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
                     ||
                      (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>30&&wolf[wpvl].wert*10<temp[10]+10)                    
                      )
@@ -2497,8 +2497,11 @@ int LoadDataProcess() {
                       )
                      )
                     ||
-                     (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+3.0)&&
+                     (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
                       wolf[wpvl].wert>0)
+                    ||
+                      (temp[7]>0&&temp[12]>0&&temp[10]<wolf[wpvl].wert&&
+                       wolf[wpvl].wert>0)
                     ||
                      (temp[14]>(e3dc_config.WPHK1max+4)*10)
                     ||
@@ -4446,7 +4449,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
 //                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
 // Umstellung auf 15min Intervall
-                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+900 >= tE3DC)){
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
                 if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
@@ -4476,7 +4479,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 for (int j = 0; j < ch.size(); j++ )
 // Umstellung auf 15min Intervall
 //                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
-                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+900 >= tE3DC)){
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
                 if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten
