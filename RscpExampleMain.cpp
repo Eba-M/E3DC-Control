@@ -2442,7 +2442,9 @@ int LoadDataProcess() {
                     &&
                     (
 //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<(temp[4]+20&&wolf[wpvl].wert*10<temp[4]+20))
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<temp[4]+20
+                        &&
+                        (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+20))
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
 
