@@ -5041,7 +5041,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     case TAG_EMS_POWER_GRID: {    // response for TAG_EMS_REQ_POWER_GRID
         int32_t iPower = protocol->getValueAsInt32(response);
         iPowerBalance = iPowerBalance- iPower_PV + iPower_Bat - iPower;
-        printf(" grid %4i", iPower);
+        printf(" grid %3i", iPower);
 //        printf(" E3DC %i ", -iPowerBalance - int(fPower_WB));
 //        printf(" # %i", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
         if (e3dc_config.statistik)
@@ -5052,7 +5052,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
             float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
             float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
             
-            printf("% %0.2f %0.2f %0.2f",f2,f3,f3/f2);
+            printf(" %% %0.2f %0.2f %0.2f",f2,f3,f3/f2);
         }
         printf("%c[K\n", 27 );
 
