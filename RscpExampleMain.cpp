@@ -3531,7 +3531,7 @@ bDischarge = false;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
                             printf("%c[K\n", 27 );
-                            printf("f[0,2] %2.0f %2.0f %i %2i%% %2.2f%%",f[0],f[2],iFc, int(f[2])*100/iFc, f[1]);
+                            printf("f[0,2] %2.0f %2.0f %i %2.2f%%",f[0],f[2],iFc, f[1]);
 
                             if (iFc<iBattLoad)
                             iFc = (2*iFc -iBattLoad);
