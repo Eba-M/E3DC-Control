@@ -3524,6 +3524,8 @@ bDischarge = false;
                                 iFc = f[2]/.4;
                             else
                                 iFc = f[2]/.6;
+                            if (f[2]>fBatt_SOC+10&&f[2]<0)
+                                iFc = iFc3;
                             if (iFc3<iFc&&iFc3<0)
                                 iFc = iFc3;
                             if (f[0]>e3dc_config.peakshave)
@@ -6194,12 +6196,12 @@ static int iEC = 0;
             x1 = fread (&iGridStat, sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
             fclose (pFile);
         }
-
+        GetWallbox(ch);
     }
     
         while(iEC < 10&&e3dc_config.stop==0||e3dc_config.stop>99)
         {
-            printf("Program stop Reason e3dc_config.stop=%i",e3dc_config.stop);
+
             e3dc_config.stop=0;
             iEC++; // Schleifenzähler erhöhen
             int hh1 = sunsetAt / 60;
@@ -6268,6 +6270,7 @@ static int iEC = 0;
         iSocket = -1;
         if (!e3dc_config.stop)
             sleep(1);
+            printf("Program stop Reason e3dc_config.stop=%i",e3dc_config.stop);
             if (e3dc_config.statistik)
             {
                 FILE * pFile;
@@ -6301,7 +6304,7 @@ static int iEC = 0;
                     x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
                     fclose (pFile);
                 }
-
+                PutWallbox(ch);
             }
 
     }

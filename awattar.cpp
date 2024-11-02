@@ -72,7 +72,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      stat("e3dc.wallbox.txt",&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt);
-    if (tm > 24*3600) tm_Wallbox_dt = tm_dt; //älter als 24h?
+    if (tm > 10) tm_Wallbox_dt = tm_dt; //älter als 10s?
     if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
     {
         return false;
@@ -83,7 +83,44 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
         return true;
     }
 }
+bool PutWallbox(std::vector<ch_s> &ch)
+{
+    FILE *mfp;
+    char path[100];
+    
+    mfp = fopen("e3dc.wallbox.out","w");
+    if (ch.size()>0)
+        for (int j = 0; j < ch.size(); j++ ){
+            fprintf(mfp,"%0.2f %i %i %0.2f \n",float((ch[j].hh%(24*3600))/3600.0), ch[j].hh,ch[j].ch,ch[j].pp);}
+    
+    fclose(mfp);
 
+    return true;}
+
+bool GetWallbox(std::vector<ch_s> &ch)
+{
+    FILE *mfp;
+    
+    mfp = fopen("e3dc.wallbox.out","r");
+    char path[100];
+    int status;
+    char var [4] [20];
+    memset(path, 0x00, sizeof(path));
+
+    if (mfp != NULL)
+        while (fgets(path, 1024, mfp) != NULL)
+        {
+            status = sscanf(path, "%s %s %s %s", var[3], var[0], var[1], var[2]);
+            cc.hh = atoi(var[0]);
+            cc.ch = atoi(var[1]);
+            cc.pp = atof(var[2]);
+            ch.push_back(cc);
+        }
+    //        if (WP_status < 2)
+    if (mfp != NULL)
+        pclose(mfp);
+
+    return true;}
 int Highprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahle Einträge mit > preis
 {                                            // l1 = erste position h1 = letzte Position
                                              // maxsoc = max erreichter Soc
@@ -1022,6 +1059,7 @@ int ladedauer = 0;
     struct tm * ptm;
 //    float pp;
     FILE * fp;
+    FILE * fp2;
     char line[256];
     int x3,x2;
     char value[256];
@@ -1054,7 +1092,7 @@ int ladedauer = 0;
         ||
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
-// die Wetterdaten alle 15min in der 14ten min holen, 
+// die Wetterdaten alle 15min in der 14ten min holen,
         (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==14)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<48))
@@ -1357,7 +1395,7 @@ else
  Checkwallbox erfolgreich ist oder sich bei der Dauereinstelleung
  wbhour, wbvon oder wbbis sich geändert haben
 */
-    int chch; // 0 normal 1 Automatik
+    int chch = 0; // 0 normal 1 Automatik
     static int dauer = -1;
     if ((CheckWallbox()))
     {
@@ -1412,8 +1450,11 @@ else
     
  
         ww1.pp = -1000;
-        ch.clear();
- 
+//alle alten einträge löschen
+    for (int j = 0; j < ch.size(); j++ ){
+        while (ch[j].ch == 0&&ch.size()>0)
+            ch.erase(ch.begin()+j);
+    }
     for (int l = 0;(l< w.size()); l++)
     {
         if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh||w[l].hh<=rawtime))
@@ -1430,14 +1471,24 @@ else
     {
         ch.erase(ch.end()-1);
     }
-        
+// ist die letzte Stunde weniger als eine ganze Stunde?
+    if (ch.size()>=4)
+    {
+        int la = ch[ch.size()-4].hh/3600;
+        while (ch.size()>=1&&ch[ch.size()-1].hh/3600!=la)
+        {
+            ch.erase(ch.end()-1);
+        }
+    }
     fp = fopen("e3dc.wallbox.txt","w");
     fprintf(fp,"%i\n",ladedauer);
 //    sort (ch.begin(),ch.end());
     std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.hh < b.hh;});
     int ptm_alt;
-    for (int j = 0; j < ch.size(); j=j+4 ){
+        for (int j = 0; j < ch.size(); j=j+4 ){
+
+//        fprintf(fp2,"%li %i %f \n",ch[j].hh,ch[j].ch,ch[j].pp);
 //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
 //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
@@ -1453,7 +1504,11 @@ else
             fprintf(fp,"\n");
         ptm_alt = ptm->tm_mday;
     }
+    
+    if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
+        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
     fprintf(fp,"%s\n",ptm->tm_zone);
     fclose(fp);
+    PutWallbox(ch); // Schaltzeiten schreiben
     CheckWallbox();
     }
