@@ -5043,7 +5043,17 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         iPowerBalance = iPowerBalance- iPower_PV + iPower_Bat - iPower;
         printf(" grid %i", iPower);
 //        printf(" E3DC %i ", -iPowerBalance - int(fPower_WB));
-        printf(" # %i", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
+//        printf(" # %i", iPower_PV - iPower_Bat + iPower - int(fPower_WB));
+        if (e3dc_config.statistik)
+        {
+            float f4 = 0;
+            if (wetter.size()>0)
+                f4 = (t%900)*(wetter[0].solar+0.005)*100.0/900.0;
+            float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
+            float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
+            
+            printf(" %0.2f %0.2f %0.2f",f2,f3,f3/f2);
+        }
         printf("%c[K\n", 27 );
 
         break;
