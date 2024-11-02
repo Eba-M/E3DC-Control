@@ -901,7 +901,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                                 (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
                                     (wetter[x2].solar=(wetter[x2].progsolar*f6+f8)/2);
                             else
-                        wetter[x2].solar = wetter[x2].progsolar*f7;
+                        wetter[x2].solar = wetter[x2].progsolar*f6;
                     x1++;
                     x2++;
                     if (x2 > wetter.size())
