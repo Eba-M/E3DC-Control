@@ -2502,8 +2502,9 @@ int LoadDataProcess() {
                      (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
                       wolf[wpvl].wert>0)
                     ||
-                      (temp[7]>0&&temp[12]>0&&temp[10]<wolf[wpvl].wert&&
-                       wolf[wpvl].wert>0)
+// Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
+                      (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&
+                       wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10>temp[4])
                     ||
                      (temp[14]>(e3dc_config.WPHK1max+4)*10)
                     ||
