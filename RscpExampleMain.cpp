@@ -3524,7 +3524,7 @@ bDischarge = false;
                                 iFc = f[2]/.4;
                             else
                                 iFc = f[2]/.6;
-                            if (f[2]>fBatt_SOC+10&&f[2]<0)
+                            if (f[1]>fBatt_SOC+10&&f[2]<0)
                                 iFc = iFc3;
                             if (iFc3<iFc&&iFc3<0)
                                 iFc = iFc3;
