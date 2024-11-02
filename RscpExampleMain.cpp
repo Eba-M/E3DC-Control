@@ -3527,9 +3527,10 @@ bDischarge = false;
                                 iFc = f[2]/.4;
                             else
                                 iFc = f[2]/.6;
+
                             if (f[1]>fBatt_SOC+10&&f[2]<0)
                                 iFc = iFc3;
-                            if (iFc3<iFc&&iFc3<0)
+                            if (iFc3<iFc&&iFc3<0&&f[2]<0)
                                 iFc = iFc3;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
