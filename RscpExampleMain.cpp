@@ -5197,6 +5197,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
                     printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    if (e3dc_config.peakshave>0)
                     {
                         printf("%c[K\n", 27 );
                         printf(" %0.04f/%0.04f/%0.04f %0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
@@ -5204,7 +5205,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // Grid
                     if (e3dc_config.WP)
                     {
-//                        printf("%c[K\n", 27 );
+                        printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                     }
                 }
