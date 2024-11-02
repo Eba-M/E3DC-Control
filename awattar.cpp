@@ -886,20 +886,20 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 
                     }
                     int hh = wetter[x2].hh-wetter[0].hh;
-                    if (wetter[x2].solar<f8&&wetter[x2].progsolar*f7>f8
+                    if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6>f8
                         &&
                         (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                            (wetter[x2].solar=(2*f8+wetter[x2].progsolar*f7)/3);
+                            (wetter[x2].solar=(2*f8+wetter[x2].progsolar*f6)/3);
                     else
-                        if (wetter[x2].solar<f8&&wetter[x2].progsolar>f8
+                        if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6>f8
                             &&
                             (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                                (wetter[x2].solar=(1*f8+wetter[x2].progsolar*f7)/2);
+                                (wetter[x2].solar=(1*f8+wetter[x2].progsolar*f6)/2);
                         else
-                            if (wetter[x2].solar<f8&&wetter[x2].progsolar<f8&&x2<2
+                            if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6<f8&&x2<2
                                 && (wetter[x2].progsolar > 1) &&
                                 (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                                    (wetter[x2].solar=(wetter[x2].progsolar));
+                                    (wetter[x2].solar=(wetter[x2].progsolar*f6+f8)/2);
                             else
                         wetter[x2].solar = wetter[x2].progsolar*f7;
                     x1++;
