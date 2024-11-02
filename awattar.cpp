@@ -108,7 +108,7 @@ bool GetWallbox(std::vector<ch_s> &ch)
     memset(path, 0x00, sizeof(path));
 
     if (mfp != NULL)
-        while (fgets(path, 1024, mfp) != NULL)
+        while (fgets(path, sizeof(path), mfp) != NULL)
         {
             status = sscanf(path, "%s %s %s %s", var[3], var[0], var[1], var[2]);
             cc.hh = atoi(var[0]);
