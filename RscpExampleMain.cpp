@@ -1829,7 +1829,7 @@ int LoadDataProcess() {
         static time_t myt_alt;
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
-            iPower_WP = wetter[0].wpbedarf*e3dc_config.speichergroesse*400;
+            iPower_WP = wetter[0].kosten*1000;   // in Watt
         if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-iPower_WP)*(t-myt_alt);
@@ -2432,6 +2432,7 @@ int LoadDataProcess() {
                     wwmax = e3dc_config.WPHK1max+5;
 
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
+                if (wolf.size()>0)
                 if (
                     (
                      temp[14]<(e3dc_config.WPHK1max+2)*10
@@ -2732,7 +2733,9 @@ int LoadDataProcess() {
                                 f3 = f3 + f6 / x6;
 
                         }
-                        wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
+// statistische Daten verwenden bei gemessenen Verbrauch wie bei meiner Wolf
+                        if (e3dc_config.WPWolf)
+                            wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
 
                     }
 

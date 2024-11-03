@@ -336,8 +336,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Ermitteln des Energiebedarfs für die Wärmepumpe
                     // Die Pelletsheizung wird eingesetzt, wenn die Leistung der WP nicht mehr
                     // ausreicht
-                    int fbitemp = e3dc.WPHeizgrenze -
-                    e3dc.WPLeistung/(e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze));
+                    float fbitemp = e3dc.WPHeizgrenze -
+                    float(e3dc.WPLeistung/float(e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)));
                     // fbitemp Bivalenztemperator unter dieser Schwelle muss Pellets oder Heizstab
                     // eingesetzt werden EHZ
                     if (wetter.size()>0&&wetter.size()>0&&w[0].hh>wetter[0].hh)
