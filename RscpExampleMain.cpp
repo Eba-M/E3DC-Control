@@ -2443,6 +2443,7 @@ int LoadDataProcess() {
                      (temp[14]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+2.0)&&
                       wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+2.0))
                     )
+                    && temp[17]==0 // Pellets aus
                     &&
                     (
 //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
@@ -2450,11 +2451,13 @@ int LoadDataProcess() {
                         &&
                         (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+20))
                     ||
-//  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 1° über der HK2 liegt.
-
-                     (temp[7]>0&&temp[10]>(temp[11]+10)&&temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
+//  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
+// oder die IST+10 <= SOLL
+                     (temp[7]>0&&temp[10]>=(temp[11]+10))
                     ||
-                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>30&&wolf[wpvl].wert*10<temp[10]+10)                    
+                     (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
+                    ||
+                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]+5)
                      )
                     )
                 {
@@ -2492,22 +2495,28 @@ int LoadDataProcess() {
                         wp_t = t;
                     
                 }   else
-                
-                if 
+// Verdichterleistung herunterfahren
+                if
                     (
                      (
-                      (PVon < 0 || fPVtoday<fPVSoll) &&                      (
-                       (temp[1]>0&&temp[6]>0&&temp[4]<temp[5])
-                     ||
-                       (temp[7]>0&&temp[10]<temp[11])
+// wenn beide Heizkreise 5K über dem Soll liegen
+                      (PVon < 0 || fPVtoday<fPVSoll) &&
+                      (
+                       (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])   //FBH
+                     &&
+                       (temp[7]>0&&temp[10]+5<temp[11])           // HK
                       )
                      )
+                    ||  temp[17]==1 // Pellets ein?
+
                     ||
+// Puffertemperaturen zu hoch ??
                      (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
                       wolf[wpvl].wert>0)
                     ||
 // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
-                      (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&
+                      (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
+                       &&
                        wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
                     ||
                      (temp[14]>(e3dc_config.WPHK1max+4)*10)
