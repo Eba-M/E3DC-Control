@@ -2508,9 +2508,17 @@ int LoadDataProcess() {
 // wenn beide Heizkreise 5K über dem Soll liegen
                       (PVon < 0 || fPVtoday<fPVSoll) &&
                       (
-                       (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])   //FBH
+                       (
+                        (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
+                        ||
+                        (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
+                        )   //FBH
                      &&
-                       (temp[7]>0&&temp[10]+5<temp[11])           // HK
+                       (
+                        (temp[7]>0&&temp[10]<temp[11])
+                        ||
+                        (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
+                        )           // HK
                       )
                      )
                     ||  temp[17]==1 // Pellets ein?
