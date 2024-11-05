@@ -2293,8 +2293,9 @@ int LoadDataProcess() {
                          
                          ((bHK1off ||m1 > (sunsetAt+60)
                            ||
-                           (PVon<(-iMinLade/4)&&
-                            (temp[14]<(temp[5]+50||(wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14])))))
+                           (
+//                            PVon<(-iMinLade/4)&&
+                            (temp[14]<temp[5]+50||(wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14]))))
                          &&
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
