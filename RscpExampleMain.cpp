@@ -3090,7 +3090,7 @@ bDischarge = false;
         if (t<tLadezeitende3&&(t/60)>sunriseAt&&fPVtoday>fPVSoll&&fBatt_SOC>5&&iPower_PV>100)
         {
             float fdynPower = (fBatt_SOC-5)*e3dc_config.speichergroesse;
-            PVon = PVon*.9 + fdynPower+((iPower_PV - iPowerHome - fPower_Grid+fPower_WB))/10;
+            PVon = PVon*.9 + (fdynPower+((iPower_PV - iPowerHome - fPower_Grid+fPower_WB)))/10;
         }
         else
             PVon = PVon*.9 + ((-iMinlade +  iPower_PV - iPowerHome- fPower_Grid+fPower_WB))/10;

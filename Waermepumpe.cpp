@@ -393,7 +393,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
-                                        if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
+//                                        if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
                                             wetter[x1].wpbedarf = wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                         
                                         int bHK1on = 0;
@@ -419,22 +419,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         static int WPZWE = 0; // ZWE ausgeschalter
                                         if (e3dc.WPZWE>wetter[x1].temp-WPZWE) // Hysterese 1Grad
                                         {
-                                            // Pelletskessel übernimmt und die WP ist aus
+                                            // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;
-                                            if (e3dc.openmeteo)
-                                                //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100/4;
-                                                if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                    wetter[x1].wpbedarf = 0;
-                                            
-                                            else
-                                                //                                w[x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*100;
-                                                if (not e3dc.statistik||e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
-                                                    wetter[x1].wpbedarf = 0;
+                                            wetter[x1].wpbedarf = 0;
+                                            wetter[x1].kosten = 0;
                                             
                                             // wenn der Wärmepreis der WP günstiger ist als Pellets
                                             if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
+                                                wetter[x1].kosten = f4;
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
-                                                { 
+                                                {
                                                     if (e3dc.openmeteo)
                                                     wetter[x1].wpbedarf = (f3/f2) /e3dc.speichergroesse*100/4;
                                                 else
