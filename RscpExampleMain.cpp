@@ -2515,7 +2515,7 @@ int LoadDataProcess() {
                         )   //FBH
                      &&
                        (
-                        (temp[7]>0&&temp[10]<temp[11])
+                        ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[14])
                         ||
                         (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
                         )           // HK
