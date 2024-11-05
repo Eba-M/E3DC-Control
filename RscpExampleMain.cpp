@@ -2463,7 +2463,7 @@ int LoadDataProcess() {
                     ||
                      (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
                     ||
-                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]+5)
+                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5)
                      )
                     )
                 {
