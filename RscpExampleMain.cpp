@@ -1142,10 +1142,15 @@ int iModbusTCP()
                 {
                     float isttemp = wolf[wpzl].wert;
                     if (wetter.size() > 0)
+                    {
                         isttemp  = (isttemp  + wetter[0].temp)/2;
-                    if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
-                        isttemp = wetter[0].temp;
-                    
+                        if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
+                            isttemp = wetter[0].temp;
+                    }
+// Wenn die Wolf läuft, dann die die zulufttemperatur untergewichten
+                    if ((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                        isttemp = isttemp + 2;
+
                     if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
                         //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                     {
@@ -2261,8 +2266,8 @@ int LoadDataProcess() {
   
                 if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
-                    
-                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) &&
+// Nur hochsetzen, wenn die WP läuft
+                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0||ALV>0) &&
                         (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
                         if (temp[4]<(iWPHK1max-5))
