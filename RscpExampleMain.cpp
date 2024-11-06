@@ -1152,7 +1152,7 @@ int iModbusTCP()
                     if ((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                         isttemp = isttemp + 2;
 
-                    if (isttemp<(e3dc_config.WPZWE)&&temp[17]==0)
+                    if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
                         //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                     {
                         iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
@@ -1160,7 +1160,7 @@ int iModbusTCP()
                         //                    brequest = true;
                     }
 // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
-                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1&&wetter[0].wpbedarf>0)
+                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1&&wetter[0].kosten>0)
                     {
                         iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
                         iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
@@ -2762,7 +2762,7 @@ int LoadDataProcess() {
 
                         }
 // statistische Daten verwenden bei gemessenen Verbrauch wie bei meiner Wolf
-                        if (e3dc_config.WPWolf)
+                        if (e3dc_config.WPWolf&&wetter[x1].kosten>0)
                             wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
 
                     }
