@@ -852,9 +852,13 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     break;
                 if (wetter[x2].hh == item1->valueint)
                 {
+                    // index 200 heutiger Ertrag 15min
+                    // index 199 heutige Prognose kumuliert
+                    // Index 198 heutiger Ertrag kumuliert
+
                     int y1 = wetter[x2].hh%(24*3600)/900;
-                    float f2 = iDayStat[y1]/100.0;
-                    float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);
+                    float f2 = iDayStat[y1]/100.0;  // Soll
+                    float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);  //Ist
                     // aktuelle PV-Leistung ermitteln aus Prog
                     float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
                     float f5 = iDayStat[198]/3600.0/1000.0;

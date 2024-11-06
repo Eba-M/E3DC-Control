@@ -357,8 +357,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 float f4 = 0;
                                 float f5 = f3; // angeforderte Heizleistung
                                 // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
-                                if (f3 > e3dc.WPLeistung) {
-                                    f4 = f3 - e3dc.WPLeistung;
+                                if (f5 > e3dc.WPLeistung) 
+                                {
+                                    f4 = f5 - e3dc.WPLeistung;
                                     f3 = e3dc.WPLeistung;
                                     if (f4 > e3dc.WPEHZ)
                                         f4 = e3dc.WPEHZ;
@@ -416,8 +417,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
  */                                       }
                                         
                                         
-                                        static int WPZWE = 0; // ZWE ausgeschalter
-                                        if (e3dc.WPZWE>wetter[x1].temp-WPZWE) // Hysterese 1Grad
+                                        static int WPZWE = 0; // ZWE ausgeschaltet
+// f6 = Stromkosten kWh Wärmepumpe ohne Berücksichtigung SoC
+                                        if (e3dc.WPZWE>wetter[x1].temp-WPZWE||f6>e3dc.WPZWEPVon) // Hysterese 1Grad
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;

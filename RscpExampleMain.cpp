@@ -118,8 +118,9 @@ static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 // in den ersten 96 15min Intervallen steht der prog. Ertrag Durchschnittswerte
 // in den zweiten 96 15min Intervallen steht der tatsächliche Ertrag Durchschnittswerte
-// index 200 heutiger Ertrag
-// index 199 heutige Prognose
+// index 200 heutiger Ertrag 15min
+// index 199 heutige Prognose kumuliert
+// Index 198 heutiger Ertrag kumuliert
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
 static char fnameGrid[100];
