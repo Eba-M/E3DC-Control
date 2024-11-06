@@ -544,7 +544,7 @@ bool GetConfig()
         e3dc_config.WPHK2off = -1;
         e3dc_config.WPEHZ = 0;
         e3dc_config.WPZWE = -99;
-        e3dc_config.WPZWEPVon = -1;
+        e3dc_config.WPZWEPVon = 9999;
         e3dc_config.WPOffset = 2;
         e3dc_config.MQTTavl = -1;
         e3dc_config.DCDC = true;
@@ -2175,8 +2175,9 @@ int LoadDataProcess() {
 
             // LWWP bei günstigen Börsenpreisen laufen lassen WPZWEPVon
             //
-            if (fcop>0)
-                if (fspreis/fcop<e3dc_config.WPZWEPVon)
+
+//                if (fspreis/fcop<e3dc_config.WPZWEPVon)
+                if (wetter.size()>0&&wetter[0].kosten > 0)
                 {
                     if (btasmota_ch1 & 1)
                     {
