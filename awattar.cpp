@@ -865,7 +865,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f6 = 1;
                     if (f4>0&&(wetter[x2].hh-wetter[0].hh)<12*3600)
                         f6 = f5/f4;
-                    if (f6<0.5) f6 = 0.5;
+                    if (f6<0.25) f6 = 0.25;
                     if (f6>3.5) f6 = 3.5;
                     float f7 = 0;
                     if (iDayStat[y1]>0&&f2>f3)

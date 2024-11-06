@@ -1159,7 +1159,8 @@ int iModbusTCP()
                         iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
                         //                    brequest = true;
                     }
-                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
+// Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
+                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1&&wetter[0].wpbedarf>0)
                     {
                         iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
                         iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
