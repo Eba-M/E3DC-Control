@@ -1254,7 +1254,7 @@ if (e3dc.openmeteo)
 
 //        std::thread  t1(openmeteo(w,wetter, e3dc, j));
 
-        if (e3dc.debug) printf("openmeteo%i",j);
+        if (e3dc.debug) printf("openmeteo%i\n",j);
         openmeteo(w,wetter, e3dc, j, iDayStat);
     }
 }
