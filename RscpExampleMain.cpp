@@ -2160,7 +2160,7 @@ int LoadDataProcess() {
             {
                 // LWWP ausschalten wenn der Pelletskessel läuft
                 // und keine Anforderungen anliegen
-                if (btasmota_ch1 & 1)
+                if (btasmota_ch1 & 1&&wetter[0].kosten==0)
                     btasmota_ch1 ^=1;
             } else
             {
