@@ -544,7 +544,7 @@ bool GetConfig()
         e3dc_config.WPHK2off = -1;
         e3dc_config.WPEHZ = 0;
         e3dc_config.WPZWE = -99;
-        e3dc_config.WPZWEPVon = 9999;
+        e3dc_config.WPZWEPVon = -1;
         e3dc_config.WPOffset = 2;
         e3dc_config.MQTTavl = -1;
         e3dc_config.DCDC = true;

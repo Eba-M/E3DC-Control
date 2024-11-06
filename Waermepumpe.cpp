@@ -419,7 +419,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         
                                         static int WPZWE = 0; // ZWE ausgeschaltet
 // f6 = Stromkosten kWh Wärmepumpe ohne Berücksichtigung SoC
-                                        if (e3dc.WPZWE>wetter[x1].temp-WPZWE||f6>e3dc.WPZWEPVon) // Hysterese 1Grad
+// ZWE über Temperatur aktiviert
+                                        if ((e3dc.WPZWE>-90&&e3dc.WPZWE>wetter[x1].temp-WPZWE
+                                            && e3dc.WPZWEPVon<0)
+                                            ||
+// ZWE über Kosten aktiviert
+                                            (e3dc.WPZWEPVon>0&&f6>e3dc.WPZWEPVon)) // Hysterese 1Grad
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;
