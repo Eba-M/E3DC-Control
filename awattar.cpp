@@ -754,7 +754,7 @@ int fp_status = -1;  //
 void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage,u_int32_t iDayStat[25*4*2+1])
 {
     FILE * fp;
-    char line[256];
+    char line[1024];
     char path [65000];
     char value[25];
     char var[25];
@@ -767,6 +767,9 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     
     if (anlage >=0)
     {
+        if (len>sizeof(line))
+        { printf("%s kann nicht verarbeitet werden",e3dc.Forecast[anlage]);
+            return; }
         memcpy(&line,&e3dc.Forecast[anlage],len);
         memset(var, 0, sizeof(var));
         memset(var2, 0, sizeof(var2));
@@ -792,7 +795,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
    if (x3>0)
       {
           if (e3dc.debug)
-              printf("om.1");
+              printf("om.1\n");
           sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
 
           fp = NULL;
@@ -807,7 +810,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     
         int timeout = 0;
           if (e3dc.debug)
-              printf("om.2");
+              printf("om.2\n");
 
           while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
         {
