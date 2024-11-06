@@ -2650,7 +2650,11 @@ int LoadDataProcess() {
                 if (tasmota_status[0]==1)
                 {
                     tasmotaoff(1);   // EVU = OFF Keine Sperre
-                    ALV = e3dc_config.shelly0V10Vmin;
+                    if (ALV == 0&&wetter[0].kosten>0)
+                    {
+                        ALV = e3dc_config.shelly0V10Vmin;
+                        shelly(ALV);
+                    }
                     wpontime = t;
                     wpofftime = t;   //mindestlaufzeit
                 }
