@@ -4469,7 +4469,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
             if (e3dc_config.aWATTar>0)
-            if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
+            if ((not(bWBZeitsteuerung))&&(bWBConnect)&&not(bWBCharge)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
 // Überprüfen ob auf Sonne und Auto eingestellt ist,
 // falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen

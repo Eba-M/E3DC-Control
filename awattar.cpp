@@ -806,19 +806,17 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
           fcntl(fd, F_SETFL, flags);
           fp_status = 2;
 
-    
-    
         int timeout = 0;
           if (e3dc.debug)
               printf("om.2\n");
-
+          if (fp != NULL)
           while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
         {
             sleep(1);
             timeout++;
         }
           if (e3dc.debug)
-              printf("om.3");
+              printf("om.3\n");
 
           if (timeout >= 30)
           {
