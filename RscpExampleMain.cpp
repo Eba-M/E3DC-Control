@@ -3650,16 +3650,21 @@ bDischarge = false;
                         // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                         {
                             if ((f[1]>fBatt_SOC&&f[2]>0)||(f[1]<fBatt_SOC&&f[2]<0))
-                                iFc = f[2]/.4;
-                            else
                                 iFc = f[2]/.6;
+                            else
+                                iFc = f[2]/.4;
 
-                            if (f[1]>fBatt_SOC+10&&f[2]<0)
+                            if (f[1]>fBatt_SOC+3&&f[2]<0)
                                 iFc = iFc3;
                             if (iFc3<iFc&&iFc3<0&&f[2]<0)
                                 iFc = iFc3;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
+//Einspeisung beim Master, Leistung abschöpfen
+                            if (f[0]<1000)
+                                iFc = iFc -f[0];
+                                
+
                             printf("%c[K\n", 27 );
                             if (iFc !=0)
                             printf("f[0,2] %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],iFc, int(f[2])*100/iFc, f[1]);
