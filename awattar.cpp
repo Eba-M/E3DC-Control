@@ -777,8 +777,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     
     if (anlage >=0)
     {
-        if (len>sizeof(line))
-        { printf("%s kann nicht verarbeitet werden",e3dc.Forecast[anlage]);
+        if (len>sizeof(line)||len==0)
+        { printf("forcast #%i kann nicht verarbeitet werden",anlage+1);
             return; }
         memcpy(&line,&e3dc.Forecast[anlage],len);
         memset(var, 0, sizeof(var));
@@ -793,10 +793,14 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
         {
             if (line[j]=='/') x2=j;
         }
-        memcpy(&var,&line[0],x1);
-        memcpy(&var2,&line[x1+1],x2-x1-1);
-        memcpy(&value,&line[x2+1],len-x2-1);
-        
+        if (x1>0&&x2-x1-1>0&&len-x2-1>0)
+        {
+            memcpy(&var,&line[0],x1);
+            memcpy(&var2,&line[x1+1],x2-x1-1);
+            memcpy(&value,&line[x2+1],len-x2-1);
+        }
+        else
+            return;
         x1 = atoi(var);
         x2 = atoi(var2);
         x3 = atoi(value);
@@ -856,8 +860,6 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 printf("om.4\n");
             while (item1!=NULL)
             {
-                if (e3dc.debug)
-                    printf("om%i.4\n",x2);
                 if (w.size()>0)
 //                while (w[x1].hh < item1->valueint&&x1<w.size())
 //                    x1++;
@@ -1273,7 +1275,7 @@ if (wetter.size()==0) return;
 if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
-    for (int j=0;(strlen(e3dc.Forecast[j])>0)&&j<4;j++){
+    for (int j=0;j<4;j++){
 
 //        std::thread  t1(openmeteo(w,wetter, e3dc, j));
 

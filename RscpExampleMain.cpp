@@ -1774,40 +1774,52 @@ int shelly_get(){
     }
     return(-2);
 }
-int shellyem_get(float power,float energy){
+int shellyem_get(float power,float total){
     FILE *fp;
     char line[256];
     int WP_status,status;
-    char path[1024];
+    char path[4096];
+    static time_t shellytimer = 0;
+    memset(path,0,sizeof(path));
     
     fp = NULL;
-    if (shellytimer < t)
+//    fp = fopen("shellyem.txt","r");
+//    if (fgets(path, sizeof(path), fp))
+
+if (shellytimer > t)
+    
+    if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
     {
         sprintf(line,"curl -s -X GET 'http://%s/rpc/EM.GetStatus?id=0'",e3dc_config.shellyEM_ip);
         fp = popen(line, "r");
-        //    system(line);
+        system(line);
+    
         const cJSON *item = NULL;
+        const cJSON *item1 = NULL;
         if (fp != NULL)
-            if (fgets(path, 1024, fp) != NULL)
+            if (fgets(path, sizeof(path), fp) != NULL)
                 
             {
-                
                 std::string feld;
                 cJSON *wolf_json = cJSON_Parse(path);
-                feld = "brightness";
+                feld = "total_act_power";
                 char * c = &feld[0];
                 item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-                
+                feld = "total_act";
+                item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
             }
         status = pclose(fp);
+
         if (item!=NULL)
-            return(item->valueint);
-        else
-        {
-            shellytimer = t+600;
+            power = item->valueint;
+        if (item1!=NULL)
+            total = item1->valueint;
+        
+            shellytimer = t+10;
             return(-1);
-        }
+        
     }
+
     return(-2);
 }
 
@@ -6275,8 +6287,8 @@ int main(int argc, char *argv[])
 static int iEC = 0;
  time(&t);
     t_alt = t;
-
- 
+    float f1=0,f2=0;
+    shellyem_get(f1,f2);
 
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
