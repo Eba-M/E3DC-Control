@@ -924,7 +924,11 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     x2++;
                     if (x2 > wetter.size())
                     {                        
+                        if (e3dc.debug)
+                            printf("om.bfc\n");
                         if (fp!=NULL) pclose(fp);
+                        if (e3dc.debug)
+                        printf("om.afc\n");
                         return;
                     }
                 }
@@ -932,12 +936,16 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 item2 = item2->next;
 
             }
+            if (e3dc.debug)
+                printf("om.bfc\n");
             if (fp!=NULL) pclose(fp);
+            if (e3dc.debug)
+            printf("om.afc\n");
+            return;
         }
     }
     if (e3dc.debug)
         printf("om.5");
-
     return;
 }
             

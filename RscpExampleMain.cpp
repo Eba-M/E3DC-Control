@@ -3298,8 +3298,9 @@ bDischarge = false;
                   (t_alt%(24*3600) <=tLadezeitende1&&t>=tLadezeitende1)
                   )
               {
-                  fAvBatterie = iFc*e3dc_config.powerfaktor;
-                  fAvBatterie900 = iFc*e3dc_config.powerfaktor;
+                  fAvBatterie = iMaxBattLade;
+//                  fAvBatterie900 = iFc*e3dc_config.powerfaktor;
+                  fAvBatterie900 = iMaxBattLade;
                   if (fAvBatterie900 <= 0)
                       fAvBatterie900 = iMinLade2;
               }
