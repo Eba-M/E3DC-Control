@@ -826,7 +826,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             timeout++;
         }
           if (e3dc.debug)
-              printf("om.3\n");
+              printf("om%i.3\n",timeout);
 
           if (timeout >= 30)
           {
@@ -852,6 +852,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             item2 = item2->child;
             int x1 = 0;
             int x2 = 0;
+            printf("om.4\n");
             while (item1!=NULL)
             {
                 if (w.size()>0)
