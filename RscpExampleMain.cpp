@@ -3323,7 +3323,8 @@ bDischarge = false;
         // sonnenaufgang + unload
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
-        
+        int x1 = 2;
+
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
         if (idauer == 0)
@@ -3339,13 +3340,21 @@ bDischarge = false;
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
             else
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc);
-            
+            if (fpeakshaveminsoc < e3dc_config.peakshavesoc)
+                fpeakshaveminsoc = (e3dc_config.peakshavesoc);
+            if (fpeakshaveendsoc < e3dc_config.peakshavesoc)
+            {
+                if (fPVcharge>e3dc_config.peakshavepvcharge)
+                fpeakshaveendsoc = e3dc_config.peakshavesoc;
+                else
+                    fpeakshaveendsoc = x1*e3dc_config.peakshavesoc;
+
+            }
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
             fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
             // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
-            int x1 = 2;
             fpeakshaveendsoc = e3dc_config.peakshavesoc;
             if (fPVcharge>e3dc_config.peakshavepvcharge)
             {
@@ -3453,7 +3462,10 @@ bDischarge = false;
                 //                if( fPower_Grid < -100)
                 //                    iFc = fPower_Grid*-1;
                 //                else
+            {
                 iFc = 0;
+                fpeakshaveminsoc = fpeakshaveendsoc;
+            }
             int iFc3 = iFc;
             
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
