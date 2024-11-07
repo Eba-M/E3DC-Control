@@ -69,6 +69,7 @@ static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
 static int32_t iPower_WP = 0; // Leistungsaufnahme WP
+static int32_t itotal_WP = -1; // Zählestand WP
 static float fPower_Bat;
 static float fPower_Ext[7];
 static int ireq_Heistab; // verfügbare Leistung
@@ -1774,7 +1775,7 @@ int shelly_get(){
     }
     return(-2);
 }
-int shellyem_get(float power,float total){
+int shellyem_get(int &power,int &total){
     FILE *fp;
     char line[256];
     int WP_status,status;
@@ -1786,40 +1787,41 @@ int shellyem_get(float power,float total){
 //    fp = fopen("shellyem.txt","r");
 //    if (fgets(path, sizeof(path), fp))
 
-if (shellytimer > t)
-    
-    if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+    if (shellytimer-10 < t)
     {
-        sprintf(line,"curl -s -X GET 'http://%s/rpc/EM.GetStatus?id=0'",e3dc_config.shellyEM_ip);
-        fp = popen(line, "r");
-        system(line);
-    
-        const cJSON *item = NULL;
-        const cJSON *item1 = NULL;
-        if (fp != NULL)
-            if (fgets(path, sizeof(path), fp) != NULL)
-                
-            {
-                std::string feld;
-                cJSON *wolf_json = cJSON_Parse(path);
-                feld = "total_act_power";
-                char * c = &feld[0];
-                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-                feld = "total_act";
-                item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-            }
-        status = pclose(fp);
-
-        if (item!=NULL)
-            power = item->valueint;
-        if (item1!=NULL)
-            total = item1->valueint;
         
-            shellytimer = t+10;
+        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+        {
+            sprintf(line,"curl -s -X GET 'http://%s/rpc/EM.GetStatus?id=0'",e3dc_config.shellyEM_ip);
+            fp = popen(line, "r");
+            system(line);
+            
+            const cJSON *item = NULL;
+            const cJSON *item1 = NULL;
+            if (fp != NULL)
+                if (fgets(path, sizeof(path), fp) != NULL)
+                    
+                {
+                    std::string feld;
+                    cJSON *wolf_json = cJSON_Parse(path);
+                    feld = "total_act_power";
+                    char * c = &feld[0];
+                    item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                    feld = "total_act";
+                    item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                }
+            status = pclose(fp);
+            
+            if (item!=NULL)
+                power = item->valueint;
+            if (item1!=NULL)
+                total = item1->valueint;
+            
             return(-1);
-        
+            
+        }
+        shellytimer = t;
     }
-
     return(-2);
 }
 
@@ -1880,15 +1882,18 @@ int LoadDataProcess() {
     mqtt();
     
     if (e3dc_config.debug) printf("D2\n");
-    
+
+    shellyem_get(iPower_WP, itotal_WP);
     
     fDCDC = fDCDC + fCurrent*(t-t_alt);
     if (e3dc_config.statistik)
     {
 // die laufende Stunde wird in iWeekhour[sizeweekhour+1]
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
+// Wird die Leistung der WP über einen externen Zähler ausgelesen
+
         static time_t myt_alt;
-        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0)
+        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
             iPower_WP = wetter[0].kosten*1000;   // in Watt
         if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
@@ -1902,9 +1907,19 @@ int LoadDataProcess() {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
-
-        iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
-        iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
+        if (itotal_WP>0)
+        {
+// vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
+// Differenzen als berechnete Leistung abgespeichert
+            static int ilasttotal_WP = -1;
+            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
+            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] - ilasttotal_WP + itotal_WP;
+            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] - ilasttotal_WP + itotal_WP;
+        } else
+        {
+            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
+            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
+        }
         if (e3dc_config.tasmota)
         {
             if (tasmota_status[3] == 1) // Brauchwasserwärmepumpe
@@ -5342,6 +5357,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     {
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
+                        if (itotal_WP > 0) printf(" 0.04fkWh",float(itotal_WP/1000));
                     }
                 }
                 printf("%c[K\n", 27 );

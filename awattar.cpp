@@ -778,7 +778,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     if (anlage >=0)
     {
         if (len>sizeof(line)||len==0)
-        { printf("forcast #%i kann nicht verarbeitet werden",anlage+1);
+        { printf("forecast #%i kann nicht verarbeitet werden ",anlage+1);
             return; }
         memcpy(&line,&e3dc.Forecast[anlage],len);
         memset(var, 0, sizeof(var));
