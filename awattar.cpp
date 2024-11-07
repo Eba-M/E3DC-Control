@@ -852,12 +852,15 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             item2 = item2->child;
             int x1 = 0;
             int x2 = 0;
-            printf("om.4\n");
+            if (e3dc.debug)
+                printf("om.4\n");
             while (item1!=NULL)
             {
+                if (e3dc.debug)
+                    printf("om%i.4\n",x2);
                 if (w.size()>0)
-                while (w[x1].hh < item1->valueint&&x1<w.size())
-                    x1++;
+//                while (w[x1].hh < item1->valueint&&x1<w.size())
+//                    x1++;
                 while (wetter[x2].hh < item1->valueint&&x2<wetter.size())
                     x2++;
                 if (x2 >= wetter.size())

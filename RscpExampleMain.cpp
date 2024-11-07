@@ -457,7 +457,7 @@ bool GetConfig()
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
         e3dc_config.tasmota = false;
-        e3dc_config.statistik = false;
+        e3dc_config.statistik = true;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
         e3dc_config.WPSperre = false;
@@ -531,7 +531,10 @@ bool GetConfig()
         e3dc_config.ForcecastSoc = 2; // Faktor zur Berechnung des Ladebedarf
         e3dc_config.ForcecastConsumption = 1; // Faktor zur Berechnung des Verbrauchsbedarf
         e3dc_config.ForcecastReserve = 1; // Hinzurechnung Reserve in % zum Strombedarf
-
+        memset(e3dc_config.Forecast[0], 0, sizeof(e3dc_config.Forecast[0]));
+        memset(e3dc_config.Forecast[1], 0, sizeof(e3dc_config.Forecast[1]));
+        memset(e3dc_config.Forecast[2], 0, sizeof(e3dc_config.Forecast[2]));
+        memset(e3dc_config.Forecast[3], 0, sizeof(e3dc_config.Forecast[3]));
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
         e3dc_config.WPHeizgrenze = -1;
@@ -2201,6 +2204,11 @@ int LoadDataProcess() {
                 // und keine Anforderungen anliegen
                 if (btasmota_ch1 & 1&&wetter[0].kosten==0)
                     btasmota_ch1 ^=1;
+                if (btasmota_ch1 & 2&&wetter[0].kosten==0)
+                    btasmota_ch1 ^=2;
+                if (btasmota_ch1 & 8&&wetter[0].kosten==0)
+                    btasmota_ch1 ^=8;
+
             } else
             {
                 if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0) //bWP > 0 LWWP ausschalten
@@ -2680,6 +2688,24 @@ int LoadDataProcess() {
                 btasmota_ch1  |=8;
                 bWP = 0;
             }
+
+            if (btasmota_ch1 & 1&&wetter[0].kosten==0)
+                btasmota_ch1 ^=1;
+            if (btasmota_ch1 & 2&&wetter[0].kosten==0)
+                btasmota_ch1 ^=2;
+            if (btasmota_ch1 & 8&&wetter[0].kosten==0)
+            {
+                if (ALV > 0)
+                {
+                    ALV = 0;
+                    shelly(ALV);
+                }
+
+            }
+
+            
+            
+            
 // LWWP wieder bei zu geringer Temperatur einschalten bWP wird nur hier geschaltet
 
 
