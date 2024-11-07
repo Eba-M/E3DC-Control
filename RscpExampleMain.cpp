@@ -6288,7 +6288,7 @@ static int iEC = 0;
  time(&t);
     t_alt = t;
     float f1=0,f2=0;
-    shellyem_get(f1,f2);
+//    shellyem_get(f1,f2);
 
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
