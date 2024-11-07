@@ -763,6 +763,16 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     int x1 = 0;
     int x2 = 0;
     int x3 = 0;
+    if (w.size()==0) 
+    {
+        printf("keine Börsenpreise");
+        return;
+    }
+    if (wetter.size()==0) 
+    {
+        printf("keine Wetterdaten");
+        return;
+    }
     int len = strlen(e3dc.Forecast[anlage]);
     
     if (anlage >=0)

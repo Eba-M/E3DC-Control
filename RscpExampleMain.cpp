@@ -445,6 +445,7 @@ bool GetConfig()
         strcpy(e3dc_config.WB_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
+        strcpy(e3dc_config.shellyEM_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.stop = 0; // 1 = Programm beenden
@@ -567,6 +568,8 @@ bool GetConfig()
                         strcpy(e3dc_config.BWWP_ip, value);
                     else if(strcmp(var, "shelly0v10v_ip") == 0)
                         strcpy(e3dc_config.shelly0V10V_ip, value);
+                    else if(strcmp(var, "shellyem_ip") == 0)
+                        strcpy(e3dc_config.shellyEM_ip, value);
                     else if(strcmp(var, "heizung_ip") == 0)
                         strcpy(e3dc_config.heizung_ip, value);
                     else if(strcmp(var, "heizstab_ip") == 0)
@@ -1742,6 +1745,42 @@ int shelly_get(){
     if (shellytimer < t) 
     {
         sprintf(line,"curl -s -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
+        fp = popen(line, "r");
+        //    system(line);
+        const cJSON *item = NULL;
+        if (fp != NULL)
+            if (fgets(path, 1024, fp) != NULL)
+                
+            {
+                
+                std::string feld;
+                cJSON *wolf_json = cJSON_Parse(path);
+                feld = "brightness";
+                char * c = &feld[0];
+                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                
+            }
+        status = pclose(fp);
+        if (item!=NULL)
+            return(item->valueint);
+        else
+        {
+            shellytimer = t+600;
+            return(-1);
+        }
+    }
+    return(-2);
+}
+int shellyem_get(float power,float energy){
+    FILE *fp;
+    char line[256];
+    int WP_status,status;
+    char path[1024];
+    
+    fp = NULL;
+    if (shellytimer < t)
+    {
+        sprintf(line,"curl -s -X GET 'http://%s/rpc/EM.GetStatus?id=0'",e3dc_config.shellyEM_ip);
         fp = popen(line, "r");
         //    system(line);
         const cJSON *item = NULL;
