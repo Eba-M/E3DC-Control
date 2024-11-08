@@ -2739,16 +2739,17 @@ int LoadDataProcess() {
             // Auswertung Steuerung
             if (btasmota_ch1)
             {
+                if ((btasmota_ch1&1||btasmota_ch1&2||btasmota_ch1&2)&&ALV == 0&&wetter[0].kosten>0)
+                {
+                    ALV = e3dc_config.shelly0V10Vmin;
+                    shelly(ALV);
+                }
+                wpontime = t;
+                wpofftime = t;   //mindestlaufzeit
+
                 if (tasmota_status[0]==1)
                 {
                     tasmotaoff(1);   // EVU = OFF Keine Sperre
-                    if (ALV == 0&&wetter[0].kosten>0)
-                    {
-                        ALV = e3dc_config.shelly0V10Vmin;
-                        shelly(ALV);
-                    }
-                    wpontime = t;
-                    wpofftime = t;   //mindestlaufzeit
                 }
             } else
                 if (tasmota_status[0]==0)
