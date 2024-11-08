@@ -1787,7 +1787,7 @@ int shellyem_get(int &power,int &total){
 //    fp = fopen("shellyem.txt","r");
 //    if (fgets(path, sizeof(path), fp))
 
-    if (shellytimer-10 < t)
+//    if (shellytimer-10 < t)
     {
         
         if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
@@ -1802,6 +1802,7 @@ int shellyem_get(int &power,int &total){
                 if (fgets(path, sizeof(path), fp) != NULL)
                     
                 {
+                    printf("\n%s\n",path);
                     std::string feld;
                     cJSON *wolf_json = cJSON_Parse(path);
                     feld = "total_act_power";
