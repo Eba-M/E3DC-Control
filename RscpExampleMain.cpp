@@ -1778,6 +1778,9 @@ int shelly_get(){
 int shellyem_get(int &power,int &total){
     FILE *fp;
     char line[256];
+    char EM[] = "EM";
+    char EMData[] = "EMData";
+    char Data[20];
     int WP_status,status;
     char path[4096];
     static time_t shellytimer = 0;
@@ -1787,17 +1790,16 @@ int shellyem_get(int &power,int &total){
 //    fp = fopen("shellyem.txt","r");
 //    if (fgets(path, sizeof(path), fp))
 
-//    if (shellytimer-10 < t)
-    {
+    for(int x1=0;x1<1;x1++)
         
-//        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
         {
-//            printf("curl -X POST -d '{\"id\":1,\"method\":\"EM.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",e3dc_config.shellyEM_ip);
-            sprintf(line,"curl -X POST -d '{\"id\":1,\"method\":\"EM.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",e3dc_config.shellyEM_ip);
+            if (x1 == 0) strcpy(Data, EM);
+            if (x1 == 1) strcpy(Data, EMData);
+            
+            sprintf(line,"curl -X POST -d '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
             system(line);
-
+          
             fp = popen(line, "r");
-            system(line);
             
             const cJSON *item = NULL;
             const cJSON *item1 = NULL;
@@ -1820,12 +1822,10 @@ int shellyem_get(int &power,int &total){
                 power = item->valueint;
             if (item1!=NULL)
                 total = item1->valueint;
-            
-            return(-1);
-            
+                        
         }
         shellytimer = t;
-    }
+    
     return(-2);
 }
 
