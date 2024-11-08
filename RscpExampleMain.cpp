@@ -1807,6 +1807,9 @@ int shellyem_get(int &power,int &total){
                     
                 {
 //                    printf("\n%s\n",path);
+                if (e3dc_config.debug)
+                printf("%s",path);
+                    
                     std::string feld;
                     cJSON *wolf_json = cJSON_Parse(path);
                     feld = "total_act_power";
@@ -1820,7 +1823,7 @@ int shellyem_get(int &power,int &total){
             if (item!=NULL)
                 power = item->valueint;
             if (item1!=NULL)
-                total = item1->valuedouble*3600;
+                total = item1->valuedouble*3.6;
                         
         }
         shellytimer = t;
@@ -5362,7 +5365,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     {
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
-                        if (itotal_WP > 0) printf(" 0.04fkWh",float(itotal_WP/3600));
+                        if (itotal_WP > 0) printf(" 0.04fkWh",float(itotal_WP/3600000));
                     }
                 }
                 printf("%c[K\n", 27 );
