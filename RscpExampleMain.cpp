@@ -1787,9 +1787,8 @@ int shellyem_get(int &power,int &total){
     memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
     fp = NULL;
-//    fp = fopen("shellyem.txt","r");
-//    if (fgets(path, sizeof(path), fp))
 
+    if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
     for(int x1=0;x1<1;x1++)
         
         {
