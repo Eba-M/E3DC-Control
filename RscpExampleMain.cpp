@@ -1781,8 +1781,8 @@ int shellyem_get(int &power,int &total){
     int WP_status,status;
     char path[4096];
     static time_t shellytimer = 0;
+    memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
-    
     fp = NULL;
 //    fp = fopen("shellyem.txt","r");
 //    if (fgets(path, sizeof(path), fp))
@@ -1790,9 +1790,12 @@ int shellyem_get(int &power,int &total){
 //    if (shellytimer-10 < t)
     {
         
-        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+//        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
         {
-            sprintf(line,"curl -s -X GET 'http://%s/rpc/EM.GetStatus?id=0'",e3dc_config.shellyEM_ip);
+//            printf("curl -X POST -d '{\"id\":1,\"method\":\"EM.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",e3dc_config.shellyEM_ip);
+            sprintf(line,"curl -X POST -d '{\"id\":1,\"method\":\"EM.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",e3dc_config.shellyEM_ip);
+            system(line);
+
             fp = popen(line, "r");
             system(line);
             
@@ -1802,7 +1805,7 @@ int shellyem_get(int &power,int &total){
                 if (fgets(path, sizeof(path), fp) != NULL)
                     
                 {
-                    printf("\n%s\n",path);
+//                    printf("\n%s\n",path);
                     std::string feld;
                     cJSON *wolf_json = cJSON_Parse(path);
                     feld = "total_act_power";
