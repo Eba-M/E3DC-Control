@@ -89,10 +89,12 @@ bool PutWallbox(std::vector<ch_s> &ch)
     char path[100];
     
     mfp = fopen("e3dc.wallbox.out","w");
+    if (mfp)
     if (ch.size()>0)
         for (int j = 0; j < ch.size(); j++ ){
             fprintf(mfp,"%0.2f %i %i %0.2f \n",float((ch[j].hh%(24*3600))/3600.0), ch[j].hh,ch[j].ch,ch[j].pp);}
     
+    if (mfp)
     fclose(mfp);
 
     return true;}
@@ -373,6 +375,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                     // Es könnte nachgeladen werden
                 {
                     fSoC = fSoC + anforderung + reserve;
+                    if (fSoC < 0)
+                        fSoC = 0;
                     return 1;
                 }
             if (h1>l1)
@@ -1514,6 +1518,11 @@ else
         }
     }
     fp = fopen("e3dc.wallbox.txt","w");
+    if (not fp) {
+        printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
+        sleep(10);
+        return;
+    }
     fprintf(fp,"%i\n",ladedauer);
 //    sort (ch.begin(),ch.end());
     std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
@@ -1541,6 +1550,7 @@ else
     if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
         fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
     fprintf(fp,"%s\n",ptm->tm_zone);
+    if (fp)
     fclose(fp);
     PutWallbox(ch); // Schaltzeiten schreiben
     CheckWallbox();
