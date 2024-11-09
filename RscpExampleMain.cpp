@@ -1799,7 +1799,7 @@ int shellyem_get(int &power,int &total){
             if (x1 == 0) strcpy(Data, EM);
             if (x1 == 1) strcpy(Data, EMData);
             
-            sprintf(line,"curl -X POST -d '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
+            sprintf(line,"curl -X POST -d -s '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
 //            system(line);
           
             fp = popen(line, "r");
@@ -1812,22 +1812,32 @@ int shellyem_get(int &power,int &total){
                 {
 //                    printf("\n%s\n",path);
                 if (e3dc_config.debug)
-                printf("%s",path);
+                printf("%s\n",path);
                     
                     std::string feld;
                     cJSON *wolf_json = cJSON_Parse(path);
                     feld = "total_act_power";
                     char * c = &feld[0];
                     item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                    char * d = &feld[0];
                     feld = "total_act";
-                    item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                    item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, d );
                 }
             status = pclose(fp);
             
-            if (item!=NULL)
-                ipower = item->valueint;
-            if (item1!=NULL)
-                itotal = item1->valuedouble*3600;
+        if (item!=NULL)
+        {
+            ipower = item->valueint;
+            if (e3dc_config.debug)
+                printf("power %i\n",ipower);
+        }
+        if (item1!=NULL)
+        {
+            itotal = item1->valuedouble*3600;
+            if (e3dc_config.debug)
+                printf("total %i\n",item1->valueint);
+
+        }
         shellytimer = t;
         }
     power = ipower;
@@ -3031,7 +3041,7 @@ int LoadDataProcess() {
         ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
 
         if (ret == 2) rettime = t;
-        if (rettime > 0&&t-rettime<3600&&ret==1)
+        if (rettime > 0&&t-rettime<900&&ret==1)
             ret = 0;
         if (e3dc_config.debug) printf("D6 %i ",ret);
 
