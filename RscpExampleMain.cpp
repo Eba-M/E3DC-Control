@@ -1789,7 +1789,8 @@ int shellyem_get(int &power,int &total){
     static int ipower = -1;
     static int itotal = -1;
 
-    if (shellytimer+10<t&&strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+//    if (shellytimer+10<t&&strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+    if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
     for(int x1=0;x1<=1;x1++)
         
     {
