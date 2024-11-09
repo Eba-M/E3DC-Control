@@ -1786,17 +1786,19 @@ int shellyem_get(int &power,int &total){
     static time_t shellytimer = 0;
     memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
-    fp = NULL;
 
     if (shellytimer+10<t&&strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
-    for(int x1=0;x1<1;x1++)
+    for(int x1=0;x1<=1;x1++)
         
-        {
+    {
+            fp = NULL;
+            memset(Data,0,sizeof(Data));
+
             if (x1 == 0) strcpy(Data, EM);
             if (x1 == 1) strcpy(Data, EMData);
             
             sprintf(line,"curl -X POST -d '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
-            system(line);
+//            system(line);
           
             fp = popen(line, "r");
             
@@ -1823,7 +1825,7 @@ int shellyem_get(int &power,int &total){
             if (item!=NULL)
                 power = item->valueint;
             if (item1!=NULL)
-                total = item1->valuedouble*3.6;
+                total = item1->valuedouble*3600;
                         
         }
         shellytimer = t;
