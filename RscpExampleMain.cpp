@@ -1786,6 +1786,8 @@ int shellyem_get(int &power,int &total){
     static time_t shellytimer = 0;
     memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
+    static int ipower = -1;
+    static int itotal = -1;
 
     if (shellytimer+10<t&&strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
     for(int x1=0;x1<=1;x1++)
@@ -1823,13 +1825,13 @@ int shellyem_get(int &power,int &total){
             status = pclose(fp);
             
             if (item!=NULL)
-                power = item->valueint;
+                ipower = item->valueint;
             if (item1!=NULL)
-                total = item1->valuedouble*3600;
-                        
-        }
+                itotal = item1->valuedouble*3600;
         shellytimer = t;
-    
+        }
+    power = ipower;
+    total = itotal;
     return(-2);
 }
 
