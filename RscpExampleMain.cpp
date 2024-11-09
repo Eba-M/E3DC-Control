@@ -1838,11 +1838,13 @@ int shellyem_get(int &power,int &total){
             if (e3dc_config.debug)
                 printf("total %i\n",item1->valueint);
 
+
         }
+        power = ipower;
+        total = itotal;
+
         shellytimer = t;
         }
-    power = ipower;
-    total = itotal;
     return(-2);
 }
 
