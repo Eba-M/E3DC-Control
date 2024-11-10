@@ -1825,9 +1825,9 @@ int shellyem_get(int &power,int &total){
                     char * c = &feld[0];
                     item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
                     feld = "total_act_power";
-//                    char * c = &feld[0];
-                    item1 = cJSON_GetObjectItemCaseSensitive(item, c );
                     char * d = &feld[0];
+                    item1 = cJSON_GetObjectItemCaseSensitive(item, d );
+//                    char * d = &feld[0];
                     feld = "total_act";
                     item2 = cJSON_GetObjectItemCaseSensitive(item, d );
                 }
