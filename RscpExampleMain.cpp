@@ -1788,10 +1788,20 @@ int shellyem_get(int &power,int &total){
     memset(path,0,sizeof(path));
     static int ipower = -1;
     static int itotal = -1;
+    int x2=0;
+    if  (t - shellytimer >= 60)
+    {
+        x2 = 1;
+        shellytimer = t;
+    }
+    else
+        x2=0;
 
+    
+    
 //    if (shellytimer+10<t&&strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
     if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
-    for(int x1=0;x1<=1;x1++)
+    for(int x1=0;x1<=x2;x1++)
         
     {
             fp = NULL;
@@ -1848,7 +1858,6 @@ int shellyem_get(int &power,int &total){
         power = ipower;
         total = itotal;
 
-        shellytimer = t;
         }
     return(-2);
 }
@@ -5390,7 +5399,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     {
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
-                        if (itotal_WP > 0) printf(" 0.04fkWh",float(itotal_WP/3600000));
+                        if (itotal_WP > 0) printf(" %0.02fkWh",float(itotal_WP/3600000));
                     }
                 }
                 printf("%c[K\n", 27 );
