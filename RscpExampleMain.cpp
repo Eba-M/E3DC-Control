@@ -1799,14 +1799,17 @@ int shellyem_get(int &power,int &total){
 
             if (x1 == 0) strcpy(Data, EM);
             if (x1 == 1) strcpy(Data, EMData);
-            
+
             sprintf(line,"curl -X POST -s -d  '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
 //            system(line);
-          
+
             fp = popen(line, "r");
-            
+
+//        fp = fopen("shellytest.txt","r");
+        
             const cJSON *item = NULL;
             const cJSON *item1 = NULL;
+            const cJSON *item2 = NULL;
             if (fp != NULL)
                 if (fgets(path, sizeof(path), fp) != NULL)
                     
@@ -1816,29 +1819,31 @@ int shellyem_get(int &power,int &total){
                 printf("%s\n",path);
                     
                     std::string feld;
-                    cJSON *wolf_json = cJSON_Parse(path);
-                    feld = "total_act_power";
+//                    cJSON *wolf_json = cJSON_Parse(path);
+                    cJSON *wolf_json = cJSON_ParseWithLength(path,sizeof(path));
+                    feld = "result";
                     char * c = &feld[0];
                     item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+                    feld = "total_act_power";
+//                    char * c = &feld[0];
+                    item1 = cJSON_GetObjectItemCaseSensitive(item, c );
                     char * d = &feld[0];
                     feld = "total_act";
-                    item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, d );
+                    item2 = cJSON_GetObjectItemCaseSensitive(item, d );
                 }
             status = pclose(fp);
             
-        if (item!=NULL)
+        if (item1!=NULL)
         {
-            ipower = item->valueint;
+            ipower = item1->valueint;
             if (e3dc_config.debug)
                 printf("power %i\n",ipower);
         }
-        if (item1!=NULL)
+        if (item2!=NULL)
         {
-            itotal = item1->valuedouble*3600;
+            itotal = item2->valuedouble*3600;
             if (e3dc_config.debug)
                 printf("total %i\n",item1->valueint);
-
-
         }
         power = ipower;
         total = itotal;
