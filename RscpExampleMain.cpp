@@ -1800,7 +1800,7 @@ int shellyem_get(int &power,int &total){
             if (x1 == 0) strcpy(Data, EM);
             if (x1 == 1) strcpy(Data, EMData);
             
-            sprintf(line,"curl -X POST -d -s '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
+            sprintf(line,"curl -X POST -s -d  '{\"id\":1,\"method\":\"%s.GetStatus\",\"params\":{\"id\":0}}' http://%s/rpc",Data,e3dc_config.shellyEM_ip);
 //            system(line);
           
             fp = popen(line, "r");
