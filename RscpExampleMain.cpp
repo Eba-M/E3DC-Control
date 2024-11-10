@@ -1805,7 +1805,7 @@ int shellyem_get(int &power,int &total){
 
             fp = popen(line, "r");
 
-//        fp = fopen("shellytest.txt","r");
+//        fp = fopen("shellyem1.txt","r");
         
             const cJSON *item = NULL;
             const cJSON *item1 = NULL;
@@ -1843,7 +1843,7 @@ int shellyem_get(int &power,int &total){
         {
             itotal = item2->valuedouble*3600;
             if (e3dc_config.debug)
-                printf("total %i\n",item1->valueint);
+                printf("total %i\n",item2->valueint);
         }
         power = ipower;
         total = itotal;
