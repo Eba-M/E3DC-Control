@@ -3485,8 +3485,11 @@ bDischarge = false;
                 fpeakshaveendsoc = e3dc_config.peakshavesoc;
                 else
                     fpeakshaveendsoc = x1*e3dc_config.peakshavesoc;
-
+                
             }
+            if (fpeakshaveendsoc>fpeakshaveminsoc)
+            fpeakshaveminsoc = fpeakshaveendsoc;
+
         } else // Nachtbetrieb
         {
             fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
