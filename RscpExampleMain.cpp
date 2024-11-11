@@ -1786,8 +1786,6 @@ int shellyem_get(int &power,int &total){
     static time_t shellytimer = 0;
     memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
-    static int ipower = -1;
-    static int itotal = -1;
     int x2=0;
     if  (t - shellytimer >= 60)
     {
@@ -1845,20 +1843,23 @@ int shellyem_get(int &power,int &total){
             
         if (item1!=NULL)
         {
-            ipower = item1->valueint;
+            power = item1->valueint;
             if (e3dc_config.debug)
-                printf("power %i\n",ipower);
+                printf("power %i\n",power);
         }
         if (item2!=NULL)
         {
-            itotal = item2->valuedouble*3600;
+            total = item2->valuedouble*3600;
             if (e3dc_config.debug)
                 printf("total %i\n",item2->valueint);
         }
-        power = ipower;
-        total = itotal;
-
-        }
+    }
+/*    power = 550;
+    if (total<0)
+        total = 844441200;
+    else
+        total = total + power;
+*/
     return(-2);
 }
 
@@ -1927,7 +1928,7 @@ int LoadDataProcess() {
 // der Tageswert wird in iWeekhour[sizeweekhour+2]
 // Wird die Leistung der WP über einen externen Zähler ausgelesen
 
-        static time_t myt_alt;
+        static time_t myt_alt = t;
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
             iPower_WP = wetter[0].kosten*1000;   // in Watt
@@ -1948,10 +1949,12 @@ int LoadDataProcess() {
         {
 // vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
 // Differenzen als berechnete Leistung abgespeichert
-            static int ilasttotal_WP = -1;
-            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
+            static int ilasttotal_WP = itotal_WP;
+//            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] - ilasttotal_WP + itotal_WP;
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] - ilasttotal_WP + itotal_WP;
+            ilasttotal_WP = itotal_WP;
+
         } else
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
@@ -5399,7 +5402,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     {
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
-                        if (itotal_WP > 0) printf(" %0.02fkWh",float(itotal_WP/3600000));
+                        if (itotal_WP > 0) printf(" %0.04fkWh",float(itotal_WP/3600000.0));
                     }
                 }
                 printf("%c[K\n", 27 );
