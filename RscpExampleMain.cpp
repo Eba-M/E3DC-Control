@@ -2793,8 +2793,10 @@ int LoadDataProcess() {
                     ||btasmota_ch1&4)
                 {
                     if (ALV == 0)
-                    ALV = e3dc_config.shelly0V10Vmin;
-                    shelly(ALV);
+                    {
+                        ALV = e3dc_config.shelly0V10Vmin;
+                        shelly(ALV);
+                    }
                 }
                 wpontime = t;
                 wpofftime = t;   //mindestlaufzeit
