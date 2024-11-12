@@ -2281,8 +2281,9 @@ int LoadDataProcess() {
                     btasmota_ch1 ^=1;
                 if (btasmota_ch1 & 2&&wetter[0].kosten==0)
                     btasmota_ch1 ^=2;
-                if (btasmota_ch1 & 8&&wetter[0].kosten==0)
-                    btasmota_ch1 ^=8;
+//  btasmota_ch1 == 8, WP in Bereitschaft halten keine EVU Sperre auslösen
+//                if (btasmota_ch1 & 8&&wetter[0].kosten==0)
+//                    btasmota_ch1 ^=8;
 
             } else
             {
@@ -2791,6 +2792,7 @@ int LoadDataProcess() {
                      &&ALV == 0&&wetter[0].kosten>0)
                     ||btasmota_ch1&4)
                 {
+                    if (ALV == 0)
                     ALV = e3dc_config.shelly0V10Vmin;
                     shelly(ALV);
                 }
@@ -3279,7 +3281,11 @@ bDischarge = false;
         if (PVon<(e3dc_config.WPPVoff))  // Überschuss PV
         {
             if (btasmota_ch1&4)
+            {
                 btasmota_ch1  ^= 4;
+                btasmota_ch1  |= 8;
+
+            }
             if (btasmota_ch2&4)
                 btasmota_ch2  ^= 4;
         }
