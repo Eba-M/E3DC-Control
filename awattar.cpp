@@ -72,7 +72,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
      stat(file,&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt);
-    if (tm > 10) tm_Wallbox_dt = tm_dt; //älter als 10s?
+    if (tm > 60) tm_Wallbox_dt = tm_dt; //älter als 10s?
     if (tm_dt==tm_Wallbox_dt) // neu erstellt oder alt? nur bei änderung
     {
         return false;
@@ -1517,7 +1517,7 @@ else
             ch.erase(ch.end()-1);
         }
     }
-    fp = fopen("e3dc.wallbox.txt","w");
+    fp = fopen("e3dc.e3dcwallboxtxt","w");
     if (not fp) {
         printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
         sleep(10);

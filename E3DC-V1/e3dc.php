@@ -1,9 +1,9 @@
 <?php
-$datei = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
+$datei = "e3dc.wallbox.txt";
 $zeile = "1";
 
 $zeile3 = $_POST["zwei"];
-if  (empty($zeile3)) $zeile3 = "0";
+if  (empty($zeile3)) $zeile3 = "2";
 
 $myfile = fopen($datei,"w");
 if ($myfile)
