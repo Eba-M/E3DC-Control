@@ -1517,7 +1517,7 @@ else
             ch.erase(ch.end()-1);
         }
     }
-    fp = fopen("e3dc.e3dcwallboxtxt","w");
+    fp = fopen(e3dc.e3dcwallboxtxt,"w");
     if (not fp) {
         printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
         sleep(10);
