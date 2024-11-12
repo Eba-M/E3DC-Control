@@ -508,7 +508,8 @@ bool GetConfig()
         e3dc_config.wbhour = -1;
         e3dc_config.wbvon = -1;
         e3dc_config.wbbis = -1;
-        strcpy(e3dc_config.e3dcwallboxtxt,"/var/www/html/e3dc.wallbox.txt");
+//        strcpy(e3dc_config.e3dcwallboxtxt,"/var/www/html/e3dc.wallbox.txt");
+        strcpy(e3dc_config.e3dcwallboxtxt,"e3dc.wallbox.txt");
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = 0;
@@ -591,7 +592,10 @@ bool GetConfig()
                     else if(strcmp(var, "aes_password") == 0)
                         strcpy(e3dc_config.aes_password, value);
                     else if(strcmp(var, "e3dcwallboxtxt") == 0)
+                    {
                         strcpy(e3dc_config.e3dcwallboxtxt, value);
+                        strcat(e3dc_config.e3dcwallboxtxt,"e3dc.wallbox.txt");
+                    }
                     else if(strcmp(var, "openwb_ip") == 0)
                         strcpy(e3dc_config.openWB_ip, value);
                     else if(strcmp(var, "mqtt_ip") == 0)
@@ -2871,7 +2875,8 @@ int LoadDataProcess() {
                             if (x3 > 24*4*7) x3 = x3 -24*4*7;
                             if (iWeekhour[x3] > 0) 
                                 x4++;
-                            f4 = f4 + iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+                            float f8 = iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+                            f4 = f4 + f8;
                             if (iWeekhourWP[x3] > 0) 
                                 x6++;
                             f6 = f6 + iWeekhourWP[x3]/36000.0/e3dc_config.speichergroesse;
