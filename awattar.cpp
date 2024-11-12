@@ -58,7 +58,7 @@ bool Checkfile(char myfile[20],int minuten)
      } else return true;    // nicht vorhanden
 };
 
-bool CheckWallbox()
+bool CheckWallbox(char file[128])
 /*
 Mit dieser Funktion wird überprüft, ob die Wallbox für das Laden zu
 aWATTar -Tarifen freigeschaltet werden muss.
@@ -69,7 +69,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
     struct stat stats;
      time_t  tm,tm_dt;
      time(&tm);
-     stat("e3dc.wallbox.txt",&stats);
+     stat(file,&stats);
      tm_dt = *(&stats.st_mtime);
      tm = (tm - tm_dt);
     if (tm > 10) tm_Wallbox_dt = tm_dt; //älter als 10s?
@@ -1434,9 +1434,9 @@ else
 */
     int chch = 0; // 0 normal 1 Automatik
     static int dauer = -1;
-    if ((CheckWallbox()))
+    if (CheckWallbox(e3dc.e3dcwallboxtxt))
     {
-        fp = fopen("e3dc.wallbox.txt","r");
+        fp = fopen(e3dc.e3dcwallboxtxt,"r");
         if (fp)
         {
             char * res = (fgets(line, sizeof(line), fp)); // Nur eine Zeile mit dem Angabe der Ladedauer lesen
@@ -1553,5 +1553,6 @@ else
     if (fp)
     fclose(fp);
     PutWallbox(ch); // Schaltzeiten schreiben
-    CheckWallbox();
+    (CheckWallbox(e3dc.e3dcwallboxtxt));
+
     }

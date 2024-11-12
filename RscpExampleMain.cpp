@@ -443,6 +443,7 @@ bool GetConfig()
         strcpy(e3dc_config.mqtt_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt2_ip, "0.0.0.0");
         strcpy(e3dc_config.mqtt3_ip, "0.0.0.0");
+        strcpy(e3dc_config.mqtt4_ip, "0.0.0.0");
         strcpy(e3dc_config.WB_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
@@ -507,6 +508,7 @@ bool GetConfig()
         e3dc_config.wbhour = -1;
         e3dc_config.wbvon = -1;
         e3dc_config.wbbis = -1;
+        strcpy(e3dc_config.e3dcwallboxtxt,"/var/www/html/e3dc.wallbox.txt");
         e3dc_config.hoehe = 50;
         e3dc_config.laenge = 10;
         e3dc_config.aWATTar = 0;
@@ -588,6 +590,8 @@ bool GetConfig()
                         strcpy(e3dc_config.e3dc_password, value);
                     else if(strcmp(var, "aes_password") == 0)
                         strcpy(e3dc_config.aes_password, value);
+                    else if(strcmp(var, "e3dcwallboxtxt") == 0)
+                        strcpy(e3dc_config.e3dcwallboxtxt, value);
                     else if(strcmp(var, "openwb_ip") == 0)
                         strcpy(e3dc_config.openWB_ip, value);
                     else if(strcmp(var, "mqtt_ip") == 0)
@@ -596,6 +600,10 @@ bool GetConfig()
                         strcpy(e3dc_config.mqtt2_ip, value);
                     else if(strcmp(var, "mqtt3_ip") == 0)
                         strcpy(e3dc_config.mqtt3_ip, value);
+                    else if(strcmp(var, "mqtt4_ip") == 0)
+                        strcpy(e3dc_config.mqtt4_ip, value);
+                    else if(strcmp(var, "mqtt4_topic") == 0)
+                        strcpy(e3dc_config.mqtt4_topic, value);
                     else if(strcmp(var, "wb_ip") == 0)
                         strcpy(e3dc_config.WB_ip, value);
                     else if(strcmp(var, "wb_topic") == 0)
@@ -1600,7 +1608,7 @@ int tasmotastatus(int ch)
         static int WP_status = -1;
         int status;
         char path[1024];
-        if (WP_status < 2)
+//        if (WP_status < 2)
         {
             if (e3dc_config.debug) printf("W1\n");
             mfp == NULL;
@@ -2900,8 +2908,9 @@ int LoadDataProcess() {
 
                         }
 // statistische Daten verwenden bei gemessenen Verbrauch wie bei meiner Wolf
-                        if (e3dc_config.WPWolf&&wetter[x1].kosten>0)
-                            wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
+//                        Es werden nur die hochgerechneten Prognosedaten herangezogen
+//                        if (e3dc_config.WPWolf&&wetter[x1].kosten>0)
+//                            wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
 
                     }
 
@@ -5405,7 +5414,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     {
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
-                        if (itotal_WP > 0) printf(" %0.04fkWh",float(itotal_WP/3600000.0));
+                        if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
                     }
                 }
                 printf("%c[K\n", 27 );
