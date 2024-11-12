@@ -2787,7 +2787,9 @@ int LoadDataProcess() {
             // Auswertung Steuerung
             if (btasmota_ch1)
             {
-                if ((btasmota_ch1&1||btasmota_ch1&2||btasmota_ch1&2)&&ALV == 0&&wetter[0].kosten>0)
+                if (((btasmota_ch1&1||btasmota_ch1&2)
+                     &&ALV == 0&&wetter[0].kosten>0)
+                    ||btasmota_ch1&4)
                 {
                     ALV = e3dc_config.shelly0V10Vmin;
                     shelly(ALV);
