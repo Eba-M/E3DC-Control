@@ -1876,9 +1876,10 @@ int shelly(int ALV)
 {
     char path[1024];
     char buf[127];
+    static int ALV_alt = 0;
     FILE *fp;
     fp==NULL;
-    if (e3dc_config.shelly0V10V&&shellytimer < t)
+    if (e3dc_config.shelly0V10V&&shellytimer < t&&ALV!=ALV_alt)
     {
         if (ALV>0)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
@@ -1892,6 +1893,7 @@ int shelly(int ALV)
     if (fp != NULL)
         pclose(fp);
     }
+    ALV_alt = ALV;
     return 0;
 }
 typedef struct {
@@ -2769,7 +2771,7 @@ int LoadDataProcess() {
                 btasmota_ch1 ^=1;
             if (btasmota_ch1 & 2&&wetter[0].kosten==0)
                 btasmota_ch1 ^=2;
-            if (btasmota_ch1 & 8&&wetter[0].kosten==0)
+            if (btasmota_ch1 & 8&&not(btasmota_ch1 &4) &&wetter[0].kosten==0)
             {
                 if (ALV > 0)
                 {
