@@ -109,7 +109,7 @@ float fpeakshaveendsoc;
 // Ziel-Soc bis zu dieser Grenze darf entladen werden
 // Bei gerigem Ertrag wird dieser verdoppelt  = n x Peakshavesoc
 // hohen Ertrag wird dieser bis auf 5% herabgesetzt d.h. halbiert
-static u_int8_t btasmota_ch1 = 0; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
+static u_int8_t btasmota_ch1 = 8; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis 8 = standby
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
@@ -449,6 +449,7 @@ bool GetConfig()
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         strcpy(e3dc_config.shellyEM_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
+        memset(e3dc_config.analyse,0,sizeof(e3dc_config.analyse));
         e3dc_config.wrsteuerung = 1; // 0 = aus, 1= aktiv, 2=debug ausgaben
         e3dc_config.stop = 0; // 1 = Programm beenden
         e3dc_config.test = 0; // 1 = Programm beenden
@@ -612,6 +613,8 @@ bool GetConfig()
                         strcpy(e3dc_config.WB_ip, value);
                     else if(strcmp(var, "wb_topic") == 0)
                         strcpy(e3dc_config.WB_topic, value);
+                    else if(strcmp(var, "analyse") == 0)
+                        strcpy(e3dc_config.analyse, value);
                     else if(strcmp(var, "forecast1") == 0)
                         strcpy(e3dc_config.Forecast[0], value);
                     else if(strcmp(var, "forecast2") == 0)
@@ -3487,6 +3490,9 @@ bDischarge = false;
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
         int x1 = 2;
+        float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
+        if (fcos<0) fcos = 0;
+         // im WinterHalbjahr bis auf 100% am 21.12.
 
         if (t<itime2)
             idauer = sunriseAt*60 - t -e3dc_config.unload*60;
@@ -3505,12 +3511,14 @@ bDischarge = false;
                 fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc);
             if (fpeakshaveminsoc < e3dc_config.peakshavesoc)
                 fpeakshaveminsoc = (e3dc_config.peakshavesoc);
+                fpeakshaveminsoc = fpeakshaveminsoc+fpeakshaveminsoc*fcos;
+            
 //            if (fpeakshaveendsoc < e3dc_config.peakshavesoc)
             {
                 if (fPVcharge>e3dc_config.peakshavepvcharge)
-                fpeakshaveendsoc = e3dc_config.peakshavesoc;
+                fpeakshaveendsoc = e3dc_config.peakshavesoc+fcos*25;
                 else
-                    fpeakshaveendsoc = x1*e3dc_config.peakshavesoc;
+                    fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+fcos*25);
                 
             }
             if (fpeakshaveendsoc>fpeakshaveminsoc)

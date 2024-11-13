@@ -87,7 +87,7 @@ bool PutWallbox(std::vector<ch_s> &ch)
 {
     FILE *mfp;
     char path[100];
-    
+    mfp = NULL;
     mfp = fopen("e3dc.wallbox.out","w");
     if (mfp)
     if (ch.size()>0)
@@ -102,7 +102,7 @@ bool PutWallbox(std::vector<ch_s> &ch)
 bool GetWallbox(std::vector<ch_s> &ch)
 {
     FILE *mfp;
-    
+    mfp = NULL;
     mfp = fopen("e3dc.wallbox.out","r");
     char path[100];
     int status;
@@ -357,7 +357,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 return 1;
         } else 
         {
-                fSoC = fSoC - faval;
+                fSoC = fSoC + faval;
                 anforderung = anforderung + faval;
         }
         

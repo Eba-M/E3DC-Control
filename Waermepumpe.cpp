@@ -501,7 +501,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             int analyse = 0;
             float strompreis = 0;
 
-            if (analyse)
+            if (e3dc.analyse!="")
             {
                 w.clear();
                 wetter.clear();
@@ -509,7 +509,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
-                fp = fopen("..//..//..//Downloads/awattardebug.out","r");
+                fp = fopen(e3dc.analyse,"r");
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
