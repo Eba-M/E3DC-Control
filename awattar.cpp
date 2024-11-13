@@ -355,12 +355,13 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         {
                 fSoC = fSoC + anforderung + reserve;
                 return 1;
-        } else 
+        } 
+/*        else
         {
                 fSoC = fSoC + faval;
                 anforderung = anforderung + faval;
         }
-        
+*/
         // suche über den gesamten Bereich
         x1 = SucheDiff(w,h, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
         do
