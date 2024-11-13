@@ -1450,6 +1450,7 @@ else
     } else
     {
         // ist die ladezeit schon belegt oder abgelaufen
+        chch = 1;
         if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24){
             old_w_size = w.size();
             if (ch.size()>0&&ch[ch.size()-1].hh>rawtime&&ch[ch.size()-1].ch==0) // aktiver ladeauftrag
@@ -1475,7 +1476,6 @@ else
             if (e3dc.wbhour > 0)
             {
                 ladedauer = e3dc.wbhour;
-                chch = 1;
             } else ladedauer = 0;
         } else return;
     }
@@ -1485,11 +1485,12 @@ else
     
  
         ww1.pp = -1000;
-//alle alten einträge löschen
-    for (int j = 0; j < ch.size(); j++ ){
-        while (ch[j].ch == 0&&ch.size()>0)
-            ch.erase(ch.begin()+j);
-    }
+//alle alten einträge löschen ch = 1
+//    for (int j = 0; j < ch.size(); j++ ){
+//        while (ch[j].ch == chch&&ch.size()>j)
+//            ch.erase(ch.begin()+j);
+//    }
+    ch.clear();   // Alle Einträge löschen
     for (int l = 0;(l< w.size()); l++)
     {
         if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh||w[l].hh<=rawtime))
@@ -1502,7 +1503,7 @@ else
     }
     std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
-    while (ch.size()>0&&(ch.size()>ladedauer*4||ch[ch.size()-1].hh>bis))
+    while (ch.size()>0&&(ch.size()>(ladedauer*4)||ch[ch.size()-1].hh>bis))
     {
         ch.erase(ch.end()-1);
     }
@@ -1547,6 +1548,10 @@ else
     
     if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
         fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+    if (e3dc.wbhour>0&&chch==0)
+        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
+    else
+        fprintf(fp,"Von der Ladezeitenautomatik erzeugt\n");
     fprintf(fp,"%s\n",ptm->tm_zone);
     if (fp)
     fclose(fp);

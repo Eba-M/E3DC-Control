@@ -3506,19 +3506,25 @@ bDischarge = false;
             // Beginn um 2h nach hinten verschieben
             //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
             if (fpeakshaveminsoc<1.0)
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc)*fpeakshaveminsoc;
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos)*fpeakshaveminsoc;
             else
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc);
+                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
             if (fpeakshaveminsoc < e3dc_config.peakshavesoc)
                 fpeakshaveminsoc = (e3dc_config.peakshavesoc);
-                fpeakshaveminsoc = fpeakshaveminsoc+fpeakshaveminsoc*fcos;
+                fpeakshaveminsoc = fpeakshaveminsoc;
             
 //            if (fpeakshaveendsoc < e3dc_config.peakshavesoc)
             {
                 if (fPVcharge>e3dc_config.peakshavepvcharge)
-                fpeakshaveendsoc = e3dc_config.peakshavesoc+fcos*25;
+                fpeakshaveendsoc = e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos;
                 else
-                    fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+fcos*25);
+                    fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos);
+
+                if (fpeakshaveminsoc > 100)
+                    fpeakshaveminsoc = 100;
+
+                if (fpeakshaveendsoc > 90) 
+                    fpeakshaveendsoc = 90;
                 
             }
             if (fpeakshaveendsoc>fpeakshaveminsoc)
