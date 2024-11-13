@@ -1444,7 +1444,6 @@ else
         von = rawtime;
         if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
         bis = von - von%24*3600 + 44*3600;
-        chch = 0;
         von = w[0].hh;
         bis = w[w.size()-1].hh;
     } else
@@ -1550,7 +1549,7 @@ else
         fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
     if (e3dc.wbhour>0&&chch==0)
         fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
-    else
+    if (chch==1)
         fprintf(fp,"Von der Ladezeitenautomatik erzeugt\n");
     fprintf(fp,"%s\n",ptm->tm_zone);
     if (fp)
