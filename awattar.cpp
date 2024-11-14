@@ -1528,7 +1528,7 @@ else
 // in zeitliche reihenfolge sortieren
 
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
-        return a.hh > b.hh;});
+        return a.hh < b.hh;});
     // Alle Elemente aus ch1 in die ch einfügen
     for (int l = 0;l<ch1.size();l++)
         ch.push_back(ch1[l]);

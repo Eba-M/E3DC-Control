@@ -29,12 +29,13 @@ if ($myfile)
                     echo "Die geplante  Ladedauer beträgt " . $zeile .  " Stunden<br>";
             if (! empty($zeile2))
                     echo "die geplante Ladezeiten sind:<br><br> " . $zeile2 ."<br>";
+}
             while  (! feof($myfile))
                     {$zeile2 = fgets($myfile);
                     echo $zeile2 ."<br>";}
             fclose($myfile);
 
-    }
+    
 }
 ?>
 <html>

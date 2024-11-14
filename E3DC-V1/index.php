@@ -28,6 +28,7 @@ else
                 echo "Die aktuelle  Ladedauer beträgt eine  Stunde<br>";
         if ($zeile >= "2")
                 echo "Die aktuelle  Ladedauer beträgt " . $zeile .  " Stunden<br>";
+}
         if (! empty($zeile2))
                 echo "die bisher geplante Ladezeiten waren:<br><br> " . $zeile2 ."<br>";
         while  (! feof($myfile))
@@ -35,7 +36,7 @@ else
                 echo $zeile2 ."<br>";}
         fclose($myfile);
 
-}
+
 
 ?>
 <html>
