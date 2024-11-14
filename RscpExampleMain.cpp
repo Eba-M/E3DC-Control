@@ -2399,7 +2399,7 @@ int LoadDataProcess() {
                 // Wenn WP an und PV Überschuss
                 static time_t HK1_t = 0;
   
-                if (fPVtoday>fPVSoll||bHK2off==0) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
+                if (e3dc_config.WPWolf&&(fPVtoday>fPVSoll||bHK2off==0)) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
 // Nur hochsetzen, wenn die WP läuft
                     if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0||ALV>0) &&
@@ -4701,7 +4701,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         bWBmaxLadestrom = true;
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                     }
-                    if (bWBStopped)
+                    if (bWBStopped||(not bWBStart&&fPower_WB==0))
                     WBchar6[4] = 1; // Laden starten
                     bWBLademodusSave=bWBLademodus;    //Sonne = true
                     bWBLademodus = false;  // Netz
@@ -4734,8 +4734,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    } else WBchar6[1] = 32;
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
 // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
-//                    if (bWBCharge)
-//                    WBchar6[4] = 1; // Laden stoppen
+                    if (bWBCharge)
+                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 30;
