@@ -1534,8 +1534,8 @@ else
         ch.push_back(ch1[l]);
     ch1.clear();
 
-    std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
-        return a.ch > b.ch;});
+    std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+        return a.ch < b.ch;});
 
     
     int ptm_alt;
@@ -1543,7 +1543,7 @@ else
             if ((j==0&&ch[j].ch==1)
                 ||
                 (j>0&&ch[j-1].ch==0&&ch[j].ch==1))
-                fprintf(fp,"Von der Ladezeitenautomatik erzeugt\n");
+                fprintf(fp,"\nVon der Ladezeitenautomatik erzeugt\n");
 
 //        fprintf(fp2,"%li %i %f \n",ch[j].hh,ch[j].ch,ch[j].pp);
 //        k = (ch[j].hh% (24*3600)/3600);
