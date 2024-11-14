@@ -4738,7 +4738,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 30;
+                    iWBStatus = 10;
                     return(0);
                     }
 /*                    else
