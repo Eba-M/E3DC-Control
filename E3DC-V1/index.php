@@ -1,6 +1,11 @@
 <?php
-#$datei = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
-$datei = "e3dc.wallbox.txt";
+$datei1 = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
+$datei2 = "e3dc.wallbox.txt";
+if (file_exists($datei1))
+$datei = $datei1
+if (file_exists($datei2))
+$datei = $datei2
+
 $zeile = "1";
 
 if (file_exists($datei))
@@ -28,9 +33,9 @@ else
                 echo "Die aktuelle  Ladedauer beträgt eine  Stunde<br>";
         if ($zeile >= "2")
                 echo "Die aktuelle  Ladedauer beträgt " . $zeile .  " Stunden<br>";
-}
         if (! empty($zeile2))
                 echo "die bisher geplante Ladezeiten waren:<br><br> " . $zeile2 ."<br>";
+}
         while  (! feof($myfile))
                 {$zeile2 = fgets($myfile);
                 echo $zeile2 ."<br>";}
