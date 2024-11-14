@@ -1480,16 +1480,16 @@ else
     }
 
     long k;       // bis zu     if (k > 7) k = 24-k+7;
-    // ersten wert hinzufügen
-    
- 
+    std::vector<ch_s> ch1;
+     
         ww1.pp = -1000;
 //alle alten einträge löschen ch = 1
-//    for (int j = 0; j < ch.size(); j++ ){
-//        while (ch[j].ch == chch&&ch.size()>j)
-//            ch.erase(ch.begin()+j);
-//    }
-    ch.clear();   // Alle Einträge löschen
+    for (int j = 0; j < ch.size(); j++ ){
+        while (ch[j].ch == chch&&ch.size()>j)
+            ch.erase(ch.begin()+j);
+    }
+//    ch.clear();   // Alle Einträge löschen
+// neue einträge erst in die ch1 bearbeiten
     for (int l = 0;(l< w.size()); l++)
     {
         if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh||w[l].hh<=rawtime))
@@ -1497,24 +1497,27 @@ else
             cc.hh = w[l].hh;
             cc.ch = chch;
             cc.pp = w[l].pp;
-            ch.push_back(cc);
+            ch1.push_back(cc);
         }
     }
-    std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+    std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
-    while (ch.size()>0&&(ch.size()>(ladedauer*4)||ch[ch.size()-1].hh>bis))
+    while (ch1.size()>0&&(ch1.size()>(ladedauer*4)||ch1[ch1.size()-1].hh>bis))
     {
-        ch.erase(ch.end()-1);
+        ch1.erase(ch1.end()-1);
     }
 // ist die letzte Stunde weniger als eine ganze Stunde?
-    if (ch.size()>=4)
+    if (ch1.size()>=4)
     {
-        int la = ch[ch.size()-4].hh/3600;
-        while (ch.size()>=1&&ch[ch.size()-1].hh/3600!=la)
+        int la = ch1[ch1.size()-4].hh/3600;
+        while (ch1.size()>=1&&ch1[ch1.size()-1].hh/3600!=la)
         {
-            ch.erase(ch.end()-1);
+            ch1.erase(ch.end()-1);
         }
     }
+    
+    
+    
     fp = fopen(e3dc.e3dcwallboxtxt,"w");
     if (not fp) {
         printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
@@ -1522,11 +1525,25 @@ else
         return;
     }
     fprintf(fp,"%i\n",ladedauer);
-//    sort (ch.begin(),ch.end());
-    std::sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
-        return a.hh < b.hh;});
+// in zeitliche reihenfolge sortieren
+
+    std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
+        return a.hh > b.hh;});
+    // Alle Elemente aus ch1 in die ch einfügen
+    for (int l = 0;l<ch1.size();l++)
+        ch.push_back(ch1[l]);
+    ch1.clear();
+
+    std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
+        return a.ch > b.ch;});
+
+    
     int ptm_alt;
         for (int j = 0; j < ch.size(); j=j+4 ){
+            if ((j==0&&ch[j].ch==1)
+                ||
+                (j>0&&ch[j-1].ch==0&&ch[j].ch==1))
+                fprintf(fp,"Von der Ladezeitenautomatik erzeugt\n");
 
 //        fprintf(fp2,"%li %i %f \n",ch[j].hh,ch[j].ch,ch[j].pp);
 //        k = (ch[j].hh% (24*3600)/3600);
@@ -1547,10 +1564,8 @@ else
     
     if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
         fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
-    if (e3dc.wbhour>0&&chch==0)
-        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
-    if (chch==1)
-        fprintf(fp,"Von der Ladezeitenautomatik erzeugt\n");
+//    if (e3dc.wbhour>0&&chch==0)
+//        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
     fprintf(fp,"%s\n",ptm->tm_zone);
     if (fp)
     fclose(fp);
