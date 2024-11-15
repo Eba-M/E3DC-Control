@@ -1,11 +1,11 @@
-<?php
 $datei1 = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
 $datei2 = "e3dc.wallbox.txt";
-if (file_exists($datei1))
-$datei = $datei1
 if (file_exists($datei2))
-$datei = $datei2
-$zeile = "1"
+$datei = $datei2;
+elseif (file_exists($datei1))
+$datei = $datei1;
+$zeile = "1";
+
 $zeile3 = $_POST["zwei"];
 if  (empty($zeile3)) $zeile3 = "0";
 
