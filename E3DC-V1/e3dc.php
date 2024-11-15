@@ -1,3 +1,5 @@
+
+<?php
 $datei1 = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
 $datei2 = "e3dc.wallbox.txt";
 if (file_exists($datei2))

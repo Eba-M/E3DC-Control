@@ -3654,7 +3654,8 @@ bDischarge = false;
             {
                 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
                 if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
-                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-4 < fBatt_SOC)
+//                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-4 < fBatt_SOC)
+                    &&fpeakshaveminsoc-4 < fBatt_SOC)
                 {
                     //                    iFc = 0;
                     idauer = -1;

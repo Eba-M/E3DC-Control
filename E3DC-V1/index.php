@@ -1,3 +1,4 @@
+
 <?php
 $datei1 = "/home/pi/E3DC-Control/e3dc.wallbox.txt";
 $datei2 = "e3dc.wallbox.txt";
@@ -17,11 +18,7 @@ if (file_exists($datei))
 }
 
 
-#if (empty($zeile))
-#echo "is empty ";
 
-#if ($zeile<"1")
-#echo "is < 1";;
 //if ((empty($zeile))||(($zeile)=="0"))
 if ($zeile<"1")
 {
