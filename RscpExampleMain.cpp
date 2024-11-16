@@ -1888,6 +1888,7 @@ int shelly(int ALV)
     fp==NULL;
     if (e3dc_config.shelly0V10V&&shellytimer < t&&ALV!=ALV_alt)
     {
+        if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
         if (ALV>0)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         else
