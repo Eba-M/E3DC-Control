@@ -3491,75 +3491,47 @@ bDischarge = false;
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
         int x1 = 2;
+        if (fPVcharge>e3dc_config.peakshavepvcharge)
+            x1 = 1;
+        else
+            x1 = 2;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
+        fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
+        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos);
 
+        float f1;
         if (t<itime2)
-            idauer = sunriseAt*60 - t -e3dc_config.unload*60;
+            idauer = sunriseAt*60 - t - e3dc_config.unload*60;
         if (idauer == 0)
         {
             // Tagesbetrieb
             // Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
-            fpeakshaveminsoc = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
-            // Beginn Regelzeitpunkt um 2h nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
-            fpeakshaveminsoc = (t-itime2-1*3600)/(fpeakshaveminsoc-2*3600);      //% restregeldauer
-            // Beginn um 2h nach hinten verschieben
-            //            fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
-            if (fpeakshaveminsoc<1.0)
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos)*fpeakshaveminsoc;
-            else
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
-            if (fpeakshaveminsoc < e3dc_config.peakshavesoc)
-                fpeakshaveminsoc = (e3dc_config.peakshavesoc);
-                fpeakshaveminsoc = fpeakshaveminsoc;
-            
-//            if (fpeakshaveendsoc < e3dc_config.peakshavesoc)
-            {
-                if (fPVcharge>e3dc_config.peakshavepvcharge)
-                fpeakshaveendsoc = e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos;
-                else
-                    fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos);
-
-                if (fpeakshaveminsoc > 100)
-                    fpeakshaveminsoc = 100;
-
-                if (fpeakshaveendsoc > 90) 
-                    fpeakshaveendsoc = 90;
+            f1 = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
+            // Beginn Regelzeitpunkt um 1h nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
+            f1 = (t-itime2-1*3600)/(f1-1*3600);      //% restregeldauer
+            // Beginn um 1h nach hinten verschieben
                 
-            }
-            if (fpeakshaveendsoc>fpeakshaveminsoc)
-            fpeakshaveminsoc = fpeakshaveendsoc;
 
         } else // Nachtbetrieb
         {
-            fpeakshaveminsoc = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
-            fpeakshaveminsoc = (idauer)/fpeakshaveminsoc;      //% restregeldauer
-            // Wenn nicht ausreichend PV Ertrag erwartet wird, e3dc_config.peakshavesoc mit doppelter e3dc_config.peakshavesoc anheben
-            fpeakshaveendsoc = e3dc_config.peakshavesoc;
-            if (fPVcharge>e3dc_config.peakshavepvcharge)
-            {
-                if (idauer > iVorlauf*3600||idauer<3600)
-                    fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+e3dc_config.peakshavesoc;
-                else
-                {
-                    fpeakshaveendsoc = 5;
-                    fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-e3dc_config.peakshavesoc)*fpeakshaveminsoc+fpeakshaveendsoc ;
-                }
-            }
-            else
-                // höhere SoC Reserve vorhalten, da PV-Prognose niedrig und der Speicher nicht voll werden könnte
-            {
-                fpeakshaveendsoc = x1*e3dc_config.peakshavesoc;
-                fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc-fpeakshaveendsoc)*fpeakshaveminsoc+fpeakshaveendsoc;
-            }
-            if (fpeakshaveminsoc>e3dc_config.peakshaveuppersoc)
-                fpeakshaveminsoc = e3dc_config.peakshaveuppersoc;
             
+            f1  = (24*60-sunsetAt+sunriseAt)*60-2*e3dc_config.unload*60; //regeldauer Nacht
+            f1 = idauer / f1;
         }
         // muss noch geregelt werden, für Master/Slave unterschiedliche Ausgangssituation
         // innerhalb des Nachtbetriebs und tagsüber wenn < minsoc und iPowerhome > peakshave
         // dann wird nur auf e3dc_config.peakshave geregelt (Master)
+        if (f1 > 1) f1 = 1;
+            fpeakshaveminsoc = fpeakshaveendsoc + (fpeakshaveminsoc-fpeakshaveendsoc)*f1;
+
+            if (fpeakshaveminsoc > 100)
+                fpeakshaveminsoc = 100;
+
+            if (fpeakshaveendsoc > 90)
+                fpeakshaveendsoc = 90;
+
         if (e3dc_config.test) // testparameter einstellen
         {
             //            idauer = 100;
@@ -4708,17 +4680,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                     }
                     if (bWBStopped||(not bWBStart&&fPower_WB==0))
-                    WBchar6[4] = 1; // Laden starten
-                    bWBLademodusSave=bWBLademodus;    //Sonne = true
-                    bWBLademodus = false;  // Netz
-                    if (e3dc_config.debug) printf("WB4");
-                    createRequestWBData(frameBuffer);
-                    if (e3dc_config.debug) printf("WB5");
-
-                    WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 30;
-                    return(0);
-
+                    {
+                        WBchar6[4] = 1; // Laden starten
+                        bWBLademodusSave=bWBLademodus;    //Sonne = true
+                        bWBLademodus = false;  // Netz
+                        if (e3dc_config.debug) printf("WB4");
+                        createRequestWBData(frameBuffer);
+                        if (e3dc_config.debug) printf("WB5");
+                        
+                        WBchar6[4] = 0; // Toggle aus
+                        iWBStatus = 10;
+                        
+                        return(0);
+                    }
                 }
             else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
             {
