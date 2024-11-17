@@ -1517,14 +1517,17 @@ else
     }
     
     
-    
-    fp = fopen(e3dc.e3dcwallboxtxt,"w");
-    if (not fp) {
-        printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
-        sleep(10);
-        return;
+    if (chch == 0) // Nur bei 0 ausgeben
+    {
+        fp = NULL;
+        fp = fopen(e3dc.e3dcwallboxtxt,"w");
+        if (not fp) {
+            printf("die e3dc.wallbox.txt kann nicht zum Schreiben geöffnet werden");
+            sleep(10);
+            return;
+        }
+        fprintf(fp,"%i\n",ladedauer);
     }
-    fprintf(fp,"%i\n",ladedauer);
 // in zeitliche reihenfolge sortieren
 
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
@@ -1539,36 +1542,44 @@ else
 
     
     int ptm_alt;
-        for (int j = 0; j < ch.size(); j=j+4 ){
-            if ((j==0&&ch[j].ch==1)
-                ||
-                (j>0&&ch[j-1].ch==0&&ch[j].ch==1))
+    for (int j = 0; j < ch.size(); j=j+4 )
+    {
+        if ((j==0&&ch[j].ch==1)
+            ||
+            (j>0&&ch[j-1].ch==0&&ch[j].ch==1))
+            if (chch==0)
                 fprintf(fp,"\nVon der Ladezeitenautomatik erzeugt\n");
-
-//        fprintf(fp2,"%li %i %f \n",ch[j].hh,ch[j].ch,ch[j].pp);
-//        k = (ch[j].hh% (24*3600)/3600);
+        
+        //        fprintf(fp2,"%li %i %f \n",ch[j].hh,ch[j].ch,ch[j].pp);
+        //        k = (ch[j].hh% (24*3600)/3600);
         ptm = localtime(&ch[j].hh);
-//        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
-//        if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)&&ch[j].hh%3600==0))
-        if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)))
-// Datum und Reihenfolge ausgeben
+        //        fprintf(fp,"%i %.2f; ",k,ch[j].pp);
+        //        if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)&&ch[j].hh%3600==0))
+        if (chch==0)
         {
-            if (j%2==1) fprintf(fp,"\n");
-            fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
+            if (((j==0)||(j>0&&ptm->tm_mday!=ptm_alt)))
+                // Datum und Reihenfolge ausgeben
+            {
+                if (j%2==1) fprintf(fp,"\n");
+                fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
+            }
+            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j/4+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+            if (ch.size() < 40||(j/4)%2==1)
+                fprintf(fp,"\n");
+            ptm_alt = ptm->tm_mday;
+            
+            
+            if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
+                fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+            //    if (e3dc.wbhour>0&&chch==0)
+            //        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
         }
-        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j/4+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
-        if (ch.size() < 40||(j/4)%2==1)
-            fprintf(fp,"\n");
-        ptm_alt = ptm->tm_mday;
     }
-    
-    if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
-        fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
-//    if (e3dc.wbhour>0&&chch==0)
-//        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
-    fprintf(fp,"%s\n",ptm->tm_zone);
-    if (fp)
-    fclose(fp);
+    if (chch==0)
+    {
+        fprintf(fp,"%s\n",ptm->tm_zone);
+        if (fp)
+            fclose(fp);}
     PutWallbox(ch); // Schaltzeiten schreiben
     (CheckWallbox(e3dc.e3dcwallboxtxt));
 

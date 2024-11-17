@@ -4668,9 +4668,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
+            bWBZeitsteuerung = false;
             if (e3dc_config.aWATTar>0)
                 for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
-//                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
 // Umstellung auf 15min Intervall
                     if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
                         bWBZeitsteuerung = true;
@@ -4678,25 +4678,28 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
-// Überprüfen ob auf Sonne und Auto eingestellt ist,
-// falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
+                // Überprüfen ob auf Sonne und Auto eingestellt ist,
+                // falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
                 if ((not bWBLademodus||bWBmaxLadestrom)&&e3dc_config.aWATTar)
                 {
                     sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
                     WriteLog();
-
+                    
                     bWBLademodus = true;
                     WBchar6[0] = 1;            // Sonnenmodus
                     WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-//                    if (bWBCharge)
-//                    WBchar6[4] = 1; // Laden stoppen
+                    if (bWBCharge)
+                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 10;
                     return(0);
                 }
-                if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
+            } else
+            
+                if ((bWBZeitsteuerung)&&(bWBConnect))
+                {  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
 //                    if (not(bWBmaxLadestrom))
@@ -4717,7 +4720,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     return(0);
 
                 }
-            }else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
+            else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
             {
                 bWBZeitsteuerung = false;
                 for (int j = 0; j < ch.size(); j++ )
