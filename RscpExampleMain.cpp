@@ -4679,7 +4679,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         bWBmaxLadestrom = true;
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                     }
-                    if (bWBStopped||(not bWBStart&&fPower_WB==0))
+                    if (bWBStopped||(not bWBStart))
                     {
                         WBchar6[4] = 1; // Laden starten
                         bWBLademodusSave=bWBLademodus;    //Sonne = true
