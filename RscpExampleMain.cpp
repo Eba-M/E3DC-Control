@@ -4669,6 +4669,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
             if (e3dc_config.aWATTar>0)
+                for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
+//                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
+// Umstellung auf 15min Intervall
+                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
+                        bWBZeitsteuerung = true;
+                    };
+
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
 // Überprüfen ob auf Sonne und Auto eingestellt ist,
@@ -4686,15 +4693,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 30;
+                    iWBStatus = 10;
                     return(0);
                 }
-                for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
-//                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
-// Umstellung auf 15min Intervall
-                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
-                        bWBZeitsteuerung = true;
-                    };
                 if ((bWBZeitsteuerung)&&(bWBConnect)){  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
