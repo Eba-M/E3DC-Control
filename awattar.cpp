@@ -1480,7 +1480,7 @@ else
     }
 
     long k;       // bis zu     if (k > 7) k = 24-k+7;
-    std::vector<ch_s> ch1;
+    static std::vector<ch_s> ch1;
      
         ww1.pp = -1000;
 //alle alten einträge löschen ch = 1
@@ -1512,7 +1512,7 @@ else
         int la = ch1[ch1.size()-4].hh/3600;
         while (ch1.size()>=1&&ch1[ch1.size()-1].hh/3600!=la)
         {
-            ch1.erase(ch.end()-1);
+            ch1.erase(ch1.end()-1);
         }
     }
     

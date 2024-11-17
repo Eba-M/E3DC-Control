@@ -1173,7 +1173,7 @@ int iModbusTCP()
 // Wenn die Wolf läuft, dann die die zulufttemperatur untergewichten
                     if ((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                         isttemp = isttemp + 2;
-
+// wenn die WP läuft wird die isttemp um 2° hochgesetzt ???? überprüfen
                     if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
                         //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                     {
