@@ -326,6 +326,7 @@ int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     protocol.appendValue(&WB2Container, TAG_WB_EXTERN_DATA,WBchar6,iWBLen);
     iWBSoll = WBchar6[1];   // angeforderte Ladestromstärke;
     WBToggel = WBchar6[4];
+    printf(" RQ %02X %02i %02X ",WBchar6[0],WBchar6[1],WBchar6[4]);
 
 
     protocol.appendValue(&WBContainer, WB2Container);
@@ -4913,7 +4914,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     printf("%c[K\n", 27 );
     if (e3dc_config.debug) printf("WB23");
     printf("AVal %0i/%01i/%01i Power %0i WBMode %0i ", iAvalPower,iPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf("iWBStatus %i %i %i %i",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
+//    printf("iWBStatus %i %i %i %i %02X %02X %02X %02X %02X %02X",iWBStatus,WBToggel,WBchar6[1],WBchar[2],WBchar6[0],WBchar6[1],WBchar6[2],WBchar6[3],WBchar6[4],WBchar6[5]);
+    printf("iWBStatus %i %i %i %i ",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
     if (e3dc_config.debug) printf("WBend");
 return 0;
@@ -5842,10 +5844,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     printf("\n");
 */
                                     
-//                                    bWBLademodus = (WBchar[0]&1);
-                                    bWBLademodus = bWBSonne;
-//                                    WBchar6[0]=WBchar[0];
-                                    WBchar6[0]=2+bWBSonne;
+                                    bWBLademodus = (WBchar[0]&1);
+//                                    bWBLademodus = bWBSonne;
+                                    WBchar6[0]=WBchar[0];
+//                                    WBchar6[0]=2+bWBSonne;
                                     printf("%c[K\n", 27 );
                                     printf("WB: Mode %02X ",uint8_t(cWBALG));
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
