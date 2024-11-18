@@ -4656,13 +4656,18 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 {
                     sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
                     WriteLog();
-                    
+                    if (e3dc_config.debug) printf("WB30");
                     bWBLademodus = true;
                     WBchar6[0] = 1;            // Sonnenmodus
                     WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-                    if (bWBCharge)
-                    WBchar6[4] = 1; // Laden stoppen
+                    if (bWBCharge||bWBStart)
+                    {
+                        if (e3dc_config.debug) printf("WB31");
+                        WBchar6[4] = 1;
+                    } else
+                        WBchar6[4] = 0; // Toggle aus
+// Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 10;
