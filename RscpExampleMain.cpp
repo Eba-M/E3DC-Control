@@ -2578,21 +2578,22 @@ int LoadDataProcess() {
                     wwmax = e3dc_config.WPHK1max+5;
 
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
+                //
                 if (wolf.size()>0)
                 if (
                     (
                      temp[14]<(e3dc_config.WPHK1max+2)*10
                      ||
-                     (temp[14]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+2.0)&&
-                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+2.0))
+                     (temp[14]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
+                      wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
                     )
                     && temp[17]==0 // Pellets aus
                     &&
                     (
 //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<temp[4]+20
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<temp[4]+e3dc_config.WPOffset*10
                         &&
-                        (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+20))
+                        (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10))
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
 // oder die IST+10 <= SOLL
@@ -2600,7 +2601,7 @@ int LoadDataProcess() {
                     ||
                      (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
                     ||
-                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5)
+                     (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                      )
                     )
                 {
@@ -3608,7 +3609,7 @@ bDischarge = false;
                 {
                     iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
                     iFc = iFc / (idauer+600) *-1;
-                    fpeakshaveminsoc = 5;
+//                    fpeakshaveminsoc = 5;
                 }
                 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
@@ -3732,7 +3733,7 @@ bDischarge = false;
                             else
                                 iFc = f[2]/.6;
 
-                            if (f[1]>fBatt_SOC+3&&f[2]<0)
+                            if (f[1]>fBatt_SOC+3&&f[2]>0)
                                 iFc = iFc3;
                             if (iFc3<iFc&&iFc3<0&&f[2]<0)
                                 iFc = iFc3;
@@ -3744,7 +3745,7 @@ bDischarge = false;
                                 
 
                             printf("%c[K\n", 27 );
-                            if (iFc !=0)
+                            if (iFc ==0) iFc = 1;
                             printf("f[0,2] %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],iFc, int(f[2])*100/iFc, f[1]);
 
                             if (iFc<iBattLoad)
@@ -4649,11 +4650,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         bWBZeitsteuerung = true;
                     };
 
+            
+            
             if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
             {
                 // Überprüfen ob auf Sonne und Auto eingestellt ist,
                 // falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
-                if ((not bWBLademodus||bWBmaxLadestrom)&&e3dc_config.aWATTar)
+                if ((not bWBLademodus&&bWBmaxLadestrom)&&e3dc_config.aWATTar)
                 {
                     sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
                     WriteLog();
@@ -4662,7 +4665,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[0] = 1;            // Sonnenmodus
                     WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-                    if (bWBCharge||bWBStart)
+                    if (not bWBStopped)
                     {
                         if (e3dc_config.debug) printf("WB31");
                         WBchar6[4] = 1;
@@ -4672,11 +4675,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 10;
+                    bWBOn = false;  //Wallbox ist aus
                     return(0);
                 }
             } else
             
-                if ((bWBZeitsteuerung)&&(bWBConnect))
+                if ((bWBZeitsteuerung)&&(bWBConnect)&&e3dc_config.aWATTar&& not bWBCharge&& not bWBStart)
                 {  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
@@ -4695,7 +4699,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         if (e3dc_config.debug) printf("WB5");
                         
                         WBchar6[4] = 0; // Toggle aus
-                        iWBStatus = 10;
+                        iWBStatus = 8;
+                        bWBOn = true;
                         
                         return(0);
                     }
@@ -4709,7 +4714,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
                         bWBZeitsteuerung = true;
                     };
-                if ((not(bWBZeitsteuerung))||not bWBConnect){    // Ausschalten
+                if (((not(bWBZeitsteuerung))&& bWBConnect)
+                    ||
+                    ((bWBStart||bWBCharge)&& not bWBOn))
+                    {    // Ausschalten
                     if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                     {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
                     bWBLademodus = true;
@@ -4720,11 +4728,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                    } else WBchar6[1] = 32;
                     bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
 // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
-                    if (bWBCharge||fPower_WB>100)
+                    if (bWBStart|| bWBCharge||fPower_WB>100)
                     WBchar6[4] = 1; // Laden stoppen
                     createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 10;
+                    bWBOn = false;
                     return(0);
                     }
 /*                    else
@@ -4746,6 +4755,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
             if ((WBchar6[1]<e3dc_config.wbmaxladestrom)&&(fBatt_SOC>(cMinimumladestand+2))) {
                 WBchar6[1]=e3dc_config.wbmaxladestrom;
+                WBchar6[4]=0; // toggle aus
                 if (e3dc_config.debug) printf("WB6");
 
                 createRequestWBData(frameBuffer);
@@ -4791,6 +4801,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 iWBStatus = 30;
                 sprintf(Log,"WB starten %s", strtok(asctime(ptm),"\n"));
                 WriteLog();
+                bWBOn = true;
             };
             
         if ( (fPower_WB == 0) &&bWBLademodus&&bWBConnect)
