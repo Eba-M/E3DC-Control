@@ -4677,6 +4677,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart)
                     {
                         WBchar6[4] = 1;
+                        WBchar6[0] = 2; // Netz
+                        WBchar6[1] = e3dc_config.wbmaxladestrom;
+
                     }
                 if (e3dc_config.debug) printf("WB31");
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
