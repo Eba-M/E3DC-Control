@@ -4732,7 +4732,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         ((bWBStart||bWBCharge)&&(not bWBLademodus|| not bWBOn))
                         )
                     {    // Ausschalten
-                        if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                         {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
                             bWBLademodus = true;
                             //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
@@ -4746,7 +4745,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                 WBchar6[4] = 1; // Laden stoppen
                             createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                             WBchar6[4] = 0; // Toggle aus
-                            iWBStatus = 18;
+                            iWBStatus = 8;
                             bWBOn = false;
                             if (e3dc_config.debug) printf("WB55");
                             
