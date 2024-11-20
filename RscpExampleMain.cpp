@@ -4366,60 +4366,60 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
     if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
     {
-
-//        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
-//            iRefload = iMaxBattLade;
-
+        
+        //        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
+        //            iRefload = iMaxBattLade;
+        
         switch (e3dc_config.wbmode)
         {
             case 1:
-//              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+fPower_WB;
-              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500; // Schon 500W früher einschalten
-//                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
+                //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+fPower_WB;
+                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500; // Schon 500W früher einschalten
+                //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000)
-//                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
+                    //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
                     iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
                 else
-//                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
+                    //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
                 {
                     iPower = iPower+iWBMinimumPower;
                     if (iPower > 0)
                     {
-// PV-Erzeugung > Einspeiselimit, Auto lädt noch nicht Ladevorgang sofort starten
+                        // PV-Erzeugung > Einspeiselimit, Auto lädt noch nicht Ladevorgang sofort starten
                         if (iAvalPower < iWBMinimumPower)
                             iAvalPower = iWBMinimumPower;
                     }
                 }
-
+                
                 if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == e3dc_config.wbminladestrom)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
                 {//iPower = -20000;
-// erst mit 30sec Verzögerung das Laden beenden
+                    // erst mit 30sec Verzögerung das Laden beenden
                     if (!bWBOff)
                     {iWBStatus = 29;
-                    bWBOff = true;
+                        bWBOff = true;
                     }
                 } else
                 {
-                bWBOff = false;
-// Bei aktivem Ladevorgang nicht gleich wieder abbrechen
-                if ((iPower < -2000)&&(fPower_WB>1000))
-                    iPower= -2000;
+                    bWBOff = false;
+                    // Bei aktivem Ladevorgang nicht gleich wieder abbrechen
+                    if ((iPower < -2000)&&(fPower_WB>1000))
+                        iPower= -2000;
                 }
-//            wenn nicht abgeregelt werden muss, abschalten
-              break;
+                //            wenn nicht abgeregelt werden muss, abschalten
+                break;
             case 2:
                 iPower = -iFc + iPower_Bat + fPower_Grid;
                 break;
                 // Wenn Überschuss dann Laden starten
                 iPower = 0;
                 if (-fAvPower_Grid > iWBMinimumPower)
-// Netzüberschuss  größer Startleistung WB
+                    // Netzüberschuss  größer Startleistung WB
                     iPower = -fAvPower_Grid;
                 else
                     if (fBatt_SOC > 10)
-// Mindestladestand Erreicht
+                        // Mindestladestand Erreicht
                     {
-// Überschuss Netz
+                        // Überschuss Netz
                         if ((fPower_Grid < -200) && (fAvPower_Grid < -100))
                         {
                             if ((-fPower_Grid > (iWBMinimumPower/6)))
@@ -4428,7 +4428,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                 iPower = iWBMinimumPower/6;
                         }
                         else
-// Überschussleistung verfügbar?
+                            // Überschussleistung verfügbar?
                         {
                             if (abs(iPower_Bat-iBattLoad) > (iWBMinimumPower/6))
                             {
@@ -4436,122 +4436,122 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                     iPower = iPower_Bat-iMaxBattLade;
                                 else
                                     iPower = iPower_Bat-iBattLoad;
-                         
+                                
                             }
                         }
                     }
-                    idynPower = (iRefload - (fAvBatterie900+fAvBatterie))*-2;
-                    if (idynPower < 0)
-                        iPower = idynPower;
+                idynPower = (iRefload - (fAvBatterie900+fAvBatterie))*-2;
+                if (idynPower < 0)
+                    iPower = idynPower;
                 break;
-
+                
             case 3:
-
+                
                 iPower = -fPower_Grid*2;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
-
+                
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
-                    iPower = iPower + idynPower;
+                iPower = iPower + idynPower;
                 if (iMinLade > 100&&iMaxBattLade>100&&iPower > (iPower_Bat-fPower_Grid))
                     iPower = iPower_Bat-fPower_Grid;
                 break;
             case 4:
-
-// Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
-                if (iRefload > iMinLade2) 
+                
+                // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
+                if (iRefload > iMinLade2)
                     iRefload = iMinLade2;
                 iPower = -fPower_Grid*2;
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                 idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                 iPower = iPower + idynPower;
-
-              break;
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                    fwbminSoC = fLadeende-1.5;
-                case 9:
-                case 10:
-
-            // Der Leitwert ist iMinLade2 und sollte dem WBminlade
-            // des Ladekorridors entprechen
+                
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                fwbminSoC = fLadeende-1.5;
+            case 9:
+            case 10:
+                
+                // Der Leitwert ist iMinLade2 und sollte dem WBminlade
+                // des Ladekorridors entprechen
                 int x1,x2,x3,x4,x5;
-               
-                if ((iRefload > iMinLade2)) 
+                
+                if ((iRefload > iMinLade2))
                     iRefload = (iRefload+iMinLade2)/2;
-                if (iRefload > iMaxBattLade) 
+                if (iRefload > iMaxBattLade)
                     iRefload = iMaxBattLade;
-// iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
+                // iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
                 
                 iPower = iPower_Bat-fPower_Grid*2-iRefload;
                 
                 x1 = iPower_Bat - iRefload;
                 x2 = fAvBatterie900- iRefload;
                 x3 = fAvBatterie- iRefload;
-
+                
                 idynPower = (iRefload*2 - e3dc_config.wbminlade - (fAvBatterie900+fAvBatterie)/2)*-2;
                 iPower = iPower + idynPower;
-//              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
-//              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
-//              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
-//              entladen
+                //              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
+                //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
+                //              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
+                //              entladen
                 
-//                idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
+                //                idynPower = iPower_Bat-fPower_Grid*2 + (iMaxBattLade - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
                 idynPower = iPower_Bat-fPower_Grid*2 + (e3dc_config.maximumLadeleistung*.9 - iWBMinimumPower/6) * (e3dc_config.wbmode-5)*1/3;
-// falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
+                // falls das Entladen gesperrt ist iPower_Bat==0 und Netzbezug Ladeleistung herabsetzen
                 if (iPower_Bat==0&&fPower_Grid>100) idynPower = - fPower_Grid*2 - iWBMinimumPower/6;
-// Berücksichtigung des SoC
+                // Berücksichtigung des SoC
                 if (fBatt_SOC < (fht+15))
                     idynPower = idynPower*fBatt_SOC/100; // wenn fht < fBatt_Soc idynPower = 0
-// Anhebung der Ladeleistung nur bis Ladezeitende1
+                // Anhebung der Ladeleistung nur bis Ladezeitende1
                 if ((t<tLadezeitende1)&&(iPower<idynPower)&&(iRefload<e3dc_config.wbminlade))
                 {
-//                    if (iRefload<iMaxBattLade)
-//                    iPower = iPower + idynPower;
+                    //                    if (iRefload<iMaxBattLade)
+                    //                    iPower = iPower + idynPower;
                     if (fBatt_SOC>fwbminSoC)
-                    iPower = idynPower;
+                        iPower = idynPower;
                     else
-//                      if (iPower < (iPower_Bat-fPower_Grid))
-                          iPower = iPower_Bat-fPower_Grid;
+                        //                      if (iPower < (iPower_Bat-fPower_Grid))
+                        iPower = iPower_Bat-fPower_Grid;
                 }
-// Nur wenn SoC > e3dc_config.wbminSoC
+                // Nur wenn SoC > e3dc_config.wbminSoC
                 if  (fBatt_SOC<e3dc_config.wbminSoC) iPower = -2000;
-// Nur bei PV-Ertrag
+                // Nur bei PV-Ertrag
                 if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
-// Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
-
-               if (
-                   (
-                    (e3dc_config.wbmode ==  8 && (iPower_PV>100))
-                   ||
-                    (e3dc_config.wbmode ==  9 && (iPower_PV>100))
-                   ||
-                   (e3dc_config.wbmode ==  10))
-                   &&
-                   (fBatt_SOC > (fwbminSoC))
-                   )
+                // Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
+                
+                if (
+                    (
+                     (e3dc_config.wbmode ==  8 && (iPower_PV>100))
+                     ||
+                     (e3dc_config.wbmode ==  9 && (iPower_PV>100))
+                     ||
+                     (e3dc_config.wbmode ==  10))
+                    &&
+                    (fBatt_SOC > (fwbminSoC))
+                    )
                 {iPower = e3dc_config.maximumLadeleistung*(fBatt_SOC-fwbminSoC)*(fBatt_SOC-fwbminSoC)*
                     (fBatt_SOC-fwbminSoC)/4; // bis > 2% uber MinSoC volle Entladung
-                 if (iPower > e3dc_config.maximumLadeleistung)
-                     iPower = e3dc_config.maximumLadeleistung*.9;
+                    if (iPower > e3dc_config.maximumLadeleistung)
+                        iPower = e3dc_config.maximumLadeleistung*.9;
                     iPower = iPower +(iPower_Bat-fPower_Grid*2);
                     
                 }
                 if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                     iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
-                          break;
+                break;
             case 11:
-                    if (fPower_Grid > 0)
-                        iPower = -fPower_Grid*3; else
+                if (fPower_Grid > 0)
+                    iPower = -fPower_Grid*3; else
                         iPower = -fPower_Grid;
                 break;
             case 20:
                 if (fPower_WB <= 0) //Start
                 {
                     iPower = -fPower_Grid - iPower_PV_E3DC -iWBMinimumPower*.9 + iPower_Bat;
-//                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
-//                        iAvalPower = iPower + iWBMinimumPower*.9;
+                    //                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+                    //                        iAvalPower = iPower + iWBMinimumPower*.9;
                     if (abs(iPower)>abs(iAvalPower))
                         iAvalPower = iPower;
                 }
@@ -4559,11 +4559,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
                 break;
             case 21:
-                if (fPower_WB <= 0) 
+                if (fPower_WB <= 0)
                 {   //Start
                     iPower = -fPower_Grid -iWBMinimumPower*.8 + iPower_Bat;
-//                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
-//                        iAvalPower = iPower + iWBMinimumPower*.9;
+                    //                    if (iPower > iWBMinimumPower&&iPower>iAvalPower)
+                    //                        iAvalPower = iPower + iWBMinimumPower*.9;
                     if (abs(iPower)>abs(iAvalPower))
                         iAvalPower = iPower;
                 }
@@ -4574,117 +4574,125 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = -fPower_Grid - iPower_PV_E3DC + iPower_Bat;
                 }
                 break;
-
+                
                 // Auswertung
         }
         if (e3dc_config.debug) printf("WB2");
-
+        
         if (abs(iPower)/2>abs(iAvalPower))
             iAvalPower = iPower/2;
-
-// im Sonnenmodus nur bei PV-Produktion regeln
+        
+        // im Sonnenmodus nur bei PV-Produktion regeln
         if (iPower > e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
             iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         
-//        if (iPower < -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
-//            iPower = -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
-
-/*
-        if (iPower_PV_E3DC > e3dc_config.wrleistung){
-            iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
-            if (fPower_Grid < 100 && iPower > fPower_Grid*-1) // Netzbezug, verfügbare Leistung reduzieren
-                iPower = fPower_Grid*-1;
-            if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
-            iPower = fPower_Grid*-3;
-        }
-*/
+        //        if (iPower < -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid)
+        //            iPower = -e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
+        
+        /*
+         if (iPower_PV_E3DC > e3dc_config.wrleistung){
+         iPower = iPower - iPower_PV_E3DC + e3dc_config.wrleistung;
+         if (fPower_Grid < 100 && iPower > fPower_Grid*-1) // Netzbezug, verfügbare Leistung reduzieren
+         iPower = fPower_Grid*-1;
+         if (fPower_Grid > 100 && iPower > 0) // Netzbezug, verfügbare Leistung reduzieren
+         iPower = fPower_Grid*-3;
+         }
+         */
         static float fPower_WB_alt = 0;
-
+        
         if (fPower_WB!=fPower_WB_alt)
             iAvalPower = iAvalPower - fPower_WB + fPower_WB_alt;
-        fPower_WB_alt = fPower_WB;        
+        fPower_WB_alt = fPower_WB;
         if  (
-            (iAvalPower > 0&&iPower>0)
-            ||
-            (iAvalPower < 0&&iPower<0)
-            )
+             (iAvalPower > 0&&iPower>0)
+             ||
+             (iAvalPower < 0&&iPower<0)
+             )
         {
-                iAvalPower = iAvalPower *.995 + iPower*.025;
-// Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
-
-
+            iAvalPower = iAvalPower *.995 + iPower*.025;
+            // Über-/Unterschuss wird aufakkumuliert Gleichgewicht 1000W bei 5000W Anforderung
+            
+            
         } else
-                iAvalPower = iAvalPower*.8  + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
-
-
-
+            iAvalPower = iAvalPower*.8  + iPower*.2;    // Über-/Unterschuss wird aufakkumuliert
+        
+        
+        
         
         if ((iAvalPower>0)&&bWBLademodus&&iPower_PV<100&&e3dc_config.wbmode<9)
             iAvalPower = 0;
-
+        
         
         if (iAvalPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid))
-              iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
+            iAvalPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid;
         // Speicher nur bis 5-7% entladen
         if ((fBatt_SOC < 5)&&(iPower_Bat<0)) iAvalPower = iPower_Bat-fPower_Grid - iWBMinimumPower/6-fPower_WB;
-//        else if (fBatt_SOC < 20) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
-/*
-        if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
-            iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
-*/
+        //        else if (fBatt_SOC < 20) iAvalPower = iAvalPower + iPower_Bat-fPower_Grid;
+        /*
+         if (iAvalPower < (-iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB))
+         iAvalPower = -iMaxBattLade+iPower_Bat-fPower_Grid-fPower_WB;
+         */
         if (e3dc_config.wbmode==11||e3dc_config.wbmode==10)
             iAvalPower = iAvalPower *.9 + iPower*.3;    // Über-/Unterschuss wird aufakkumuliert
-
         
-//        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
-        if (iWBStatus == 1) // 
+        
+        //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
+        if (iWBStatus == 1) //
         {
-// Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
+            // Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
-            bWBZeitsteuerung = false;
-            if (e3dc_config.aWATTar>0)
-                for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
-// Umstellung auf 15min Intervall
-                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
-                        bWBZeitsteuerung = true;
-                    };
-
             
             
-            if ((not(bWBZeitsteuerung))&&(bWBConnect)) // Zeitsteuerung nicht + aktiv + wenn Auto angesteckt
+            // Zeitsteuerung WB am laufen? Ja
+            if (bWBZeitsteuerung&&bWBConnect&&e3dc_config.aWATTar)
+                // Zeitsteuerung aktiv + wenn Auto angesteckt
             {
-                // Überprüfen ob auf Sonne und Auto eingestellt ist,
-                // falls das der Fall sein sollte, Protokoll ausgeben und Sonne/Auto einstellen
-                if ((not bWBLademodus&&bWBmaxLadestrom)&&e3dc_config.aWATTar)
+                // Überprüfen ob noch Zeitsteuerung aktiv
+                bWBZeitsteuerung = false;
+                if (e3dc_config.aWATTar>0)
+                    for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
+                        // Umstellung auf 15min Intervall
+                        if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
+                            bWBZeitsteuerung = true;
+                        };
+                
+                // Wenn Keine zeitsteuerung mehr stoppen und auf Sonnenmodus und Automatik umschalten
+                if (
+                    (not bWBZeitsteuerung&&(bWBCharge||bWBStart))
+                    )
                 {
-                    sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
-                    WriteLog();
+                    //                    sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
+                    //                    WriteLog();
                     if (e3dc_config.debug) printf("WB30");
                     bWBLademodus = true;
-                    WBchar6[0] = 1;            // Sonnenmodus
-                    WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
-                    bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-                    if (not bWBStopped)
-                    {
-                        if (e3dc_config.debug) printf("WB31");
-                        WBchar6[4] = 1;
-                    } else
-                        WBchar6[4] = 0; // Toggle aus
-// Laden stoppen
-                    createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
-                    WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 10;
+                    WBchar6[0] = 1;
+                    // Sonnenmodus
+                    WBchar6[1] = e3dc_config.wbmaxladestrom-1;
+                    // fest auf Automatik einstellen}
                     bWBOn = false;  //Wallbox ist aus
-                    return(0);
+                    WBchar6[4] = 1;
                 }
+                else
+                    if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart)
+                    {
+                        WBchar6[4] = 1;
+                    }
+                if (e3dc_config.debug) printf("WB31");
+                // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
+                createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+                WBchar6[4] = 0; // Toggle aus
+                iWBStatus = 10;
+                return(0);
+                
+                
             } else
-            
+                // Zeitsteuerung aber nicht am Laden
                 if ((bWBZeitsteuerung)&&(bWBConnect)&&e3dc_config.aWATTar&& not bWBCharge&& not bWBStart)
                 {  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
-//                    if (not(bWBmaxLadestrom))
+                    //                    if (not(bWBmaxLadestrom))
                     {
                         bWBmaxLadestrom = true;
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
@@ -4699,103 +4707,105 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         if (e3dc_config.debug) printf("WB5");
                         
                         WBchar6[4] = 0; // Toggle aus
-                        iWBStatus = 8;
+                        iWBStatus = 10;
                         bWBOn = true;
                         
                         return(0);
                     }
                 }
-            else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
-            {
-                bWBZeitsteuerung = false;
-                for (int j = 0; j < ch.size(); j++ )
-// Umstellung auf 15min Intervall
-//                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
-                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
-                        bWBZeitsteuerung = true;
-                    };
-                if (((not(bWBZeitsteuerung))&& bWBConnect)
-                    ||
-                    ((bWBStart||bWBCharge)&& not bWBOn))
+                else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
+                {
+                    bWBZeitsteuerung = false;
+                    for (int j = 0; j < ch.size(); j++ )
+                        // Umstellung auf 15min Intervall
+                        //                    if ((ch[j].hh <= tE3DC)&&(ch[j].hh+3600 >= tE3DC)){
+                        if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
+                            bWBZeitsteuerung = true;
+                        };
+                    if (not bWBZeitsteuerung&& bWBConnect
+                        &&
+                        ((bWBStart||bWBCharge)&& not bWBOn))
                     {    // Ausschalten
-                    if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
-                    {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
-                    bWBLademodus = true;
-//                    if (bWBLademodus)         // Sonnenmodus fest einstellen
-                    WBchar6[0] = 1;            // Sonnenmodus
-//                    if (not(bWBmaxLadestrom)){
-                        WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
-//                    } else WBchar6[1] = 32;
-                    bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
-// Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
-                    if (bWBStart|| bWBCharge||fPower_WB>100)
-                    WBchar6[4] = 1; // Laden stoppen
-                    createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
-                    WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 10;
-                    bWBOn = false;
-                    return(0);
-                    }
-/*                    else
-                    if (bWBCharge)                     // Laden stoppen
-                    {
-                    WBchar6[4] = 1; // Laden stoppen
-                    createRequestWBData(frameBuffer);
-                    WBchar6[4] = 0; // Toggle aus
-                    iWBStatus = 30;
-                    return(0);
-                    }
-*/                }
-
-            };
+                        if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
+                        {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
+                            bWBLademodus = true;
+                            //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
+                            WBchar6[0] = 1;            // Sonnenmodus
+                            //                    if (not(bWBmaxLadestrom)){
+                            WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
+                            //                    } else WBchar6[1] = 32;
+                            bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
+                            // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
+                            if (bWBStart|| bWBCharge||fPower_WB>100)
+                                WBchar6[4] = 1; // Laden stoppen
+                            createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+                            WBchar6[4] = 0; // Toggle aus
+                            iWBStatus = 8;
+                            bWBOn = false;
+                            if (e3dc_config.debug) printf("WB55");
+                            
+                            return(0);
+                        }
+                        /*                    else
+                         if (bWBCharge)                     // Laden stoppen
+                         {
+                         WBchar6[4] = 1; // Laden stoppen
+                         createRequestWBData(frameBuffer);
+                         WBchar6[4] = 0; // Toggle aus
+                         iWBStatus = 30;
+                         return(0);
+                         }
+                         */                }
+                    
+                };
             
             
             if (bWBmaxLadestrom)  {//Wenn der Ladestrom auf 32, dann erfolgt keine
-            if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
-//Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
-            if ((WBchar6[1]<e3dc_config.wbmaxladestrom)&&(fBatt_SOC>(cMinimumladestand+2))) {
-                WBchar6[1]=e3dc_config.wbmaxladestrom;
-                WBchar6[4]=0; // toggle aus
-                if (e3dc_config.debug) printf("WB6");
-
-                createRequestWBData(frameBuffer);
-                if (e3dc_config.debug) printf("WB7");
-
-                WBChar_alt = WBchar6[1];
+                if ((fBatt_SOC>cMinimumladestand)&&(fAvPower_Grid<400)) {
+                    //Wenn der Ladestrom auf 32, dann erfolgt keine Begrenzung des Ladestroms im Sonnenmodus
+                    if ((WBchar6[1]<e3dc_config.wbmaxladestrom)&&(fBatt_SOC>(cMinimumladestand+2))) {
+                        WBchar6[1]=e3dc_config.wbmaxladestrom;
+                        WBchar6[4]=0; // toggle aus
+                        if (e3dc_config.debug) printf("WB6");
+                        
+                        createRequestWBData(frameBuffer);
+                        if (e3dc_config.debug) printf("WB7");
+                        
+                        WBChar_alt = WBchar6[1];
+                    }
                 }
-        }
             }     else if ((WBchar6[1] > e3dc_config.wbminladestrom)&&(fPower_WB == 0)) WBchar6[1] = e3dc_config.wbminladestrom;
-
-// Wenn der wbmodus neu eingestellt wurde, dann mit 7A starten
-
+            
+            // Wenn der wbmodus neu eingestellt wurde, dann mit 7A starten
+            
             if (bWBChanged) {
                 bWBChanged = false;
                 WBchar6[1] = e3dc_config.wbminladestrom+1;  // Laden von 6A aus
                 WBchar6[4] = 0; // Toggle aus
                 if (e3dc_config.debug) printf("WB8");
-
+                
                 createRequestWBData(frameBuffer);
                 if (e3dc_config.debug) printf("WB9");
-
+                
                 WBChar_alt = WBchar6[1];
-
-
+                
+                
             }
             
-// Immer von 6A aus starten
-        
-// Ermitteln Startbedingungen zum Ladestart der Wallbox
-// Laden per Teslatar, Netzmodus, LADESTROM 30A
-//            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
+            // Immer von 6A aus starten
+            
+            // Ermitteln Startbedingungen zum Ladestart der Wallbox
+            // Laden per Teslatar, Netzmodus, LADESTROM 30A
+            //            if ((WBchar[2] == 30) && not(bWBLademodus)&&cWBALG&64) {
             if ((WBchar[2] == 30) && not(bWBLademodus)&&bWBStopped) {
                 WBchar6[1] = 30;
                 iWBSoll = 30;
                 WBchar6[4] = 1; // Laden starten
                 if (e3dc_config.debug) printf("WB10");
-
+                
                 createRequestWBData(frameBuffer);
                 if (e3dc_config.debug) printf("WB11");
-
+                
                 WBchar6[4] = 0; // Toggle aus
                 WBChar_alt = WBchar6[1];
                 iWBStatus = 30;
@@ -4804,123 +4814,124 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 bWBOn = true;
             };
             
-        if ( (fPower_WB == 0) &&bWBLademodus&&bWBConnect)
-//            bWBLademodus = Sonne
-             { // Wallbox lädt nicht
-            if ((not bWBmaxLadestrom)&&(iWBStatus==1))
+            if ( (fPower_WB == 0) &&bWBLademodus&&bWBConnect)
+                //            bWBLademodus = Sonne
+            { // Wallbox lädt nicht
+                if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))
+                    if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))
                     {
                         WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
-                            WBchar6[4] = 1; // Laden starten
-                            bWBOn = true;
+                        WBchar6[4] = 1; // Laden starten
+                        bWBOn = true;
                         if (e3dc_config.debug) printf("WB12");
-
+                        
                         createRequestWBData(frameBuffer);
                         if (e3dc_config.debug) printf("WB13");
-
+                        
                         WBchar6[4] = 0; // Toggle aus
                         WBChar_alt = WBchar6[1];
                         iWBStatus = 30;
                     } else
-                    if (WBchar[2] != e3dc_config.wbminladestrom)
+                        if (WBchar[2] != e3dc_config.wbminladestrom)
                         {
                             WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
                             WBchar6[4] = 0; // Toggle aus
                             if (e3dc_config.debug) printf("WB14");
-
+                            
                             createRequestWBData(frameBuffer);
                             if (e3dc_config.debug) printf("WB15");
-
+                            
                             WBChar_alt = WBchar6[1];
                         }
                 }
-//                    else WBchar6[1] = 2;
-        }
+                //                    else WBchar6[1] = 2;
+            }
             if (fPower_WB > 0) {tWBtime = tE3DC;
-               if (fPower_WB < 1000) iWBStatus = 30;
+                if (fPower_WB < 1000) iWBStatus = 30;
             } // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
-            bWBOn = true; WBchar6[4] = 0;
-            WBchar6[1] = WBchar[2];
-            int icurrent = WBchar[2];  //Ausgangsstromstärke
+                bWBOn = true; WBchar6[4] = 0;
+                WBchar6[1] = WBchar[2];
+                int icurrent = WBchar[2];  //Ausgangsstromstärke
                 if (WBchar6[1]==e3dc_config.wbminladestrom) iWBMinimumPower = fPower_WB;
-            else
-                if ((iWBMinimumPower == 0) ||
-                    (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
-                     iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
-            if  ((iAvalPower>=(iWBMinimumPower/6))&&
-                (WBchar6[1]<e3dc_config.wbmaxladestrom-1)){
-                WBchar6[1]++;
-                for (int X1 = 3; X1 < 20; X1++)
+                else
+                    if ((iWBMinimumPower == 0) ||
+                        (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
+                        iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
+                if  ((iAvalPower>=(iWBMinimumPower/6))&&
+                     (WBchar6[1]<e3dc_config.wbmaxladestrom-1)){
+                    WBchar6[1]++;
+                    for (int X1 = 3; X1 < 20; X1++)
+                        
+                        if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<e3dc_config.wbmaxladestrom-1)) WBchar6[1]++; else break;
+                    //                WBchar[2] = WBchar6[1];
+                    if (icurrent == e3dc_config.wbminladestrom&&WBchar6[1]>16)
+                        WBchar6[1] = 16;
+                    if (e3dc_config.debug) printf("WB16");
                     
-                if ((iAvalPower > (X1*iWBMinimumPower/6)) && (WBchar6[1]<e3dc_config.wbmaxladestrom-1)) WBchar6[1]++; else break;
-//                WBchar[2] = WBchar6[1];
-                if (icurrent == e3dc_config.wbminladestrom&&WBchar6[1]>16)
-                    WBchar6[1] = 16;
-                if (e3dc_config.debug) printf("WB16");
-
-                createRequestWBData(frameBuffer);
-                if (e3dc_config.debug) printf("WB17");
-
-                WBChar_alt = WBchar6[1];
-                if ((icurrent <=16)&&WBchar6[1]>16)
-                iWBStatus = 30;
-                // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
-
-             } else
-
-// Prüfen Herabsetzung Ladeleistung
-            if ((WBchar6[1] > e3dc_config.wbminladestrom)&&(iAvalPower<=((iWBMinimumPower/6)*-1)))
-                  { // Mind. 2000W Batterieladen
-                WBchar6[1]--;
-                for (int X1 = 2; X1 < 20; X1++)
-                    if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>e3dc_config.wbminladestrom+1)) WBchar6[1]--; else break;
-                WBchar[2] = WBchar6[1];
-//                createRequestWBData2(frameBuffer);
-                      if (e3dc_config.debug) printf("WB18");
-
-                createRequestWBData(frameBuffer);
-                      if (e3dc_config.debug) printf("WB19");
-
-                if (WBchar6[1]==e3dc_config.wbminladestrom)
-                    iWBStatus = 30;
-                WBChar_alt = WBchar6[1];
-
-            } else
-// Bedingung zum Wallbox abschalten ermitteln
-//
-                
-                
-            if ((fPower_WB>100)&&(
-                                  ((iPower_Bat-fPower_Grid < (e3dc_config.maximumLadeleistung*-0.9))&&(fBatt_SOC < 94))
-                || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
-                || (fAvPower_Grid>400)          // Hohem Netzbezug
-                                                // Bei Speicher < 94%
-//                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
-//                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
-                || (iAvalPower < iWBMinimumPower*-1)
-                ))  {
-                if ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
-                {WBchar6[1]--;
-
-                        if (WBchar6[1]==e3dc_config.wbminladestrom-1) {
-                            WBchar6[1]=e3dc_config.wbminladestrom;
-                            WBchar6[4] = 1;
-                            bWBOn = false;
-                        } // Laden beenden
-                    if (e3dc_config.debug) printf("WB20");
-
-                        createRequestWBData(frameBuffer);
-                    if (e3dc_config.debug) printf("WB21");
-
-                    WBchar6[1]=e3dc_config.wbminladestrom-1;
-                    WBchar6[4] = 0;
+                    createRequestWBData(frameBuffer);
+                    if (e3dc_config.debug) printf("WB17");
+                    
                     WBChar_alt = WBchar6[1];
-                    iWBStatus = 10;  // Warten bis Neustart
-                }}
+                    if ((icurrent <=16)&&WBchar6[1]>16)
+                        iWBStatus = 30;
+                    // Länger warten bei Wechsel von <= 16A auf > 16A hohen Stömen
+                    
+                } else
+                    
+                    // Prüfen Herabsetzung Ladeleistung
+                    if ((WBchar6[1] > e3dc_config.wbminladestrom)&&(iAvalPower<=((iWBMinimumPower/6)*-1)))
+                    { // Mind. 2000W Batterieladen
+                        WBchar6[1]--;
+                        for (int X1 = 2; X1 < 20; X1++)
+                            if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>e3dc_config.wbminladestrom+1)) WBchar6[1]--; else break;
+                        WBchar[2] = WBchar6[1];
+                        //                createRequestWBData2(frameBuffer);
+                        if (e3dc_config.debug) printf("WB18");
+                        
+                        createRequestWBData(frameBuffer);
+                        if (e3dc_config.debug) printf("WB19");
+                        
+                        if (WBchar6[1]==e3dc_config.wbminladestrom)
+                            iWBStatus = 30;
+                        WBChar_alt = WBchar6[1];
+                        
+                    } else
+                        // Bedingung zum Wallbox abschalten ermitteln
+                        //
+                        
+                        
+                        if ((fPower_WB>100)&&(
+                                              ((iPower_Bat-fPower_Grid < (e3dc_config.maximumLadeleistung*-0.9))&&(fBatt_SOC < 94))
+                                              || ((fPower_Grid > 3000)&&(iPower_Bat<1000))   //Speicher > 94%
+                                              || (fAvPower_Grid>400)          // Hohem Netzbezug
+                                              // Bei Speicher < 94%
+                                              //                || ((fAvBatterie900 < -1000)&&(fAvBatterie < -2000))
+                                              //                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
+                                              || (iAvalPower < iWBMinimumPower*-1)
+                                              ))  {
+                                                  if ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
+                                                  {WBchar6[1]--;
+                                                      
+                                                      if (WBchar6[1]==e3dc_config.wbminladestrom-1) {
+                                                          WBchar6[1]=e3dc_config.wbminladestrom;
+                                                          WBchar6[4] = 1;
+                                                          bWBOn = false;
+                                                      } // Laden beenden
+                                                      if (e3dc_config.debug) printf("WB20");
+                                                      
+                                                      createRequestWBData(frameBuffer);
+                                                      if (e3dc_config.debug) printf("WB21");
+                                                      
+                                                      WBchar6[1]=e3dc_config.wbminladestrom-1;
+                                                      WBchar6[4] = 0;
+                                                      WBChar_alt = WBchar6[1];
+                                                      iWBStatus = 10;  // Warten bis Neustart
+                                                  }}
+            }
+        }
     }
-        }}
     if (e3dc_config.debug) printf("WB22");
     printf("%c[K\n", 27 );
     if (e3dc_config.debug) printf("WB23");
