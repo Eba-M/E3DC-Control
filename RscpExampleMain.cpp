@@ -4674,7 +4674,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[4] = 1;
                 }
                 else
-                    if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart)
+                    if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
                     {
                         WBchar6[4] = 1;
                         WBchar6[0] = 2; // Netz
@@ -4685,7 +4685,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
                 createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                 WBchar6[4] = 0; // Toggle aus
-                iWBStatus = 10;
+                iWBStatus = 22;
                 return(0);
                 
                 
@@ -4718,6 +4718,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 }
                 else   // Das Ladefenster ist offen, Überwachen, ob es sich wieder schließt
                 {
+                    WBchar6[4] = 0;
                     bWBZeitsteuerung = false;
                     for (int j = 0; j < ch.size(); j++ )
                         // Umstellung auf 15min Intervall
@@ -4725,9 +4726,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
                             bWBZeitsteuerung = true;
                         };
+// Wenn die Wallbox wieder von alleine neu startet obwohl gestoppt, wieder stoppen
                     if (not bWBZeitsteuerung&& bWBConnect
                         &&
-                        ((bWBStart||bWBCharge||not bWBLademodus)&& not bWBOn))
+                        ((bWBStart||bWBCharge)&&(not bWBLademodus|| not bWBOn))
+                        )
                     {    // Ausschalten
                         if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                         {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
@@ -4743,7 +4746,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                 WBchar6[4] = 1; // Laden stoppen
                             createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                             WBchar6[4] = 0; // Toggle aus
-                            iWBStatus = 8;
+                            iWBStatus = 18;
                             bWBOn = false;
                             if (e3dc_config.debug) printf("WB55");
                             
@@ -4823,6 +4826,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
                     if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))
+                    
                     {
                         WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
                         WBchar6[4] = 1; // Laden starten
