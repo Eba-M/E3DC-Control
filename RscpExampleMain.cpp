@@ -4679,7 +4679,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[4] = 1;
                         WBchar6[0] = 2; // Netz
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
-
+                        bWBLademodus = false;
                     }
                 if (e3dc_config.debug) printf("WB31");
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
@@ -4727,7 +4727,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         };
                     if (not bWBZeitsteuerung&& bWBConnect
                         &&
-                        ((bWBStart||bWBCharge)&& not bWBOn))
+                        ((bWBStart||bWBCharge||not bWBLademodus)&& not bWBOn))
                     {    // Ausschalten
                         if ((bWBmaxLadestrom!=bWBmaxLadestromSave)||not (bWBLademodus))
                         {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
