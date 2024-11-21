@@ -4642,6 +4642,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             // Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
             struct tm * ptm;
             ptm = gmtime(&tE3DC);
+            static bool WBZeitsteuerung = true; // Letzen Zustand festhelten
             
             
             // Zeitsteuerung WB am laufen? Ja
@@ -4671,15 +4672,17 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[1] = e3dc_config.wbmaxladestrom-1;
                     // fest auf Automatik einstellen}
                     bWBOn = false;  //Wallbox ist aus
-                    WBchar6[4] = 1;
+                    if (bWBCharge||bWBStart)
+                        WBchar6[4] = 1;
                 }
                 else
                     if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
+//                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
                     {
                         WBchar6[4] = 1;
                         WBchar6[0] = 2; // Netz
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
-                        bWBLademodus = false;
+                        bWBLademodus = false;    //Grid
                     }
                 if (e3dc_config.debug) printf("WB31");
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
