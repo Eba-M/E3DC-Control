@@ -4732,7 +4732,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 // Wenn die Wallbox wieder von alleine neu startet obwohl gestoppt, wieder stoppen
                     if (not bWBZeitsteuerung&& bWBConnect
                         &&
-                        ((bWBStart||bWBCharge)&&(not bWBLademodus|| not bWBOn))
+                        ((bWBStart||bWBCharge)&&(not bWBOn && not bWBStopped))
                         )
                     {    // Ausschalten
                         {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
@@ -4744,11 +4744,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             //                    } else WBchar6[1] = 32;
                             bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
                             // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
-                            if (bWBStart|| bWBCharge||fPower_WB>100)
+                            if (((bWBStart || bWBCharge) && not bWBStopped) || fPower_WB>100)
+                            {
                                 WBchar6[4] = 1; // Laden stoppen
-                            createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+//                                WBchar6[1] = e3dc_config.wbminladestrom;       // fest auf Automatik
+                            }
+                                createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                             WBchar6[4] = 0; // Toggle aus
-                            iWBStatus = 8;
+                            iWBStatus = 18;
                             bWBOn = false;
                             if (e3dc_config.debug) printf("WB55");
                             

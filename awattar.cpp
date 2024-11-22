@@ -896,10 +896,13 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     f8 = f8 * (10 - x2)/10;
                     
                     // relativer ertrag aus statistik höher als aktueller ertrag
-                    if (f5 > 1)
-                        f6 = (f7+2*f6)/3;
+                    if (f4 > 1&&x2<10)
+                        f6 = (f7*(x2+1)+(10-x2)*f6)/(11);
                     else
                         f6=f7;
+//                    if (x2<10)
+//                    f6 = (f6*(x2)+f8*(10-x2))/10;
+
                     if (anlage==0){
                         wetter[x2].progsolar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
                         
