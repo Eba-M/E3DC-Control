@@ -2762,16 +2762,16 @@ int LoadDataProcess() {
                     ALV = shelly_get();
             }
 
- // Bei Übertemperatur > 450 WP ausschalten
+ // Bei Übertemperatur > 500 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[13]) > 450||(temp[14]) > 450||bWP<0)
+            if ((temp[13] > 500||temp[14] > 500||bWP<0)&&temp[17==0]) //nur wenn Pellet aus
             {
                 btasmota_ch1 = 0;
                 bWP = -1;
             }
 // bWP -1 Abschaltung beibehalten
-            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<400&&not(bHK1off&&bHK2off))
+            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<450&&not(bHK1off&&bHK2off))
             {
                 btasmota_ch1  |=8;
                 bWP = 0;
