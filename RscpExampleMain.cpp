@@ -2100,6 +2100,7 @@ int LoadDataProcess() {
                 iDayStat[x2] = (w_alt.progsolar+0.005)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
+            if (wetter.size()>0)
             iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].progsolar+0.005)*100;
 //            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
