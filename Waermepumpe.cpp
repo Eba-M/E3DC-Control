@@ -329,7 +329,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 
             }
         }
+        if (e3dc.debug) printf("NW3\n");
         if (w.size()==0) return;
+        if (e3dc.debug) printf("NW4\n");
+
         {
             {
                 if (e3dc.WPLeistung>0) {
