@@ -4645,8 +4645,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             static bool WBZeitsteuerung = true; // Letzen Zustand festhelten
             
             
-            // Zeitsteuerung WB am laufen? Ja
-            if (bWBZeitsteuerung&&bWBConnect&&e3dc_config.aWATTar)
+            // Zeitsteuerung WB am laufen? Ja oder Gridmodus
+            if ((bWBZeitsteuerung||not bWBLademodus)&&bWBConnect&&e3dc_config.aWATTar)
                 // Zeitsteuerung aktiv + wenn Auto angesteckt
             {
                 // Überprüfen ob noch Zeitsteuerung aktiv
@@ -4660,7 +4660,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 // Wenn Keine zeitsteuerung mehr stoppen und auf Sonnenmodus und Automatik umschalten
                 if (
-                    (not bWBZeitsteuerung&&(bWBCharge||bWBStart))
+                    (not bWBZeitsteuerung&&bWBmaxLadestrom&&not bWBLademodus)
                     )
                 {
                     //                    sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
@@ -4670,9 +4670,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[0] = 1;
                     // Sonnenmodus
                     WBchar6[1] = e3dc_config.wbmaxladestrom-1;
+                    bWBmaxLadestrom = false;
                     // fest auf Automatik einstellen}
                     bWBOn = false;  //Wallbox ist aus
-                    if (bWBCharge||bWBStart)
+                    if (bWBCharge)
                         WBchar6[4] = 1;
                 }
                 else
@@ -4682,6 +4683,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[4] = 1;
                         WBchar6[0] = 2; // Netz
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
+                        bWBmaxLadestrom = true;
                         bWBLademodus = false;    //Grid
                     }
                 if (e3dc_config.debug) printf("WB31");
@@ -4744,7 +4746,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             //                    } else WBchar6[1] = 32;
                             bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
                             // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
-                            if (((bWBStart || bWBCharge) && not bWBStopped) || fPower_WB>100)
+                            if (((bWBCharge) && not bWBStopped) || fPower_WB>100)
                             {
                                 WBchar6[4] = 1; // Laden stoppen
 //                                WBchar6[1] = e3dc_config.wbminladestrom;       // fest auf Automatik
