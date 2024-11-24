@@ -575,6 +575,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             if (w.size() == 0) return;
             if (wetter.size() == 0) return;
             if (e3dc.debug) printf("NWS1\n");
+//            if (e3dc.unload < 0) return;
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.out","w");
             sprintf(line,"awattarlog%i.out",ptm->tm_wday);
@@ -590,15 +591,14 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              fp1 = fopen(line,"w");
 
         if (e3dc.debug)
-            printf("\n Simulation \n");
+            printf("\n Simulation %zu %zu\n",w.size(),wetter.size());
 
-    fprintf(fp,"\n Simulation %zu %zu\n\n",w.size(),wetter.size());
+    fprintf(fp,"\n Simulation \n\n");
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
 //            soc = soc - e3dc.AWReserve; // Berücksichtigung der Reserve
             for (int j = 0;j<w.size();j++)
          {
-             if (e3dc.debug) printf("NWj%i\n",j);
 
              soc_alt = soc;
              if (w[j].hh > wetter[j].hh)
@@ -623,6 +623,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
              int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, ladeleistung);
+             if (e3dc.debug) printf("NWj%i %i\n",j,ret);
              if (ret == 1)
              { if (anforderung > ladeleistung)
                  soc = soc_alt + ladeleistung; 
