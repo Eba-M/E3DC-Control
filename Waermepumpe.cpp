@@ -589,12 +589,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
          if (fp1 == NULL)
              fp1 = fopen(line,"w");
 
-    fprintf(fp,"\n Simulation \n\n");
+        if (e3dc.debug)
+            printf("\n Simulation \n");
+
+    fprintf(fp,"\n Simulation %zu %zu\n\n",w.size(),wetter.size());
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
          float soc_alt;
 //            soc = soc - e3dc.AWReserve; // Berücksichtigung der Reserve
             for (int j = 0;j<w.size();j++)
          {
+             if (e3dc.debug) printf("NWj%i\n",j);
+
              soc_alt = soc;
              if (w[j].hh > wetter[j].hh)
                  soc_alt = soc;

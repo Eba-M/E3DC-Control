@@ -5986,7 +5986,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                      bWBStart = (WBchar[2]&16);
                                      bWBStopped = (WBchar[2]&64);
                                      bWBSonne = (WBchar[2]&128);
-/*                                     printf(" WB ALG EXTERN_DATA\n");
+/*                                     printf("\n WB ALG EXTERN_DATA ");
                                      printf("\n");
                                      for(size_t x = 0; x < sizeof(WBchar); ++x)
                                      { uint8_t y;
