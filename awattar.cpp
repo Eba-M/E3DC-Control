@@ -1405,7 +1405,8 @@ else
 
     if (w.size() == 0)
     return;
-    
+    if (e3dc.wallbox < 0)
+        return;
     high = w[0];
     low = w[0];
     int x1 = 0;
