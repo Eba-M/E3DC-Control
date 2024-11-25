@@ -2591,10 +2591,10 @@ int LoadDataProcess() {
                     && temp[17]==0 // Pellets aus
                     &&
                     (
-//  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 3° über der FBH liegt.
-                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+10)&&temp[14]<temp[4]+e3dc_config.WPOffset*10
+//  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° + offset über der FBH liegt.
+                    (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+5)&&temp[14]<(temp[4]+e3dc_config.WPOffset*10+20)
                         &&
-                        (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10))
+                        (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10+20))
                     ||
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
 // oder die IST+10 <= SOLL
@@ -4950,8 +4950,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     if (e3dc_config.debug) printf("WB22");
     printf("%c[K\n", 27 );
     if (e3dc_config.debug) printf("WB23");
-    printf("AVal %0i/%01i/%01i Power %0i WBMode %0i \n", iAvalPower,iPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
-    printf("iWBStatus rsv %02X %02X %02X %02X %02X %02X %02X %02X ",WBchar[0],WBchar[1],WBchar[2],WBchar[3],WBchar[4],WBchar[5],WBchar[6],WBchar[7]);
+    printf("AVal %0i/%01i/%01i Power %0i WBMode %0i ", iAvalPower,iPower,iMaxBattLade,iWBMinimumPower, e3dc_config.wbmode);
+    if (e3dc_config.debug)
+    printf("\niWBStatus rsv %02X %02X %02X %02X %02X %02X %02X %02X ",WBchar[0],WBchar[1],WBchar[2],WBchar[3],WBchar[4],WBchar[5],WBchar[6],WBchar[7]);
     printf("iWBStatus rq %i %i %i %i ",iWBStatus,WBToggel,WBchar6[1],WBchar[2]);
     if (iWBStatus > 1) iWBStatus--;
     if (e3dc_config.debug) printf("WBend");
