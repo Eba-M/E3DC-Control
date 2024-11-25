@@ -637,7 +637,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                          soc = soc2;
                      if (soc > 100) soc = 100;
                      if (soc < 0) soc = 0;
-                 }
+                 } else
+                     if (soc > 95) soc = 95;
              if (e3dc.openmeteo)
              {
                  if (e3dc.AWSimulation == 1)
