@@ -3733,6 +3733,9 @@ bDischarge = false;
                                 iFc = f[2]/.4;
                             else
                                 iFc = f[2]/.6;
+                            
+                            if (f[0] < -500)
+                                iFc = iFc - f[0];
 
 /*                            if (f[1]>fBatt_SOC+3&&f[2]>500)
                                 iFc = iFc3;
