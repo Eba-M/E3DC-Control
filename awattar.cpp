@@ -369,7 +369,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxsoc);  // nächster Nachladepunkt überprüfen
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-                if (w[h].pp>w[l1].pp*aufschlag+Diff)
+                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
                     // Es könnte nachgeladen werden
                 {
                     fSoC = fSoC + anforderung + reserve;

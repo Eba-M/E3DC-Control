@@ -577,7 +577,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             if (e3dc.debug) printf("NWS1\n");
             if (e3dc.unload < 0) return;
             memset(&line, 0, sizeof(line));
-            fp = fopen("awattardebug.out","w");
+            fp = fopen("awattardebug.txt","w");
             sprintf(line,"awattarlog%i.out",ptm->tm_wday);
             struct stat stats;
              stat(line,&stats);
@@ -673,7 +673,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
             if (ptm->tm_min==0)
             {
-                sprintf(line,"cp awattardebug.out awattardebug.%i.txt",ptm->tm_hour);
+                sprintf(line,"cp awattardebug.txt awattardebug.%i.txt",ptm->tm_hour);
                 system(line);
             }
 
