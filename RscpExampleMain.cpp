@@ -3736,9 +3736,9 @@ bDischarge = false;
 
 /*                            if (f[1]>fBatt_SOC+3&&f[2]>500)
                                 iFc = iFc3;
-                            if (iFc3<iFc&&iFc3<0&&f[2]<-500)
+*/                            if (iFc3<iFc&&iFc3<0&&f[2]<-500)
                                 iFc = iFc3;
-*/                            if (f[0]>e3dc_config.peakshave)
+                            if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
 //Einspeisung beim Master, Leistung abschöpfen
 //                            if (f[0]<1000)
