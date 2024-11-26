@@ -309,7 +309,7 @@ int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     }
     return x1;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float anforderung,float Diff,float aufschlag, float reserve, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -341,7 +341,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         float Verbrauch;
 // Verbrauch bis solarenÜberschuss??
         int ret = 0;
-        ret = suchenSolar(wetter,h, Verbrauch);
+        ret = suchenSolar(wetter,h, Verbrauch) - h;
 
         // Überprüfen ob entladen werden kann
         if (ret<10)
@@ -350,9 +350,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 
         fSoC = fSoC - reserve;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        float faval = fSoC-fConsumption+anforderung;
+        float faval = fSoC-fConsumption;
         if (faval >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
+            if (faval < -anforderung)
+                anforderung = -faval;
                 fSoC = fSoC + anforderung + reserve;
                 return 1;
         } 
