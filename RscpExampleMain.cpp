@@ -3743,7 +3743,7 @@ bDischarge = false;
                                 if (-f[0] > (iFc-f[0]))
                                     iFc = -f[0];
                                 else
-                                    iFc = iFc - f[0];
+                                    iFc = iPower_Bat - f[0];
 
 /*                            if (f[1]>fBatt_SOC+3&&f[2]>500)
                                 iFc = iFc3;
