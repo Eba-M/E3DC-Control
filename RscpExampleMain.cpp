@@ -3494,15 +3494,15 @@ bDischarge = false;
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
         int x1 = 2;
+        if (fPVtoday>e3dc_config.peakshavepvcharge)
+            x1 = 1.5;
         if (fPVcharge>e3dc_config.peakshavepvcharge)
             x1 = 1;
-        else
-            x1 = 2;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
-        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos);
+        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(35-e3dc_config.peakshavesoc)*fcos);
 
         float f1;
         if (t<itime2)
@@ -6506,7 +6506,8 @@ static int iEC = 0;
             {
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt, iDayStat); // im Master nicht aufrufen
-
+                if (e3dc_config.test)
+                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
             }
             while (e3dc_config.test)
                 LoadDataProcess();

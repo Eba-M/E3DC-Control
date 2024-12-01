@@ -251,7 +251,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 feld = "temperature_2m";
                 c = &feld[0];
                 item2 = cJSON_GetObjectItemCaseSensitive(item, c );
-                item1 = item1->child;
+                if (item1!=NULL)
+                    item1 = item1->child;
+                if (item2!=NULL)
                 item2 = item2->child;
                 int x1 = 0;
 //                wetter.clear();
@@ -374,7 +376,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     f4 = f4 + f3/f2; // benötigte elektrische Leistung;
                                 if (e3dc.openmeteo)
                                 {
-                                    wetter[x1].waerme = f3;
+                                    wetter[x1].waerme = f5;
 // absoluter Strombedarf speichern unabhängig vom Speicher??
                                     wetter[x1].kosten = f4;
 // noch nicht
@@ -389,10 +391,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 if ((w.size()>0)&&x1<=w.size())
                                     if (wetter[x1].hh == w[x1].hh){
                                         // Überprüfen ob WP oder Pelletsheizung günstiger
-                                        // Kosten = aktueller Strompreis / COP
+                                        // Kosten = aktueller Strompreis / COP + EHZ
                                         float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
                                         float f8 =  f7*f4; // kosten = strompreis * Stromaufnahme
-                                        float f6 =  f7/f2;  // preis / cop kosten kWh wärme
+                                        float f6 =  f8/f5;  // kosten / Wärmebedarf
 
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
