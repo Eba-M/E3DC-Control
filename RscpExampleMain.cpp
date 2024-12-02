@@ -3493,8 +3493,8 @@ bDischarge = false;
         // sonnenaufgang + unload
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
-        int x1 = 2;
-        if (fPVtoday>e3dc_config.peakshavepvcharge)
+        float x1 = 2;
+        if ((fPVtoday*e3dc_config.speichergroesse/100)>e3dc_config.peakshavepvcharge)
             x1 = 1.5;
         if (fPVcharge>e3dc_config.peakshavepvcharge)
             x1 = 1;
