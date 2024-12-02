@@ -3663,7 +3663,7 @@ bDischarge = false;
                             // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                             
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -50;
-                            iFc = (2*iFc -iBattLoad);
+//                            iFc = (2*iFc -iBattLoad);
                         }
                         else
                             if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-500)
