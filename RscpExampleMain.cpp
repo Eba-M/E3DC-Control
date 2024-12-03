@@ -2683,10 +2683,10 @@ int LoadDataProcess() {
                     
                         if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
                         {
-                            if (PVon > -5000)
+/*                           if (PVon > -5000)
                                 ALV = ALV + PVon / 1000;
                             else
-                                ALV = ALV - 4;
+*/                                ALV = ALV - 1;
                         }
                         if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                             ALV = e3dc_config.shelly0V10Vmin+1;
@@ -3651,7 +3651,7 @@ bDischarge = false;
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
 // Begrenzung des Netzbezug
-                        if (fPower_Grid>e3dc_config.peakshave+2000)
+                        if (iFc - iBattLoad + fPower_Grid>e3dc_config.peakshave+2000)
                         iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
 
                         iFc = (2*iFc -iBattLoad);
