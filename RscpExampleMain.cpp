@@ -3663,6 +3663,9 @@ bDischarge = false;
                             // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                             
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -50;
+// Begrenzung der Ladeleistung
+                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
+                                iFc = iBattLoad + fPower_Grid - e3dc_config.peakshave+2000;
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
