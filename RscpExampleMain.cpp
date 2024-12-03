@@ -3664,8 +3664,9 @@ bDischarge = false;
                             
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -50;
 // Begrenzung der Ladeleistung
-                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
-                                iFc = iBattLoad + fPower_Grid - e3dc_config.peakshave+2000;
+//                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
+                                if (fPower_Grid>e3dc_config.peakshave+2000)
+                                iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
