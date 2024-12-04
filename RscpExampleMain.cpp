@@ -2681,14 +2681,14 @@ int LoadDataProcess() {
                 {
                     ALV = shelly_get();
                     
-                        if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
+/*                        if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
                         {
-/*                           if (PVon > -5000)
+                           if (PVon > -5000)
                                 ALV = ALV + PVon / 1000;
                             else
-*/                                ALV = ALV - 1;
+                                ALV = ALV - 1;
                         }
-                        if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
+*/                        if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                             ALV = e3dc_config.shelly0V10Vmin+1;
                         if (ALV>0)
                             shelly((ALV--)-1);
@@ -3220,7 +3220,7 @@ bDischarge = false;
                     iE3DC_Req_Load = 0;  // Sperren
                     if (iPower_PV > 0)
                     iE3DC_Req_LoadMode = -2;       //Entlademodus  \n
-                    printf("\nEntladen stoppen ");
+//                    printf("\nEntladen stoppen ");
                     iLMStatus = -7;
 //                    return 0;
                 }
