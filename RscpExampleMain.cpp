@@ -3672,7 +3672,10 @@ bDischarge = false;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
                                 if (fPower_Grid>e3dc_config.peakshave+2000)
-                                iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
+                                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
+// Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
+                            if (iPowerHome>e3dc_config.peakshave&&iFc>0)
+                                iFc = -90;
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
