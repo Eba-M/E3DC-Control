@@ -69,7 +69,7 @@ static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
 static int32_t iPower_WP = 0; // Leistungsaufnahme WP
-static int32_t itotal_WP = -1; // Zählestand WP
+static int64_t itotal_WP = -1; // Zählestand WP
 static float fPower_Bat;
 static float fPower_Ext[7];
 static int ireq_Heistab; // verfügbare Leistung
@@ -1791,7 +1791,7 @@ int shelly_get(){
     }
     return(-2);
 }
-int shellyem_get(int &power,int &total){
+int shellyem_get(int &power,int64_t &total){
     FILE *fp;
     char line[256];
     char EM[] = "EM";
@@ -1971,10 +1971,10 @@ int LoadDataProcess() {
         {
 // vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
 // Differenzen als berechnete Leistung abgespeichert
-            static int ilasttotal_WP = itotal_WP;
+            static int64_t ilasttotal_WP = itotal_WP;
 //            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
-            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] - ilasttotal_WP + itotal_WP;
-            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] - ilasttotal_WP + itotal_WP;
+            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (- ilasttotal_WP + itotal_WP);
+            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] +  (- ilasttotal_WP + itotal_WP);
             ilasttotal_WP = itotal_WP;
 
         } else
