@@ -3655,9 +3655,12 @@ bDischarge = false;
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
 // Begrenzung des Netzbezug
                         if (iFc - iBattLoad + fPower_Grid>e3dc_config.peakshave+2000)
-                        iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
+                            iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
 
                         iFc = (2*iFc -iBattLoad);
+// Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
+                        if (iPowerHome>e3dc_config.peakshave&&iFc>0)
+                            iFc = -90;
                     }
                     else
                         // Besteht noch PV Überschuss?
