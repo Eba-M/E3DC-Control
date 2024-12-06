@@ -1867,7 +1867,10 @@ int shellyem_get(int &power,int &total){
         {
             total = item2->valuedouble*3600;
             if (e3dc_config.debug)
-                printf("total %i\n",item2->valueint);
+                printf("total %2.2f\n",item2->valuedouble);
+            if (e3dc_config.debug)
+                printf("total WS %i\n",total);
+
         }
     }
 /*    power = 550;
@@ -3629,7 +3632,7 @@ bDischarge = false;
                 // Master E3DC sendet die grid-werte
             {
                 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||iPower_PV>iPowerHome)
+                if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||abs(fAvPower_Grid60)<500||iPower_PV>iPowerHome)
 //                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-4 < fBatt_SOC)
                     &&fpeakshaveminsoc-4 < fBatt_SOC)
                 {
