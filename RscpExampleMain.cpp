@@ -1869,7 +1869,7 @@ int shellyem_get(int &power,int64_t &total){
             if (e3dc_config.debug)
                 printf("total %2.2f\n",item2->valuedouble);
             if (e3dc_config.debug)
-                printf("total WS %i\n",total);
+                printf("total Ws %lld\n",total);
 
         }
     }
@@ -3659,8 +3659,8 @@ bDischarge = false;
 
                         iFc = (2*iFc -iBattLoad);
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
-                        if (iPowerHome>e3dc_config.peakshave&&iFc>0)
-                            iFc = -90;
+                        if (iPowerHome>e3dc_config.peakshave&&iFc+iBattLoad>0)
+                            iFc = -iBattLoad - 10;
                     }
                     else
                         // Besteht noch PV Überschuss?
@@ -3677,8 +3677,8 @@ bDischarge = false;
                                 if (fPower_Grid>e3dc_config.peakshave+2000)
                                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
-                            if (iPowerHome>e3dc_config.peakshave&&iFc>0)
-                                iFc = -90;
+                            if (iPowerHome>e3dc_config.peakshave&&iFc+iBattLoad>0)
+                                iFc = -iBattLoad - 10;
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
