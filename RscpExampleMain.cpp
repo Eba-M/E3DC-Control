@@ -3659,7 +3659,7 @@ bDischarge = false;
 
                         iFc = (2*iFc -iBattLoad);
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
-                        if (iPowerHome>e3dc_config.peakshave&&iFc+iBattLoad>0)
+                        if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>e3dc_config.peakshave&&iFc+iBattLoad>0)
                             iFc = -iBattLoad - 10;
                     }
                     else
@@ -3677,7 +3677,7 @@ bDischarge = false;
                                 if (fPower_Grid>e3dc_config.peakshave+2000)
                                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
-                            if (iPowerHome>e3dc_config.peakshave&&iFc+iBattLoad>0)
+                            if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>e3dc_config.peakshave&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
 //                            iFc = (2*iFc -iBattLoad);
                         }
