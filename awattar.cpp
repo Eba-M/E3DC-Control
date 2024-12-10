@@ -451,7 +451,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 float SollSoc2 = 0;
                 
                 SollSoc2 = fHighprice(w,wetter,h,x3,w[h].pp*aufschlag+Diff,maxpos,maxsoc);
-                SollSoc2 = SollSoc2 +100 - maxsoc - reserve;
+                if (SollSoc2 > maxsoc)
+                    SollSoc2 = SollSoc2 +100 - maxsoc - reserve;
 
                 if (SollSoc2 < fSoC)
                 {
