@@ -404,7 +404,6 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-//            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption) > 0) // x1 Anzahl der Einträge mit höheren Preisen
 //                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
                 if ((w[h].pp>w[l1].pp*aufschlag+Diff))
@@ -942,7 +941,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     if (f4 > 1&&x2<10)
                         f6 = (f7*(x2+1)+(10-x2)*f6)/(11);
                     else
-                        f6=f7;
+                        if (f7>0)
+                            f6=f7;
 //                    if (x2<10)
 //                    f6 = (f6*(x2)+f8*(10-x2))/10;
 
