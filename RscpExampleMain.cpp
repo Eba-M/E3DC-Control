@@ -3090,8 +3090,10 @@ int LoadDataProcess() {
         static time_t rettime = 0;
     int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
     if (e3dc_config.aWATTar)
-        ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
-
+        if (e3dc_config.openmeteo)
+        ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
+        else
+            ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
         if (ret == 2) rettime = t;
         if (rettime > 0&&t-rettime<900&&ret==1)
             ret = 0;
