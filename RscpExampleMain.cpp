@@ -6151,7 +6151,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                    case TAG_SE_EP_RESERVE: {        // response for TAG_SE_REQ_EP_RESERVE
                         uint8_t ucSEIndex = 0;
                         float fEPTEMP = 0;
-                        printf("\n<EP: ");
+//                        printf("\n<EP: ");
                         std::vector<SRscpValue> SEData = protocol->getValueAsContainer(response);
                         for(size_t i = 0; i < SEData.size(); ++i) {
                           if(SEData[i].dataType == RSCP::eTypeError) {
@@ -6185,7 +6185,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                           }
                         }
                         protocol->destroyValueData(SEData);
-                        printf(" :EP>\n\n");
+//                        printf(" :EP>\n\n");
                         break;
                     }
 
