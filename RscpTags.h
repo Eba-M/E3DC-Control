@@ -696,4 +696,10 @@
 #define TAG_WB_REQ_PARAM_1                                  	0x0E04101B
 #define TAG_WB_RSP_PARAM_1                                  	0x0E84101B
 
+#define TAG_SE_REQ_SET_EP_RESERVE                             0x1B000010
+#define TAG_SE_REQ_EP_RESERVE                                 0x1B000009
+#define TAG_SE_EP_RESERVE                                     0x1B800009
+#define TAG_SE_PARAM_EP_RESERVE                               0x1B040023
+#define TAG_SE_PARAM_EP_RESERVE_W                             0x1B040033
+#define TAG_SE_PARAM_EP_RESERVE_MAX_W                         0x1B040034
 #endif

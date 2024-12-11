@@ -184,7 +184,7 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -571,7 +571,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
 //                int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve);
 
-                ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve);
+                ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve+notstromreserve);
             }
 
             if (w.size() == 0) return;
@@ -624,7 +624,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
-             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, ladeleistung);
+             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve+notstromreserve, ladeleistung);
              if (e3dc.debug) {printf("NWj%i %i %i %f %f \n",j,ret,e3dc.maximumLadeleistung,e3dc.speichergroesse,ladeleistung);
                  sleep(1);}
              if (ret == 1)

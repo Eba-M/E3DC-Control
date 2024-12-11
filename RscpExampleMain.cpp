@@ -79,6 +79,7 @@ static int32_t iBattLoad;
 static int iPowerBalance = 0;
 static int iPowerHome = 0;
 static uint8_t iNotstrom = 0;
+static float fNotstromreserve = 0; // aus dem System übernommene Notstromreserve für AWReserve berücksichtigen
 static time_t tE3DC, tWBtime;
 static int hh,mm,ss;
 
@@ -5024,6 +5025,9 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, TAG_EMS_REQ_POWER_GRID);
         protocol.appendValue(&rootValue, TAG_EMS_REQ_EMERGENCY_POWER_STATUS);
 //        protocol.appendValue(&rootValue, TAG_EMS_REQ_REMAINING_BAT_CHARGE_POWER);
+        // EP Reserve (Emergency Power)
+            protocol.appendValue(&rootValue, TAG_SE_REQ_EP_RESERVE);
+
         if(iBattPowerStatus == 0)
         {
             protocol.appendValue(&rootValue, TAG_EMS_REQ_GET_POWER_SETTINGS);
@@ -6097,10 +6101,12 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     case TAG_EMS_MAX_CHARGE_POWER: {              // 101 response for TAG_EMS_MAX_CHARGE_POWER
                         uint32_t uPower = protocol->getValueAsUInt32(&PMData[i]);
                         if (uPower < e3dc_config.maximumLadeleistung)
-                            {if (uPower < 1500)
-                                  e3dc_config.maximumLadeleistung = 1500; else
-                                   e3dc_config.maximumLadeleistung = uPower;
-                            printf("MAX_CHARGE_POWER %i W\n", uPower);}
+                        {
+/*                            if (uPower < 1500)
+                                e3dc_config.maximumLadeleistung = 1500; else
+                                    e3dc_config.maximumLadeleistung = uPower;
+*/                            printf("MAX_CHARGE_POWER %i W\n", uPower);
+                        }
                         break;
                     }
                     case TAG_EMS_MAX_DISCHARGE_POWER: {              //102 response for TAG_EMS_MAX_DISCHARGE_POWER
@@ -6141,6 +6147,48 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 //            sleep(10);
             break;
         }
+            // MARK: EP_RESERVE
+                   case TAG_SE_EP_RESERVE: {        // response for TAG_SE_REQ_EP_RESERVE
+                        uint8_t ucSEIndex = 0;
+                        float fEPTEMP = 0;
+                        printf("\n<EP: ");
+                        std::vector<SRscpValue> SEData = protocol->getValueAsContainer(response);
+                        for(size_t i = 0; i < SEData.size(); ++i) {
+                          if(SEData[i].dataType == RSCP::eTypeError) {
+                              // handle error for example access denied errors
+                              uint32_t uiErrorCode = protocol->getValueAsUInt32(&SEData[i]);
+                              printf("Tag 0x%08X received error code %u.\n", SEData[i].tag, uiErrorCode);
+                              return -1;
+                          }
+                          switch(SEData[i].tag) {
+                            case TAG_SE_PARAM_EP_RESERVE: {              // response for TAG_SE_PARAM_EP_RESERVE
+                                float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
+                                fNotstromreserve = fEPTEMP;
+//                                printf(" EP_RESERVE: %0.5f ", fEPTEMP);
+                                break;
+                            }
+                            case TAG_SE_PARAM_EP_RESERVE_W: {              // response for TAG_SE_PARAM_EP_RESERVE_W
+                                float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
+//                                printf(" EP_RESERVE_W: %0.5f ", fEPTEMP);
+                                break;
+                            }
+                            case TAG_SE_PARAM_EP_RESERVE_MAX_W: {              // response for TAG_SE_PARAM_EP_RESERVE_MAX_W
+                                float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
+//                                printf(" EP_RESERVE_MAX_W: %0.5f ", fEPTEMP);
+                                break;
+                            }
+                          // ...
+                          default:
+                              // default behaviour
+                              //printf("Unknown SE tag %08X\n", response->tag);
+                              break;
+                          }
+                        }
+                        protocol->destroyValueData(SEData);
+                        printf(" :EP>\n\n");
+                        break;
+                    }
+
     // ...
     default:
         // default behavior
@@ -6327,7 +6375,7 @@ static void mainLoop(void)
             if (e3dc_config.WPWolf&&wolf.size()>0)
                 zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
@@ -6522,10 +6570,10 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt, iDayStat); // im Master nicht aufrufen
                 if (e3dc_config.test)
-                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5);
+                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
             }
             while (e3dc_config.test)
                 LoadDataProcess();
