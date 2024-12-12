@@ -1583,6 +1583,8 @@ int wolfstatus()
 
     return 0;
 }
+static float fcurrentGrid = 0;
+static float fsollGrid = 0;
 
 int mqtt()
 {
@@ -1595,7 +1597,7 @@ if ((e3dc_config.MQTTavl > 0)&&(tE3DC % e3dc_config.MQTTavl) == 0)
     MQTTsend(e3dc_config.mqtt2_ip,buf);
     sprintf(buf,"E3DC-Control/BattL -m '%i' ",iBattLoad);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
-    sprintf(buf,"E3DC-Control/Grid -m '%0.2f %0.2f %0.2f'",fPower_Grid,fBatt_SOC,float(iPower_Bat));
+    sprintf(buf,"E3DC-Control/Grid -m '%0.2f %0.2f %0.2f %0.2f %0.2f'",fPower_Grid,fBatt_SOC,float(iPower_Bat),fcurrentGrid);
     MQTTsend(e3dc_config.mqtt2_ip,buf);
 
     if (e3dc_config.debug) printf("D4b\n");
@@ -1659,7 +1661,7 @@ int MQTTE3DC(float f[3])
         static int WP_status = -1;
         int status;
         char path[1024];
-        char var [4] [20];
+        char var [5] [20];
         memset(path, 0x00, sizeof(path));
 
         if (WP_status < 2)
@@ -1677,7 +1679,7 @@ int MQTTE3DC(float f[3])
         if (mfp != NULL)
             while (fgets(path, 1024, mfp) != NULL)
             {
-                status = sscanf(path, "%s %s %s", var[0], var[1], var[2]);
+                status = sscanf(path, "%s %s %s %s %s ", var[0], var[1], var[2], var[3], var[4]);
                 for (int x1=0;x1<status;x1++)
                     f[x1]=atof(var[x1]);
             }
@@ -3479,10 +3481,12 @@ bDischarge = false;
 
     //  wenn unload < 0 dann wird ab sonnenuntergang bis sonnenaufgang - unload auf 0% entladem
     static float average = 0;
-    float f[3];
+    float f[5];
     f[0] = 0;
     f[1] = 0;
     f[2] = 0;
+    f[3] = 0;
+    f[4] = 0;
 
     if (e3dc_config.unload<0)
     {
@@ -3553,8 +3557,8 @@ bDischarge = false;
         }
         
         float f4 = (t_alt%(900))+1; //(0..899) daher +1
-        float fcurrentGrid = iGridStat[Gridstat]/f4;
-        float fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4+1);
+         fcurrentGrid = iGridStat[Gridstat]/f4;
+         fsollGrid = (e3dc_config.peakshave*900-iGridStat[Gridstat])/(900-f4+1);
         static int iFc0 = 0;
         int iFc1 = iFc;  // angefordertete Leistung
         if (
@@ -3770,14 +3774,31 @@ bDischarge = false;
                                 iFc = iFc3;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
+                        
 //Einspeisung beim Master, Leistung abschöpfen
 //                            if (f[0]<1000)
 //                                iFc = iFc -f[0];
-                                
-
+                            
+                            if (f[2]==0)
+                            { // Master-WR arbeitet nicht
+                                fcurrentGrid = f[3];
+                                fsollGrid = f[4];
+                                if (fcurrentGrid>e3dc_config.peakshave-50||fsollGrid<e3dc_config.peakshave+50)
+                                {
+                                    // Peakshave Grenze erreich Entladeleistung erhöhen
+                                    //                        if (fsollGrid < e3dc_config.peakshave&&f4>800)
+                                    if (fsollGrid-100 < fPower_Grid&&f4>800)
+                                        iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
+                                    else
+                                        if (fcurrentGrid>e3dc_config.peakshave-100)
+                                            //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
+                                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
+                                    
+                                }
+                            }
                             printf("%c[K\n", 27 );
                             if (iFc ==0) iFc = 1;
-                            printf("f[0,2] %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],iFc, int(f[2])*100/iFc, f[1]);
+                            printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc, int(f[2])*100/iFc, f[1]);
 
                             if (iFc<iBattLoad)
                             iFc = (2*iFc -iBattLoad);
