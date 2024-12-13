@@ -597,7 +597,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
     fprintf(fp,"\n Simulation \n\n");
 //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
-         float soc_alt;
+            float soc_alt = soc;;
 //            soc = soc - e3dc.AWReserve; // Berücksichtigung der Reserve
             for (int j = 0;j<w.size();j++)
          {
@@ -631,7 +631,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              { if (anforderung > ladeleistung)
                  soc = soc_alt + ladeleistung; 
              else
+             {
+                 if (soc-notstromreserve>-anforderung)
                  soc = soc_alt + anforderung;
+                 else
+                     soc = notstromreserve;
+             }
                  if (soc > 100) soc = 100;
              } else
                  if (ret == 0) {
