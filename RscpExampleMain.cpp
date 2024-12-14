@@ -43,6 +43,8 @@ static int iAvBatt_Count900 = 0;
 static uint8_t WBToggel;
 static uint8_t WBchar[8];
 static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
+static uint8_t WBcharALG[8]; // Steuerstring zur Wallbox
+static uint8_t WBcharPara2[8]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
 
 
@@ -505,6 +507,7 @@ bool GetConfig()
         e3dc_config.peakshavesoc = 0;
         e3dc_config.peakshaveuppersoc = 50;
         e3dc_config.peakshavepvcharge = -1;
+        e3dc_config.wbtest = 0; // debugausgaben für die WB einschalten
         e3dc_config.wbmode = 4;
         e3dc_config.wbminlade = 1000;
         e3dc_config.wbminSoC = 10;
@@ -805,6 +808,8 @@ bool GetConfig()
                         e3dc_config.ht = atoi(value);
                     else if(strcmp(var, "htsockel") == 0)
                         e3dc_config.htsockel = atoi(value);
+                    else if(strcmp(var, "wbtest") == 0)
+                        e3dc_config.wbtest = atoi(value);
                     else if(strcmp(var, "wbmode") == 0)
                         e3dc_config.wbmode = atoi(value);
                     else if(strcmp(var, "wbminlade") == 0)
@@ -4733,7 +4738,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
                     {
                         WBchar6[4] = 1;
-                        WBchar6[0] = 2; // Netz
+                        WBchar6[0] = 2; // Netz  Mischmodus
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                         bWBmaxLadestrom = true;
                         bWBLademodus = false;    //Grid
@@ -5270,7 +5275,7 @@ if (e3dc_config.ext7)
 //        protocol.appendValue(&WBContainer, TAG_WB_REQ_STATUS);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_1);
-//        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
+        protocol.appendValue(&WBContainer, TAG_WB_REQ_PARAM_2);
         protocol.appendValue(&WBContainer, TAG_WB_REQ_EXTERN_DATA_ALG);
 
         protocol.appendValue(&WBContainer, TAG_WB_REQ_PM_POWER_L1);
@@ -5903,18 +5908,6 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 */
                     case (TAG_WB_RSP_PARAM_1): {              // response for TAG_RSP_PARAM_1
 
-                        
-/*                       printf(" WB Param_1\n");
-                        printf(" datatype %08X", PMData[i].dataType);
-                        printf(" length %02X", PMData[i].length);
-                        printf(" data");
-                        for (size_t y = 0; y<PMData[i].length; y++) {
-                            if (y%4 == 0)
-                            printf(" ");
-                        printf("%02X", PMData[i].data[y]);
-                        }
-                        printf("\n");
-*/
                         std::vector<SRscpValue> WBData = protocol->getValueAsContainer(&PMData[i]);
 
                         for(size_t i = 0; i < WBData.size(); ++i) {
@@ -5937,11 +5930,13 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 */
                                     
                                     bWBLademodus = (WBchar[0]&1);
-//                                    bWBLademodus = bWBSonne;
-                                    WBchar6[0]=WBchar[0];
+//                                    bWBLademodus = (WBchar[3]&128);
+
+                                    //                                    bWBLademodus = bWBSonne;
+//                                    WBchar6[0]=WBchar[0];
 //                                    WBchar6[0]=2+bWBSonne;
                                     printf("%c[K\n", 27 );
-                                    printf("WB: Mode %02X ",uint8_t(cWBALG));
+                                    printf("WB: Mode %02X %02X ",uint8_t(cWBALG),uint8_t(WBchar[3]));
 //                                    for(size_t x = 0; x < sizeof(WBchar); ++x)
 //                                        printf("%02X ", uint8_t(WBchar[x]));
                                     if (bWBLademodus) printf("SUN"); else printf("Grid");
@@ -5990,6 +5985,25 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     if (bWBmaxLadestrom) printf(" Manu");
                                     else printf(" Auto");
                                     printf(" %u/%uA ",iWBSoll,WBchar[2]);
+                                    if (e3dc_config.wbtest)
+                                    {
+                                        printf("| ");
+                                        for (int j=0;j<sizeof(WBchar6);j++)
+                                            printf("%02X ", WBchar6[j]);
+
+                                        printf("|Para1 ");
+                                        for (int j=0;j<sizeof(WBchar);j++)
+                                            printf("%02X ", WBchar[j]);
+
+                                        printf("|ALG ");
+                                        for (int j=0;j<sizeof(WBcharALG);j++)
+                                            printf("%02X ", WBcharALG[j]);
+
+                                        printf("|Para2 ");
+                                        for (int j=0;j<sizeof(WBcharPara2);j++)
+                                            printf("%02X ", WBcharPara2[j]);
+
+                                    }
                                     printf("%c[K", 27 );
                                     break;
                                 }
@@ -6013,13 +6027,50 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     printf("%02X", WBData[i].data[1]);
                                     printf("%02X", WBData[i].data[2]);
                                     printf("%02X\n", WBData[i].data[3]);
-*/                        }
+*/
+                        }
                        
                             protocol->destroyValueData(WBData);
                         break;
 
                     }
-                    case (TAG_WB_EXTERN_DATA_ALG): {              // response for TAG_RSP_PARAM_1
+                    case (TAG_WB_RSP_PARAM_2): {              // response for TAG_RSP_PARAM_1
+
+                         std::vector<SRscpValue> WBData = protocol->getValueAsContainer(&PMData[i]);
+
+                        for(size_t i = 0; i < WBData.size(); ++i) {
+                            if(WBData[i].dataType == RSCP::eTypeError) {
+                                // handle error for example access denied errors
+                                uint32_t uiErrorCode = protocol->getValueAsUInt32(&WBData[i]);
+                                printf("Tag 0x%08X received error code %u.\n", WBData[i].tag, uiErrorCode);
+                                return -1;
+                            }
+                            // check each PM sub tag
+                            switch(WBData[i].tag) {
+                                case TAG_WB_EXTERN_DATA: {              // response for TAG_RSP_PARAM_1
+                                    memcpy(&WBcharPara2,&WBData[i].data[0],sizeof(WBcharPara2));
+                                    break;
+                                }
+                                    
+                                case TAG_WB_EXTERN_DATA_LEN: {              // response for TAG_RSP_PARAM_2
+                                    uint8_t iLen = protocol->getValueAsUChar8(&WBData[i]);
+                                    break;
+                                    
+                                }
+                                    
+                                default:
+                                    
+                                    printf("Unknown WB tag %08X", WBData[i].tag);
+                                    printf(" datatype %08X", WBData[i].dataType);
+                            }
+                        }
+                       
+                            protocol->destroyValueData(WBData);
+                        break;
+
+                    }
+
+                         case (TAG_WB_EXTERN_DATA_ALG): {              // response for TAG_RSP_PARAM_1
 
                          std::vector<SRscpValue> WBData = protocol->getValueAsContainer(&PMData[i]);
 
@@ -6035,6 +6086,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                  case TAG_WB_EXTERN_DATA: {              // response for TAG_RSP_PARAM_1
                                      char WBchar[8];
                                      memcpy(&WBchar,&WBData[i].data[0],sizeof(WBchar));
+                                     memcpy(&WBcharALG,&WBData[i].data[0],sizeof(WBcharALG));
                                      cWBALG = WBchar[2];
                                      bWBConnect = (WBchar[2]&8);
                                      bWBCharge = (WBchar[2]&32);

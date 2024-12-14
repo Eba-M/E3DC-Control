@@ -1250,6 +1250,12 @@ if (not e3dc.statistik)
         {
         
         printf("GET api.awattar\n");
+        rawtime = rawtime+24*3600;
+        ptm = localtime(&rawtime); // nächster Tag
+
+
+            sprintf(line,"curl -A 'Mozilla/5.0' -s -X GET 'https://www.epexspot.com/en/market-results?market_area=DE-LU&auction=MRC&delivery_date=%4d-%02d-%02d&underlying_year=&modality=Auction&sub_modality=DayAhead&technology=&data_mode=table'>awattar.txt",ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
+//            int res = system(line);
 
 
 if (e3dc.AWLand == 1)
@@ -1284,6 +1290,7 @@ if (e3dc.AWLand == 2)
                 if(fp)
                 {
                     w.clear();
+                    time(&rawtime);
                     
                     while (fgets(line, sizeof(line), fp))
                     {
@@ -1553,12 +1560,14 @@ else
     }
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
+
     while (ch1.size()>0&&(ch1.size()>(ladedauer*4)||ch1[ch1.size()-1].hh>bis))
     {
         ch1.erase(ch1.end()-1);
     }
+
 // ist die letzte Stunde weniger als eine ganze Stunde?
-    if (ch1.size()>=4)
+/*    if (ch1.size()>=4)
     {
         int la = ch1[ch1.size()-4].hh/3600;
         while (ch1.size()>=1&&ch1[ch1.size()-1].hh/3600!=la)
@@ -1566,7 +1575,7 @@ else
             ch1.erase(ch1.end()-1);
         }
     }
-    
+*/
     
     if (chch == 0) // Nur bei 0 ausgeben
     {
