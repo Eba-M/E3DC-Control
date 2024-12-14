@@ -5929,7 +5929,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                     printf("\n");
 */
                                     
-                                    bWBLademodus = (WBchar[0]&1);
+                                    bWBLademodus = bWBSonne;
 //                                    bWBLademodus = (WBchar[3]&128);
 
                                     //                                    bWBLademodus = bWBSonne;
