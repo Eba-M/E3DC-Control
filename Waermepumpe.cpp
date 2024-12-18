@@ -525,9 +525,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 char key2[] = " Data \n";
                 memset(&line, 0, sizeof(line));
                 int ret = sizeof(line);
-                fgets(line,sizeof(line),fp);
+//                fgets(line,sizeof(line),fp);
                 while (fp != NULL)
                 {
+                    memset(&line, 0, sizeof(line));
                     if (fgets(line,sizeof(line),fp)==NULL)
                         break;
                     ret = (strcmp(key,line));
@@ -596,7 +597,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             printf("\n Simulation %zu %zu\n",w.size(),wetter.size());
 
     fprintf(fp,"\n Simulation \n\n");
-//         fprintf(fp,"\n Start %0.2f SoC\n",soc);
+    fprintf(fp," Notstromreserve = %2.2f%% \n",notstromreserve);
+
+            //         fprintf(fp,"\n Start %0.2f SoC\n",soc);
             float soc_alt = soc;;
 //            soc = soc - e3dc.AWReserve; // Berücksichtigung der Reserve
             for (int j = 0;j<w.size();j++)
@@ -628,24 +631,26 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //             if (e3dc.debug) {printf("NWj%i %i %i %f %f \n",j,ret,e3dc.maximumLadeleistung,e3dc.speichergroesse,ladeleistung);
 //                 sleep(1);}
              if (ret == 1)
-             { if (anforderung > ladeleistung)
-                 soc = soc_alt + ladeleistung; 
-             else
-             {
-                 if (soc-notstromreserve>-anforderung)
-                 soc = soc_alt + anforderung;
-                 else
-                     soc = notstromreserve;
+             { 
+                if (anforderung > ladeleistung)
+                    soc = soc_alt + ladeleistung;
+                else
+                {
+                    soc = soc_alt + anforderung;
+                }
+                if (soc > 100) soc = 100;
+                if (soc < notstromreserve) soc = notstromreserve;
              }
-                 if (soc > 100) soc = 100;
-             } else
-                 if (ret == 0) {
+             else
+             if (ret == 0)
+             {
                      float soc2 = soc_alt + fsolar;
                      if (soc>soc2)
                          soc = soc2;
                      if (soc > 100) soc = 100;
                      if (soc < 0) soc = 0;
-                 } else
+            }
+             else
                      if (soc > 95) soc = 95;
              if (e3dc.openmeteo)
              {

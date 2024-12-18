@@ -3799,6 +3799,15 @@ bDischarge = false;
                                             //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
                                     
+                                } else 
+                                {
+                                    if (fpeakshaveminsoc-5 > fBatt_SOC)
+                                    {
+                                        // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
+                                        
+                                        iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
+                                    }
+
                                 }
                             }
                             printf("%c[K\n", 27 );
