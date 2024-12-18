@@ -655,17 +655,17 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              if (e3dc.openmeteo)
              {
                  if (e3dc.AWSimulation == 1)
-                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt),wetter[j].solar);
+                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                  else
-                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,soc_alt,(soc-soc_alt));
+                     sprintf(line,"%0.2f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt));
              }
              else
              {
                  
                  if (e3dc.AWSimulation == 1)
-                     sprintf(line,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt),wetter[j].solar);
+                     sprintf(line,"%i %0.2f %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                  else
-                     sprintf(line,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp,soc_alt,(soc-soc_alt));
+                     sprintf(line,"%i %0.2f %0.2f %0.2f \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,soc_alt,(soc-soc_alt));
                  
              }
              fprintf(fp,line);
@@ -676,9 +676,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
             for (int j = 0;j<w.size();j++)
                 if (e3dc.openmeteo)
-                    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                    fprintf(fp,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                 else
-                    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
+                    fprintf(fp,"%i %0.2f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
 
          fclose(fp);
          fclose(fp1);
