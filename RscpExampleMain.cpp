@@ -2918,6 +2918,8 @@ int LoadDataProcess() {
 // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
                         int wbpower = fMaxPower_WB;
                         if (wbpower == 0) wbpower = 11000;
+// Energiebedarf der Wallbox berücksichtigen
+/*
                         if (ch.size()>0)
                         {
                             for (int j=0;j<ch.size();j++)
@@ -2926,7 +2928,7 @@ int LoadDataProcess() {
                                     wbpower/e3dc_config.speichergroesse/40;
                                     
                         }
-
+*/
                     }
                     if (x6 > 0)
                     {
