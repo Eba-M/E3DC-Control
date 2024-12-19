@@ -601,8 +601,8 @@ if (mode == 0) // Standardmodus
             x3 = Lowprice(w,0, w.size()-1, w[0].pp);   // bis zum high suchen
             SollSoc = fHighprice(w,wetter,0,l1,w[0].pp*aufschlag+Diff,0,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
             float SollSoc2 = fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,0,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine                                             // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
-            if (maxsoc>100)
-                fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,fSoC,maxpos,maxsoc);  // 
+//            if (maxsoc>100)
+                fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,fSoC,maxpos,maxsoc);  //
 
             if (x1==x3) {
                 if (SollSoc2>SollSoc)
