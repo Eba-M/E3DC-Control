@@ -2610,8 +2610,10 @@ int LoadDataProcess() {
 //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
 // oder die IST+10 <= SOLL
                      (temp[7]>0&&temp[10]>=(temp[11]+10))
+// Soll >== Ist+10
                     ||
                      (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
+// VL Temp Wolf < Soll
                     ||
                      (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                      )
