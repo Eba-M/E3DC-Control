@@ -447,8 +447,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 
                 SollSoc = fHighprice(w,wetter,h,l1,w[h].pp*aufschlag+Diff,0,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
                 float SollSoc2 = 0;
-                
                 SollSoc2 = fHighprice(w,wetter,h,x3,w[h].pp*aufschlag+Diff,0,maxpos,maxsoc);
+                if (maxsoc>100)
+                    SollSoc2 = fHighprice(w,wetter,h,x3,w[h].pp*aufschlag+Diff,fSoC,maxpos,maxsoc);
                 
                 if (SollSoc2 < fSoC)
                 {
@@ -600,7 +601,8 @@ if (mode == 0) // Standardmodus
             x3 = Lowprice(w,0, w.size()-1, w[0].pp);   // bis zum high suchen
             SollSoc = fHighprice(w,wetter,0,l1,w[0].pp*aufschlag+Diff,0,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
             float SollSoc2 = fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,0,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine                                             // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
-
+            if (maxsoc>100)
+                fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,fSoC,maxpos,maxsoc);  // 
 
             if (x1==x3) {
                 if (SollSoc2>SollSoc)
