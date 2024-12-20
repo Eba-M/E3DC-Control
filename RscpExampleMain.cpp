@@ -2553,8 +2553,26 @@ int LoadDataProcess() {
             
             if (ALV < 0) ALV = shelly_get();
             
-            static time_t wp_t;
-            if (t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
+            static time_t wp_t,wp_t1;
+            // Leistung der Wolf bei Kesselbetrieb
+            // Die Leistung der Wolf wird solange angehoben, wie der Wärmepreis unter WPZWEPVon liegt
+                            
+                            if (t%60<5&&t-wp_t1>50&&wolf.size()>0&&temp[17]==1)
+                            {
+                                if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                {
+                                    float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
+                                    if (fkosten > e3dc_config.WPZWEPVon)
+                                        ALV--;
+                                    else
+                                        ALV++;
+                                    
+                                    shelly(ALV);
+                                    wp_t1 = t;
+                                }
+                            }
+
+            if (t%60<5&&t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
             {
                 if (ALV!=0)
                 if (ALV > e3dc_config.shelly0V10Vmax
@@ -2581,23 +2599,6 @@ int LoadDataProcess() {
                     wp_t = t;
                 }
 */
-                // Leistung der Wolf bei Kesselbetrieb
-                // Die Leistung der Wolf wird solange angehoben, wie der Wärmepreis unter WPZWEPVon liegt
-                                
-                                if (t%60<5&&t-wp_t>50&&wolf.size()>0&&temp[17]==1)
-                                {
-                                    if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
-                                    {
-                                        float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
-                                        if (fkosten > e3dc_config.WPZWEPVon)
-                                            ALV--;
-                                        else
-                                            ALV++;
-                                        
-                                        shelly(ALV);
-                                        wp_t = t;
-                                    }
-                                }
 
                 // muss Leistung angehoben werden?
                 int mm=t%(24*3600)/60;
@@ -2676,7 +2677,7 @@ int LoadDataProcess() {
                     (
                      (
 // wenn beide Heizkreise 5K über dem Soll liegen
-                      (PVon < 0 || fPVtoday<fPVSoll) &&
+                      (PVon < 0 || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
                       (
                        (
                         (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
