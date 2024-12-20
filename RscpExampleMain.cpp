@@ -1179,8 +1179,8 @@ int iModbusTCP()
                     }
 // Wenn die Wolf läuft, dann die die zulufttemperatur untergewichten
                     if ((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
-                        isttemp = isttemp + 2;
-// wenn die WP läuft wird die isttemp um 2° hochgesetzt ???? überprüfen
+                        isttemp = isttemp + 1;
+// wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
                     if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
                         //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                     {
@@ -1189,7 +1189,7 @@ int iModbusTCP()
                         //                    brequest = true;
                     }
 // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
-                    if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1&&wetter[0].kosten>0)
+                    if (isttemp>(e3dc_config.WPZWE+2)&&temp[17]==1&&wetter[0].kosten>0)
                     {
                         iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
                         iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
@@ -1901,6 +1901,7 @@ int shelly(int ALV)
     if (e3dc_config.shelly0V10V&&shellytimer < t&&ALV!=ALV_alt)
     {
         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
+        if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
         if (ALV>0)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         else
@@ -2673,7 +2674,7 @@ int LoadDataProcess() {
                         )           // HK
                       )
                      )
-                    ||  temp[17]==1 // Pellets ein?
+                    ||  (temp[17]==1&&fspreis/(wolf[wphl].wert/wolf[wppw].wert)>e3dc_config.WPZWEPVon) // Pellets ein? WP zu teuer
 
                     ||
 // Puffertemperaturen zu hoch ??
@@ -2772,6 +2773,26 @@ int LoadDataProcess() {
                         wp_t = t;
                     }
 */
+// Leistung der Wolf bei Kesselbetrieb
+// Die Leistung der Wolf wird solange angehoben, wie der Wärmepreis unter WPZWEPVon liegt
+                
+                if (t%60<5&&t-wp_t>50&&wolf.size()>0&&temp[17]==1)
+                {
+                    if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                    {
+                        float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
+                        if (fkosten > e3dc_config.WPZWEPVon)
+                            ALV--;
+                        else
+                            ALV++;
+                        
+                        shelly(ALV);
+                        wp_t = t;
+                    }
+                }
+                
+
+
                 if ((t%60)==0)
                     ALV = shelly_get();
             }

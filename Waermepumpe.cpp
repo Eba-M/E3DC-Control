@@ -259,7 +259,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                wetter.clear();
                 fatemp = 0;
                 if ((item1!=NULL)&&wetter.size()>0)
-                while (wetter[0].hh < item1->valueint)
+                while (wetter[0].hh < item1->valueint&&wetter.size()>0)
                     wetter.erase(wetter.begin());
                 while (item1!=NULL)
                 {
@@ -562,6 +562,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     ret =  fscanf(fp,"%f %f %f %f %f %f \n ",&hh,&ww.pp,&we.hourly,&we.wpbedarf,&we.solar, &we.temp);
                     if (ret==6){
                         ww.hh = hh * 3600;
+                        ww.pp=ww.pp*10;
                         we.hh = hh * 3600;
                         wetter.push_back(we);
                         w.push_back(ww);
