@@ -1254,7 +1254,7 @@ if (not e3dc.statistik)
         if (e3dc.aWATTar||e3dc.unload<0)
 // aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
         {
-        
+  /*
         printf("GET api.awattar\n");
         rawtime = rawtime+24*3600;
         ptm = localtime(&rawtime); // nächster Tag
@@ -1263,7 +1263,7 @@ if (not e3dc.statistik)
             sprintf(line,"curl -A 'Mozilla/5.0' -s -X GET 'https://www.epexspot.com/en/market-results?market_area=DE-LU&auction=MRC&delivery_date=%4d-%02d-%02d&underlying_year=&modality=Auction&sub_modality=DayAhead&technology=&data_mode=table'>awattar.txt",ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
             int res = system(line);
 
-
+*/
 if (e3dc.AWLand == 1)
         sprintf(line,"curl -s -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
 if (e3dc.AWLand == 2)
