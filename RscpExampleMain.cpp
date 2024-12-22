@@ -2557,9 +2557,9 @@ int LoadDataProcess() {
             // Leistung der Wolf bei Kesselbetrieb
             // Die Leistung der Wolf wird solange angehoben, wie der Wärmepreis unter WPZWEPVon liegt
                             
-                            if (t%60<5&&t-wp_t1>50&&wolf.size()>0&&temp[17]==1)
+                            if (temp[17]==1)
                             {
-                                if (wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                if (t%60<5&&t-wp_t1>50&&wolf.size()>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                 {
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
                                     if (fkosten > e3dc_config.WPZWEPVon)
@@ -2577,7 +2577,7 @@ int LoadDataProcess() {
                                     shelly(ALV);
                                     wp_t1 = t;
                                 }
-                            }
+                            } else
 
             if (t%60<5&&t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
             {
