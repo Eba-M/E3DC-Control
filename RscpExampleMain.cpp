@@ -2565,7 +2565,8 @@ int LoadDataProcess() {
                                     if (fkosten > e3dc_config.WPZWEPVon)
                                         ALV--;
                                     else
-                                        ALV++;
+                                        if (fkosten < e3dc_config.WPZWEPVon-0.5)
+                                            ALV++;
 
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
