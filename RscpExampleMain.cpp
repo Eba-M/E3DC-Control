@@ -2417,7 +2417,7 @@ int LoadDataProcess() {
                 if (e3dc_config.WPWolf&&(fPVtoday>fPVSoll||bHK2off==0)) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
 // Nur hochsetzen, wenn die WP läuft
-                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0||ALV>0) &&
+                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0&&ALV>0) &&
                         (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
                     {
                         if (temp[4]<(iWPHK1max-5))
@@ -2562,10 +2562,10 @@ int LoadDataProcess() {
                                 if (t%60<5&&t-wp_t1>50&&wolf.size()>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                 {
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
-                                    if (fkosten > e3dc_config.WPZWEPVon)
+                                    if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
                                         ALV--;
                                     else
-                                        if (fkosten < e3dc_config.WPZWEPVon-0.5)
+                                        if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon)
                                             ALV++;
 
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
