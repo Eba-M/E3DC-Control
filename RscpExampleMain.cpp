@@ -2375,7 +2375,7 @@ int LoadDataProcess() {
 
                 if 
                 (
-                    ((m1 > (sunriseAt+60)||PVon>0)
+                    ((m1 > (sunriseAt+60)||PVon>e3dc_config.WPPVon)
                     &&
                     m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0))
                     ||
@@ -2399,9 +2399,9 @@ int LoadDataProcess() {
                     (
                      m1 < (sunriseAt)
                     ||
-                     (m1 < (sunriseAt+60)&&PVon<0)
+                     (m1 < (sunriseAt+60)&&PVon<e3dc_config.WPPVoff)
                     ||
-                     (m1 > (sunriseAt+720)&&PVon<0) //FBH 12h Laufzeit fest
+                     (m1 > (sunriseAt+720)&&PVon<e3dc_config.WPPVoff) //FBH 12h Laufzeit fest
 // AT zu hoch und Soll unter 24°
                     || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<240)
                      )
@@ -2418,7 +2418,7 @@ int LoadDataProcess() {
                 {
 // Nur hochsetzen, wenn die WP läuft
                     if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0||ALV>0) &&
-                        (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>200)
+                        (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>e3dc_config.WPPVon)
                     {
                         if (temp[4]<(iWPHK1max-5))
                             iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
@@ -2448,7 +2448,7 @@ int LoadDataProcess() {
                             (temp[14]<temp[5]+50||(wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14]))))
                          &&
                          (
-                          (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<-200)
+                          (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<e3dc_config.WPPVoff)
                            )
                           ))
                           ||
@@ -2647,7 +2647,7 @@ int LoadDataProcess() {
                     )
                 {
                     ALV = shelly_get();
-                    if (PVon>0)
+                    if (PVon>e3dc_config.WPPVon)
                     {
                         if  (
                              mm>sunriseAt&&mm<sunsetAt&&
@@ -2685,7 +2685,7 @@ int LoadDataProcess() {
                     (
                      (
 // wenn beide Heizkreise 5K über dem Soll liegen
-                      (PVon < 0 || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
+                      (PVon < e3dc_config.WPPVoff || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
                       (
                        (
                         (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
