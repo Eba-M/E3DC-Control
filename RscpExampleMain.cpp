@@ -1895,7 +1895,7 @@ int shelly(int ALV)
 {
     char path[1024];
     char buf[127];
-    static int ALV_alt = 0;
+    static int ALV_alt = -1;
     FILE *fp;
     fp==NULL;
     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
@@ -2559,20 +2559,25 @@ int LoadDataProcess() {
                             
                             if (temp[17]==1)
                             {
-                                if (t%60<5&&t-wp_t1>50&&wolf.size()>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                if (t%60<5&&t-wp_t1>50&&wolf.size()>0)
                                 {
-                                    float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
-                                    if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
-                                        ALV--;
-                                    else
-                                        if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon)
-                                            ALV++;
-
-                                    if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
-                                    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
-
-                                    if (fkosten>e3dc_config.WPZWEPVon+1)
-                                        ALV = 0;
+                                    ALV = shelly_get();
+                                    if (ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                    {
+                                        
+                                        float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
+                                        if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
+                                            ALV--;
+                                        else
+                                            if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon)
+                                                ALV++;
+                                        
+                                        if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
+                                        if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
+                                        
+                                        if (fkosten>e3dc_config.WPZWEPVon+1)
+                                            ALV = 0;
+                                    }
                                     if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.5)
                                         ALV = e3dc_config.shelly0V10Vmin;
                                     shelly(ALV);
