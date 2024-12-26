@@ -112,7 +112,8 @@ float fpeakshaveendsoc;
 // Ziel-Soc bis zu dieser Grenze darf entladen werden
 // Bei gerigem Ertrag wird dieser verdoppelt  = n x Peakshavesoc
 // hohen Ertrag wird dieser bis auf 5% herabgesetzt d.h. halbiert
-static u_int8_t btasmota_ch1 = 8; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis 8 = standby
+static u_int8_t btasmota_ch1 = 8; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
+// 4 = PVon 8 = standby 16 = dynamischer Wärmepreis berechnet
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
@@ -2575,11 +2576,17 @@ int LoadDataProcess() {
                                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                         if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                         
-                                        if (fkosten>e3dc_config.WPZWEPVon+1)
+                                        if (fkosten>e3dc_config.WPZWEPVon+1){
                                             ALV = 0;
+                                            btasmota_ch1 ^=16;
+                                    
+                                        }
                                     }
-                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.5)
+                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.5){
                                         ALV = e3dc_config.shelly0V10Vmin;
+                                        btasmota_ch1|=16;
+                                        
+                                    }
                                     shelly(ALV);
                                     wp_t1 = t;
                                 }
@@ -2830,7 +2837,7 @@ int LoadDataProcess() {
                 btasmota_ch1 ^=1;
             if (btasmota_ch1 & 2&&wetter[0].kosten==0)
                 btasmota_ch1 ^=2;
-            if (btasmota_ch1 & 8&&not(btasmota_ch1 &4) &&wetter[0].kosten==0)
+            if (btasmota_ch1 & 8&&not(btasmota_ch1 &4) &&not(btasmota_ch1 &16) &&wetter[0].kosten==0)
             {
                 if (ALV > 0)
                 {
@@ -2850,7 +2857,7 @@ int LoadDataProcess() {
             if (btasmota_ch1)
             {
                 if (((btasmota_ch1&1||btasmota_ch1&2)
-                     &&ALV == 0&&wetter[0].kosten>0)
+                     &&ALV == 0&&wetter[0].kosten>0&&btasmota_ch1&16)
                     ||btasmota_ch1&4)
                 {
                     if (ALV == 0)
