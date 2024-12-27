@@ -2570,15 +2570,19 @@ int LoadDataProcess() {
                                         if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
-                                            if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon)
+                                            if (fkosten < e3dc_config.WPZWEPVon-0.2||PVon>e3dc_config.WPPVon)
                                                 ALV++;
                                         
                                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                         if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                         
                                         if (fkosten>e3dc_config.WPZWEPVon+1){
-                                            ALV = 0;
-                                            btasmota_ch1 ^=16;
+                                            ALV--;
+                                            if (ALV < e3dc_config.shelly0V10Vmin)
+                                            {
+                                                ALV = 0;
+                                                btasmota_ch1 ^=16;
+                                            }
                                     
                                         }
                                     }
