@@ -2576,7 +2576,8 @@ int LoadDataProcess() {
                                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                         if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                         
-                                        if (fkosten>e3dc_config.WPZWEPVon+1){
+                                        if (fkosten>e3dc_config.WPZWEPVon+1&&PVon<e3dc_config.WPPVoff)
+                                        {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
                                             {
