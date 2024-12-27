@@ -2570,8 +2570,10 @@ int LoadDataProcess() {
                                         if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
-                                            if (fkosten < e3dc_config.WPZWEPVon-0.2||PVon>e3dc_config.WPPVon)
+                                            if (fkosten < e3dc_config.WPZWEPVon-0.2||PVon>e3dc_config.WPPVon){
                                                 ALV++;
+                                                btasmota_ch1|=16;
+                                            }
                                         
                                         if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                         if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
