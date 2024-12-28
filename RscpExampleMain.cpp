@@ -2418,8 +2418,18 @@ int LoadDataProcess() {
                 if (e3dc_config.WPWolf&&(fPVtoday>fPVSoll||bHK2off==0)) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
 // Nur hochsetzen, wenn die WP läuft
-                    if (not bHK1off && temp[1]>0 && temp[6]>0 && temp[4]<(iWPHK1max)&& temp[5]<(iWPHK1max) && (temp[17] == 0||ALV>0) &&
-                        (temp[4]-temp[5])<=10 && (t-HK1_t)>60 && btasmota_ch1&&PVon>e3dc_config.WPPVon)
+                    if (not bHK1off 
+                        && temp[1]>0
+                        && temp[6]>0
+                        && temp[4]<(iWPHK1max)
+                        && temp[5]<(iWPHK1max)
+                        && temp[17] == 0
+                        && ALV>0
+                        && (temp[4]-temp[5])<=10
+                        && (t-HK1_t)>60
+                        && btasmota_ch1
+                        && PVon>e3dc_config.WPPVon
+                        )
                     {
                         if (temp[4]<(iWPHK1max-5))
                             iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
