@@ -392,13 +392,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         float faval = fSoC - fConsumption + anforderung;
         if (faval < -0.01)
         {
-            if (fConsumption>100)
-                faval = fSoC-minsoc + anforderung - 100 + maxsoc + reserve;
-            else
-                faval = fSoC-minsoc + anforderung - fConsumption + maxsoc + reserve;
-
+            faval = fSoC-minsoc + anforderung;
         }
-//        float faval = fSoC-minsoc + anforderung;
         if (faval >=-0.01) // x1 Anzahl der Einträge mit höheren Preisen
         {
                 fSoC = fSoC + anforderung + reserve;
