@@ -390,9 +390,10 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         float faval = fSoC - fConsumption + anforderung;
-        if (faval < -0.01)
+        if (fConsumption>minsoc&&minsoc>0)
         {
-            faval = fSoC-minsoc + anforderung;
+            if (fConsumption > 95-reserve) fConsumption = 95-reserve;
+            faval = fSoC-fConsumption + maxsoc -minsoc + anforderung;
         }
         if (faval >=-0.01) // x1 Anzahl der Einträge mit höheren Preisen
         {
@@ -458,7 +459,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 float SollSoc2 = 0;
                 SollSoc2 = fHighprice(w,wetter,h,x3,w[h].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);
                 SollSoc2 = fHighprice(w,wetter,h,maxpos,w[h].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);
-                SollSoc2 = SollSoc2 + 100 - maxsoc - reserve;
+                if (SollSoc>SollSoc2)
+                {
+                    if (SollSoc > 95) SollSoc = 95;
+                    SollSoc2 = SollSoc2 + SollSoc - maxsoc - reserve;
+                }
                 if (SollSoc2 < fSoC)
                 {
                     fSoC = fSoC + reserve;
@@ -563,9 +568,10 @@ if (mode == 0) // Standardmodus
 //    float faval = fSoC-minsoc;
 //    float faval = fSoC-minsoc - 100 + maxsoc + reserve;
     float faval = fSoC - fConsumption;
-    if (faval < -0.01)
+    if (fConsumption>minsoc&&minsoc>0)
     {
-        faval = fSoC-minsoc;
+        if (fConsumption > 95-reserve) fConsumption = 95-reserve;
+        faval = fSoC-fConsumption + maxsoc -minsoc;
     }
 
         if (faval >=-0.01)// x1 Anzahl der Einträge mit höheren Preisen
@@ -618,9 +624,14 @@ if (mode == 0) // Standardmodus
             x1 = Lowprice(w,0, hi, w[0].pp);   // bis zum high suchen
             x3 = Lowprice(w,0, w.size()-1, w[0].pp);   // bis zum high suchen
             SollSoc = fHighprice(w,wetter,0,l1,w[0].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
-            float SollSoc2 = fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine                                             // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
-            if (maxsoc>99)
-                fHighprice(w,wetter,0,w.size()-1,w[0].pp*aufschlag+Diff,fSoC,maxpos,maxsoc);  //
+            float SollSoc2 = 0;
+            SollSoc2 = fHighprice(w,wetter,0,x3,w[0].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);
+            SollSoc2 = fHighprice(w,wetter,0,maxpos,w[0].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);
+            if (SollSoc>SollSoc2)
+            {
+                if (SollSoc > 95) SollSoc = 95;
+                SollSoc2 = SollSoc2 + SollSoc - maxsoc - reserve;
+            }
 
             if (x1==x3) {
                 if (SollSoc2>SollSoc)
