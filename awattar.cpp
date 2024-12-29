@@ -561,7 +561,12 @@ if (mode == 0) // Standardmodus
     fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,minsoc,maxpos,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
 //        float faval = fSoC-minsoc - 100 + maxsoc;
 //    float faval = fSoC-minsoc;
-    float faval = fSoC-minsoc - 100 + maxsoc + reserve;
+//    float faval = fSoC-minsoc - 100 + maxsoc + reserve;
+    float faval = fSoC - fConsumption;
+    if (faval < -0.01)
+    {
+        faval = fSoC-minsoc;
+    }
 
         if (faval >=-0.01)// x1 Anzahl der Einträge mit höheren Preisen
         {
