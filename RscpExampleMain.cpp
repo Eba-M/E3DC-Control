@@ -2599,10 +2599,10 @@ int LoadDataProcess() {
                                     
                                         }
                                     }
-                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.8){
+                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.2)
+                                    {
                                         ALV = e3dc_config.shelly0V10Vmin;
-                                        btasmota_ch1|=16;
-                                        
+                                        btasmota_ch1|=16;                                        
                                     }
                                     shelly(ALV);
                                     wp_t1 = t;
