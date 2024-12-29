@@ -2599,7 +2599,7 @@ int LoadDataProcess() {
                                     
                                         }
                                     }
-                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.5){
+                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.8){
                                         ALV = e3dc_config.shelly0V10Vmin;
                                         btasmota_ch1|=16;
                                         
