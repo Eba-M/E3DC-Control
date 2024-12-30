@@ -112,7 +112,7 @@ float fpeakshaveendsoc;
 // Ziel-Soc bis zu dieser Grenze darf entladen werden
 // Bei gerigem Ertrag wird dieser verdoppelt  = n x Peakshavesoc
 // hohen Ertrag wird dieser bis auf 5% herabgesetzt d.h. halbiert
-static u_int8_t btasmota_ch1 = 8; // Anforderung LWWP 0 = aus, 1 = ein; 2 = Preis
+static u_int8_t btasmota_ch1 = 8; // Anforderung LWWP 0 = aus(EVU), 1 = ein; 2 = Preis
 // 4 = PVon 8 = standby 16 = dynamischer Wärmepreis berechnet
 static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis, 4=überschuss
 #define sizeweekhour 24*7*4
@@ -2580,7 +2580,7 @@ int LoadDataProcess() {
                                         if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
-                                            if (fkosten < e3dc_config.WPZWEPVon-0.2||PVon>e3dc_config.WPPVon){
+                                            if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon){
                                                 ALV++;
                                                 btasmota_ch1|=16;
                                             }
@@ -2602,8 +2602,12 @@ int LoadDataProcess() {
                                     if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.2)
                                     {
                                         ALV = e3dc_config.shelly0V10Vmin;
-                                        btasmota_ch1|=16;                                        
+                                        btasmota_ch1|=16;
                                     }
+// wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
+                                    if (ALV==0&&fspreis/fcop>e3dc_config.WPZWEPVon+1)
+                                        btasmota_ch1=0;
+
                                     shelly(ALV);
                                     wp_t1 = t;
                                 }
@@ -2846,7 +2850,7 @@ int LoadDataProcess() {
 // bWP -1 Abschaltung beibehalten
             if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<450&&not(bHK1off&&bHK2off))
             {
-                btasmota_ch1  |=8;
+//                btasmota_ch1  |=8;
                 bWP = 0;
             }
 
