@@ -1632,7 +1632,7 @@ else
 // neue einträge erst in die ch1 bearbeiten
     for (int l = 0;(l< w.size()); l++)
     {
-        if (w[l].hh>=von&&w[l].hh<=bis&&(w[l].hh||w[l].hh<=rawtime))
+        if (w[l].hh>=von&&w[l].hh<bis&&(w[l].hh||w[l].hh<=rawtime))
         {
             cc.hh = w[l].hh;
             cc.ch = chch;
