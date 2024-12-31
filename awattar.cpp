@@ -466,7 +466,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 }
                 if (SollSoc2 < fSoC)
                 {
-                    fSoC = fSoC + reserve;
+                    fSoC = fSoC + reserve + anforderung;
                     return 0;
                 }
                 // Nachladen aus dem Netz erforderlich, wenn für die Abdeckung der Preisspitzen
@@ -491,7 +491,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 else
                     //                if ((SollSoc)>fSoC-1)
                 {
-                    fSoC = fSoC + reserve;
+                    fSoC = fSoC + reserve + anforderung;
                     return 0;
                 } // Nicht entladen da die Preisdifferenz zur Spitze noch zu groß
             }
@@ -504,11 +504,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
-                fSoC = fSoC + reserve;
+                fSoC = fSoC + reserve + anforderung;
                 return 1;
             }
         }
-        fSoC = fSoC + reserve;
+        fSoC = fSoC + reserve + anforderung;
         return 0;  // kein Ergebniss gefunden
         
         
