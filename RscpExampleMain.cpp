@@ -3851,8 +3851,8 @@ bDischarge = false;
 //                            if (f[0]<1000)
 //                                iFc = iFc -f[0];
                             
-                            if (f[2]==0)
-                            { // Master-WR arbeitet nicht
+                            if (f[2]==0||(-f[3]+f[4])>2000)
+                            { // Master-WR arbeitet nicht oder muss nicht laden
                                 fcurrentGrid = f[3];
                                 fsollGrid = f[4];
                                 if (fcurrentGrid>e3dc_config.peakshave-50||fsollGrid<e3dc_config.peakshave+50)
