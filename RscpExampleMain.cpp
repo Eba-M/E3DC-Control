@@ -3915,7 +3915,7 @@ bDischarge = false;
                     if (iFc < 0)
                     {
                         if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
-                        average = average * .95 + float(iFc)*0.05;
+                        average = average * .9 + float(iFc)*0.1;
                         iFc = average;
                     }
                     else
