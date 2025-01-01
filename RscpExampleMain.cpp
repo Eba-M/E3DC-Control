@@ -2979,11 +2979,11 @@ int LoadDataProcess() {
                         }
                         wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
 // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
-                        int wbpower = fMaxPower_WB;
+                        int wbpower = fPower_WB;
                         if (wbpower == 0) wbpower = 11000;
 // Energiebedarf der Wallbox berücksichtigen
-/*
-                        if (ch.size()>0)
+
+                        if (ch.size()>0&&fPower_WB>0)
                         {
                             for (int j=0;j<ch.size();j++)
                                 if (ch[j].hh==wetter[x1].hh)
@@ -2991,7 +2991,7 @@ int LoadDataProcess() {
                                     wbpower/e3dc_config.speichergroesse/40;
                                     
                         }
-*/
+
                     }
                     if (x6 > 0)
                     {
