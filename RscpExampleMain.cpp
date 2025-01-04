@@ -2573,6 +2573,9 @@ int LoadDataProcess() {
                                 if (t%60<5&&t-wp_t1>50&&wolf.size()>0)
                                 {
                                     ALV = shelly_get();
+                                    if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
+                                    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
+
                                     if (ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                     {
                                         
@@ -2848,7 +2851,7 @@ int LoadDataProcess() {
                 bWP = -1;
             }
 // bWP -1 Abschaltung beibehalten
-            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<450&&not(bHK1off&&bHK2off))
+            if (not e3dc_config.WPSperre&&bWP<=0&&btasmota_ch1==0&&(temp[14])<500&&not(bHK1off&&bHK2off))
             {
 //                btasmota_ch1  |=8;
                 bWP = 0;

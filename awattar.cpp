@@ -580,6 +580,7 @@ if (mode == 0) // Standardmodus
         if (fConsumption > 95-reserve) fConsumption = 95-reserve;
         faval = fSoC-fConsumption + maxsoc -minsoc;
     }
+    printf("faval %2.2f ",faval);
 
         if (faval >=-0.01)// x1 Anzahl der Einträge mit höheren Preisen
         {
