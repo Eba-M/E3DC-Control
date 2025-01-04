@@ -440,7 +440,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             wetter[x1].kosten = 0;
                                             
                                             // wenn der Wärmepreis der WP günstiger ist als Pellets
-                                            if (f6<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
+                                            if (f9<e3dc.WPZWEPVon)   // ist der Srompreis günstig?
                                                 wetter[x1].kosten = f4;
                                                 if (not e3dc.statistik) // wenn statistik, dann die verlaufswerte nutzen
                                                 {
