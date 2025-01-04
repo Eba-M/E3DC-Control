@@ -6722,7 +6722,7 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt, iDayStat); // im Master nicht aufrufen
                 if (e3dc_config.test)
                     mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
