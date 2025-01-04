@@ -582,7 +582,7 @@ if (mode == 0) // Standardmodus
     }
     printf("faval %2.2f ",faval);
 
-        if (faval >=-0.01)// x1 Anzahl der Einträge mit höheren Preisen
+        if (faval >=-0.01)
         {
             fSoC = fSoC + reserve;
             return 1;

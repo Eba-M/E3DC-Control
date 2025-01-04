@@ -395,7 +395,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         float f7 =((w[x1].pp/10)*((100+e3dc.AWMWSt)/100)+e3dc.AWNebenkosten);
                                         float f8 =  f7*f4; // kosten = strompreis * Stromaufnahme
                                         float f6 =  f8/f5;  // kosten / Wärmebedarf
-
+                                        float f9 = f7/f2;
 // Es werden immer die gerechneten Werte genommen
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
@@ -429,7 +429,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             && e3dc.WPZWEPVon<0)
                                             ||
 // ZWE über Kosten aktiviert
-                                            (e3dc.WPZWEPVon>0&&f6>e3dc.WPZWEPVon)) // Hysterese 1Grad
+                                            (e3dc.WPZWEPVon>0&&f6>e3dc.WPZWEPVon) // Hysterese 1Grad
+                                            ||
+// ZWE über Kosten aktiviert
+                                            (e3dc.WPZWEPVon>0&&f9>e3dc.WPZWEPVon)) // Wärmepreis
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;

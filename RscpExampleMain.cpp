@@ -2608,7 +2608,7 @@ int LoadDataProcess() {
                                         btasmota_ch1|=16;
                                     }
 // wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
-                                    if (ALV==0&&fspreis/fcop>e3dc_config.WPZWEPVon+1)
+                                    if (ALV==0&&fspreis/fcop>e3dc_config.WPZWEPVon+.2)
                                         btasmota_ch1=0;
 
                                     shelly(ALV);
