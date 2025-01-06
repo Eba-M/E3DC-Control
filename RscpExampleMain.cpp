@@ -1110,6 +1110,7 @@ static int dummy[100];
 static int bWP = 0;
 static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
 static int bHK1off = 0;
+static float isttemp = -99;
 
 int iModbusTCP()
 {
@@ -1171,7 +1172,7 @@ int iModbusTCP()
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
                 if (wolf.size()>0)
                 {
-                    float isttemp = wolf[wpzl].wert;
+                    isttemp = wolf[wpzl].wert;
                     if (wetter.size() > 0)
                     {
                         isttemp  = (isttemp  + wetter[0].temp)/2;
@@ -4276,7 +4277,7 @@ bDischarge = false;
         if (tasmota_status[1] == 0) printf("PV:OFF ");
         if (tasmota_status[1] == 1) 
             printf("PV:ON%i ",btasmota_ch2);
-        printf("%i %i %i",PVon,t_alt-wpontime,t_alt-wpofftime);
+        printf("%i %i %i %2.2f",PVon,t_alt-wpontime,t_alt-wpofftime,isttemp);
     }
 
     if (strcmp(e3dc_config.heizstab_ip, "0.0.0.0") != 0)
