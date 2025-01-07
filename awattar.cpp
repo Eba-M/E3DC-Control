@@ -577,11 +577,12 @@ if (mode == 0) // Standardmodus
 //    float faval = fSoC-minsoc;
 //    float faval = fSoC-minsoc - 100 + maxsoc + reserve;
     float faval = fSoC - fConsumption;
-    if (fConsumption>minsoc&&minsoc>0)
+/*    if (fConsumption>minsoc&&minsoc>0)
     {
         if (fConsumption > 95-reserve) fConsumption = 95-reserve;
         faval = fSoC-fConsumption + maxsoc -minsoc;
     }
+*/
     printf("faval %2.2f ",faval);
 
         if (faval >=-0.01)

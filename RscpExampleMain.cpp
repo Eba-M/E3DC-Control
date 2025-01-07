@@ -940,7 +940,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket;
 long iLength,myiLength;
@@ -1172,12 +1172,21 @@ int iModbusTCP()
 // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
                 if (wolf.size()>0)
                 {
-                    if (wolf[wphl].wert > 0)
+                    if (
+                        ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
+                        &&
+//                        ((now - wolf[wpal].t < 300)&&wolf[wpal].wert<wolf[wpzl].wert)
+//                        &&
+                        ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)
+
+                        )
                         isttemp = wolf[wpzl].wert;
                     if (wetter.size() > 0)
                     {
                         isttemp  = (isttemp  + wetter[0].temp)/2;
-                        if ((now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90)
+                        if (
+                            (now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90
+                            )
                             isttemp = wetter[0].temp;
                     }
 // Wenn die Wolf läuft, dann die die zulufttemperatur untergewichten
@@ -1496,7 +1505,9 @@ int wolfstatus()
                 wo.AK = "SGT";
                 wolf.push_back(wo);
                 wo.feld = "Ablufttemperatur";
+                wpal = wolf.size();
                 wo.AK = "AL";
+                wo.wert = -99;
                 wolf.push_back(wo);
                 wo.feld = "Verdichterfrequenz";
                 wo.AK = "VFQ";
