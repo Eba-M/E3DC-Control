@@ -1189,14 +1189,15 @@ int iModbusTCP()
                             )
                             isttemp = wetter[0].temp;
                     }
-// Wenn die Wolf läuft, dann die die zulufttemperatur untergewichten
+// Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
                     if (
-                        ((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                        (((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                         ||
-                        ((now - wolf[wphl].t < 300)&&wolf[wphl].wert!=0)
-                        ||
-                        ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0)
-
+                        ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0))
+                        &&
+                        ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)
+                        &&
+                        ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
                         )
                         isttemp = (wolf[wpzl].wert + wetter[0].temp)/2 + 1;
 // wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
