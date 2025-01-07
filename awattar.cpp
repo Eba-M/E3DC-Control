@@ -600,6 +600,7 @@ if (mode == 0) // Standardmodus
 //                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
             if ((w[0].pp>w[l1].pp*aufschlag+Diff)&&(fConsumption==0||fConsumption<fSoC))
             {
+                faval = fConsumption;
                 fSoC = fSoC + reserve;
                 return 1;
             }

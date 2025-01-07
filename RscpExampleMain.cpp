@@ -1198,7 +1198,7 @@ int iModbusTCP()
                         ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0)
 
                         )
-                        isttemp = isttemp + 1;
+                        isttemp = (wolf[wpzl].wert + wetter[0].temp)/2 + 1;
 // wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
                     if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
                         //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
