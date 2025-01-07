@@ -373,6 +373,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     {
         float offset;
         float SollSoc = 0;
+        float ZielSoC = 95;
         float Verbrauch;
 // Verbrauch bis solarenÜberschuss??
         int ret = 0;
@@ -392,7 +393,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         float faval = fSoC - fConsumption + anforderung;
         if (fConsumption>minsoc&&minsoc>0)
         {
-            if (fConsumption > 95-reserve) fConsumption = 95-reserve;
+//            if (fConsumption > ZielSoC-reserve) fConsumption = ZielSoC-reserve;
             faval = fSoC-fConsumption + maxsoc -minsoc + anforderung;
         }
         if (faval >=-0.01) // x1 Anzahl der Einträge mit höheren Preisen
@@ -461,8 +462,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 SollSoc2 = fHighprice(w,wetter,h,maxpos,w[h].pp*aufschlag+Diff,minsoc,maxpos,maxsoc);
                 if (SollSoc>SollSoc2)
                 {
-                    if (SollSoc > 95) SollSoc = 95;
+                    if (SollSoc > ZielSoC) SollSoc = ZielSoC;
                     SollSoc2 = SollSoc2 + SollSoc - maxsoc;
+                    SollSoc2 = minsoc + ZielSoC - reserve -maxsoc;
                 }
                 if (SollSoc2 < fSoC)
                 {
@@ -477,7 +479,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 if (x2 == x1) // keine weiteren Lows
                     //                    SollSoc = SollSoc2 +fSoC;
                     SollSoc = SollSoc2;
-                if (SollSoc > 95-reserve) SollSoc = 95-reserve;
+                if (SollSoc > ZielSoC-reserve) SollSoc = ZielSoC-reserve;
                 if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {
