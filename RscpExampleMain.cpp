@@ -1217,8 +1217,16 @@ int iModbusTCP()
                     }
                 }
 
-// Heizkreise schalten
+// Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
                 if (temp[1]==0&&
+                    (
+                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
+                     (now - wolf[wphl].t > 300)||
+                     (now - wolf[wppw].t > 300)||
+                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                     )
+                    &&
+
                     (
                         ((tasmota_status[0]==0||temp[14]>300)&&bHK1off==0)
                      ||
@@ -1231,6 +1239,13 @@ int iModbusTCP()
   //                  brequest = true;
                 }
                 if (temp[7]==0&&
+                    (
+                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
+                     (now - wolf[wphl].t > 300)||
+                     (now - wolf[wppw].t > 300)||
+                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                     )
+                    &&
                     (
                      (
                       (tasmota_status[0]==0||temp[14]>300)&&bHK2off==0
@@ -1250,6 +1265,9 @@ int iModbusTCP()
 // wenn der Puffer > 30° läuft die FBH nach
                     ||
                      (bHK1off>0)
+                    ||
+                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
+                     (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                      )
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
@@ -1263,6 +1281,9 @@ int iModbusTCP()
                      (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
                     ||
                      (bHK2off>0)
+                     ||
+                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
+                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
