@@ -940,7 +940,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket;
 long iLength,myiLength;
@@ -1223,6 +1223,8 @@ int iModbusTCP()
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
                      (now - wolf[wphl].t > 300)||
                      (now - wolf[wppw].t > 300)||
+                     ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
+                     ||
                      ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
                     &&
@@ -1243,6 +1245,8 @@ int iModbusTCP()
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
                      (now - wolf[wphl].t > 300)||
                      (now - wolf[wppw].t > 300)||
+                     ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
+                     ||
                      ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
                     &&
@@ -1268,7 +1272,12 @@ int iModbusTCP()
                     ||
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
-                     )
+                    ||
+                     (now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert>0
+                    ||
+                     (now - wolf[wpbhg].t < 300)&&wolf[wpbhg].wert==6
+
+                    )
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                 {
@@ -1515,6 +1524,11 @@ int wolfstatus()
                 wo.AK = "ALV";
                 wpalv = wolf.size();
                 wolf.push_back(wo);
+                wo.feld = "EEV K"; // Ventil auf Kühlen = Abtaubetrieb
+                wo.AK = "EEV K";
+                wo.wert = 0;
+                wpeevk = wolf.size();
+                wolf.push_back(wo);
                 wo.feld = "Heizkreisdurchfluss";
                 wo.AK = "HD";
                 wolf.push_back(wo);
@@ -1538,6 +1552,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
                 wo.AK = "BHG";
+                wpbhg = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Verdichterstatus";
                 wo.AK = "VS";
@@ -1605,6 +1620,7 @@ int wolfstatus()
                             (wolf[x1].feld=="Betriebsart Heizgerät"))
                         {
                             item = item->child;
+                            wolf[x1].wert = item->valuedouble;
                             item = item->next;
                             wolf[x1].status = item->valuestring;
                         }
@@ -2638,8 +2654,9 @@ int LoadDataProcess() {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
                                             {
-                                                ALV = 0;
                                                 btasmota_ch1 ^=16;
+                                                if (btasmota_ch1<=1)
+                                                    ALV = 0;
                                             }
                                     
                                         }
