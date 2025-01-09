@@ -463,8 +463,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 if (SollSoc>SollSoc2)
                 {
                     if (SollSoc > ZielSoC) SollSoc = ZielSoC;
-                    SollSoc2 = SollSoc2 + SollSoc - maxsoc;
-                    SollSoc2 = minsoc + ZielSoC - reserve -maxsoc;
+                    if (SollSoc>maxsoc)
+                    {
+                        SollSoc2 = SollSoc2 + SollSoc - maxsoc;
+//                        SollSoc2 = minsoc + SollSoc2;
+                    }
                 }
                 if (SollSoc2 < fSoC)
                 {
@@ -642,7 +645,8 @@ if (mode == 0) // Standardmodus
             if (SollSoc>SollSoc2)
             {
                 if (SollSoc > 95) SollSoc = 95;
-                SollSoc2 = SollSoc2 + SollSoc - maxsoc;
+                if (SollSoc > maxsoc)
+                    SollSoc2 = SollSoc2 + SollSoc - maxsoc;
             }
 
             if (x1==x3) {
