@@ -1275,7 +1275,7 @@ int iModbusTCP()
                     ||
                      (now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert>0
                     ||
-                     (now - wolf[wpbhg].t < 300)&&wolf[wpbhg].wert==6
+                     (now - wolf[wpbhg].t < 100)&&wolf[wpbhg].wert==6
 
                     )
                     )
@@ -1293,6 +1293,10 @@ int iModbusTCP()
                      ||
                       ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
                       (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                     ||
+                      (now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert>0
+                     ||
+                      (now - wolf[wpbhg].t < 100)&&wolf[wpbhg].wert==6
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach

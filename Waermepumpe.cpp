@@ -432,7 +432,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             (e3dc.WPZWEPVon>0&&f6>e3dc.WPZWEPVon) // Hysterese 1Grad
                                             ||
 // ZWE über Kosten aktiviert
-                                            (e3dc.WPZWEPVon>0&&f9>e3dc.WPZWEPVon-.02)) // Wärmepreis
+                                            (e3dc.WPZWEPVon>0&&f9>e3dc.WPZWEPVon-0.2)) // Wärmepreis
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;
