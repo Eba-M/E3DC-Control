@@ -2637,11 +2637,11 @@ int LoadDataProcess() {
                                     ALV = shelly_get();
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
+                                    float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
 
                                     if (ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                     {
                                         
-                                        float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
                                         if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
@@ -2659,7 +2659,7 @@ int LoadDataProcess() {
                                             if (ALV < e3dc_config.shelly0V10Vmin)
                                             {
                                                 btasmota_ch1 ^=16;
-                                                if (btasmota_ch1<=1)
+//                                                if (btasmota_ch1<=1)
                                                     ALV = 0;
                                             }
                                     
@@ -2671,8 +2671,17 @@ int LoadDataProcess() {
                                         btasmota_ch1|=16;
                                     }
 // wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
-                                    if (ALV==0&&fspreis/fcop>e3dc_config.WPZWEPVon+.2)
+                                    if (fspreis/fcop>e3dc_config.WPZWEPVon+.2
+                                        &&
+                                        fkosten>e3dc_config.WPZWEPVon+1
+                                        )
+                                    {
                                         btasmota_ch1=0;
+                                        ALV = 0;
+                                    }
+
+                                    if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
+                                    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
 
                                     shelly(ALV);
                                     wp_t1 = t;
