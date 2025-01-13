@@ -1296,7 +1296,7 @@ if (not e3dc.statistik)
         ptm = localtime(&rawtime); // nächster Tag
             
 // Abfragen EPEXSPOT
-        if (simu)
+        if (w.size()<96)
         {
             
             sprintf(line,"./epexspot.py>awattar.txt");
@@ -1317,6 +1317,8 @@ if (not e3dc.statistik)
                     x3 = 0;
                     ptm->tm_hour = 0;
                     a_time = mktime(ptm);
+                    ptm->tm_min = 0;
+                    ptm->tm_sec = 0;
                     
                     int status;
                     char var [2] [20];
@@ -1372,6 +1374,8 @@ if (e3dc.AWLand == 2)
             (w.size()<12)
             ||
             (e3dc.openmeteo&&w.size()<48)
+             ||
+             (e3dc.openmeteo&&w.size()==96)
             )
             ) // alte aWATTar Datei verarbeiten
         {
@@ -1394,7 +1398,8 @@ if (e3dc.AWLand == 2)
                 
                 if(fp)
                 {
-                    w.clear();
+                    if (w.size()!=96)
+                        w.clear();
                     time(&rawtime);
                     
                     while (fgets(line, sizeof(line), fp))
@@ -1430,6 +1435,9 @@ if (e3dc.AWLand == 2)
                     
                     fclose(fp);
                     printf("GET api.awattar done\n");
+                    std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
+                        return a.hh < b.hh;});
+
                     
                 };
             }
