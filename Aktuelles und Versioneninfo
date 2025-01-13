@@ -1,3 +1,22 @@
+Neue Version C2025.01.13
+
+nachdem am Sonntag wiedermal die EPEX-Daten verzögert kamen, habe ich direkt den Datenbezug von EPEXSPOT scharfgestellt. Es wird ein Python-Skript (epeyspot.py) benutzt, das im Verzeichnis E3DC-V1 hinterlegt ist.
+Es wird eine Python Modul beautifulsoup4 verwendet, das evtl. noch manuell installiert sein muss.
+Ich konnte es mit
+sudo apt install python3-bs4
+erfolgreich installieren, nachdem andere Methoden wie pip nicht den gewünschten Erfolg brachten.
+Man kann das Python-Skript epeyspot.py zum Testen auch direkt aufrufen:
+
+./epeyspot.py oder
+E3DC-V1/epeyspot.py
+
+je nachdem in welchem Verzeichnis man sich befindet.
+Dann werden die gesuchten Börsenpreise des nächsten Börsentages angezeigt.
+Wird das Skript vor 12:50 aufgerufen, kann es passieren, dass die Börsenpreise noch nicht verfügbar sind.
+Diese werden offiziell erst ab 13:00 veröffentlicht.
+
+
+
 Version C2024.03.31.0
 
 Parameter Stop und Parameter Statistik hinzugefügt. Bei Stop = 1 wird das Programm beendet um z.B. eine neue Version zu starten. 
