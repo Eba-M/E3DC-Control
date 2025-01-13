@@ -2674,6 +2674,8 @@ int LoadDataProcess() {
                                     if (fspreis/fcop>e3dc_config.WPZWEPVon+.2
                                         &&
                                         fkosten>e3dc_config.WPZWEPVon+1
+                                        &&
+                                        PVon<e3dc_config.WPPVoff
                                         )
                                     {
                                         btasmota_ch1=0;

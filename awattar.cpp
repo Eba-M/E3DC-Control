@@ -1181,7 +1181,8 @@ bool simu = false;
 //    simu = true;
 int ladedauer = 0;
     float strombedarf[24];
-    time_t rawtime;
+    time_t rawtime,a_time;
+    
     struct tm * ptm;
 //    float pp;
     FILE * fp;
@@ -1286,68 +1287,81 @@ if (not e3dc.statistik)
 // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
 //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 
-        if (e3dc.aWATTar||e3dc.unload<0)
+        if ((e3dc.aWATTar||e3dc.unload<0))
 // aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
         {
   
         printf("GET api.awattar\n");
         rawtime = rawtime+24*3600;
         ptm = localtime(&rawtime); // nächster Tag
-
-/*
-            sprintf(line,"chrome  'https://www.epexspot.com/en/market-results?market_area=DE-LU&auction=MRC&delivery_date=%4d-%02d-%02d&underlying_year=&modality=Auction&sub_modality=DayAhead&technology=&data_mode=table'>awattar.html",ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
+            
+// Abfragen EPEXSPOT
+        if (simu)
+        {
+            
+            sprintf(line,"./epexspot.py>awattar.txt");
             int res = system(line);
             if (not simu)
             {
-                fp = fopen("awattar.html","r");
+                fp = fopen("awattar.txt","r");
                 //                        else
                 //            fp = fopen("awattar.out.txt","r");
                 //                            fp = fopen("awattar.out","r");
                 
                 if(fp)
                 {
-                    w.clear();
+                    //                    w.clear();
                     time(&rawtime);
+                    rawtime = rawtime + 24*3600; // nächster Tag
+                    ptm = localtime(&rawtime);
                     x3 = 0;
-                    while (fgets(line, sizeof(line), fp))
+                    ptm->tm_hour = 0;
+                    a_time = mktime(ptm);
+                    
+                    int status;
+                    char var [2] [20];
+                    
+                    fgets(line, sizeof(line), fp);
+                    
                     {
-                        while (x3<200){
-                            x3++;
-                            (fgets(line, sizeof(line), fp));}
-                        
-                        ww.hh = atol(line);
-                        if (fgets(line, sizeof(line), fp))
+                        while (fgets(line, sizeof(line), fp))
                         {
-                            ww.pp = atof(line);
-                            x2 =ww.hh%(24*3600);
-                            x2 = x2/3600;
-                            if (e3dc.openmeteo)
-                                ww.hourly = strombedarf[x2]/4;
-                            else
-                                ww.hourly = strombedarf[x2];
-                            //                            ww.solar = 0;
-                            if ((simu)||(ww.hh+3600>rawtime))
+                            status = sscanf(line, "%s %s ", var[0], var[1]);
+                            
+                            ptm->tm_hour = atol(var[0]);
+                            ww.hh = mktime(ptm);
+                            ww.pp = atof(var[1]);
                             {
+                                x2 =ww.hh%(24*3600);
+                                x2 = x2/3600;
                                 if (e3dc.openmeteo)
-                                {
-                                    for (int x1=0;x1<=3;x1++)
-                                    {
-                                        w.push_back(ww);
-                                        ww.hh = ww.hh + 900;
-                                    }
-                                }
+                                    ww.hourly = strombedarf[x2]/4;
                                 else
-                                    w.push_back(ww);
-                                
+                                    ww.hourly = strombedarf[x2];
+                                //                            ww.solar = 0;
+                                {
+                                    if (e3dc.openmeteo)
+                                    {
+                                        for (int x1=0;x1<=3;x1++)
+                                        {
+                                            w.push_back(ww);
+                                            ww.hh = ww.hh + 900;
+                                        }
+                                    }
+                                    else
+                                        w.push_back(ww);
+                                    
+                                }
                             }
-                        } else break;
+                        }
+                        
                     }
                     
                     fclose(fp);
-                    printf("GET api.awattar done\n");
+                    printf("GET EPEXSPOT done\n");
                 }
             }
-*/
+        }
 
 if (e3dc.AWLand == 1)
         sprintf(line,"curl -s -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
