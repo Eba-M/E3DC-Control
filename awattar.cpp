@@ -1295,75 +1295,6 @@ if (not e3dc.statistik)
         rawtime = rawtime+24*3600;
         ptm = localtime(&rawtime); // nächster Tag
             
-// Abfragen EPEXSPOT
-        if (w.size()<96&&ptm->tm_hour*60+ptm->tm_min>12*60+50)
-        {
-            
-            sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
-            int res = system(line);
-            if (not simu)
-            {
-                fp = fopen("awattar.txt","r");
-                //                        else
-                //            fp = fopen("awattar.out.txt","r");
-                //                            fp = fopen("awattar.out","r");
-                
-                if(fp)
-                {
-                    //                    w.clear();
-                    time(&rawtime);
-                    rawtime = rawtime + 24*3600; // nächster Tag
-                    ptm = localtime(&rawtime);
-                    x3 = 0;
-                    ptm->tm_hour = 0;
-                    a_time = mktime(ptm);
-                    ptm->tm_min = 0;
-                    ptm->tm_sec = 0;
-                    
-                    int status;
-                    char var [2] [20];
-                    
-                    fgets(line, sizeof(line), fp);
-                    
-                    {
-                        while (fgets(line, sizeof(line), fp))
-                        {
-                            status = sscanf(line, "%s %s ", var[0], var[1]);
-                            
-                            ptm->tm_hour = atol(var[0]);
-                            ww.hh = mktime(ptm);
-                            ww.pp = atof(var[1]);
-                            {
-                                x2 =ww.hh%(24*3600);
-                                x2 = x2/3600;
-                                if (e3dc.openmeteo)
-                                    ww.hourly = strombedarf[x2]/4;
-                                else
-                                    ww.hourly = strombedarf[x2];
-                                //                            ww.solar = 0;
-                                {
-                                    if (e3dc.openmeteo)
-                                    {
-                                        for (int x1=0;x1<=3;x1++)
-                                        {
-                                            w.push_back(ww);
-                                            ww.hh = ww.hh + 900;
-                                        }
-                                    }
-                                    else
-                                        w.push_back(ww);
-                                    
-                                }
-                            }
-                        }
-                        
-                    }
-                    
-                    fclose(fp);
-                    printf("GET EPEXSPOT done\n");
-                }
-            }
-        }
 
 if (e3dc.AWLand == 1)
         sprintf(line,"curl -s -X GET 'https://api.awattar.de/v1/marketdata?start=%llu&end=%llu'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out",von,bis);
@@ -1443,6 +1374,77 @@ if (e3dc.AWLand == 2)
             }
         }
     }
+
+        // Abfragen EPEXSPOT
+                if (w.size()<96&&ptm->tm_hour*60+ptm->tm_min>12*60+50)
+                {
+                    
+                    sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
+                    int res = system(line);
+                    if (not simu)
+                    {
+                        fp = fopen("awattar.txt","r");
+                        //                        else
+                        //            fp = fopen("awattar.out.txt","r");
+                        //                            fp = fopen("awattar.out","r");
+                        
+                        if(fp)
+                        {
+                            //                    w.clear();
+                            time(&rawtime);
+                            rawtime = rawtime + 24*3600; // nächster Tag
+                            ptm = localtime(&rawtime);
+                            x3 = 0;
+                            ptm->tm_hour = 0;
+                            a_time = mktime(ptm);
+                            ptm->tm_min = 0;
+                            ptm->tm_sec = 0;
+                            
+                            int status;
+                            char var [2] [20];
+                            
+                            fgets(line, sizeof(line), fp);
+                            
+                            {
+                                while (fgets(line, sizeof(line), fp))
+                                {
+                                    status = sscanf(line, "%s %s ", var[0], var[1]);
+                                    
+                                    ptm->tm_hour = atol(var[0]);
+                                    ww.hh = mktime(ptm);
+                                    ww.pp = atof(var[1]);
+                                    {
+                                        x2 =ww.hh%(24*3600);
+                                        x2 = x2/3600;
+                                        if (e3dc.openmeteo)
+                                            ww.hourly = strombedarf[x2]/4;
+                                        else
+                                            ww.hourly = strombedarf[x2];
+                                        //                            ww.solar = 0;
+                                        {
+                                            if (e3dc.openmeteo)
+                                            {
+                                                for (int x1=0;x1<=3;x1++)
+                                                {
+                                                    w.push_back(ww);
+                                                    ww.hh = ww.hh + 900;
+                                                }
+                                            }
+                                            else
+                                                w.push_back(ww);
+                                            
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            
+                            fclose(fp);
+                            printf("GET EPEXSPOT done\n");
+                        }
+                    }
+                }
+
         if (e3dc.debug)
             printf("wetter.size = %i\n",wetter.size());
 if (wetter.size()==0) return;
