@@ -1299,7 +1299,7 @@ if (not e3dc.statistik)
         if (w.size()<96)
         {
             
-            sprintf(line,"./epexspot.py>awattar.txt");
+            sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
             int res = system(line);
             if (not simu)
             {
