@@ -1296,7 +1296,7 @@ if (not e3dc.statistik)
         ptm = localtime(&rawtime); // nächster Tag
             
 // Abfragen EPEXSPOT
-        if (w.size()<96)
+        if (w.size()<96&&ptm->tm_hour*60+ptm->tm_min>12*60+50)
         {
             
             sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
