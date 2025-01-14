@@ -1440,8 +1440,8 @@ if (e3dc.AWLand == 2)
                             }
                             
                             fclose(fp);
-                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
-                                return a.hh < b.hh;});
+//                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
+//                                return a.hh < b.hh;});
                             printf("GET EPEXSPOT done\n");
                         }
                     }
