@@ -600,7 +600,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
         if (e3dc.debug)
             printf("\n Simulation %zu %zu\n",w.size(),wetter.size());
 
-    fprintf(fp,"\n Simulation \n\n");
+    fprintf(fp,"\n Simulation soc %2.2f%% notstrom soc %2.2f%% \n\n",soc,notstromreserve);
 //    fprintf(fp," Notstromreserve = %2.2f%% \n",notstromreserve);
 
             //         fprintf(fp,"\n Start %0.2f SoC\n",soc);

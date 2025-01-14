@@ -943,7 +943,9 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             feld = "global_tilted_irradiance_instant";
             c = &feld[0];
             item2 = cJSON_GetObjectItemCaseSensitive(item, c );
+            if (item1!=NULL)
             item1 = item1->child;
+            if (item1!=NULL)
             item2 = item2->child;
             int x1 = 0;
             int x2 = 0;
