@@ -6389,12 +6389,13 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                           switch(SEData[i].tag) {
                             case TAG_SE_PARAM_EP_RESERVE: {              // response for TAG_SE_PARAM_EP_RESERVE
                                 float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
-                                fNotstromreserve = fEPTEMP;
+//                                fNotstromreserve = fEPTEMP;
 //                                printf(" EP_RESERVE: %0.5f ", fEPTEMP);
                                 break;
                             }
                             case TAG_SE_PARAM_EP_RESERVE_W: {              // response for TAG_SE_PARAM_EP_RESERVE_W
                                 float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
+                                fNotstromreserve = fEPTEMP / e3dc_config.speichergroesse/10;
 //                                printf(" EP_RESERVE_W: %0.5f ", fEPTEMP);
                                 break;
                             }
@@ -6406,7 +6407,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                           // ...
                           default:
                               // default behaviour
-                              //printf("Unknown SE tag %08X\n", response->tag);
+//                                  float fEPTEMP = protocol->getValueAsFloat32(&SEData[i]);
+//                                  printf("Unknown SE tag %08X\n", response->tag);
                               break;
                           }
                         }
