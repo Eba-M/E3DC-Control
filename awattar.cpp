@@ -1376,7 +1376,7 @@ if (e3dc.AWLand == 2)
     }
 
         // Abfragen EPEXSPOT
-                if (w.size()<96&&ptm->tm_hour*60+ptm->tm_min>12*60+50)
+                if (w.size()<4*14&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=14)
                 {
                     
                     sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
@@ -1440,6 +1440,8 @@ if (e3dc.AWLand == 2)
                             }
                             
                             fclose(fp);
+                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
+                                return a.hh < b.hh;});
                             printf("GET EPEXSPOT done\n");
                         }
                     }
