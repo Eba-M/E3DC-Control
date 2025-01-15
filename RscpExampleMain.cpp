@@ -4883,7 +4883,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     bWBmaxLadestrom = false;
                     // fest auf Automatik einstellen}
                     bWBOn = false;  //Wallbox ist aus
-                    if (bWBCharge)
+                    if (bWBCharge&&iPower_WP>100)
                         WBchar6[4] = 1;
                 }
                 else
