@@ -2663,7 +2663,8 @@ int LoadDataProcess() {
                                     
                                         }
                                     }
-                                    if (ALV==0&&fspreis/fcop<e3dc_config.WPZWEPVon-0.2)
+                                    if ((ALV==0||not (btasmota_ch1&16))
+                                        &&fspreis/fcop<e3dc_config.WPZWEPVon-0.2)
                                     {
                                         ALV = e3dc_config.shelly0V10Vmin;
                                         btasmota_ch1|=16;
@@ -2919,7 +2920,7 @@ int LoadDataProcess() {
  // Bei Übertemperatur > 500 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[13] > 500||temp[14] > 500||bWP<0)&&temp[17==0]) //nur wenn Pellet aus
+            if ((temp[13] > 500||temp[14] > 500||bWP<0)&&temp[17]==0) //nur wenn Pellet aus
             {
                 btasmota_ch1 = 0;
                 bWP = -1;
