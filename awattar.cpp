@@ -1378,14 +1378,14 @@ if (e3dc.AWLand == 2)
     }
 
         // Abfragen EPEXSPOT
-                if (w.size()<4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
+                if (w.size()<4*120&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
                     
-                    sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
+                    sprintf(line,"E3DC-V1/epexspot.py>epexspot.txt");
                     int res = system(line);
                     if (not simu)
                     {
-                        fp = fopen("awattar.txt","r");
+                        fp = fopen("epexspot.txt","r");
                         //                        else
                         //            fp = fopen("awattar.out.txt","r");
                         //                            fp = fopen("awattar.out","r");
@@ -1441,7 +1441,12 @@ if (e3dc.AWLand == 2)
                                 
                             }
                             
-                            fclose(fp);
+                            if (fp!=NULL)
+                                fclose(fp);
+                            fp = fopen("epexspot.txt","w");
+                            if (fp!=NULL)
+                                fclose(fp);
+
 //                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
 //                                return a.hh < b.hh;});
                             printf("GET EPEXSPOT done\n");
