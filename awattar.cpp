@@ -585,8 +585,8 @@ if (mode == 0) // Standardmodus
         if (fConsumption > 95-reserve) fConsumption = 95-reserve;
         faval = fSoC-fConsumption + maxsoc -minsoc;
     }
-*/
     printf("faval %2.2f ",faval);
+ */
 
         if (faval >=-0.01)
         {
@@ -1331,7 +1331,7 @@ if (e3dc.AWLand == 2)
                 
                 if(fp)
                 {
-                    if (w.size()!=96)
+//                    if (w.size()!=96)
                         w.clear();
                     time(&rawtime);
                     
@@ -1378,7 +1378,7 @@ if (e3dc.AWLand == 2)
     }
 
         // Abfragen EPEXSPOT
-                if (w.size()<4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=23)
+                if (w.size()<4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
                     
                     sprintf(line,"E3DC-V1/epexspot.py>awattar.txt");
