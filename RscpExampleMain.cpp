@@ -2920,7 +2920,7 @@ int LoadDataProcess() {
  // Bei Übertemperatur > 500 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[13] > 500||temp[14] > 500||bWP<0)&&temp[17]==0) //nur wenn Pellet aus
+            if ((temp[14] > 500||bWP<0)) //nur wenn Pellet aus
             {
                 btasmota_ch1 = 0;
                 bWP = -1;
