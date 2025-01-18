@@ -1380,10 +1380,18 @@ if (e3dc.AWLand == 2)
         // Abfragen EPEXSPOT
                 if (w.size()<4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
-                    
+// Inhalt prophylaktisch löschen
+                    fp = fopen("epexspot.txt","w");
+                    if (fp!=NULL)
+                        fclose(fp);
+
                     sprintf(line,"E3DC-V1/epexspot.py>epexspot.txt");
                     int res = system(line);
-                    if (not simu)
+                    if (res!=0){
+                        sprintf(line,"../E3DC-V1/epexspot.py>epexspot.txt");
+                        res = system(line);
+                    }
+                    if (not simu&& not res)
                     {
                         fp = fopen("epexspot.txt","r");
                         //                        else
@@ -1405,7 +1413,7 @@ if (e3dc.AWLand == 2)
                             int status;
                             char var [2] [20];
                             
-                            fgets(line, sizeof(line), fp);
+                            if (fgets(line, sizeof(line), fp))
                             
                             {
                                 while (fgets(line, sizeof(line), fp))
@@ -1441,9 +1449,6 @@ if (e3dc.AWLand == 2)
                                 
                             }
                             
-                            if (fp!=NULL)
-                                fclose(fp);
-                            fp = fopen("epexspot.txt","w");
                             if (fp!=NULL)
                                 fclose(fp);
 
