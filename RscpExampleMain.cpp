@@ -3112,7 +3112,7 @@ int LoadDataProcess() {
                     }
                 f2 = f2 + wetter[x1].solar;
             }
-            if ((hh>(21*3600)||x1==wetter.size()+1)&&fPVtoday>=0.0&&fPVnextday<=0.0&&f2>fPVtoday)
+            if ((hh>(21*3600)||x1>=wetter.size()-1)&&f2>fPVtoday)
             {
                 fPVnextday = f2 - fPVtoday;
             }
