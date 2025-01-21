@@ -62,6 +62,7 @@ static int iAvPower_GridCount = 0;
 static float fPower_WB;
 static float fMaxPower_WB; // höchste Ladeleistung seit das Fahrzeug verbunden ist
 static float fPVtoday=0; // Erzeugung heute
+static float fPVnextday=0; // Erzeugung heute
 static float fPVcharge=0; // Zum Speicherladen verfügbarer Ertrag
 static float fPVdirect=0;  // Direktverbrauch
 static float fPVSoll=0; // Mindestertrag zur Abdeckung Tagesverbrauch und Speicherladung bis ladeende2
@@ -3111,6 +3112,10 @@ int LoadDataProcess() {
                     }
                 f2 = f2 + wetter[x1].solar;
             }
+            if ((hh>(21*3600)||x1==wetter.size()+1)&&fPVtoday>=0.0&&fPVnextday<=0.0&&f2>fPVtoday)
+            {
+                fPVnextday = f2 - fPVtoday;
+            }
             if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
             {
                 fPVtoday=f2;
@@ -3665,7 +3670,7 @@ bDischarge = false;
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
-        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(40-e3dc_config.peakshavesoc)*fcos);
+        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(20-e3dc_config.peakshavesoc)*fcos);
 
         float f1;
         if (t<itime2)
@@ -3676,7 +3681,7 @@ bDischarge = false;
             // Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
             f1 = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             // Beginn Regelzeitpunkt um 15min nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
-            f1 = (t-itime2-1*900)/(f1-1*900);      //% restregeldauer
+            f1 = (t-itime2-4*900)/(f1-4*900);      //% restregeldauer
             // Beginn um 1h nach hinten verschieben
                 
 
@@ -3975,7 +3980,7 @@ bDischarge = false;
                     
                 }
 // Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
-                if (fBatt_SOC > f[1]+5&&f[0]>500)  // Netzbezug
+                if (fBatt_SOC > f[1]+5.0&&f[0]>-200)  // Netzbezug
                     if (iFc>0) iFc = 0;
 
             }
@@ -6678,7 +6683,7 @@ if (e3dc_config.debug) printf("M6");
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf("%s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf(" %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
+                printf(" %0.02f %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVnextday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
                 int x2 = (t%(24*4*900))/900+1;
                 if (x2 > 0&&e3dc_config.statistik)
                 {
