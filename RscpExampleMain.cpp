@@ -3957,9 +3957,6 @@ bDischarge = false;
                                     }
 
                                 }
-// Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
-                                if (fBatt_SOC > f[2]+5)
-                                    if (iFc>0) iFc = 0;
                             }
                             printf("%c[K\n", 27 );
                             if (iFc ==0) iFc = 1;
@@ -3967,6 +3964,10 @@ bDischarge = false;
 
                             if (iFc<iBattLoad)
                             iFc = (2*iFc -iBattLoad);
+
+                            // Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
+                            if (fBatt_SOC > f[2]+5)
+                                    if (iFc>0) iFc = 0;
 
                         }
                     }
@@ -3977,6 +3978,10 @@ bDischarge = false;
                         iFc = e3dc_config.maximumLadeleistung-500;
                     
                 }
+// Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
+                if (fBatt_SOC > f[2]+5&&f[0]>500)  // Netzbezug
+                    if (iFc>0) iFc = 0;
+
             }
                 
                 // Steuerung Netz
