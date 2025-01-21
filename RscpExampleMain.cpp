@@ -3664,7 +3664,7 @@ bDischarge = false;
         float x1 = 2;
         if ((fPVtoday*e3dc_config.speichergroesse/100)>e3dc_config.peakshavepvcharge)
             x1 = 1.5;
-        if (fPVcharge>e3dc_config.peakshavepvcharge)
+        if ((fPVtoday*e3dc_config.speichergroesse/100/2)>e3dc_config.peakshavepvcharge)
             x1 = 1;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
