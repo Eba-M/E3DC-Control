@@ -3965,10 +3965,6 @@ bDischarge = false;
                             if (iFc<iBattLoad)
                             iFc = (2*iFc -iBattLoad);
 
-                            // Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
-                            if (fBatt_SOC > f[2]+5)
-                                    if (iFc>0) iFc = 0;
-
                         }
                     }
                     
@@ -3979,7 +3975,7 @@ bDischarge = false;
                     
                 }
 // Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
-                if (fBatt_SOC > f[2]+5&&f[0]>500)  // Netzbezug
+                if (fBatt_SOC > f[1]+5&&f[0]>500)  // Netzbezug
                     if (iFc>0) iFc = 0;
 
             }
