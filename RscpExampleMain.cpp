@@ -3672,9 +3672,9 @@ bDischarge = false;
         fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(20-e3dc_config.peakshavesoc)*fcos);
 
         x1 = 2;
-        if ((fPVnextday*e3dc_config.speichergroesse/100)<e3dc_config.peakshavepvcharge)
+        if ((fPVnextday*e3dc_config.speichergroesse/100/2)<e3dc_config.peakshavepvcharge)
             x1 = 1.5;
-        if ((fPVnextday*e3dc_config.speichergroesse/100*2)<e3dc_config.peakshavepvcharge)
+        if ((fPVnextday*e3dc_config.speichergroesse/100)<e3dc_config.peakshavepvcharge)
             x1 = 1;
 
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
