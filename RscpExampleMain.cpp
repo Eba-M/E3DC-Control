@@ -3645,7 +3645,7 @@ bDischarge = false;
     f[2] = 0;
     f[3] = 0;
     f[4] = 0;
-
+//    t = 7*3600; // Zum testen Uhrzeit vorgeben
     if (e3dc_config.unload<0)
     {
         // sonnenuntergang - unload also vor sonnenunergang
@@ -3669,8 +3669,15 @@ bDischarge = false;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
-        fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos);
         fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(20-e3dc_config.peakshavesoc)*fcos);
+
+        x1 = 2;
+        if ((fPVnextday*e3dc_config.speichergroesse/100)<e3dc_config.peakshavepvcharge)
+            x1 = 1.5;
+        if ((fPVnextday*e3dc_config.speichergroesse/100*2)<e3dc_config.peakshavepvcharge)
+            x1 = 1;
+
+        fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
 
         float f1;
         if (t<itime2)
@@ -3681,7 +3688,7 @@ bDischarge = false;
             // Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
             f1 = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             // Beginn Regelzeitpunkt um 15min nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
-            f1 = (t-itime2-4*900)/(f1-4*900);      //% restregeldauer
+            f1 = (t-itime2-1*900)/(f1-1*900);      //% restregeldauer
             // Beginn um 1h nach hinten verschieben
                 
 
@@ -3802,7 +3809,7 @@ bDischarge = false;
                     &&fpeakshaveminsoc-4 < fBatt_SOC)
                 {
                     //                    iFc = 0;
-                    idauer = -1;
+                    idauer = -1; // Freilauf
                 }
                 else
                 {
@@ -3844,6 +3851,9 @@ bDischarge = false;
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
+                            float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/5;
+                            if (iFc>fmax)
+                                iFc= fmax;
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
