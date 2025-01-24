@@ -2779,6 +2779,9 @@ int LoadDataProcess() {
                             {
                                 ALV = e3dc_config.shelly0V10Vmin-1;
                             }
+                        }
+                        else
+                        {
                             
                             if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                                 shelly((ALV++)+1);
@@ -2789,11 +2792,14 @@ int LoadDataProcess() {
                                     shelly(ALV);
                                 }
                             
-                            wp_t = t;
                             
                         }
-                        
-                        else
+
+                        wp_t = t;
+
+                    }
+                    else
+                    {
                             // Verdichterleistung herunterfahren
                             if
                                 (
