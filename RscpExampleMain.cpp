@@ -3839,7 +3839,7 @@ bDischarge = false;
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                         //                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
-                        if (fpeakshaveminsoc-5 > fBatt_SOC)
+                        if (fpeakshaveminsoc-4 > fBatt_SOC)
                         {
                             // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                             
@@ -3851,7 +3851,7 @@ bDischarge = false;
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
-                            float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/5;
+                            float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                             if (iFc>fmax)
                                 iFc= fmax;
 //                            iFc = (2*iFc -iBattLoad);
@@ -3964,12 +3964,12 @@ bDischarge = false;
                                     
                                 } else 
                                 {
-                                    if (fpeakshaveminsoc-5 > fBatt_SOC)
+                                    if (fpeakshaveminsoc-4 > fBatt_SOC)
                                     {
                                         // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                                         
                                         iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
-                                        float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/5;
+                                        float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                                         if (iFc>fmax)
                                             iFc= fmax;
 
