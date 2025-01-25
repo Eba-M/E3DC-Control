@@ -1385,10 +1385,10 @@ if (e3dc.AWLand == 2)
                     if (fp!=NULL)
                         fclose(fp);
 
-                    sprintf(line,"E3DC-V1/epexspot.py");
+                    sprintf(line,"E3DC-V1/epexspot.py>epexspot.log");
                     int res = system(line);
                     if (res!=0){
-                        sprintf(line,"../E3DC-V1/epexspot.py");
+                        sprintf(line,"../E3DC-V1/epexspot.py>epexspot.log");
                         res = system(line);
                     }
                     if (not simu&& not res)
