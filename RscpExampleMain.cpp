@@ -3979,6 +3979,8 @@ bDischarge = false;
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                                         if (iFc>fmax)
                                             iFc= fmax;
+                                        // Nicht wenn Master entlädt
+                                        if (f[2] <-100) iFc = 0;
 
                                     }
 
