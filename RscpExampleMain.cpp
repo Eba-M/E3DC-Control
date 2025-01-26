@@ -3675,7 +3675,7 @@ bDischarge = false;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
-        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(20-e3dc_config.peakshavesoc)*fcos);
+        fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(30-e3dc_config.peakshavesoc)*fcos);
 
         x1 = 2;
         if ((fPVnextday*e3dc_config.speichergroesse/100/2)<e3dc_config.peakshavepvcharge)
