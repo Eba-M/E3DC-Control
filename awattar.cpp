@@ -1628,11 +1628,11 @@ else
             ladedauer = atoi(line);
             fclose(fp);
         };
-        von = rawtime;
-        if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
-        bis = von - von%24*3600 + 44*3600;
+//        von = rawtime;
+//        if (von%24*3600/3600<19) von = von - von%24*3600+20*3600;
+//        bis = von - von%24*3600 + 44*3600;
         von = w[0].hh;
-        bis = w[w.size()-1].hh;
+        bis = w[w.size()-1].hh+900;
     } else
     {
         // ist die ladezeit schon belegt oder abgelaufen
