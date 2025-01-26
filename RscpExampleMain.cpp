@@ -3977,6 +3977,8 @@ bDischarge = false;
                                         
                                         iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
+                                        if (f[0]<-100) fmax = fmax - f[0];
+
                                         if (iFc>fmax)
                                             iFc= fmax;
                                         // Nicht wenn Master entlädt
