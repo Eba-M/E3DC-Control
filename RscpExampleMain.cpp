@@ -3989,9 +3989,12 @@ bDischarge = false;
                             printf("%c[K\n", 27 );
                             if (iFc ==0) iFc = 1;
                             printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc, int(f[2])*100/iFc, f[1]);
-
-                            if (abs(iFc)>abs(f[2]*2.5)&&f[2]!=0) iFc = f[2]*2.5;
-
+// Leistung des Slave begrenzen
+                            if (abs(iFc)>abs(f[2]*3)&&abs(f[2])>2000)
+                                iFc = f[2]*3;
+                            else
+                                if (iFc > e3dc_config.peakshave-f[0])
+                                    iFc = e3dc_config.peakshave-f[0];
 //                            if (iFc<iBattLoad)
 //                            iFc = (2*iFc -iBattLoad);
 
