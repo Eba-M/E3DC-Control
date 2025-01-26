@@ -3858,9 +3858,10 @@ bDischarge = false;
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
-                            if (fPower_Grid<-100) fmax = fmax - fPower_Grid;
                             if (iFc>fmax)
                                 iFc= fmax;
+                            if (fPower_Grid<-100) iFc = iFc - fPower_Grid;
+
 //                            iFc = (2*iFc -iBattLoad);
                         }
                         else
@@ -3977,10 +3978,12 @@ bDischarge = false;
                                         
                                         iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
-                                        if (f[0]<-100) fmax = fmax - f[0];
 
                                         if (iFc>fmax)
                                             iFc= fmax;
+
+                                        if (fPower_Grid<-100) iFc = iFc - fPower_Grid;
+
                                         // Nicht wenn Master entlädt
                                         if (f[2] <-100) iFc = 0;
 
