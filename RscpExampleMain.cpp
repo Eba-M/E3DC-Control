@@ -3982,7 +3982,7 @@ bDischarge = false;
                                         if (iFc>fmax)
                                             iFc= fmax;
 
-                                        if (fPower_Grid<-100) iFc = iFc - fPower_Grid;
+                                        if (f[0]<-100) iFc = iFc - f[0];
 
                                         // Nicht wenn Master entlädt
                                         if (f[2] <-100) iFc = 0;
