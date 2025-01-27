@@ -1378,7 +1378,7 @@ if (e3dc.AWLand == 2)
     }
 
         // Abfragen EPEXSPOT
-                if (w.size()<4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
+                if (w.size()<=4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
 // Inhalt prophylaktisch löschen
                     fp = fopen("epexspot.txt","w");
