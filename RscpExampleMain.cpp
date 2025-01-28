@@ -3852,7 +3852,7 @@ bDischarge = false;
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                         //                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
-                        if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-100)
+                        if (fpeakshaveminsoc-4 > fBatt_SOC)
                         {
                             // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                             
