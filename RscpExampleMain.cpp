@@ -2728,6 +2728,8 @@ int LoadDataProcess() {
                 if (wwmax > (e3dc_config.WPHK1max+5))
                     wwmax = e3dc_config.WPHK1max+5;
                 
+                int temp11 = 0; // Hier wird der alte wert von temp[11] für Vergleich abgespeichert
+                
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 //
                 if (wolf.size()>0)
@@ -3261,7 +3263,12 @@ int LoadDataProcess() {
         ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
         else
             ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
-        if (ret == 2) rettime = t;
+        if (ret == 2) 
+        {
+            rettime = t;
+            fAvBatterie=0;
+            fAvBatterie900=0;
+        }
         if (rettime > 0&&t-rettime<900&&ret==1)
             ret = 0;
         if (e3dc_config.debug) printf("D6 %i ",ret);
@@ -3972,7 +3979,8 @@ bDischarge = false;
                                     
                                 } else 
                                 {
-                                    if (fpeakshaveminsoc-4 > fBatt_SOC)
+                                    if (fpeakshaveminsoc-4 > fBatt_SOC&&f[0]>-500&&f[2]>500)
+// Das Nachladen geschieht nur wenn Netzbezug besteht und auch der Master nachlädt
                                     {
                                         // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                                         
