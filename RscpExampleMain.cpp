@@ -3852,7 +3852,7 @@ bDischarge = false;
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                         //                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
-                        if (fpeakshaveminsoc-4 > fBatt_SOC)
+                        if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-100)
                         {
                             // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                             
@@ -3867,9 +3867,12 @@ bDischarge = false;
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                             if (iFc>fmax)
                                 iFc= fmax;
-                            if (fPower_Grid<-100) iFc = iFc - fPower_Grid;
-
-//                            iFc = (2*iFc -iBattLoad);
+                            static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
+                            if (adjust<0||fPower_Grid<0)
+                            {
+                                adjust = adjust + fPower_Grid;
+                                iFc = iFc - adjust;
+                            }
                         }
                         else
                             if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-500)
@@ -3979,7 +3982,7 @@ bDischarge = false;
                                     
                                 } else 
                                 {
-                                    if (fpeakshaveminsoc-4 > fBatt_SOC&&f[0]>-500&&f[2]>500)
+                                    if (fpeakshaveminsoc-4 > fBatt_SOC)
 // Das Nachladen geschieht nur wenn Netzbezug besteht und auch der Master nachlädt
                                     {
                                         // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
@@ -3989,9 +3992,14 @@ bDischarge = false;
 
                                         if (iFc>fmax)
                                             iFc= fmax;
+                                        static int adjust;
 
-                                        if (f[0]<-100) iFc = iFc - f[0];
-
+                                        if (adjust<0||f[0]<0)
+                                        {
+                                            adjust = adjust + f[0];
+                                            iFc = iFc - adjust;
+                                        }
+                                        
                                         // Nicht wenn Master entlädt
                                         if (f[2] <-100) iFc = 0;
 
