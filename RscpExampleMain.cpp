@@ -3982,7 +3982,7 @@ bDischarge = false;
                                     
                                 } else 
                                 {
-                                    if (fpeakshaveminsoc-4 > fBatt_SOC)
+                                    if (fpeakshaveminsoc-4 > fBatt_SOC&&f[2]>0)
 // Das Nachladen geschieht nur wenn Netzbezug besteht und auch der Master nachlädt
                                     {
                                         // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
