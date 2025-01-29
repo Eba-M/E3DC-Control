@@ -4001,7 +4001,7 @@ bDischarge = false;
                                         }
                                         
                                         // Nicht wenn Master entlädt
-                                        if (f[2] <-100) iFc = 0;
+                                        if (f[2] <-100) iFc = f[2];
 
                                     }
 
