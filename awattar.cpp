@@ -481,7 +481,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 if (x2 == x1) // keine weiteren Lows
                     //                    SollSoc = SollSoc2 +fSoC;
-                    SollSoc = SollSoc2;
+                    if (SollSoc2>SollSoc)
+                        SollSoc = SollSoc2;
                 if (SollSoc > ZielSoC-reserve) SollSoc = ZielSoC-reserve;
                 if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
@@ -1224,7 +1225,7 @@ int ladedauer = 0;
 // die Wetterdaten alle 15min in der 14ten min holen,
         (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==14)
         ||
-        (e3dc.openmeteo&&(ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<48))
+        (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>11*60+55)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
         (w.size()==0&&e3dc.aWATTar)
         )
