@@ -2781,10 +2781,10 @@ int LoadDataProcess() {
                             {
                                 ALV = e3dc_config.shelly0V10Vmin-1;
                             }
-                        }
-                        else
-                        {
                             
+                            
+                            
+                        }
                             if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                                 shelly((ALV++)+1);
                             else
@@ -2795,7 +2795,7 @@ int LoadDataProcess() {
                                 }
                             
                             
-                        }
+                        
 
                         wp_t = t;
 
