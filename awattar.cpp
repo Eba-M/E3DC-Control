@@ -451,15 +451,15 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                         l1 = w.size()-1;
                         break;}} // suche low nach einem high
                 }
-                // Überprüfen ob Entladen werden kann
+                // Überprüfen ob Geladen werden kann
                 x3 = w.size()-1;
                 x1 = Lowprice(w,h, hi, w[h].pp);   // bis zum high suchen
                 x2 = Lowprice(w,h, w.size()-1, w[h].pp);   // bis zum high suchen
                 
-                SollSoc = fHighprice(w,wetter,h,l1,(w[l1].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
+                SollSoc = fHighprice(w,wetter,h,l1,(w[h].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
                 float SollSoc2 = 0;
-                SollSoc2 = fHighprice(w,wetter,h,x3,(w[l1].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);
-                SollSoc2 = fHighprice(w,wetter,h,maxpos,(w[l1].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);
+                SollSoc2 = fHighprice(w,wetter,h,x3,(w[h].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);
+                SollSoc2 = fHighprice(w,wetter,h,maxpos,(w[h].pp)*aufschlag+Diff,minsoc,maxpos,maxsoc);
                 if (SollSoc>SollSoc2)
                 {
                     if (SollSoc > ZielSoC) SollSoc = ZielSoC;

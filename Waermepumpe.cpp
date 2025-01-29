@@ -525,7 +525,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 wetter_s we;
                 float temp = 0;
                 float hh = 0;
-                char key[] = " Simulation \n";
+                char key[] = "Simulation";
                 char key2[] = " Data \n";
                 memset(&line, 0, sizeof(line));
                 int ret = sizeof(line);
@@ -535,7 +535,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     memset(&line, 0, sizeof(line));
                     if (fgets(line,sizeof(line),fp)==NULL)
                         break;
-                    ret = (strcmp(key,line));
+                    sscanf(line, " %[^ \t=]%*[ \t ] %*[\t ]%[^ \n]", var, value);
+
+                    ret = (strcmp(key,var));
                     if (ret == 0)
                         break;
                 }
