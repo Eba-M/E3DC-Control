@@ -4079,7 +4079,7 @@ bDischarge = false;
                 //            iMinLade = iFc;
                 iBattLoad = iFc;
                 printf("%c[K\n", 27 );
-                printf("shavingA = %i %.2f %i %i %i %2.0f %2.0f",idauer,fpeakshaveminsoc,iFc3,iFc2,iFc,fPower_Ext[2],fPower_Ext[3]);
+                printf("shavingA = %i %.2f%% %.2f%% %i %i %i %2.0f %2.0f",idauer,fpeakshaveendsoc,fpeakshaveminsoc,iFc3,iFc2,iFc,fPower_Ext[2],fPower_Ext[3]);
                 
             } else
             {
