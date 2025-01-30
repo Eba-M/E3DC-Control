@@ -3870,7 +3870,7 @@ bDischarge = false;
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
                             if (adjust<0||fPower_Grid<0)
                             {
-                                adjust = adjust + fPower_Grid;
+                                adjust = adjust + fPower_Grid/10.0;
                                 iFc = iFc - adjust;
                             }
                         }
@@ -3996,7 +3996,7 @@ bDischarge = false;
 
                                         if (adjust<0||f[0]<0)
                                         {
-                                            adjust = adjust + f[0];
+                                            adjust = adjust + f[0]/10.0;
                                             iFc = iFc - adjust;
                                         }
                                         
