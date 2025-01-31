@@ -3865,10 +3865,11 @@ bDischarge = false;
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
-                            if (fmax>iFc)
-                                fmax = iFc;
                             if (iFc>fmax)
                                 iFc= fmax;
+                            if (fmax>iFc)
+                                fmax = iFc;
+
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
                             if (adjust<0||fPower_Grid<0)
                             {
@@ -3992,11 +3993,13 @@ bDischarge = false;
                                         iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
 
+                                        if (iFc>fmax)
+                                            iFc= fmax;
+
                                         if (fmax>iFc)
                                             fmax = iFc;
 
-                                        if (iFc>fmax)
-                                            iFc= fmax;
+                                        
                                         static int adjust;
 
                                         if (adjust<0||f[0]<0)
