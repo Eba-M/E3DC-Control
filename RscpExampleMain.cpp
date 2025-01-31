@@ -3792,7 +3792,7 @@ bDischarge = false;
                       )
                      )
                     &&
-                    (fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge)
+                    (fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge*2)
                     )
                     // Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
                 {
@@ -3865,6 +3865,8 @@ bDischarge = false;
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
+                            if (fmax>iFc)
+                                fmax = iFc;
                             if (iFc>fmax)
                                 iFc= fmax;
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
@@ -3989,6 +3991,9 @@ bDischarge = false;
                                         
                                         iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
+
+                                        if (fmax>iFc)
+                                            fmax = iFc;
 
                                         if (iFc>fmax)
                                             iFc= fmax;
