@@ -3990,7 +3990,11 @@ bDischarge = false;
                                     {
                                         // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
                                         
-                                        iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
+                                        if (iBattLoad - fcurrentGrid + fsollGrid - 50<iFc*2)
+                                            iFc = iBattLoad - fcurrentGrid + fsollGrid - 50;
+                                        else
+                                            iFc = iFc*2;
+                                        
                                         float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
 
                                         if (iFc>fmax)
