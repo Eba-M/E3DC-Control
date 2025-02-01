@@ -3792,11 +3792,12 @@ bDischarge = false;
                       )
                      )
                     &&
-                    (fBatt_SOC>5&&fPVcharge>e3dc_config.peakshavepvcharge*2)
+                    (fBatt_SOC>5&&fPVtoday*e3dc_config.speichergroesse/100>e3dc_config.peakshavepvcharge)
                     )
                     // Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
                 {
-                    iFc = (fBatt_SOC-5)*e3dc_config.speichergroesse*10*3600;
+                    fpeakshaveendsoc = fpeakshaveendsoc*(e3dc_config.peakshavepvcharge/(fPVtoday*e3dc_config.speichergroesse/100));
+                    iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
                     iFc = iFc / (idauer+600) *-1;
 //                    fpeakshaveminsoc = 5;
                 }
