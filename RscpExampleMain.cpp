@@ -3904,7 +3904,7 @@ bDischarge = false;
                     
                     if (iFc > e3dc_config.maximumLadeleistung-500)
                         iFc = e3dc_config.maximumLadeleistung-500;
-                    if (fBatt_SOC==100&&iFc>0) iFc = 0;
+                    if (fBatt_SOC==100&&iFc>0) iFc = e3dc_config.maximumLadeleistung;
                     
                 }
             }
@@ -4017,7 +4017,7 @@ bDischarge = false;
                     
                     if (iFc > e3dc_config.maximumLadeleistung-500)
                         iFc = e3dc_config.maximumLadeleistung-500;
-                    if (fBatt_SOC==100&&iFc>0) iFc = 0;
+                    if (fBatt_SOC==100&&iFc>0) iFc = e3dc_config.maximumLadeleistung;
 
                     
                 }
