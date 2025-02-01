@@ -3750,8 +3750,8 @@ bDischarge = false;
              (fcurrentGrid>e3dc_config.peakshave-200&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")==0)) // nur Master
              ||
              (
-              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)
-              &&strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0
+//              ((iMinLade>fAvBatterie900&&iFc>fAvBatterie900*1.1)||fBatt_SOC<e3dc_config.ladeschwelle)&&
+              strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0
               )
              )
             
