@@ -3675,19 +3675,21 @@ bDischarge = false;
         int itime2 = (sunriseAt*60-e3dc_config.unload*60);  // Beginn verzögern min = 40sek
         int iVorlauf = 3;  // Vorlauf zum Entladen mit höherer Leistung
         float x1 = 2;
-        if ((fPVtoday*e3dc_config.speichergroesse/100)>e3dc_config.peakshavepvcharge)
-            x1 = 1.5;
-        if ((fPVtoday*e3dc_config.speichergroesse/100/2)>e3dc_config.peakshavepvcharge)
+        float PVtoday = fPVtoday*e3dc_config.speichergroesse/100;
+        float PVnextday = fPVnextday*e3dc_config.speichergroesse/100;
+        if (PVtoday>e3dc_config.peakshavepvcharge)
             x1 = 1;
+        if (PVtoday/2>e3dc_config.peakshavepvcharge)
+            x1 = 0.5;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
         fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(30-e3dc_config.peakshavesoc)*fcos);
 
         x1 = 2;
-        if ((fPVnextday*e3dc_config.speichergroesse/100/2)<e3dc_config.peakshavepvcharge)
+        if (PVnextday/2<e3dc_config.peakshavepvcharge)
             x1 = 1.5;
-        if ((fPVnextday*e3dc_config.speichergroesse/100)<e3dc_config.peakshavepvcharge)
+        if (PVnextday<e3dc_config.peakshavepvcharge)
             x1 = 1;
 
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
@@ -3780,27 +3782,6 @@ bDischarge = false;
                 // 10 Minuten über Dauer hinaus berechnen um Extremwerte zu vermeiden
                 if (fBatt_SOC-fpeakshaveminsoc<0) // unter dyn. peakshave soc? Leistung halbieren
                     iFc = iFc / 2;
-                if (
-                    (
-                     // Dann nur, wenn die Sonne scheint
-                     (iPower_PV_E3DC>100&&idauer<3600)
-                     ||
-                     (
-                      // in der ersten Stunde nach Sonnenaufgang darf bis auf e3dc_config.peakshavesoc entladen werden
-                      
-                      idauer<iVorlauf*3600&&idauer>3600&&fBatt_SOC>e3dc_config.peakshavesoc
-                      )
-                     )
-                    &&
-                    (fBatt_SOC>5&&fPVtoday*e3dc_config.speichergroesse/100>e3dc_config.peakshavepvcharge)
-                    )
-                    // Am Morgen wenn die PV > 100 ist, wird der Speicher bis auf 5% freigegeben
-                {
-                    fpeakshaveendsoc = fpeakshaveendsoc*(e3dc_config.peakshavepvcharge/(fPVtoday*e3dc_config.speichergroesse/100));
-                    iFc = (fBatt_SOC-fpeakshaveendsoc)*e3dc_config.speichergroesse*10*3600;
-                    iFc = iFc / (idauer+600) *-1;
-//                    fpeakshaveminsoc = 5;
-                }
                 //                iFc = iFc + iPower_PV_E3DC - fPower_Ext[2] - fPower_Ext[3];
             }
             else
