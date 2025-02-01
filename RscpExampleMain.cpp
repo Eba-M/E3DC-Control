@@ -3677,20 +3677,18 @@ bDischarge = false;
         float x1 = 2;
         float PVtoday = fPVtoday*e3dc_config.speichergroesse/100;
         float PVnextday = fPVnextday*e3dc_config.speichergroesse/100;
-        if (PVtoday>e3dc_config.peakshavepvcharge)
-            x1 = 1;
-        if (PVtoday/2>e3dc_config.peakshavepvcharge)
-            x1 = 0.5;
+        x1 = (e3dc_config.peakshavepvcharge/PVtoday);
+        if (x1 >2)    x1 = 2;
+        if (x1 <0.5)    x1 = 0.2;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
         fpeakshaveendsoc = x1*(e3dc_config.peakshavesoc+(30-e3dc_config.peakshavesoc)*fcos);
 
         x1 = 2;
-        if (PVnextday/2<e3dc_config.peakshavepvcharge)
-            x1 = 1.5;
-        if (PVnextday<e3dc_config.peakshavepvcharge)
-            x1 = 1;
+        x1 = (PVnextday/e3dc_config.peakshavepvcharge);
+        if (x1 >2)    x1 = 2;
+        if (x1 <1)    x1 = 1;
 
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
 
