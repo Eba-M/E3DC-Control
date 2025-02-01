@@ -3904,6 +3904,7 @@ bDischarge = false;
                     
                     if (iFc > e3dc_config.maximumLadeleistung-500)
                         iFc = e3dc_config.maximumLadeleistung-500;
+                    if (fBatt_SOC==100&&iFc>0) iFc = 0;
                     
                 }
             }
@@ -4016,6 +4017,8 @@ bDischarge = false;
                     
                     if (iFc > e3dc_config.maximumLadeleistung-500)
                         iFc = e3dc_config.maximumLadeleistung-500;
+                    if (fBatt_SOC==100&&iFc>0) iFc = 0;
+
                     
                 }
 // Wenn der eigene SoC 5% über dem Master SoC liegt, dann wird nicht geladen
