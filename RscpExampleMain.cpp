@@ -3680,6 +3680,7 @@ bDischarge = false;
         x1 = (e3dc_config.peakshavepvcharge/PVtoday);
         if (x1 >2)    x1 = 2;
         if (x1 <0.5)    x1 = 0.2;
+        if (x1 <0.5&&iPower_PV_E3DC>300)  x1 = 0;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
