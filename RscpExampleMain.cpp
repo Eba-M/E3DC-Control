@@ -3702,7 +3702,7 @@ bDischarge = false;
             // Regeldauer Tag = sonnenuntergang - sonnenaufgang - 2x unload
             f1 = (sunsetAt-sunriseAt)*60+2*e3dc_config.unload*60; //regeldauer
             // Beginn Regelzeitpunkt um 15min nach hinten schieben, dadurch verkürzt sich auch die Regeldauer
-            f1 = (t-itime2-1*900)/(f1-1*900);      //% restregeldauer
+            f1 = (t-itime2-4*900)/(f1-4*900);      //% restregeldauer
             // Beginn um 1h nach hinten verschieben
                 
 
