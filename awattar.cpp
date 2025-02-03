@@ -587,7 +587,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
         faval = fSoC-fConsumption + maxsoc -minsoc;
     }
  */
-    printf("faval %2.2f %2.2f %2.2f \n",faval,fSoC,fConsumption);
+    printf("faval %2.2f %2.2f %2.2f",faval,fSoC,fConsumption);
 
         if (faval >=-0.01)
         {
