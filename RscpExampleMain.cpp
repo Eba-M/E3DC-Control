@@ -169,7 +169,7 @@ int WriteLog()
     if (hour!=t_alt) // neuer Tag
     {
 //        int tt = (t%(24*3600)+12*3600);
-        sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
+        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         fclose(fp);
     }
@@ -1012,7 +1012,7 @@ long iModbusTCP_Set(int reg,int val,int tac)
 */
     if (brequest)
     {
-        printf(" len %i ",iLength);
+        printf(" len %li ",iLength);
         return iLength;
     }
     if (isocket <= 0)
@@ -1119,7 +1119,6 @@ int iModbusTCP()
     static time_t tlast = 0;
     time_t now;
     time(&now);
-    static int  ret = 0;
     static time_t t_OeK;
 
     Modbus_send Msend;
@@ -1274,9 +1273,9 @@ int iModbusTCP()
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                     ||
-                     (now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert>0
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
                     ||
-                     (now - wolf[wpbhg].t < 100)&&wolf[wpbhg].wert==6
+                     (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6)
 
                     )
                     )
@@ -1295,9 +1294,9 @@ int iModbusTCP()
                       ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
                       (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
                      ||
-                      (now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert>0
+                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
                      ||
-                      (now - wolf[wpbhg].t < 100)&&wolf[wpbhg].wert==6
+                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
@@ -3269,6 +3268,10 @@ int LoadDataProcess() {
             fAvBatterie=0;
             fAvBatterie900=0;
         }
+        if (ret == 1)
+        {
+            iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
+        }
         if (rettime > 0&&t-rettime<900&&ret==1)
             ret = 0;
         if (e3dc_config.debug) printf("D6 %i ",ret);
@@ -3680,7 +3683,7 @@ bDischarge = false;
         x1 = (e3dc_config.peakshavepvcharge/PVtoday);
         if (x1 >2)    x1 = 2;
         if (x1 <0.5)    x1 = 0.2;
-        if (x1 <0.5&&iPower_PV_E3DC>300)  x1 = 0;
+        if (x1 <0.5&&iPower_PV_E3DC>300&&fPower_Ext[2]+fPower_Ext[3]<-3000)  x1 = 0;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
@@ -5270,7 +5273,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         }
 // request Power Meter information
         static int32_t Mode;
-
+// mode 1 = Idle 2 = Entladen  3 = Laden 4 = Laden aus dem Netz
         if (e3dc_config.wrsteuerung==0)
             printf("\n Achtung WR-Steuerung inaktiv %i %i Status %i\n",iBattLoad,iE3DC_Req_Load,iLMStatus);
         if (e3dc_config.wrsteuerung==2) // Text ausgeben
@@ -5279,17 +5282,22 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
-            if (iE3DC_Req_Load==0) Mode = 1; else
-                if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
-                {
-                    iE3DC_Req_Load = iE3DC_Req_Load - e3dc_config.maximumLadeleistung;
-                    Mode = 4;  // Steuerung Netzbezug Anforderung durch den Betrag > e3dc_config.maximumLadeleistung
-                }
-                else
-                if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; else
-                if (iE3DC_Req_Load>0) Mode = 3; else
+            if (iE3DC_Req_Load==0) 
+                Mode = 1;
+            else
+            if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
+            {
+                iE3DC_Req_Load = iE3DC_Req_Load - e3dc_config.maximumLadeleistung;
+                Mode = 4;  // Steuerung Netzbezug Anforderung durch den Betrag > e3dc_config.maximumLadeleistung
+            }
+            else
+            if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; 
+            else
+            if (iE3DC_Req_Load>0) Mode = 3;
+            else
             { iE3DC_Req_Load = iE3DC_Req_Load*-1;
-                Mode = 2;}
+                Mode = 2;
+            }
             iLMStatus = iLMStatus*-1;
             iE3DC_Req_Load_alt = iE3DC_Req_Load;
             if (iE3DC_Req_Load > e3dc_config.maximumLadeleistung)
