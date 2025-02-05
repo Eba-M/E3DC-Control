@@ -408,7 +408,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         }
 */
         // suche über den gesamten Bereich
-        x1 = SucheDiff(w,h, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
+        if  (SucheDiff(w,h, aufschlag,Diff)) // es wird gandenlos bis zum nächsten low entladen
         do
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,minsoc,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
@@ -596,7 +596,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
         }
 // geändert am 30.9.
 // suche über den gesamten Bereich
-        x1 = SucheDiff(w,0, aufschlag,Diff); // es wird gandenlos bis zum nächsten low entladen
+        if (SucheDiff(w,0, aufschlag,Diff)); // es wird gandenlos bis zum nächsten low entladen
         do
         {
             fConsumption = fHighprice(w,wetter,0,l1,w[0].pp,minsoc,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
@@ -683,9 +683,6 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     }
 
     return 0;  // kein Ergebniss gefunden
-
-
-return 0;
 
 }
 
