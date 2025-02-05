@@ -401,7 +401,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
 //                                        if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
-                                        if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0)
+                                        if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0&&not e3dc.WPWolf)
                                             wetter[x1].wpbedarf = wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                         
                                         int bHK1on = 0;
@@ -438,7 +438,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;
-                                            if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0)
+                                            if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0&&not e3dc.WPWolf)
                                             wetter[x1].wpbedarf = 0;
                                             wetter[x1].kosten = 0;
                                             
