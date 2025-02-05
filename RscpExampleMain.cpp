@@ -2039,7 +2039,7 @@ int LoadDataProcess() {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome)*(t-myt_alt);
         }
-        if (itotal_WP>0)
+        if (itotal_WP>=0)
         {
 // vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
 // Differenzen als berechnete Leistung abgespeichert
@@ -3067,7 +3067,11 @@ int LoadDataProcess() {
                                 f3 = f3 + f4 / x4;
                         }
                         wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
-// wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
+// den tatsächlichen Verbrauch der WP zu Grunde legen
+                        float wpbedarf = (f6/x4);
+                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+                            wetter[x1].wpbedarf = wpbedarf;
+                        // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
                         int wbpower = fPower_WB;
                         if (wbpower == 0) wbpower = 11000;
 // Energiebedarf der Wallbox berücksichtigen
