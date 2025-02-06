@@ -3069,7 +3069,8 @@ int LoadDataProcess() {
                         wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
 // den tatsächlichen Verbrauch der WP zu Grunde legen
                         float wpbedarf = (f6/x4);
-                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0||e3dc_config.WPWolf)
+//                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0||e3dc_config.WPWolf)
+                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
                             wetter[x1].wpbedarf = wpbedarf;
                         // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
                         int wbpower = fPower_WB;
