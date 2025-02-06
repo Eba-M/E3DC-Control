@@ -390,13 +390,17 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //        if (maxpos < w.size()-1)
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        float faval = fSoC - fConsumption + anforderung;
-        if (fConsumption>minsoc&&minsoc>0&&faval<-0.01)
+        float faval = fSoC - fConsumption;
+        if (fConsumption<minsoc&&minsoc>0&&faval>-0.01)
         {
 //            if (fConsumption > ZielSoC-reserve) fConsumption = ZielSoC-reserve;
-            faval = fSoC-fConsumption + maxsoc -minsoc + anforderung;
+            faval = fSoC -minsoc;
         }
-        if (faval >=-0.01) // x1 Anzahl der Einträge mit höheren Preisen
+        if (faval>0&&faval+anforderung<0)
+            anforderung = faval*-1;
+        else
+            faval = faval + anforderung;
+        if (faval >=0&&faval >=anforderung) // x1 Anzahl der Einträge mit höheren Preisen
         {
                 fSoC = fSoC + anforderung + reserve;
                 return 1;
@@ -513,7 +517,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             
             
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if (float(fSoC-fConsumption) >=0) // x1 Anzahl der Einträge mit höheren Preisen
+            if (float(fSoC-fConsumption+anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
                 fSoC = fSoC + reserve + anforderung;
                 return 1;
