@@ -401,7 +401,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 // die hochgerechneten Werte werden aus den statistischen Werten herausgerechnet
 // Wenn keine tatsächlichen Werte vorliegen wie bei meiner Wolf
 //                                        if (not e3dc.WPWolf) // wenn statistik, dann die verlaufswerte nutzen
-                                        if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0&&not e3dc.WPWolf)
+//                                        if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0&&not e3dc.WPWolf)
                                         if (strcmp(e3dc.shellyEM_ip,"0.0.0.0")==0)
                                             wetter[x1].wpbedarf = wetter[x1].kosten/e3dc.speichergroesse*100/4;
                                         
@@ -582,9 +582,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 fclose(fp);
 
 //                int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int sunrise,int sunset,int sunriseWSW, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve);
-
-                ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve+notstromreserve);
             }
+
+            int    ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve+notstromreserve);
 
             if (w.size() == 0) return;
             if (wetter.size() == 0) return;
