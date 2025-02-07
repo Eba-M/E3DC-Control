@@ -3264,9 +3264,9 @@ int LoadDataProcess() {
     int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
     if (e3dc_config.aWATTar)
         if (e3dc_config.openmeteo)
-        ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
+        ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
         else
-            ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve); // Ladeleistung in %
+            ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve); // Ladeleistung in %
         printf("ret = %i %c[K",ret,27);
         if (ret == 2)
         {
@@ -6666,7 +6666,7 @@ static void mainLoop(void)
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1\n");
             if (e3dc_config.aWATTar||e3dc_config.openmeteo)
-            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunrise,iDayStat);
+            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunrise,iDayStat);
             
 //            test;
             if (e3dc_config.debug) printf("M2\n");
@@ -6870,7 +6870,7 @@ static int iEC = 0;
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve);
-                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, sunriseAt, iDayStat); // im Master nicht aufrufen
+                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
                 if (e3dc_config.test)
                     mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
             }

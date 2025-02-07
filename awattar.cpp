@@ -317,7 +317,7 @@ int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     Verbrauch = 0;
     for (;x1<w.size()&&w[x1].hourly>w[x1].solar;x1++)
     {
-        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf;
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf - w[x1].solar;
     }
     return x1;
 }
@@ -344,7 +344,7 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     }
     return posmax;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float notstromreserve,float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -376,14 +376,15 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         float ZielSoC = 95;
         float Verbrauch;
 // Verbrauch bis solarenÜberschuss??
-        int ret = 0;
+        int ret = -1;
         ret = suchenSolar(wetter,h, Verbrauch) - h;
 
         // Überprüfen ob entladen werden kann
-        if (ret<10)
-            reserve = (reserve/10)*ret;
-        
-
+        fSoC = fSoC - notstromreserve;
+    // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
+        if ( Verbrauch*1.5< fSoC&&ret<10&&ret>0)
+            reserve = reserve + Verbrauch*1.5 - fSoC;
+        if (ret == 0) reserve = 0;
         fSoC = fSoC - reserve;
         float minsoc = 0;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,minsoc,maxpos,maxsoc);
@@ -391,18 +392,18 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
         float faval = fSoC - fConsumption;
-        if (fConsumption<minsoc&&minsoc>0&&faval>-0.01)
+/*        if (fConsumption<minsoc&&minsoc>0&&faval>-0.01)
         {
 //            if (fConsumption > ZielSoC-reserve) fConsumption = ZielSoC-reserve;
             faval = fSoC -minsoc;
         }
-        if (faval>0&&faval+anforderung<0)
+*/        if (faval>0&&faval+anforderung<0)
             anforderung = faval*-1;
         else
             faval = faval + anforderung;
-        if (faval >=0&&faval >=anforderung) // x1 Anzahl der Einträge mit höheren Preisen
+        if (faval >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
-                fSoC = fSoC + anforderung + reserve;
+                fSoC = fSoC + anforderung + reserve + notstromreserve;
                 return 1;
         } 
 /*        else
@@ -417,12 +418,12 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,minsoc,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
-            if (fConsumption==0||fConsumption<fSoC) // x1 Anzahl der Einträge mit höheren Preisen
+            if (fConsumption==0||fConsumption-anforderung<fSoC) // x1 Anzahl der Einträge mit höheren Preisen
 //                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
                 if ((w[h].pp>(w[l1].pp)*aufschlag+Diff))
                     // Es könnte nachgeladen werden
                 {
-                    fSoC = fSoC + anforderung + reserve;
+                    fSoC = fSoC + anforderung + reserve + notstromreserve;
                     if (fSoC < 0)
                         fSoC = 0;
                     return 1;
@@ -475,7 +476,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 }
                 if (SollSoc2 < fSoC)
                 {
-                    fSoC = fSoC + reserve;
+                    fSoC = fSoC + reserve + notstromreserve;
                     if (anforderung>0)
                         fSoC = fSoC + anforderung;
 
@@ -498,13 +499,13 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                         fSoC = SollSoc;
                     //                    if (fSoC > SollSoc-0.5)
                     //                        (fSoC = SollSoc-0.5);
-                    fSoC = fSoC + reserve;
+                    fSoC = fSoC + reserve + notstromreserve;
                     return 2;
                 }
                 else
                     //                if ((SollSoc)>fSoC-1)
                 {
-                    fSoC = fSoC + reserve;
+                    fSoC = fSoC + reserve + notstromreserve;
                     if (anforderung>0)
                         fSoC = fSoC + anforderung;
                     return 0;
@@ -519,11 +520,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption+anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
-                fSoC = fSoC + reserve + anforderung;
+                fSoC = fSoC + reserve + notstromreserve + anforderung;
                 return 1;
             }
         }
-        fSoC = fSoC + reserve;
+        fSoC = fSoC + reserve + notstromreserve;
         if (anforderung>0)
             fSoC = fSoC + anforderung;
         return 0;  // kein Ergebniss gefunden
@@ -532,7 +533,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     }
 }
 
-int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 1 = keine Aktion, 0 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -575,9 +576,11 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     ret = suchenSolar(wetter,0, Verbrauch);
 
     // Überprüfen ob entladen werden kann
-    if (ret < reserve)
-        reserve = ret;
-
+    fSoC = fSoC - notstromreserve;
+// Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
+    if ( Verbrauch*1.5< fSoC&&ret<10)
+        reserve = reserve - Verbrauch*1.5 + fSoC;
+    if (ret==0) reserve = 0;
     fSoC = fSoC - reserve;
 // Überprüfen ob entladen werden kann
     fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,minsoc,maxpos,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -1022,7 +1025,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
 };
             
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, int sunrise, u_int32_t iDayStat[25*4*2+1])
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -1389,7 +1392,7 @@ else
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(w,wetter, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve);
+            ret = CheckaWATTar(w,wetter, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve, notstromreserve);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;
