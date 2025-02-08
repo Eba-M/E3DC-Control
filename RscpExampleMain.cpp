@@ -3267,6 +3267,9 @@ int LoadDataProcess() {
         ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
         else
             ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve); // Ladeleistung in %
+if (rettime>0)
+        printf("ret = %i %i%c[K",ret,t-rettime,27);
+else
         printf("ret = %i %c[K",ret,27);
         if (ret == 2)
         {
@@ -3280,6 +3283,8 @@ int LoadDataProcess() {
         }
         if (rettime > 0&&t-rettime<900&&ret==1)
             ret = 0;
+        else
+            rettime = 0;
         if (e3dc_config.debug) printf("D6 %i ",ret);
 
         
