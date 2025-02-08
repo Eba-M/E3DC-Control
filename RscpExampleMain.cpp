@@ -3281,7 +3281,7 @@ else
         {
             iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
         }
-        if (rettime > 0&&t-rettime<900&&ret==1)
+        if (rettime > 0&&t-rettime<900&&t-rettime>=0&&ret==1)
             ret = 0;
         else
             rettime = 0;
