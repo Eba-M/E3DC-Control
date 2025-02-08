@@ -3273,7 +3273,7 @@ else
         printf("ret = %i %c[K",ret,27);
         if (ret == 2)
         {
-            rettime = t;
+            rettime = t_alt;
             fAvBatterie=0;
             fAvBatterie900=0;
         }
@@ -3281,7 +3281,7 @@ else
         {
             iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
         }
-        if (rettime > 0&&t-rettime<900&&t-rettime>=0&&ret==1)
+        if (rettime > 0&&t_alt-rettime<900&&ret==1)
             ret = 0;
         else
             rettime = 0;
@@ -3695,7 +3695,7 @@ bDischarge = false;
         x1 = (e3dc_config.peakshavepvcharge/PVtoday);
         if (x1 >2)    x1 = 2;
         if (x1 <0.5)    x1 = 0.2;
-        if (x1 <0.5&&iPower_PV_E3DC>300&&fPower_Ext[2]+fPower_Ext[3]<-3000)  x1 = 0;
+        if (x1 <0.5&&iPower_PV_E3DC>300&&fPower_Ext[2]+fPower_Ext[3]<-1000)  x1 = 0;
         float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
         if (fcos<0) fcos = 0;
          // im WinterHalbjahr bis auf 100% am 21.12.
