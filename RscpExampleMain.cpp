@@ -3936,34 +3936,28 @@ bDischarge = false;
                         //                    iFc3 = f[2];
                         // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                         {
-                            if ((f[1]>fBatt_SOC&&f[2]>0)||(f[1]<fBatt_SOC&&f[2]<0))
-                            {
-                                if ((f[1]>fBatt_SOC+5&&f[2]>0)||(f[1]<fBatt_SOC-5&&f[2]<0))
-                                    iFc = f[2]*3;
-                                else
-                                    iFc = f[2]*2.5;
-                            }
+                            iFc = f[2]+iBattLoad;
+                            if ((f[1]>fBatt_SOC&&iFc>0)||(f[1]<fBatt_SOC&&iFc<0))
+                                iFc = f[2]*0.7;
                             else
-                                iFc = f[2]*1.5;
+                                iFc = f[2]*0.6;
                             
-                            if (f[0] < -500)
+/*                            if (f[0] < -500)
                                 if (-f[0] > (iFc-f[0]))
                                     iFc = -f[0];
                                 else
                                     iFc = iPower_Bat - f[0]*2;
 
-/*                            if (f[1]>fBatt_SOC+3&&f[2]>500)
-                                iFc = iFc3;
-*/                            if (iFc3<iFc&&iFc3<0&&f[2]<-500)
+                            if (iFc3<iFc&&iFc3<0&&f[2]<-500)
                                 iFc = iFc3;
                             if (f[0]>e3dc_config.peakshave)
                                 iFc = iFc + e3dc_config.peakshave - f[0];
-                        
+*/
 //Einspeisung beim Master, Leistung abschöpfen
 //                            if (f[0]<1000)
 //                                iFc = iFc -f[0];
                             
-                            if (f[2]==0||(-f[3]+f[4])>2000)
+                            if (f[2]==0||(-f[3]+f[4])<2000)
                             { // Master-WR arbeitet nicht oder muss nicht laden
                                 fcurrentGrid = f[3];
                                 fsollGrid = f[4];
