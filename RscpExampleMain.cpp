@@ -3938,9 +3938,9 @@ bDischarge = false;
                         {
                             iFc = f[2]+iBattLoad;
                             if ((f[1]>fBatt_SOC&&iFc>0)||(f[1]<fBatt_SOC&&iFc<0))
-                                iFc = f[2]*0.7;
+                                iFc = iFc*0.7;
                             else
-                                iFc = f[2]*0.6;
+                                iFc = iFc*0.6;
                             
 /*                            if (f[0] < -500)
                                 if (-f[0] > (iFc-f[0]))
@@ -4010,7 +4010,7 @@ bDischarge = false;
                             }
                             printf("%c[K\n", 27 );
                             if (iFc ==0) iFc = 1;
-                            printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc, int(f[2])*100/iFc, f[1]);
+                            printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc3, int(f[2])*100/iFc, f[1]);
 // Leistung des Slave begrenzen
                             if (abs(iFc)>abs(f[2]*3)&&abs(f[2])>2000&&f[0]>2000)
                                 iFc = f[2]*3;
