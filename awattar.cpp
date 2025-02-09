@@ -578,10 +578,10 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     // Überprüfen ob entladen werden kann
     fSoC = fSoC - notstromreserve;
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-    if ( Verbrauch*1.5< fSoC&&ret<10)
-        reserve = reserve - Verbrauch*1.5 + fSoC;
+/*    if ( Verbrauch*1.5< fSoC&&ret<10)
+        reserve = reserve - Verbrauch*1.5 + fSoc;
     if (ret==0) reserve = 0;
-    fSoC = fSoC - reserve;
+*/    fSoC = fSoC - reserve;
 // Überprüfen ob entladen werden kann
     fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,minsoc,maxpos,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
 //        float faval = fSoC-minsoc - 100 + maxsoc;
