@@ -3941,6 +3941,7 @@ bDischarge = false;
                                 iFc = iFc*0.7;
                             else
                                 iFc = iFc*0.6;
+                            iFc3 = iFc;
                             
 /*                            if (f[0] < -500)
                                 if (-f[0] > (iFc-f[0]))
