@@ -4001,6 +4001,9 @@ bDischarge = false;
                                             adjust = adjust + f[0]/10.0;
                                             iFc = iFc - adjust;
                                         }
+
+                                        if (iFc3 > iFc)
+                                            iFc = iFc3;
                                         
                                         // Nicht wenn Master entlädt
                                         if (f[2] <-100) iFc = f[2];
