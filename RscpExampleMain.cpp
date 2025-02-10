@@ -2651,7 +2651,7 @@ int LoadDataProcess() {
                                             }
                                         
                                         
-                                        if (fkosten>e3dc_config.WPZWEPVon+1&&PVon<e3dc_config.WPPVoff)
+                                        if (fkosten>e3dc_config.WPZWEPVon+.5&&PVon<e3dc_config.WPPVoff)
                                         {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
@@ -2664,7 +2664,7 @@ int LoadDataProcess() {
                                         }
                                     }
                                     if ((ALV==0||not (btasmota_ch1&16))
-                                        &&fspreis/fcop<e3dc_config.WPZWEPVon-0.2)
+                                        &&fspreis/fcop<e3dc_config.WPZWEPVon)
                                     {
                                         ALV = e3dc_config.shelly0V10Vmin;
                                         btasmota_ch1|=16;
@@ -2672,7 +2672,7 @@ int LoadDataProcess() {
 // wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
                                     if (fspreis/fcop>e3dc_config.WPZWEPVon+.2
                                         &&
-                                        fkosten>e3dc_config.WPZWEPVon+1
+                                        fkosten>e3dc_config.WPZWEPVon+.5
                                         &&
                                         PVon<e3dc_config.WPPVoff
                                         &&
