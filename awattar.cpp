@@ -376,8 +376,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         float ZielSoC = 95;
         float Verbrauch;
 // Verbrauch bis solarenÜberschuss??
-        int ret = -1;
-        ret = suchenSolar(wetter,h, Verbrauch) - h;
+        int ret = 0;
+        if (wetter.size() > h+1)
+            ret = suchenSolar(wetter,h+1, Verbrauch) - h -1;
 
         // Überprüfen ob entladen werden kann
         fSoC = fSoC - notstromreserve;
@@ -574,7 +575,8 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     float Verbrauch;
 // Verbrauch bis solarenÜberschuss??
     int ret = 0;
-    ret = suchenSolar(wetter,0, Verbrauch);
+    if (wetter.size()>1)
+        ret = suchenSolar(wetter,1, Verbrauch);
 
     // Überprüfen ob entladen werden kann
     fSoC = fSoC - notstromreserve;
