@@ -382,8 +382,8 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         // Überprüfen ob entladen werden kann
         fSoC = fSoC - notstromreserve;
     // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-        if ( Verbrauch*1.5< fSoC&&ret<10&&ret>0)
-            reserve = reserve + Verbrauch*1.5 - fSoC;
+        if ( Verbrauch*1.5< fSoC-reserve&&ret<10&&ret>0)
+            reserve = Verbrauch*1.5;
         if (ret == 0) reserve = 0;
         if (reserve < 0) reserve = 0;
         fSoC = fSoC - reserve;
@@ -579,9 +579,9 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     // Überprüfen ob entladen werden kann
     fSoC = fSoC - notstromreserve;
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-    if ( Verbrauch*1.5 < fSoC&&ret<10&&ret>0)
+    if ( Verbrauch*1.5 < fSoC-reserve&&ret<10&&ret>0)
     {
-        reserve = reserve + Verbrauch*1.5 - fSoC;
+        reserve = Verbrauch*1.5;
     }
     if (reserve < 0) reserve = 0;
     if (ret==0) reserve = 0;
