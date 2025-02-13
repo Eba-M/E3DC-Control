@@ -143,26 +143,29 @@ float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int
     float x4 = 0;   // maximale Entladung = Bedarf
     minsoc = 0; // min erreicher Soc
     maxsoc = 0; // maximal erreicher Soc
+    maxpos = 0;
     if (wetter.size() == 0)
         return 0;
     for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
     {
         x3 = wetter[j].hourly + wetter[j].wpbedarf - wetter[j].solar;;
         // Suchen nach Hoch und Tiefs
-        if (w[j].pp > preis) {
-            if (x3 > 0)
+        if (w[j].pp > preis) 
+        {
+            if (x3 > 0)  // Verbrauch bei höheren Preis
             {
                 if (x2 > 0)
+                {
                     if (x2>x3)    // Konnte schon nachgeladen werden, dann vom bedarf abziehen.
                         x2 = x2 - x3;
-                        else
-                        {
-                            x3 = x3 - x2; // solaren Zugewinn abziehen
-                            x1 = x1 + x3; // Bedarf hinzurechen
-                            x2 = 0;       // Zugewinn ist nun 0
-                            x4 = x4 + x3; // MinSoC
-                        }
-                
+                    else
+                    {
+                        x3 = x3 - x2; // solaren Zugewinn abziehen
+                        x1 = x1 + x3; // Bedarf hinzurechen
+                        x2 = 0;       // Zugewinn ist nun 0
+                        x4 = x4 + x3; // MinSoC
+                    }
+                }
                         // mit Solaretrag verrechnen
                 else
                 {
@@ -173,7 +176,7 @@ float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int
                     if (x1>=100) return x1;
                 }
             }
-            else 
+            else // Ertrag bei höheren Preis
             {
                 x2 = x2 - x3;
                 if (x2>maxsoc) {
@@ -383,9 +386,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         // Überprüfen ob entladen werden kann
         fSoC = fSoC - notstromreserve;
     // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-        if ( fSoC<=reserve && Verbrauch*1.5 < fSoC&&ret<10&&ret>0)
-            reserve = Verbrauch*1.5;
-        if (ret == 0) reserve = 0;
+        if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
+            reserve = Verbrauch*0.8;
+//        if (ret == 0) reserve = 0;
         if (reserve < 0) reserve = 0;
         fSoC = fSoC - reserve;
         float minsoc = 0;
@@ -581,11 +584,8 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     // Überprüfen ob entladen werden kann
     fSoC = fSoC - notstromreserve;
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-    if ( fSoC<reserve && Verbrauch*1.5 < fSoC&&ret<10&&ret>0)
-    {
-        reserve = Verbrauch*1.5;
-    }
-    if (reserve < 0) reserve = 0;
+    if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
+        reserve = Verbrauch*0.8;
     if (ret==0) reserve = 0;
     fSoC = fSoC - reserve;
 // Überprüfen ob entladen werden kann
@@ -1087,7 +1087,7 @@ int ladedauer = 0;
 // die Wetterdaten alle 15min in der 14ten min holen,
         (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==14)
         ||
-        (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>11*60+55)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
+        (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>11*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
         (w.size()==0&&e3dc.aWATTar)
         )

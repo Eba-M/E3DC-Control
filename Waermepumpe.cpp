@@ -435,7 +435,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             (e3dc.WPZWEPVon>0&&f6>e3dc.WPZWEPVon) // Hysterese 1Grad
                                             ||
 // ZWE über Kosten aktiviert
-                                            (e3dc.WPZWEPVon>0&&f9>e3dc.WPZWEPVon-0.2)) // Wärmepreis
+                                            (e3dc.WPZWEPVon>0&&f9>e3dc.WPZWEPVon)) // Wärmepreis
                                         {
                                             // Pelletskessel oder WPZWE übernimmt und die WP ist aus
                                             WPZWE = 1;
@@ -524,7 +524,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 fp = NULL;
                 fp = fopen(e3dc.analyse,"r");
                 if (fp == NULL)
-                    return;
+                    exit(99);
                 watt_s ww;
                 wetter_s we;
                 float temp = 0;
@@ -693,7 +693,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
          fclose(fp);
          fclose(fp1);
+            if (e3dc.test) exit(0);
             if (e3dc.debug) printf("NWS2\n");
+
 
             if (ptm->tm_min<2)
             {
