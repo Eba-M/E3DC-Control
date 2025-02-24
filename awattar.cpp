@@ -602,7 +602,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     printf("faval %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,27);
 
-        if (faval >=-0.01||maxsoc>=100)
+        if (faval >=-0.01||maxsoc+fSoC>=100)
         {
             fSoC = fSoC + reserve;
             return 1;
