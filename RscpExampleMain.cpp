@@ -2655,10 +2655,15 @@ int LoadDataProcess() {
                                         {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
-                                            {
+                                            { 
+                                                if(fspreis/fcop<e3dc_config.WPZWEPVon+.2)
+                                                {
                                                 btasmota_ch1 ^=16;
-//                                                if (btasmota_ch1<=1)
-                                                    ALV = 0;
+                                                //                                                if (btasmota_ch1<=1)
+                                                ALV = 0;
+                                                }
+                                                else
+                                                    ALV = e3dc_config.shelly0V10Vmin;
                                             }
                                     
                                         }
@@ -4476,17 +4481,17 @@ bDischarge = false;
 //    sprintf(buffer,"echo $PATH");
 //    system(buffer);
 
-    if (e3dc_config.openWB)
+    if (e3dc_config.openWB_ip!="0.0.0.0")
     {
 //        sprintf(buffer,"mosquitto_pub -r -h raspberrypi -t openWB/set/evu/VPhase1 -m %0.1f",float(223.4));
 //        system(buffer);
 
         
     sprintf(buffer,"openWB/set/evu/W -m %0i",int(fPower_Grid));
-    MQTTsend(e3dc_config.openWB_ip,buffer);
+//    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"openWB/set/pv/W -m %0i",iPower_PV*-1);
-    MQTTsend(e3dc_config.openWB_ip,buffer);
+//    MQTTsend(e3dc_config.openWB_ip,buffer);
 
     sprintf(buffer,"echo %0.1f > /var/www/html/openWB/ramdisk/llaktuell",fPower_WB);
 //    system(buffer);

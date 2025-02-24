@@ -602,7 +602,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     printf("faval %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,27);
 
-        if (faval >=-0.01)
+        if (faval >=-0.01||maxsoc>=100)
         {
             fSoC = fSoC + reserve;
             return 1;
@@ -836,7 +836,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
                     float f5 = iDayStat[198]/3600.0/1000.0;
                     float f6 = 1;
-                    if (f4>0&&(wetter[x2].hh-wetter[0].hh)<12*3600)
+                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
                         f6 = f5/f4;
                     if (f6<0.1) f6 = 0.1;  // schneebedeckte Module?
                     if (f6>3.5) f6 = 3.5;
@@ -1068,7 +1068,8 @@ int ladedauer = 0;
         if (wetter.size() == 0)
             return;
         while ((not simu)&&w.size()>0&&(w[0].hh+900<=rawtime))
-            w.erase(w.begin());}
+            w.erase(w.begin());
+    }
     else
         while ((not simu)&&w.size()>0&&(w[0].hh+3600<=rawtime))
         w.erase(w.begin());

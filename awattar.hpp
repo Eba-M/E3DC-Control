@@ -44,6 +44,7 @@ typedef struct {
     char aes_password[128];
     char logfile[128],conffile[128];
     char openWB_ip[20];
+    char openWB_topic[20];
     char openweathermap[50];
     char BWWPTasmota[50];
     char e3dcwallboxtxt[128];
@@ -62,7 +63,7 @@ typedef struct {
 
 // central information for dyn. price, consumption and solar production
 // update when new priceinformation is avaiable (once a day) or consumption/production (hourly)
-typedef struct {time_t hh; float pp; float hourly;}watt_s;
+typedef struct {time_t hh; float pp; float hourly; float pn;}watt_s;
 // weather information for the next 48h
 typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;float wpbedarf;float waerme;}wetter_s;
 // information for the wolf heatpump
