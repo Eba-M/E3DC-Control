@@ -2197,11 +2197,15 @@ int LoadDataProcess() {
                 sprintf(fname,"Ertrag.%i.txt",day);
                 fp = fopen(fname, "a");
                 if(!fp)
+                {
                     fp = fopen(fname, "w");
+                    fprintf(fp,"Zeit Stat: Soll/Ist %% /PV: prog real %%/ %% Verbr. Haus WP");
+
+                }
                 if(fp)
                 {
 // Uhrzeit Average prog. Solar real Solar % letzte Progose Ertrag real Ertrag % kumm tagesverbrauch Haus WP
-                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f %0.2f%% %0.2f%% %0.2f %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f / %0.2f%% %0.2f%% %0.2f / %0.2f %0.2f\n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0);
                     fclose(fp);
                 }
             }
@@ -2233,8 +2237,8 @@ int LoadDataProcess() {
                 if(fp)
                 {
                     
-                    fprintf(fp,"\nDay %0.2f%kWh %0.2fkWh %0.2f \n",f2,f3,f3/f2);
-                    fprintf(fp,"\nSummary %0.2f%kWh %0.2fkWh %0.2f \n",f4,f5,f5/f4);
+                    fprintf(fp,"\nDay Prognose %0.2f%kWh Ertrag %0.2fkWh %0.2f \n",f2,f3,f3/f2);
+                    fprintf(fp,"\n30Tage %0.2f%kWh %0.2fkWh %0.2f \n",f4,f5,f5/f4);
                     iDayStat[DayStat-1]=0;
                     iDayStat[DayStat-2]=0;
                     fclose(fp);
@@ -2638,25 +2642,26 @@ int LoadDataProcess() {
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
+                                    float fkostensoll = fspreis/fcop;
 
                                     if (ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                     {
                                         
-                                        if (fkosten > e3dc_config.WPZWEPVon&&PVon<e3dc_config.WPPVoff)
+                                        if (fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
-                                            if (fkosten < e3dc_config.WPZWEPVon-0.5||PVon>e3dc_config.WPPVon){
+                                            if (fkosten < fkostensoll||PVon>e3dc_config.WPPVon){
                                                 ALV++;
                                                 btasmota_ch1|=16;
                                             }
                                         
                                         
-                                        if (fkosten>e3dc_config.WPZWEPVon+.5&&PVon<e3dc_config.WPPVoff)
+                                        if (fkosten>fkostensoll+1&&PVon<e3dc_config.WPPVoff)
                                         {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
                                             { 
-                                                if(fspreis/fcop<e3dc_config.WPZWEPVon+.2)
+                                                if(fkostensoll>e3dc_config.WPZWEPVon+.2)
                                                 {
                                                 btasmota_ch1 ^=16;
                                                 //                                                if (btasmota_ch1<=1)
@@ -2669,13 +2674,13 @@ int LoadDataProcess() {
                                         }
                                     }
                                     if ((ALV==0||not (btasmota_ch1&16))
-                                        &&fspreis/fcop<e3dc_config.WPZWEPVon)
+                                        &&fkostensoll<e3dc_config.WPZWEPVon)
                                     {
                                         ALV = e3dc_config.shelly0V10Vmin;
                                         btasmota_ch1|=16;
                                     }
 // wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
-                                    if (fspreis/fcop>e3dc_config.WPZWEPVon+.2
+                                    if (fkostensoll>e3dc_config.WPZWEPVon+.2
                                         &&
                                         fkosten>e3dc_config.WPZWEPVon+.5
                                         &&
@@ -3276,11 +3281,20 @@ int LoadDataProcess() {
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);
 //else
         printf("ret = %i %c[K",ret,27);
-        if (ret == 2)
+        if (ret == 2)  // Wenn tagsüber nachgeladen wird, nur bis ladeende bzw. ladeende2 1% drunter
         {
-            rettime = t_alt;
-            fAvBatterie=0;
-            fAvBatterie900=0;
+            if (
+                (t>cLadezeitende3&&t<=cLadezeitende1&&fBatt_SOC>fLadeende-1)
+                ||
+                (t>cLadezeitende1&&t<=cLadezeitende2&&fBatt_SOC>fLadeende2-1)
+                )
+            ret = 0;
+            else
+            {
+                rettime = t_alt;
+                fAvBatterie=0;
+                fAvBatterie900=0;
+            }
         }
         if (ret == 1)
         {

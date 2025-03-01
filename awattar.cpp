@@ -406,6 +406,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
             anforderung = faval*-1;
         else
             faval = faval + anforderung;
+//        if (faval >=-0.01||maxsoc+fSoC-minsoc>=100)
         if (faval >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
                 fSoC = fSoC + anforderung + reserve + notstromreserve;
@@ -602,7 +603,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     printf("faval %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,27);
 
-        if (faval >=-0.01||maxsoc+fSoC-minsoc>=100)
+        if (faval >=-0.01||maxsoc+fSoC>=100&&minsoc==0)
         {
             fSoC = fSoC + reserve;
             return 1;
