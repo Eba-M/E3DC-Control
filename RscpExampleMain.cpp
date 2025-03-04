@@ -1636,7 +1636,10 @@ int wolfstatus()
                 
                 cJSON_Delete(wolf_json);
                 iPower_WP = wolf[wppw].wert*1000;
-                iHeat_WP = wolf[wphl].wert*1000;
+                if (wolf[wphl].wert>0)
+                    iHeat_WP = wolf[wphl].wert*1000;
+                else
+                    iHeat_WP = 0;
                 if (iPower_WP==0&&ALV>0&&tasmota_status[0]==0) // keine EVU sperre
                     iPower_WP = 700;
                 else
@@ -2032,7 +2035,7 @@ int LoadDataProcess() {
         static time_t myt_alt = t;
         int x2 = t%(24*4*900)/900;
         int x3 = t%900;
-        int x4 = t%(24*3600)/900+1;
+        int x4 = (t+900)%(24*3600)/900+1;
 
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
@@ -2097,6 +2100,8 @@ int LoadDataProcess() {
 //            &&w.size()>0) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (myt_alt%(24*7*4*900))/900;
+            int x4 = t%(24*3600)/900+1;
+
             if (iWeekhourWP[weekhour] == 0)
                 iWeekhourWP[weekhour] = 1;
             if (iWeekhour[x1]>0)
