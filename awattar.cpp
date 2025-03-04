@@ -603,9 +603,8 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     printf("faval %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,27);
 
-        if (faval >=-0.01||maxsoc+fSoC>=100&&minsoc==0)
+        if (faval >=-0.01||maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0)
         {
-            fSoC = fSoC + reserve;
             return 1;
         }
 // geändert am 30.9.
@@ -1030,7 +1029,38 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
         }
     };
 };
-            
+float suchenstrompreis(int x2)
+{
+    if (strompreis.size() == 1)
+        return(strompreis[0].strompreis*10);
+    if (strompreis.size() == 2)
+    {
+        if (x2 >= strompreis[0].stunde&&x2 < strompreis[1].stunde)
+            return(strompreis[0].strompreis*10);
+        else
+            return(strompreis[1].strompreis*10);
+
+    }
+    if (strompreis.size() > 2)
+    {
+        
+        for(int x1=0;x1+1<=strompreis.size();x1++)
+        {
+            if (
+                (x2 >= strompreis[x1].stunde&&x2 < strompreis[x1+1].stunde)
+                ||
+                (x2 >= strompreis[x1].stunde&&x1+1 == strompreis.size())
+                )
+            {
+                return(strompreis[x1].strompreis*10);
+                break;
+            }
+            if (x1+1 == strompreis.size())
+                return(strompreis[x1].strompreis*10);
+        }
+    }
+    return(-1);
+};
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
@@ -1095,11 +1125,43 @@ int ladedauer = 0;
         )
     {
         oldhour = rawtime;
+        ptm = gmtime(&rawtime); // nächster Tag
+        time_t mytime;
+        mytime = mktime(ptm);
+
 //        old_w_size = w.size();
 
         for (int j1 = 0;j1<24;j1++) {
             strombedarf[j1] = e3dc.Avhourly;
         }
+// strompreistarife einlesen
+        
+        printf("\ne3ec.strompreise\n");
+        fp = fopen("e3dc.strompreise.txt","r");
+        if (fp)
+        {
+            strompreis.clear();
+            strompreis_s strom;
+            while (fgets(line, sizeof(line), fp))
+            {
+                memset(var, 0x00, sizeof(var));
+                memset(value, 0x00, sizeof(value));
+                sscanf(line, "%s %s", var, value);
+                //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
+                ptm->tm_hour = atoi(var);
+                mytime = mktime(ptm);
+                strom.stunde = (mytime%(24*3600))/3600;
+                strom.strompreis = atof(value);
+                strompreis.push_back(strom);
+
+            }
+            fclose(fp);
+            std::stable_sort(strompreis.begin(), strompreis.end(), [](const strompreis_s& a, const strompreis_s& b) {
+                return a.stunde < b.stunde;});
+
+            printf("e3ec.strompreise done\n");
+        }
+        
     // Tagesverbrauchsprofil einlesen. Nur wenn keine Statistik
 if (not e3dc.statistik)
 {
@@ -1206,9 +1268,11 @@ if (e3dc.AWLand == 2)
                         ww.hh = atol(line);
                         if (fgets(line, sizeof(line), fp))
                         {
-                            ww.pp = atof(line);
-                            x2 =ww.hh%(24*3600);
+                            ww.pp = atof(line); // € pro MWh
+                            x2 = ww.hh%(24*3600);
                             x2 = x2/3600;
+                            if (strompreis.size()>0)
+                                ww.pp = ww.pp + suchenstrompreis(x2);
                             if (e3dc.openmeteo)
                                 ww.hourly = strombedarf[x2]/4;
                             else
@@ -1242,8 +1306,20 @@ if (e3dc.AWLand == 2)
         }
     }
 
+        if (strompreis.size()>0&&e3dc.aWATTar==0)
+        {
+            w.clear();
+            ww.hh = (rawtime/900)*900;
+            for(int x1=0;x1<192;x1++)
+            {
+                ww.pp = suchenstrompreis(ww.hh%(24*3600)/3600);
+                w.push_back(ww);
+                ww.hh=ww.hh+900;
+            }
+        }
         // Abfragen EPEXSPOT
-                if (w.size()<=4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
+                if (e3dc.aWATTar>0
+                    &&w.size()<=4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
 // Inhalt prophylaktisch löschen
                     fp = fopen("epexspot.txt","w");
@@ -1291,6 +1367,9 @@ if (e3dc.AWLand == 2)
                                     {
                                         x2 =ww.hh%(24*3600);
                                         x2 = x2/3600;
+                                        if (strompreis.size()>0)
+                                            ww.pp = ww.pp + suchenstrompreis(x2);
+
                                         if (e3dc.openmeteo)
                                             ww.hourly = strombedarf[x2]/4;
                                         else

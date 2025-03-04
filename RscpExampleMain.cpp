@@ -72,6 +72,8 @@ static int32_t iAvalPower = 0;
 static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, abhängig vom SoC
 static int32_t iPower_Bat;
 static int32_t iPower_WP = 0; // Leistungsaufnahme WP
+static int32_t iHeat_WP = 0; // aktuelle Wärmeleistung WP
+static int32_t itotalHeat_WP = 0; // Wärmeertrag 24h WP
 static int64_t itotal_WP = -1; // Zählestand WP
 static float fPower_Bat;
 static float fPower_Ext[7];
@@ -129,6 +131,7 @@ static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 // Index 198 heutiger Ertrag kumuliert
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
+static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
 static char fnameGrid[100];
 
 static int Gridstat;
@@ -1633,11 +1636,15 @@ int wolfstatus()
                 
                 cJSON_Delete(wolf_json);
                 iPower_WP = wolf[wppw].wert*1000;
+                iHeat_WP = wolf[wphl].wert*1000;
                 if (iPower_WP==0&&ALV>0&&tasmota_status[0]==0) // keine EVU sperre
                     iPower_WP = 700;
                 else
-                if (iPower_WP>0&&ALV==0)
-                    iPower_WP = 0;
+                    if (iPower_WP>0&&ALV==0)
+                    {
+                        iPower_WP = 0;
+                        iHeat_WP = 0;
+                    }
             }
         }
     }
@@ -2023,6 +2030,10 @@ int LoadDataProcess() {
 // Wird die Leistung der WP über einen externen Zähler ausgelesen
 
         static time_t myt_alt = t;
+        int x2 = t%(24*4*900)/900;
+        int x3 = t%900;
+        int x4 = t%(24*3600)/900+1;
+
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
             iPower_WP = wetter[0].kosten*1000;   // in Watt
@@ -2053,6 +2064,9 @@ int LoadDataProcess() {
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
+            itotalHeat_WP = itotalHeat_WP + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(x3);
+            iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
+
         }
         if (e3dc_config.tasmota)
         {
@@ -2066,9 +2080,6 @@ int LoadDataProcess() {
         Gridstat = (ptm->tm_mday-1)*24*4;
         Gridstat = Gridstat+t%(24*3600)/900;
         iGridStat[Gridstat] = iGridStat[Gridstat] + fPower_Grid*(t-myt_alt);
-
-        int x2 = (t%(24*4*900))/900;
-        int x3 = t%900;
         float f2,f3;
         static wetter_s w_alt;
 //        if (w.size() > 0)
@@ -2099,6 +2110,8 @@ int LoadDataProcess() {
                 iWeekhourWP[x1] = iWeekhourWP[x1]*.6 + iWeekhourWP[weekhour]*.4;
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
+            iHeatStat[x4]=iHeatStat[0]; // 15min Intervall fortschreiben
+            iHeatStat[0]=0;
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
 
             char fname[100];
@@ -5771,9 +5784,13 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // Grid
                     if (e3dc_config.WP)
                     {
+                        float waermebedarf = (e3dc_config.WPHeizgrenze - fatemp)*24; // Heizgrade
+                        waermebedarf = (e3dc_config.WPHeizlast / (e3dc_config.WPHeizgrenze + 15)) * waermebedarf;
+
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                         if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
+                        printf(" WB %0.02f %0.02f",waermebedarf,float(itotalHeat_WP/3600000.0));
                     }
                 }
                 printf("%c[K\n", 27 );
@@ -6844,6 +6861,14 @@ static int iEC = 0;
             x1 = fread (&iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
             fclose (pFile);
         }
+        pFile = NULL;
+        pFile = fopen ("HeatStat.dat","rb");
+        if (pFile!=NULL)
+        {
+            size_t x1 = sizeof(iHeatStat);
+            x1 = fread (&iHeatStat , sizeof(uint32_t), sizeof(iHeatStat)/sizeof(uint32_t), pFile);
+            fclose (pFile);
+        }
 
         pFile = NULL;
         char fname[100];
@@ -6958,6 +6983,12 @@ static int iEC = 0;
                 if (pFile!=NULL)
                 {
                     fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                pFile = fopen ("HeatStat.dat","wb");
+                if (pFile!=NULL)
+                {
+                    fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeat_WP)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
                 char fname[100];
