@@ -1,3 +1,22 @@
+Neue Version C2025.03.04
+
+Variable Stromtarife/Netzentgelte
+
+Neben dynamische Stromtarife sind nun auch Stromtarife mit mehreren Tarifzeiten möglich
+
+die variablen Strompreise/Netzentgelte werden in der Datei e3dc.strompreise.txt hinterlegt.
+
+Beispiel:
+
+0 15.91
+5 29.11
+
+Die Uhrzeit wird in lokaler Zeit (nicht UTC) hinterlegt.
+Bei Tarifzeiten werden die Strompreise brutto eingetragen, AWNebenkosten sind dann 0. aWattar = 0.
+
+bei Netzentgelten werden diese jedoch nur mit dem Nettobetrag ohne MWSt. eingegeben
+Bei AWNebenkosten sind die Netzentgelte herauszurechnen
+
 Neue Version C2025.01.13
 
 nachdem am Sonntag wiedermal die EPEX-Daten verzögert kamen, habe ich direkt den Datenbezug von EPEXSPOT scharfgestellt. Es wird ein Python-Skript (epeyspot.py) benutzt, das im Verzeichnis E3DC-V1 hinterlegt ist.
