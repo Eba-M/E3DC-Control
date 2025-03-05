@@ -1264,7 +1264,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Set(31,1,31); //HZK? register 31
                     iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
-                }
+                } // HK werden nur beim Abtauen abgeschaltet, wenn der pellets nicht läuft
                 if (temp[1]==1&&
                     (
                      (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
@@ -1273,11 +1273,11 @@ int iModbusTCP()
                      (bHK1off>0)
                     ||
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
-                     (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                     (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0)
                     ||
-                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                     ||
-                     (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6)
+                     (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6&&temp[17]==0)
 
                     )
                     )
@@ -1294,11 +1294,11 @@ int iModbusTCP()
                      (bHK2off>0)
                      ||
                       ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
-                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0)
                      ||
-                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
+                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                      ||
-                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6)
+                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6&&temp[17]==0)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
