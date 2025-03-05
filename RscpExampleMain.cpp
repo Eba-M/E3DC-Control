@@ -2034,7 +2034,7 @@ int LoadDataProcess() {
         static time_t myt_alt = t;
         int x2 = t%(24*4*900)/900;
         int x3 = t%900;
-        int x4 = (t+900)%(24*3600)/900+1;
+        int x4 = (t+900)%(24*3600)/900+2;
 
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
