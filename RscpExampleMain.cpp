@@ -73,7 +73,6 @@ static int32_t iMaxBattLade; // dynnamische maximale Ladeleistung der Batterie, 
 static int32_t iPower_Bat;
 static int32_t iPower_WP = 0; // Leistungsaufnahme WP
 static int32_t iHeat_WP = 0; // aktuelle Wärmeleistung WP
-static int32_t itotalHeat_WP = 0; // Wärmeertrag 24h WP
 static int64_t itotal_WP = -1; // Zählestand WP
 static float fPower_Bat;
 static float fPower_Ext[7];
@@ -131,7 +130,7 @@ static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 // Index 198 heutiger Ertrag kumuliert
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
-static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
+static int32_t iHeatStat[24*4+2]; //15min WP Heizleistung der letzten 24h
 static char fnameGrid[100];
 
 static int Gridstat;
@@ -2067,7 +2066,7 @@ int LoadDataProcess() {
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-            itotalHeat_WP = itotalHeat_WP + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
+            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
         }
@@ -2100,7 +2099,7 @@ int LoadDataProcess() {
 //            &&w.size()>0) // Verbrauchwerte alle 15min erfassen
         {
             int x1 = (myt_alt%(24*7*4*900))/900;
-            int x4 = t%(24*3600)/900+1;
+            int x4 = t%(24*3600)/900+2;
 
             if (iWeekhourWP[weekhour] == 0)
                 iWeekhourWP[weekhour] = 1;
@@ -5795,7 +5794,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                         if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
-                        printf(" WB %0.02f %0.02f",waermebedarf,float(itotalHeat_WP/3600000.0));
+                        printf(" WB %0.02f %0.02f",waermebedarf,float(iHeatStat[1]/3600000.0));
                     }
                 }
                 printf("%c[K\n", 27 );
