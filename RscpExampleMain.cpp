@@ -6992,7 +6992,8 @@ static int iEC = 0;
                 pFile = fopen ("HeatStat.dat","wb");
                 if (pFile!=NULL)
                 {
-                    fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeat_WP)/sizeof(uint32_t), pFile);
+                    size_t x1;
+                    x1 = fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeatStat)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
                 char fname[100];
