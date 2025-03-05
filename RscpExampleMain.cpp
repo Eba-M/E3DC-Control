@@ -2661,7 +2661,7 @@ int LoadDataProcess() {
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
                                     float fkostensoll = fspreis/fcop;
 
-                                    if (ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                    if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)||PVon>e3dc_config.WPPVon)
                                     {
                                         
                                         if (fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)
