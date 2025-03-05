@@ -2756,16 +2756,16 @@ int LoadDataProcess() {
                 if (wwmax > (e3dc_config.WPHK1max+5))
                     wwmax = e3dc_config.WPHK1max+5;
                 
-                int temp11 = 0; // Hier wird der alte wert von temp[11] für Vergleich abgespeichert
+                static int temp11 = 0; // Hier wird der alte wert von temp[11] für Vergleich abgespeichert
                 
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 //
                 if (wolf.size()>0)
                     if (
                         (
-                         temp[14]<(e3dc_config.WPHK1max+2)*10
+                         temp[15]<(e3dc_config.WPHK1max+2)*10
                          ||
-                         (temp[14]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
+                         (temp[15]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
                           wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
                          )
                         && temp[17]==0 // Pellets aus
@@ -2844,7 +2844,7 @@ int LoadDataProcess() {
                                     )   //FBH
                                    &&
                                    (
-                                    ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[14])
+                                    ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
                                     ||
                                     (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
                                     )           // HK
