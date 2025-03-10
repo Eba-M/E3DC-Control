@@ -2506,6 +2506,7 @@ int LoadDataProcess() {
                         && temp[6]>0
                         && temp[4]<(iWPHK1max)
                         && temp[5]<(iWPHK1max)
+                        && temp[10]<temp[11]+10 // HK2 Soll erreicht?
                         && temp[17] == 0
                         && ALV>0
                         && (temp[4]-temp[5])<=10
@@ -2779,6 +2780,9 @@ int LoadDataProcess() {
                          //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
                          // oder die IST+10 <= SOLL
                          (temp[7]>0&&temp[10]>=(temp[11]+10))
+                         ||
+                         // RL < FBH Soll
+                         (temp[7]>0&&temp[15]<=(temp[10]))
                          // Soll >== Ist+10
                          ||
                          (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
