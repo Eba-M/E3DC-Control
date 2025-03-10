@@ -2347,7 +2347,18 @@ int LoadDataProcess() {
             tasmota_status[3] = tasmotastatus(4);
         
         // Steuerung BWWP über Tasmota Kanal4
-        if (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
+        if (
+            (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
+            ||
+            (
+             (e3dc_config.BWWPon<e3dc_config.BWWPoff&&
+              (e3dc_config.BWWPon*3600>t%(24*3600)||e3dc_config.BWWPoff*3600<t%(24*3600)))
+             ||
+             (e3dc_config.BWWPon>e3dc_config.BWWPoff&&
+              (e3dc_config.BWWPon*3600>t%(24*3600)||e3dc_config.BWWPoff*3600<t%(24*3600)))
+            )
+
+            )
         {
             tasmotaoff(4);
             /*            if (bHK1off & 2)
@@ -2789,8 +2800,8 @@ int LoadDataProcess() {
                          // VL Temp Wolf < Soll
                          ||
                          (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
-                         ||
-                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
+//                         ||
+//                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
                          )
                         )
                     {
