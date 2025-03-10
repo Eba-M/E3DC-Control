@@ -65,7 +65,15 @@ typedef struct {
 // update when new priceinformation is avaiable (once a day) or consumption/production (hourly)
 typedef struct {time_t hh; float pp; float hourly; float pn;}watt_s;
 // weather information for the next 48h
-typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;float wpbedarf;float waerme;}wetter_s;
+// temp: prog. Tagestemperatur
+// hourly: Grundverbrauch aus Statistik in % der Speichergröße
+// kosten: elektrische Leistung in kW
+// solar: hochgerechnete Solarleistung in % der Speichergröße
+// progsolar: Prognostizierte Solarleistung aus openmeteo in % der Speichergröße
+// wpbedarf: Wärmebedarf in % der Speichergröße
+// waerme: erforderliche Wärmeleistung in kW
+// cop: Effizienz WP
+typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;float wpbedarf;float waerme;float waermepreis;float cop;}wetter_s;
 // information for the wolf heatpump
 typedef struct {time_t t; std::string feld; std::string AK; std::string status; float wert;}wolf_s;
 // central information for automation depending on price and for various channels
@@ -73,7 +81,7 @@ typedef struct {time_t t; std::string feld; std::string AK; std::string status; 
 // hh is starttime for one full hour = 3600sec
 // update when new priceinformation is avaiable (once a day) or on request
 typedef struct {time_t hh; int ch; float pp;}ch_s;
-typedef struct {int x1; float temp;}wetter1_s;
+typedef struct {int x1; float waermepreis;float cop;}wetter1_s;
 typedef struct {uint32_t verbrauch; uint32_t wp;}stat_s;
 typedef struct {float fgrid; float fsoc; float fbat;}farm_s;
 typedef struct {int stunde; float strompreis;}strompreis_s;  //variable strompreistarife

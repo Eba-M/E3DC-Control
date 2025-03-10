@@ -132,7 +132,7 @@ static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
 static int32_t iHeatStat[24*4+2]; //15min WP Heizleistung der letzten 24h
 static char fnameGrid[100];
-
+static float waermebedarf;
 static int Gridstat;
 
 
@@ -2789,6 +2789,8 @@ int LoadDataProcess() {
                          // VL Temp Wolf < Soll
                          ||
                          (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
+                         ||
+                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
                          )
                         )
                     {
@@ -2869,93 +2871,26 @@ int LoadDataProcess() {
                                  (temp[14]>(e3dc_config.WPHK1max+4)*10)
                                  ||
                                  (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
+                                 ||
+                                 (wetter[0].wpbedarf*.8<wolf[wppw].wert&&(t - wolf[wppw].t < 300))
                                  //                    ||
                                  //                    (wolf[wpvl].wert>45)
                                  )
                             {
                                 ALV = shelly_get();
                                 
-                                /*                        if (mm>sunriseAt&&mm<sunsetAt&&PVon<0)
-                                 {
-                                 if (PVon > -5000)
-                                 ALV = ALV + PVon / 1000;
-                                 else
-                                 ALV = ALV - 1;
-                                 }
-                                 */                        if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
+                                if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                                      ALV = e3dc_config.shelly0V10Vmin+1;
                                 if (ALV>0)
                                     shelly((ALV--)-1);
+                                if
+                                (wetter[0].wpbedarf==0&&ALV>0)
+                                 shelly(0);
+
                                 wp_t = t;
                                 
                             }
                     }
-//                if (temp[14]>(e3dc_config.WPHK1max+6)*10)
-/*                ALV = shelly_get();
-                float tempbase = temp[14]/10.0;
-                if (wolf.size()>0&&wolf[wpvl].wert>tempbase)
-                    tempbase = wolf[wpvl].wert;
-                float ALV_Calc = (e3dc_config.WPHK1max+3-tempbase);
-// Solltemp bis <1° überschritten mit shelly0V10Vmin weiterköcheln;
-//                ALV_Calc = 33;
-                if (ALV_Calc < -2&&temp[15]>e3dc_config.WPHK1max*10)
-                {
-                        ALV_Calc = 0;
-                }
-                else
-                {
-                    if (ALV_Calc>5&&ALV==0)
-                        ALV_Calc = e3dc_config.shelly0V10Vmin;
-                    else
-                    if (PVon > 0)
-                    {
-//  ALV_Calc ist die Temperaturdifferenz Ist/Soll in 1/10 Kelvin Spreizung = 5K
-// abhängig von der AT wird das ramp-up gesteuert
-                        float ramp = (e3dc_config.WPHeizgrenze-fatemp)*3;  //20° = 40, 8° = 10
-                        if (ramp > 40) ramp = 40;
-                        if (ramp < 0) ramp = 0;
-
-                        ALV_Calc =
-                        (
-                         ALV_Calc/5*(40-ramp)/40*                        (e3dc_config.shelly0V10Vmax-e3dc_config.shelly0V10Vmin)
-                         );
-                        ALV_Calc = e3dc_config.shelly0V10Vmin + ALV_Calc;
-                        if (ALV_Calc >= e3dc_config.shelly0V10Vmax)
-                            ALV_Calc = e3dc_config.shelly0V10Vmax;
-                        if (ALV_Calc < e3dc_config.shelly0V10Vmin-2)
-                            ALV_Calc = 0;
-                        else
-                        if (ALV_Calc < e3dc_config.shelly0V10Vmin)
-                            ALV_Calc = e3dc_config.shelly0V10Vmin;
-                    } else
-                        ALV_Calc = ALV;
-//                    ALV_Calc = 0;  //WP ausschalten
-                }
-                if  (
-                        (ALV_Calc > ALV&&PVon>500) //MEHR GAS NUR BEI PV
-                        ||
-                        ALV_Calc<ALV
-                        ||
-                        ((ALV_Calc==0)||ALV_Calc==e3dc_config.shelly0V10Vmin) // LANGEN TAKT
-                    )
-                    {
-                        if (ALV_Calc <= e3dc_config.shelly0V10Vmin&&ALV_Calc>0)
-                            ALV_Calc = e3dc_config.shelly0V10Vmin;
-                        if (ALV_Calc > ALV) 
-                        {
-                            if (ALV==0)
-                                ALV=ALV_Calc;
-                            else
-                                ALV++;
-                        }
-                        else
-                            ALV = ALV_Calc;
-                        shelly(ALV);
-                        wp_t = t;
-                    }
-*/
-                
-
 
                 if ((t%60)==0)
                     ALV = shelly_get();
@@ -5794,7 +5729,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // Grid
                     if (e3dc_config.WP)
                     {
-                        float waermebedarf = (e3dc_config.WPHeizgrenze - fatemp)*24; // Heizgrade
+                        waermebedarf = (e3dc_config.WPHeizgrenze - fatemp)*24; // Heizgrade
                         waermebedarf = (e3dc_config.WPHeizlast / (e3dc_config.WPHeizgrenze + 15)) * waermebedarf;
 
                         printf("%c[K\n", 27 );
