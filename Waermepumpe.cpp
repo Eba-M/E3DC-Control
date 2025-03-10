@@ -488,12 +488,15 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                             {
                                 wet.x1 = x1;
-                                wet.waermepreis = wetter[x1].waermepreis;
+                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+                                    wet.waermepreis = 0;
+                                else
+                                    wet.waermepreis = wetter[x1].waermepreis;
                                 wet.cop = wetter[x1].cop;
                                 wetter1.push_back(wet);
                             }
-                            std::sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
-                                return a.cop > b.cop;});
+                            std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
+                                return a.waermepreis < b.waermepreis;});
                             for (int x1=0;x1<wetter1.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
                                 // mit Mindestleistung vorbelegen
