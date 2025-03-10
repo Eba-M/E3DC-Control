@@ -480,9 +480,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         if (waermebedarf < 240)
                         {
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
-                            int x2 = -1;
-                            
-                            float temp = -99;
+                            if (w.size()<96)
+                                waermebedarf = waermebedarf/96*w.size();
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
                             for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
@@ -497,7 +496,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             }
                             std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
                                 return a.waermepreis < b.waermepreis;});
-                            for (int x1=0;x1<wetter1.size()&&x1<wetter1.size()&&x1<96;x1++)
+                            for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
                                 // mit Mindestleistung vorbelegen
                                 wetter[wetter1[x1].x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*25;
@@ -505,7 +504,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 
                             }
                             for (int x1=0;waermebedarf>0
-                                 &&x1<wetter1.size()&&x1<96;x1++)
+                                 &&x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
                                 // volle Leistung
                                 waermebedarf = waermebedarf + e3dc.WPmin*wetter1[x1].cop/4;
