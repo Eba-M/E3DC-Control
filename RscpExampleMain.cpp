@@ -2792,8 +2792,8 @@ int LoadDataProcess() {
                          // oder die IST+10 <= SOLL
                          (temp[7]>0&&temp[10]>=(temp[11]+10))
                          ||
-                         // RL < FBH Soll + 2°
-                         (temp[7]>0&&temp[15]<=(temp[4]+20))
+                         // RL < FBH Soll + 2° nur bei Überschuss
+                         (temp[7]>0&&temp[15]<=(temp[4]+20)&&PVon>e3dc_config.WPPVon)
                          // Soll >== Ist+10
                          ||
                          (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
