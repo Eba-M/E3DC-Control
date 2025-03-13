@@ -2369,12 +2369,7 @@ int LoadDataProcess() {
             &&(PVon<e3dc_config.WPPVoff))
         {
             tasmotaoff(4);
-            /*            if (bHK1off & 2)
-             bHK1off ^= 2;
-             if (bHK2off & 2)
-             bHK2off ^= 2;
-             */
-        } 
+        }
         else
             if (
                 (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10
@@ -2789,120 +2784,120 @@ int LoadDataProcess() {
                 //
                 if (wolf.size()>0)
                     
-                    {
-                            // Verdichterleistung herunterfahren
-                            if
-                                (
-                                 (
-                                  // wenn beide Heizkreise 5K über dem Soll liegen
-                                  (PVon < e3dc_config.WPPVoff || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
-                                  (
-                                   (
-                                    (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
-                                    ||
-                                    (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
-                                    )   //FBH
-                                   &&
-                                   (
-                                    ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
-                                    ||
-                                    (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
-                                    )           // HK
-                                   )
-                                  )
-                                 ||  (temp[17]==1&&fspreis/(wolf[wphl].wert/wolf[wppw].wert)>e3dc_config.WPZWEPVon) // Pellets ein? WP zu teuer
-                                 
-                                 ||
-                                 // Puffertemperaturen zu hoch ??
-                                 (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
-                                  wolf[wpvl].wert>0)
-                                 ||
-                                 // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
-                                 (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
-                                  &&
-                                  wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
-                                 ||
-                                 (temp[14]>(e3dc_config.WPHK1max+4)*10)
-                                 ||
-                                 (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
-                                 ||
-                                 (wetter[0].wpbedarf*.8<wolf[wppw].wert&&(t - wolf[wppw].t < 300))
-                                 //                    ||
-                                 //                    (wolf[wpvl].wert>45)
-                                 )
-                            {
-                                ALV = shelly_get();
-                                
-                                if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
-                                     ALV = e3dc_config.shelly0V10Vmin+1;
-                                if (ALV>0)
-                                    shelly((ALV--)-1);
-                                if
-                                (wetter[0].wpbedarf==0&&ALV>0)
-                                 shelly(0);
-
-                                wp_t = t;
-                                
-                            }
-                    }
-                else
-                    if (
+                {
+                    // Verdichterleistung herunterfahren
+                    if
                         (
-                         temp[15]<(e3dc_config.WPHK1max+2)*10
+                         (
+                          // wenn beide Heizkreise 5K über dem Soll liegen
+                          (PVon < e3dc_config.WPPVoff || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
+                          (
+                           (
+                            (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
+                            ||
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
+                            )   //FBH
+                           &&
+                           (
+                            ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
+                            ||
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
+                            )           // HK
+                           )
+                          )
+                         ||  (temp[17]==1&&fspreis/(wolf[wphl].wert/wolf[wppw].wert)>e3dc_config.WPZWEPVon) // Pellets ein? WP zu teuer
+                         
                          ||
-                         (temp[15]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
-                          wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
-                         )
-                        && temp[17]==0 // Pellets aus
-                        &&
-                        (
-                         //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° + offset über der FBH liegt.
-                         (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+5)&&temp[14]<(temp[4]+e3dc_config.WPOffset*10+20)
+                         // Puffertemperaturen zu hoch ??
+                         (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
+                          wolf[wpvl].wert>0)
+                         ||
+                         // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
+                         (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
                           &&
-                          (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10+20))
+                          wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
                          ||
-                         //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
-                         // oder die IST+10 <= SOLL
-                         (temp[7]>0&&temp[10]>=(temp[11]+10))
+                         (temp[14]>(e3dc_config.WPHK1max+4)*10)
                          ||
-                         // RL < FBH Soll + 2° nur bei Überschuss
-                         (temp[7]>0&&temp[15]<=(temp[4]+20)&&PVon>e3dc_config.WPPVon)
-                         // Soll >== Ist+10
+                         (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
-                         (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
-                         // VL Temp Wolf < Soll
-                         ||
-                         (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
-//                         ||
-//                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
+                         (wetter[0].wpbedarf*.8<wolf[wppw].wert&&(t - wolf[wppw].t < 300))
+                         //                    ||
+                         //                    (wolf[wpvl].wert>45)
                          )
-                        )
                     {
                         ALV = shelly_get();
-                        if (PVon>e3dc_config.WPPVon)
+                        
+                        if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
+                            ALV = e3dc_config.shelly0V10Vmin+1;
+                        if (ALV>0)
+                            shelly((ALV--)-1);
+                        if
+                            (wetter[0].wpbedarf==0&&ALV>0)
+                            shelly(0);
+                        
+                        wp_t = t;
+                        
+                    }
+                    
+                    else
+                        if (
+                            (
+                             temp[15]<(e3dc_config.WPHK1max+2)*10
+                             ||
+                             (temp[15]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
+                              wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
+                             )
+                            && temp[17]==0 // Pellets aus
+                            &&
+                            (
+                             //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° + offset über der FBH liegt.
+                             (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+5)&&temp[14]<(temp[4]+e3dc_config.WPOffset*10+20)
+                              &&
+                              (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10+20))
+                             ||
+                             //  HK2 nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 0.5° über der HK2 liegt.
+                             // oder die IST+10 <= SOLL
+                             (temp[7]>0&&temp[10]>=(temp[11]+10))
+                             ||
+                             // RL < FBH Soll + 2° nur bei Überschuss
+                             (temp[7]>0&&temp[15]<=(temp[4]+20)&&PVon>e3dc_config.WPPVon)
+                             // Soll >== Ist+10
+                             ||
+                             (temp[14]<(temp[10])&&wolf[wpvl].wert*10<temp[10])
+                             // VL Temp Wolf < Soll
+                             ||
+                             (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
+                             //                         ||
+                             //                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
+                             )
+                            )
                         {
-                            if  (
-                                 mm>sunriseAt&&mm<sunsetAt&&
-                                 temp[14]<(e3dc_config.WPHK1max+2)*10
-                                 // nur wenn der Puufer Wärme aufnehmen kann
-                                 )
+                            ALV = shelly_get();
+                            if (PVon>e3dc_config.WPPVon)
                             {
-                                if (PVon < 5000)
-                                    ALV = ALV + PVon / 1000;
-                                else
-                                    ALV = ALV + 4;
+                                if  (
+                                     mm>sunriseAt&&mm<sunsetAt&&
+                                     temp[14]<(e3dc_config.WPHK1max+2)*10
+                                     // nur wenn der Puufer Wärme aufnehmen kann
+                                     )
+                                {
+                                    if (PVon < 5000)
+                                        ALV = ALV + PVon / 1000;
+                                    else
+                                        ALV = ALV + 4;
+                                }
+                                if (ALV>= e3dc_config.shelly0V10Vmax)
+                                    ALV = e3dc_config.shelly0V10Vmax-1;
+                                
+                                if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin)
+                                {
+                                    ALV = e3dc_config.shelly0V10Vmin-1;
+                                }
+                                
+                                
+                                
                             }
-                            if (ALV>= e3dc_config.shelly0V10Vmax)
-                                ALV = e3dc_config.shelly0V10Vmax-1;
-                            
-                            if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin)
-                            {
-                                ALV = e3dc_config.shelly0V10Vmin-1;
-                            }
-                            
-                            
-                            
-                        }
                             if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
                                 shelly((ALV++)+1);
                             else
@@ -2913,11 +2908,12 @@ int LoadDataProcess() {
                                 }
                             
                             
-                        
-
-                        wp_t = t;
-
-                    }
+                            
+                            
+                            wp_t = t;
+                            
+                        }
+                }
 
                 if ((t%60)==0)
                     ALV = shelly_get();
