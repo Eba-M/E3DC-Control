@@ -2347,9 +2347,9 @@ int LoadDataProcess() {
             tasmota_status[3] = tasmotastatus(4);
         
         // Steuerung BWWP über Tasmota Kanal4
-        if (
+        if ((
             (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
-            ||
+            || // außerhalb der Laufzeit
             (
              (e3dc_config.BWWPon<e3dc_config.BWWPoff&&
               (e3dc_config.BWWPon*3600>t%(24*3600)||e3dc_config.BWWPoff*3600<t%(24*3600)))
@@ -2359,6 +2359,7 @@ int LoadDataProcess() {
             )
 
             )
+            &&(PVon<e3dc_config.WPPVoff))
         {
             tasmotaoff(4);
             /*            if (bHK1off & 2)
@@ -2367,7 +2368,8 @@ int LoadDataProcess() {
              bHK2off ^= 2;
              */
         } else
-            if (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10
+            if (
+                (tasmota_status[3]==0&&temp[13]>0&&temp[13]<e3dc_config.BWWPein*10
                 &&
                 (
                  (e3dc_config.BWWPon<0&&e3dc_config.BWWPoff<0)
@@ -2377,7 +2379,12 @@ int LoadDataProcess() {
                  (e3dc_config.BWWPon>e3dc_config.BWWPoff&&
                   (e3dc_config.BWWPon*3600<t%(24*3600)||e3dc_config.BWWPoff*3600>t%(24*3600)))
                 )
-               )
+               )                 
+                ||
+// BWWP bei PV Überschuss laufen lassen
+                (PVon>e3dc_config.WPPVon)
+
+                )
             {
                 tasmotaon(4);
                 //            bHK1off |= 2;
