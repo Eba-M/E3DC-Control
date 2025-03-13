@@ -1222,12 +1222,14 @@ int iModbusTCP()
 // Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
                 if (temp[1]==0&&
                     (
-                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
-                     (now - wolf[wphl].t > 300)||
-                     (now - wolf[wppw].t > 300)||
+//                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
+//                     (now - wolf[wphl].t > 300)||
+//                     (now - wolf[wppw].t > 300)||
                      ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
                      ||
-                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
+//                     ||
+//                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
                     &&
 
@@ -1244,12 +1246,14 @@ int iModbusTCP()
                 }
                 if (temp[7]==0&&
                     (
-                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
-                     (now - wolf[wphl].t > 300)||
-                     (now - wolf[wppw].t > 300)||
+//                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>3)||
+//                     (now - wolf[wphl].t > 300)||
+//                     (now - wolf[wppw].t > 300)||
                      ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
                      ||
-                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
+//                     ||
+//                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
                     &&
                     (
@@ -1272,8 +1276,9 @@ int iModbusTCP()
                     ||
                      (bHK1off>0)
                     ||
-                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
-                     (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0)
+                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0
+//                      &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
+                      )
                     ||
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                     ||
@@ -1293,8 +1298,10 @@ int iModbusTCP()
                     ||
                      (bHK2off>0)
                      ||
-                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0&&
-                      (now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0)
+                      (
+                       (now - wolf[wphl].t < 300)&&wolf[wphl].wert<0
+//                       &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
+                       )
                      ||
                       (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                      ||
