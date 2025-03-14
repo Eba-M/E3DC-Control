@@ -2789,7 +2789,6 @@ int LoadDataProcess() {
                     
                 {
                     // Verdichterleistung herunterfahren
-                    ALV = shelly_get();
                     if
                         (
                          (
@@ -2840,7 +2839,9 @@ int LoadDataProcess() {
                         if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                             ALV = e3dc_config.shelly0V10Vmin+1;
                         if (ALV>0)
-                            shelly((ALV--)-1);
+                        ALV =  shelly(ALV-1);
+                        if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
+
                         if
                             (wetter[0].wpbedarf==0&&ALV>0)
                             shelly(0);
@@ -2919,7 +2920,11 @@ int LoadDataProcess() {
                                 
                             }
                             if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
+                            {                                
                                 ALV = shelly(ALV+1);
+                                if (e3dc_config.debug) printf("wpup1 %i\n",ALV);
+
+                            }
                             else
                                 if (ALV==0)
                                 {
