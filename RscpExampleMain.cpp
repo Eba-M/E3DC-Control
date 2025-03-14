@@ -1175,12 +1175,13 @@ int iModbusTCP()
                 if (wolf.size()>0)
                 {
                     if (
-                        ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
+                        (
+                         (now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
                         &&
-//                        ((now - wolf[wpal].t < 300)&&wolf[wpal].wert<wolf[wpzl].wert)
-//                        &&
+                        //                        ((now - wolf[wpal].t < 300)&&wolf[wpal].wert<wolf[wpzl].wert)
+                        //                        &&
                         ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)
-
+                        
                         )
                         isttemp = wolf[wpzl].wert;
                     if (wetter.size() > 0)
@@ -1191,34 +1192,36 @@ int iModbusTCP()
                             )
                             isttemp = wetter[0].temp;
                     }
-// Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
+                    // Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
                     if (
                         (((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
-                        ||
-                        ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0))
+                         ||
+                         ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0))
                         &&
                         ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)
                         &&
                         ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
                         )
                         isttemp = (wolf[wpzl].wert + wetter[0].temp)/2 + 1;
-// wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
-                    if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
-                        //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
+                    // wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
+                    if (isttemp>-99)
                     {
-                        iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
-                        iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
-                        //                    brequest = true;
-                    }
-// Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
-                    if (isttemp>(e3dc_config.WPZWE+2)&&temp[17]==1&&wetter[0].kosten>0)
-                    {
-                        iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
-                        iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
-                        //                    brequest = true;
+                        if ((isttemp<(e3dc_config.WPZWE)||wetter[0].kosten<=0)&&temp[17]==0)
+                            //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
+                        {
+                            iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
+                            iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                            //                    brequest = true;
+                        }
+                        // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
+                        if (isttemp>(e3dc_config.WPZWE+2)&&temp[17]==1&&wetter[0].kosten>0)
+                        {
+                            iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
+                            iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                            //                    brequest = true;
+                        }
                     }
                 }
-
 // Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
                 if (temp[1]==0&&
                     (
@@ -1994,7 +1997,7 @@ int shelly(int ALV)
         pclose(fp);
     }
     ALV_alt = ALV;
-    return 0;
+    return ALV;
 }
 typedef struct {
     time_t t;
@@ -2826,6 +2829,8 @@ int LoadDataProcess() {
                           wetter[0].wpbedarf*.8<wolf[wppw].wert&&(wolf[wppw].t > 0)
                           &&
                           wetter[0].waerme<wolf[wphl].wert
+                          &&
+                          PVon<e3dc_config.WPPVoff
                          )
                          //                    ||
                          //                    (wolf[wpvl].wert>45)
@@ -2856,9 +2861,13 @@ int LoadDataProcess() {
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
+                             (
                              (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(wolf[wppw].t > 0))
                             &&
                             (wetter[0].waerme>wolf[wphl].wert)
+                             )
+                             ||
+                             PVon>e3dc_config.WPPVon
                              )
 
                             &&
@@ -2885,7 +2894,6 @@ int LoadDataProcess() {
                              )
                             )
                         {
-                            ALV = shelly_get();
                             if (PVon>e3dc_config.WPPVon)
                             {
                                 if  (
@@ -2911,7 +2919,7 @@ int LoadDataProcess() {
                                 
                             }
                             if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
-                                shelly((ALV++)+1);
+                                ALV = shelly(ALV+1);
                             else
                                 if (ALV==0)
                                 {
