@@ -3286,7 +3286,7 @@ int LoadDataProcess() {
 //if (rettime>0)
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);
 //else
-        printf("ret = %i %f2.2 %2.2%c[K",ret,27,wetter[0].waerme,wetter[0].wpbedarf*.8);
+        printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (ret == 2)  // Wenn tagsüber nachgeladen wird, nur bis ladeende bzw. ladeende2 1% drunter
         {
             if (
