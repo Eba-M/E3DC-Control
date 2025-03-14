@@ -2786,6 +2786,7 @@ int LoadDataProcess() {
                     
                 {
                     // Verdichterleistung herunterfahren
+                    ALV = shelly_get();
                     if
                         (
                          (
@@ -2830,7 +2831,6 @@ int LoadDataProcess() {
                          //                    (wolf[wpvl].wert>45)
                          )
                     {
-                        ALV = shelly_get();
                         
                         if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                             ALV = e3dc_config.shelly0V10Vmin+1;
