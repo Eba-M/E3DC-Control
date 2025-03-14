@@ -2855,9 +2855,11 @@ int LoadDataProcess() {
                             && temp[17]==0 // Pellets aus
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
-                            (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                            (
+                             (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300))
                             &&
-                            wetter[0].waerme>wolf[wphl].wert)
+                            (wetter[0].waerme>wolf[wphl].wert&&(t - wolf[wphl].t < 300))
+                             )
 
                             &&
                             (
