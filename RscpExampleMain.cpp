@@ -2821,7 +2821,11 @@ int LoadDataProcess() {
                          ||
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
-                         (wetter[0].wpbedarf*.8<wolf[wppw].wert&&(t - wolf[wppw].t < 300))
+                         (
+                          wetter[0].wpbedarf*.8<wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                          &&
+                          wetter[0].waerme<wolf[wphl].wert
+                         )
                          //                    ||
                          //                    (wolf[wpvl].wert>45)
                          )
@@ -2849,6 +2853,12 @@ int LoadDataProcess() {
                               wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
                              )
                             && temp[17]==0 // Pellets aus
+                            &&
+                            // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
+                            (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                            &&
+                            wetter[0].waerme>wolf[wphl].wert)
+
                             &&
                             (
                              //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° + offset über der FBH liegt.
