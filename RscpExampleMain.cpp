@@ -2825,10 +2825,12 @@ int LoadDataProcess() {
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
                          (
-                          (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
-                          ||
-                          wetter[0].waerme<wolf[wphl].wert
-                         )
+                          (
+                            (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
+//                          &&
+//                          wetter[0].waerme<wolf[wphl].wert
+                           )
+                          )
                            &&
                           PVon<e3dc_config.WPPVoff
                          )
@@ -4638,7 +4640,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //        iMaxBattLade = e3dc_config.maximumLadeleistung*.9;
         
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",e3dc_config.wbminladestrom);
-        WBchar6[1]=WBchar[2];
+//        WBchar6[1]=WBchar[2]; // es wird nicht mehr die zurückgemeldete Stromstärke verwendet
 
         if ((WBchar[2]==e3dc_config.wbmaxladestrom)||(WBchar[2]==30))
             bWBmaxLadestrom = true; else
@@ -5169,7 +5171,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             } // WB Lädt, Zeitstempel updaten
             if ((fPower_WB > 1000) && not (bWBmaxLadestrom)) { // Wallbox lädt
                 bWBOn = true; WBchar6[4] = 0;
-                WBchar6[1] = WBchar[2];
+//                WBchar6[1] = WBchar[2]; // Stur auf die egene Stromstärke regeln
                 int icurrent = WBchar[2];  //Ausgangsstromstärke
                 if (WBchar6[1]==e3dc_config.wbminladestrom) iWBMinimumPower = fPower_WB;
                 else
@@ -6115,21 +6117,6 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
                         printf("\nWB is %0.1f W", fPower);
                         fPower_WB = fPower;
-/*                        if (iCyc_WB>0) iCyc_WB--;
-                        if (fPower > 1)
-                        {   if (fPower_Grid < -800)
-                            if ((WBchar[2] < 16) && (iCyc_WB == 0))
-                            {WBchar[2]++;
-                            iWBStatus = 2;
-                            iCyc_WB = 3;
-                            }
-                        if (iPower_Bat < -300)
-                        if (WBchar[2] > 6)
-                        {   WBchar[2]--;
-                            iWBStatus = 2;
-                            iCyc_WB = 3;
-                        }}
-*/
                         break;
                     }
                     case TAG_WB_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
@@ -6217,8 +6204,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // ladeschwelle ändern 8..9
 
                                         
-                                        if  (WBchar[2]==8)
-                                        GetConfig();
+//                                        if  (WBchar[2]==8)
+//                                        GetConfig();
 /*                                        if  (WBchar[2]==9)
                                         {
                                             e3dc_config.ladeschwelle = 100;
