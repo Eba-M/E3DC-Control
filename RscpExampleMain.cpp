@@ -2804,16 +2804,18 @@ int LoadDataProcess() {
                            (
                             ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
                             ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10])
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+20)
                             )           // HK
                            )
                           )
-                         ||  (temp[17]==1&&fspreis/(wolf[wphl].wert/wolf[wppw].wert)>e3dc_config.WPZWEPVon) // Pellets ein? WP zu teuer
+                         ||
+                            (temp[17]==1&&fspreis/(wolf[wphl].wert/wolf[wppw].wert)>e3dc_config.WPZWEPVon) // Pellets ein? WP zu teuer
                          
                          ||
                          // Puffertemperaturen zu hoch ??
-                         (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)&&
-                          wolf[wpvl].wert>0)
+                            (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)
+                             &&
+                             wolf[wpvl].wert>0)
                          ||
                          // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
                          (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
