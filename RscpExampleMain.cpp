@@ -2825,7 +2825,7 @@ int LoadDataProcess() {
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
                          (
-                          (wetter[0].wpbedarf*.8<wolf[wppw].wert&&(wolf[wppw].t > 0)
+                          (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
                           ||
                           wetter[0].waerme<wolf[wphl].wert
                          )
