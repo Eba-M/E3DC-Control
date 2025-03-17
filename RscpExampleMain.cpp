@@ -2788,6 +2788,7 @@ int LoadDataProcess() {
                 if (wolf.size()>0)
                     
                 {
+                    ALV = shelly_get();
                     // Verdichterleistung herunterfahren
                     if
                         (
@@ -3283,7 +3284,7 @@ int LoadDataProcess() {
         if (e3dc_config.debug) printf("D5\n");
         static time_t rettime = 0;
     int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
-    if (e3dc_config.aWATTar)
+    if (w.size()>0)
         if (e3dc_config.openmeteo)
         ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
         else
