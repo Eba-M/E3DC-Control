@@ -943,7 +943,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket;
 long iLength,myiLength;
@@ -1527,6 +1527,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Rücklauftemperatur";
                 wo.AK = "RL";
+                wprl = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Heizleistung";
                 wo.AK = "HL";
@@ -2805,7 +2806,11 @@ int LoadDataProcess() {
                            (
                             ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
                             ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+40)
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
+                            ||
+                            (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[16]+20)
+                            ||
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert>45)
                             )           // HK
                            )
                           )
