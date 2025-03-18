@@ -2789,7 +2789,7 @@ int LoadDataProcess() {
                 if (wolf.size()>0)
                     
                 {
-//                    ALV = shelly_get();
+                    ALV = shelly_get();
                     // Verdichterleistung herunterfahren
                     if
                         (
@@ -2819,7 +2819,7 @@ int LoadDataProcess() {
                          
                          ||
                          // Puffertemperaturen zu hoch ??
-                            (temp[14]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)
+                            (temp[15]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)
                              &&
                              wolf[wpvl].wert>0)
                          ||
@@ -2914,7 +2914,7 @@ int LoadDataProcess() {
                             {
                                 if  (
                                      mm>sunriseAt&&mm<sunsetAt&&
-                                     temp[14]<(e3dc_config.WPHK1max+2)*10
+                                     temp[15]<(e3dc_config.WPHK1max+2)*10
                                      // nur wenn der Puufer Wärme aufnehmen kann
                                      )
                                 {
