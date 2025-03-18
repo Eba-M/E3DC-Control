@@ -2811,7 +2811,10 @@ int LoadDataProcess() {
                             (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
                             ||
                             (wolf[wpvl].wert>0&&wolf[wpvl].wert>45)
-                            )           // HK
+                            )
+                           &&
+                           (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0))
+                           // HK
                            )
                           )
                          ||
@@ -2828,7 +2831,7 @@ int LoadDataProcess() {
                           &&
                           wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
                          ||
-                         (temp[14]>(e3dc_config.WPHK1max+4)*10)
+                         (temp[15]>(e3dc_config.WPHK1max+4)*10)
                          ||
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
