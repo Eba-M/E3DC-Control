@@ -3336,7 +3336,10 @@ int LoadDataProcess() {
         }
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
-        if  ((ret == 2)&&(e3dc_config.aWATTar==1)&&
+        if  ((ret == 2)&&
+             ((e3dc_config.aWATTar==1)||
+              (e3dc_config.aWATTar==0)&&w.size()>0)
+             &&
              (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
         {
               iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
