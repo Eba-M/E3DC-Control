@@ -2819,7 +2819,7 @@ int LoadDataProcess() {
                          
                          ||
                          // Puffertemperaturen zu hoch ??
-                            (temp[15]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+2.0)
+                            (temp[15]>(e3dc_config.WPHK1max+3)*10&&wolf[wpvl].wert>(e3dc_config.WPHK1max+4.0)
                              &&
                              wolf[wpvl].wert>0)
                          ||
