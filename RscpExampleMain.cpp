@@ -2788,7 +2788,7 @@ int LoadDataProcess() {
                 if (wolf.size()>0)
                     
                 {
-                    ALV = shelly_get();
+//                    ALV = shelly_get();
                     // Verdichterleistung herunterfahren
                     if
                         (
@@ -2805,7 +2805,7 @@ int LoadDataProcess() {
                            (
                             ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
                             ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+20)
+                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+40)
                             )           // HK
                            )
                           )
@@ -2859,7 +2859,7 @@ int LoadDataProcess() {
                     else
                         if (
                             (
-                             temp[15]<(e3dc_config.WPHK1max+2)*10
+                             temp[15]<(e3dc_config.WPHK1max+1)*10
                              ||
                              (temp[15]<(e3dc_config.WPHK1max+2)*10&&wolf[wpvl].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset)&&
                               wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
@@ -2880,7 +2880,7 @@ int LoadDataProcess() {
                             &&
                             (
                              //  FBH nur hochschalten, wenn die VL Temp aus dem Puffer weniger als 2° + offset über der FBH liegt.
-                             (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+5)&&temp[14]<(temp[4]+e3dc_config.WPOffset*10+20)
+                             (temp[1]>0&&temp[6]>0&&temp[4]>(temp[5]+5)&&temp[14]<(temp[4]+e3dc_config.WPOffset*10)
                               &&
                               (wolf[wpvl].wert==0||wolf[wpvl].wert*10<temp[4]+e3dc_config.WPOffset*10+20))
                              ||
@@ -2896,8 +2896,12 @@ int LoadDataProcess() {
                              // VL Temp Wolf < Soll
                              ||
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
-                             //                         ||
-                             //                         (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)&&(waermebedarf>float(iHeatStat[1]/3600000.0)))
+                             ||
+                            (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                             &&
+                             wetter[0].waerme>wolf[wphl].wert
+//                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
+                             )
                              )
                             )
                         {
