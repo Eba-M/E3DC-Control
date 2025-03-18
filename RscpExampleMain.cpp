@@ -2805,8 +2805,8 @@ int LoadDataProcess() {
                            &&
                            (
                             ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
-                            ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
+//                            ||
+//                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
                             ||
                             (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
                             ||
