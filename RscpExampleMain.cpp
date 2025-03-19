@@ -2812,8 +2812,6 @@ int LoadDataProcess() {
                             ||
                             (wolf[wpvl].wert>0&&wolf[wpvl].wert>45)
                             )
-                           &&
-                           (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0))
                            // HK
                            )
                           )
@@ -2836,7 +2834,13 @@ int LoadDataProcess() {
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
                          (wolf[wpvl].wert>46)
+                         ||
+                         (
+                          (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0))
+                         &&
+                         PVon < e3dc_config.WPPVoff
                          )
+                    )
                     {
                         
                         if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
