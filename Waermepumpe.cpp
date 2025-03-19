@@ -184,7 +184,7 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t iHeatStat[24*4+2]) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -476,8 +476,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                         heizleistung = heizleistung + wetter[x1].waerme;
 */
-                    if (float(iHeatStat[1]/3600000.0)>waermebedarf)
-                        waermebedarf = waermebedarf*2 - float(iHeatStat[1]/3600000.0);
+                    if (float(HeatStat/3600000.0)>waermebedarf)
+                        waermebedarf = waermebedarf*2 - float(HeatStat/3600000.0);
                     
                     if (e3dc.WPWolf)
                     {

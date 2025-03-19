@@ -2370,7 +2370,7 @@ int LoadDataProcess() {
             )
 
             )
-            &&(PVon<e3dc_config.WPPVoff))
+            &&((PVon<e3dc_config.WPPVoff)||temp[13]>51))
         {
             tasmotaoff(4);
         }
@@ -2389,7 +2389,7 @@ int LoadDataProcess() {
                )                 
                 ||
 // BWWP bei PV Überschuss laufen lassen
-                (PVon>e3dc_config.WPPVon)
+                (PVon>e3dc_config.WPPVon&&temp[13]<50)
 
                 )
             {
@@ -6703,7 +6703,7 @@ static void mainLoop(void)
             if (e3dc_config.WPWolf&&wolf.size()>0)
                 zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
@@ -6906,10 +6906,10 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
                 if (e3dc_config.test)
-                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve,iHeatStat);
+                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }
             while (e3dc_config.test)
                 LoadDataProcess();
