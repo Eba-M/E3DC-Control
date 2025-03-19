@@ -2862,6 +2862,7 @@ int LoadDataProcess() {
                               wolf[wpvl].wert>0&&wolf[wpkt2].wert<(e3dc_config.WPHK1max+e3dc_config.WPOffset))
                              )
                             && temp[17]==0 // Pellets aus
+                            && wolf[wpvl].wert<45 // Vorlauf unter 45°
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
@@ -3367,7 +3368,7 @@ if (                             // Das Entladen aus dem Speicher
          ((e3dc_config.hton < e3dc_config.htoff) &&
            (e3dc_config.hton < t && e3dc_config.htoff > t ))
         ) &&
-        (w.size()==0)  
+        (w.size()==0)
      // Das Entladen wird durch hton/htoff zugelassen
     )  //
 //    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1) // Rückgabewert aus CheckaWattar
