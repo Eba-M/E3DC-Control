@@ -130,7 +130,7 @@ static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 // Index 198 heutiger Ertrag kumuliert
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
-static int32_t iHeatStat[24*4+2]; //15min WP Heizleistung der letzten 24h
+
 static char fnameGrid[100];
 static float waermebedarf;
 static int Gridstat;
