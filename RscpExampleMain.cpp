@@ -2835,18 +2835,7 @@ int LoadDataProcess() {
                          ||
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
-                         (
-                          (
-                            (wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
-//                          &&
-//                          wetter[0].waerme<wolf[wphl].wert
-                           )
-                          )
-                           &&
-                          PVon<e3dc_config.WPPVoff
-                         )
-                         //                    ||
-                         //                    (wolf[wpvl].wert>45)
+                         (wolf[wpvl].wert>46)
                          )
                     {
                         
@@ -3377,13 +3366,16 @@ if (                             // Das Entladen aus dem Speicher
           ||
          ((e3dc_config.hton < e3dc_config.htoff) &&
            (e3dc_config.hton < t && e3dc_config.htoff > t ))
-        )      // Das Entladen wird durch hton/htoff zugelassen
+        ) &&
+        (w.size()==0)  
+     // Das Entladen wird durch hton/htoff zugelassen
     )  //
 //    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1) // Rückgabewert aus CheckaWattar
-    || (ret==1) // Rückgabewert aus CheckaWattar
+    || 
+    (ret==1) // Rückgabewert aus CheckaWattar
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
-        (fht<fBatt_SOC&& not e3dc_config.aWATTar)        // Wenn der SoC > der berechneten Reserve liegt
+        (fht<fBatt_SOC&& not e3dc_config.aWATTar&&w.size()==0)        // Wenn der SoC > der berechneten Reserve liegt
     ||
 //        (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100||fAvBatterie900>100))       // Wenn der SoC > der berechneten Reserve liegt
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
