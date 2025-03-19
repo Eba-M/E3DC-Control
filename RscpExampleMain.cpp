@@ -6703,7 +6703,7 @@ static void mainLoop(void)
             if (e3dc_config.WPWolf&&wolf.size()>0)
                 zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve);       // Ermitteln Wetterdaten
+            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
@@ -6906,10 +6906,10 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
                 if (e3dc_config.test)
-                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve);
+                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve,iHeatStat);
             }
             while (e3dc_config.test)
                 LoadDataProcess();

@@ -184,7 +184,7 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t iHeatStat[24*4+2]) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
