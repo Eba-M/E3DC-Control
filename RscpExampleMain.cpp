@@ -2370,7 +2370,7 @@ int LoadDataProcess() {
             )
 
             )
-            &&((PVon<e3dc_config.WPPVoff)||temp[13]>51))
+            &&((PVon<e3dc_config.WPPVoff)||temp[13]>510))
         {
             tasmotaoff(4);
         }
@@ -2389,7 +2389,7 @@ int LoadDataProcess() {
                )                 
                 ||
 // BWWP bei PV Überschuss laufen lassen
-                (PVon>e3dc_config.WPPVon&&temp[13]<50)
+                (PVon>e3dc_config.WPPVon&&temp[13]<500)
 
                 )
             {
