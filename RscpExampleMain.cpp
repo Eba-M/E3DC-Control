@@ -2561,11 +2561,14 @@ int LoadDataProcess() {
                         (
                          // Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
                          
-                         ((bHK1off ||m1 > (sunsetAt+60)
+                         ((bHK1off 
+                           ||m1 > (sunsetAt+60)
+                           ||m1 < (sunriseAt)
                            ||
                            (
 //                            PVon<(-iMinLade/4)&&
-                            (temp[14]<temp[5]+50||(wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14]))))
+//                            (temp[14]<temp[5]+50||(wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14]))))
+                          ((wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[14]))))
                          &&
                          (
                           (((temp[4]+10)>=temp[5] && temp[2]>(e3dc_config.WPHK1*10)&&PVon<e3dc_config.WPPVoff)
@@ -2626,7 +2629,7 @@ int LoadDataProcess() {
                     if  (
                          (m1>sunsetAt||m1<(sunriseAt+60))
                          &&
-                         fBatt_SOC>=0
+                         fBatt_SOC>=e3dc_config.AWReserve+fNotstromreserve
                          )
                     {
                         
@@ -2807,10 +2810,6 @@ int LoadDataProcess() {
                             ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
 //                            ||
 //                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
-                            ||
-                            (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
-                            ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert>45)
                             )
                            // HK
                            )
@@ -2834,6 +2833,8 @@ int LoadDataProcess() {
                          (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
                          (wolf[wpvl].wert>46)
+                         ||
+                         (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
                          ||
                          (
                           wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
@@ -2867,6 +2868,7 @@ int LoadDataProcess() {
                              )
                             && temp[17]==0 // Pellets aus
                             && wolf[wpvl].wert<45 // Vorlauf unter 45°
+                            && (wolf[wprl].wert>0&&wolf[wprl].wert*10<temp[4]+10)
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
@@ -5801,7 +5803,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch
                         if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
-                        printf(" WB %0.02f %0.02f",waermebedarf,float(iHeatStat[1]/3600000.0));
+                        int x2 = t%(24*4*900)/900+2;
+                        int x4 = (t+900)%(24*3600)/900+2;
+                        printf(" WB %0.02f %0.02f %0.02f %0.02f",waermebedarf,float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0));
                     }
                 }
                 printf("%c[K\n", 27 );
