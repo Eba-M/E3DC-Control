@@ -2851,7 +2851,7 @@ int LoadDataProcess() {
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
 
                         if
-                            (wetter[0].wpbedarf==0&&ALV>0)
+                            (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450)
                             shelly(0);
                         
                         wp_t = t;
@@ -4973,7 +4973,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             {
                 // Überprüfen ob noch Zeitsteuerung aktiv
                 bWBZeitsteuerung = false;
-                if (e3dc_config.aWATTar>0)
+                if (e3dc_config.aWATTar>0||w.size()>0)
                     for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
                         // Umstellung auf 15min Intervall
                         if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
