@@ -1228,7 +1228,7 @@ int iModbusTCP()
 //                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
 //                     (now - wolf[wphl].t > 300)||
 //                     (now - wolf[wppw].t > 300)||
-                     ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
+                     (wolf[wpeevk].wert==0)
                      ||
                       (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
 //                     ||
@@ -1252,7 +1252,7 @@ int iModbusTCP()
 //                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>3)||
 //                     (now - wolf[wphl].t > 300)||
 //                     (now - wolf[wppw].t > 300)||
-                     ((now - wolf[wpeevk].t < 300)&&wolf[wpeevk].wert==0)
+                     (wolf[wpeevk].wert==0)
                      ||
                       (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
 //                     ||
@@ -2829,8 +2829,8 @@ int LoadDataProcess() {
                           wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
                          ||
                          (temp[15]>(e3dc_config.WPHK1max+4)*10)
-                         ||
-                         (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
+//                         ||
+//                         (temp[1]>0&&temp[6]>0&&iWPHK1max<temp[5])
                          ||
                          (wolf[wpvl].wert>46)
                          ||
@@ -2901,10 +2901,12 @@ int LoadDataProcess() {
                              ||
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                              ||
-                            (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                            ((wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
                              &&
-                             wetter[0].waerme>wolf[wphl].wert
+                             wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
+                             ||
+                             PVon>e3dc_config.WPPVon
                              )
                              )
                             )
