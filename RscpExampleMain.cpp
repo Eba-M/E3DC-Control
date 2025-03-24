@@ -2476,7 +2476,7 @@ int LoadDataProcess() {
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
-            float fwintertemp = 10;
+            float fwintertemp = 9;
 //            if   ((sunsetAt-sunriseAt) > 10*60||fatemp>fwintertemp)  // Übergangsbetrieb
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
@@ -2850,10 +2850,10 @@ int LoadDataProcess() {
                         ALV =  shelly(ALV-1);
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
 
-                        if
+/*                        if
                             (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450)
                             shelly(0);
-                        
+*/
                         wp_t = t;
                         
                     }
@@ -2925,7 +2925,7 @@ int LoadDataProcess() {
                                 if (ALV>= e3dc_config.shelly0V10Vmax)
                                     ALV = e3dc_config.shelly0V10Vmax-1;
                                 
-                                if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin)
+                                if (ALV<e3dc_config.shelly0V10Vmin)
                                 {
                                     ALV = e3dc_config.shelly0V10Vmin-1;
                                 }
@@ -2933,18 +2933,17 @@ int LoadDataProcess() {
                                 
                                 
                             }
-                            if (ALV>0&&ALV<e3dc_config.shelly0V10Vmax)
-                            {                                
+                            if (ALV<e3dc_config.shelly0V10Vmin)
+                            {
+                                ALV = e3dc_config.shelly0V10Vmin-1;
+                            }
+
+                            if (ALV<e3dc_config.shelly0V10Vmax)
+                            {
                                 ALV = shelly(ALV+1);
                                 if (e3dc_config.debug) printf("wpup1 %i\n",ALV);
 
                             }
-                            else
-                                if (ALV==0)
-                                {
-                                    ALV = e3dc_config.shelly0V10Vmin;
-                                    shelly(ALV);
-                                }
                             
                             
                             
@@ -4982,7 +4981,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
                 // Wenn Keine zeitsteuerung mehr stoppen und auf Sonnenmodus und Automatik umschalten
                 if (
-                    (not bWBZeitsteuerung&&bWBmaxLadestrom&&not bWBLademodus)
+                    (not bWBZeitsteuerung&&not bWBLademodus)
                     )
                 {
                     //                    sprintf(Log,"WB Error %s ", strtok(asctime(ptm),"\n"));
@@ -5018,7 +5017,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 
             } else
                 // Zeitsteuerung aber nicht am Laden
-                if ((bWBZeitsteuerung)&&(bWBConnect)&&e3dc_config.aWATTar&& not bWBCharge&& not bWBStart)
+                if ((bWBZeitsteuerung)&&(bWBConnect)&&w.size()>0&& not bWBCharge&& not bWBStart)
                 {  // Zeitfenster ist offen und Fahrzeug angesteckt
                     bWBmaxLadestromSave = bWBmaxLadestrom;
                     WBchar6[0] = 2;            // Netzmodus
