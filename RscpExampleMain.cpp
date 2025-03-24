@@ -2803,7 +2803,7 @@ int LoadDataProcess() {
                            (
                             (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
                             ||
-                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
+                            (temp[1]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
                             )   //FBH
                            &&
                            (
@@ -2826,7 +2826,7 @@ int LoadDataProcess() {
                          // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
                          (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
                           &&
-                          wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
+                          temp[1]>0&&wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
                          ||
                          (temp[15]>(e3dc_config.WPHK1max+4)*10)
 //                         ||
@@ -2834,7 +2834,7 @@ int LoadDataProcess() {
                          ||
                          (wolf[wpvl].wert>46)
                          ||
-                         (wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
+                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
                          ||
                          (
                           wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
@@ -2849,11 +2849,10 @@ int LoadDataProcess() {
                         if (ALV>0)
                         ALV =  shelly(ALV-1);
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
-
-/*                        if
+                        if
                             (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450)
                             shelly(0);
-*/
+
                         wp_t = t;
                         
                     }
@@ -2868,12 +2867,12 @@ int LoadDataProcess() {
                              )
                             && temp[17]==0 // Pellets aus
                             && wolf[wpvl].wert<45 // Vorlauf unter 45°
-                            && (wolf[wprl].wert>0&&wolf[wprl].wert*10<temp[4]+10)
+                            && (temp[1]==0||(wolf[wprl].wert>0&&wolf[wprl].wert*10<temp[4]+10))
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
                              (
-                             (wetter[0].wpbedarf*.8>wolf[wppw].wert&&(wolf[wppw].t > 0))
+                             (wetter[0].wpbedarf*.8>wolf[wppw].wert)
                             &&
                             (wetter[0].waerme>wolf[wphl].wert)
                              )
