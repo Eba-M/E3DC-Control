@@ -495,6 +495,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wet.waermepreis = 0;
                                 else
                                     wet.waermepreis = wetter[x1].waermepreis;
+//                                wetter[x1].wpbedarf=0;
                                 wet.cop = wetter[x1].cop;
                                 wetter1.push_back(wet);
                             }
@@ -502,20 +503,42 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 return a.waermepreis < b.waermepreis;});
                             for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
-                                // mit Mindestleistung vorbelegen
-                                wetter[wetter1[x1].x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*25;
-                                waermebedarf = waermebedarf - e3dc.WPmin*wetter1[x1].cop/4;
-                                
-                            }
-                            for (int x1=0;waermebedarf>0
-                                 &&x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
-                            {
                                 // volle Leistung
-                                waermebedarf = waermebedarf + e3dc.WPmin*wetter1[x1].cop/4;
-                                wetter[wetter1[x1].x1].wpbedarf = e3dc.WPLeistung/wetter1[x1].cop/e3dc.speichergroesse*25;
-                                waermebedarf = waermebedarf - e3dc.WPLeistung/4;
+//                                waermebedarf = waermebedarf + e3dc.WPmin*wetter1[x1].cop/4;
+                                if (wetter1[x1].waermepreis==0)
+                                {
+                                    wetter[wetter1[x1].x1].wpbedarf = e3dc.WPLeistung/wetter1[x1].cop/e3dc.speichergroesse*25;
+                                    waermebedarf = waermebedarf - e3dc.WPLeistung/4;
+                                }
+                                else
+                                {
+                                    if (waermebedarf < 0)
+                                        wetter[wetter1[x1].x1].wpbedarf = 0;
+                                    else
+                                    {
+                                        float f1 =
+                                        waermebedarf/(wetter1.size()-x1);
+                                        f1 = f1/wetter1[x1].cop/e3dc.speichergroesse*100;
+                                        if (f1 < e3dc.WPmin/e3dc.speichergroesse*25)
+                                            f1=e3dc.WPmin/e3dc.speichergroesse*25;
+                                        wetter[wetter1[x1].x1].wpbedarf= f1;
+                                        float f2 = wetter[wetter1[x1].x1].wpbedarf*wetter1[x1].cop*e3dc.speichergroesse/100;
+                                        waermebedarf = waermebedarf - f2;
+                                    }
+                                }
                                 
                             }
+/*                            for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
+                            {
+                                // mit Mindestleistung vorbelegen
+                                if (wetter[wetter1[x1].x1].wpbedarf==0&&waermebedarf>0)
+                                {
+                                    wetter[wetter1[x1].x1].wpbedarf = e3dc.WPmin/e3dc.speichergroesse*25;
+                                    waermebedarf = waermebedarf - e3dc.WPmin*wetter1[x1].cop/4;
+                                }
+                                
+                            }
+*/
                             wetter1.clear();
                         }
                     }
