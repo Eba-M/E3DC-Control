@@ -486,7 +486,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
-                            for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
+                            for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
+//                                for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                             {
                                 wet.x1 = x1;
                                 if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
@@ -499,7 +500,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             }
                             std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
                                 return a.waermepreis < b.waermepreis;});
-                            for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
+                            for (int x1=0;x1<w.size()&&x1<wetter1.size();x1++)
+//                                for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
                                 // volle Leistung
 //                                waermebedarf = waermebedarf + e3dc.WPmin*wetter1[x1].cop/4;
