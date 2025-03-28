@@ -469,7 +469,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
                     // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
                     // Wenn der bHK2on = Heizkörper aktiv ist dann beginn die WP-Start mit bHK2on
-                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
+                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*w.size()/4; // Heizgrade
                     waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
                     // Heizlast bei -15°
 /*                    float heizleistung = 0;
@@ -481,11 +481,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     
                     if (e3dc.WPWolf)
                     {
-                        if (waermebedarf < 240)
+                        if (waermebedarf < w.size()*2.5)
                         {
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
-                            if (w.size()<96)
-                                waermebedarf = waermebedarf/96*w.size();
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
                             for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
