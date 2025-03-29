@@ -2807,7 +2807,7 @@ int LoadDataProcess() {
                             )   //FBH
                            &&
                            (
-                            ((temp[7]>0&&temp[10]<temp[11])||temp[10]<temp[15])
+                            ((temp[7]>0&&temp[10]+10<temp[11])||temp[10]+20<temp[15]&&temp[10]>350)
 //                            ||
 //                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
                             )
@@ -2868,7 +2868,7 @@ int LoadDataProcess() {
                             && temp[17]==0 // Pellets aus
                             && wolf[wpvl].wert<45 // Vorlauf unter 45°
                             && temp[15]<450 // Vorlauf unter 45°
-                            && (temp[1]==0||(wolf[wprl].wert>0&&(wolf[wprl].wert*10<temp[4]+10||temp[4]>temp[5])))
+                            && (temp[1]==0||(wolf[wprl].wert>0&&(wolf[wprl].wert*10<temp[4]+10&&temp[10]>350||temp[4]<temp[5])))
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
@@ -2901,7 +2901,7 @@ int LoadDataProcess() {
                              ||
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                              ||
-                            ((wetter[0].wpbedarf*.8>wolf[wppw].wert&&(t - wolf[wppw].t < 300)
+                            ((wetter[0].wpbedarf*.8>wolf[wppw].wert
                              &&
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
