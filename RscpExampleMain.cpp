@@ -2868,7 +2868,7 @@ int LoadDataProcess() {
                             && temp[17]==0 // Pellets aus
                             && wolf[wpvl].wert<45 // Vorlauf unter 45°
                             && temp[15]<450 // Vorlauf unter 45°
-                            && (temp[1]==0||(wolf[wprl].wert>0&&wolf[wprl].wert*10<temp[4]+10))
+                            && (temp[1]==0||(wolf[wprl].wert>0&&(wolf[wprl].wert*10<temp[4]+10||temp[4]>temp[5])))
                             &&
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (

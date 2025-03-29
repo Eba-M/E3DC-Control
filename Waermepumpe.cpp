@@ -393,6 +393,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wetter[x1].kosten = f4; // benötigte elektrische Leistung;
                                 
                                 if ((w.size()>0)&&x1<=w.size())
+                                    if (wetter[x1].hh != w[x1].hh)
+                                        x1 = x1;
                                     if (wetter[x1].hh == w[x1].hh){
                                         // Überprüfen ob WP oder Pelletsheizung günstiger
                                         // Kosten = aktueller Strompreis / COP + EHZ
@@ -507,14 +509,14 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             {
                                 // volle Leistung
 //                                waermebedarf = waermebedarf + e3dc.WPmin*wetter1[x1].cop/4;
-                                if (wetter1[x1].waermepreis==0)
+                                if (wetter1[x1].waermepreis==0&&waermebedarf>0)
                                 {
                                     wetter[wetter1[x1].x1].wpbedarf = e3dc.WPLeistung/wetter1[x1].cop/e3dc.speichergroesse*25;
                                     waermebedarf = waermebedarf - e3dc.WPLeistung/4;
                                 }
                                 else
                                 {
-                                    if (waermebedarf < 0)
+                                    if (waermebedarf <= 0)
                                         wetter[wetter1[x1].x1].wpbedarf = 0;
                                     else
                                     {

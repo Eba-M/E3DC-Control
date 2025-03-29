@@ -1350,7 +1350,7 @@ if (e3dc.AWLand == 2)
                             a_time = mktime(ptm);
                             ptm->tm_min = 0;
                             ptm->tm_sec = 0;
-                            
+                            ww.hh = mktime(ptm);
                             int status;
                             char var [2] [20];
                             
@@ -1361,8 +1361,8 @@ if (e3dc.AWLand == 2)
                                 {
                                     status = sscanf(line, "%s %s ", var[0], var[1]);
                                     
-                                    ptm->tm_hour = atol(var[0]);
-                                    ww.hh = mktime(ptm);
+//                                    ptm->tm_hour = atol(var[0]);
+//                                    ww.hh = mktime(ptm);
                                     ww.pp = atof(var[1]);
                                     {
                                         x2 =ww.hh%(24*3600);
@@ -1385,9 +1385,11 @@ if (e3dc.AWLand == 2)
                                                 }
                                             }
                                             else
+                                            {
                                                 w.push_back(ww);
-                                            
-                                        }
+                                                ww.hh = ww.hh + 3600;
+                                            }
+                                                                                    }
                                     }
                                 }
                                 
