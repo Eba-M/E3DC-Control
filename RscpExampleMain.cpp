@@ -2834,7 +2834,7 @@ int LoadDataProcess() {
                          ||
                          (wolf[wpvl].wert>46)
                          ||
-                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
+                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20&&temp[5]>380)
                          ||
                          (
                           wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
