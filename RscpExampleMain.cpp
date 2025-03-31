@@ -538,6 +538,7 @@ bool GetConfig()
         e3dc_config.BWWPaus = 0;
         e3dc_config.BWWPon = -1;
         e3dc_config.BWWPoff = -1;
+        e3dc_config.BWWPmax = -1;  // maximale Brauchwassertemp
         e3dc_config.BWWPSupport = -1;
         e3dc_config.BWWPTasmotaDauer = 0;
         memset(e3dc_config.BWWPTasmota,0,sizeof(e3dc_config.BWWPTasmota));
@@ -784,6 +785,8 @@ bool GetConfig()
                         e3dc_config.BWWPon = atof(value);
                     else if(strcmp(var, "bwwpoff") == 0)
                         e3dc_config.BWWPoff = atof(value);
+                    else if(strcmp(var, "bwwpmax") == 0)
+                        e3dc_config.BWWPmax = atof(value);
                     else if(strcmp(var, "bwwpsupport") == 0)
                         e3dc_config.BWWPSupport = atof(value);
                     else if(strcmp(var, "rb") == 0)
@@ -2087,6 +2090,8 @@ int LoadDataProcess() {
             {
                 iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
                 iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
+                iHeatStat[1] = iHeatStat[1] + (1500)*(t-myt_alt);
+                iHeatStat[0] = iHeatStat[0]  + (1500)*(t-myt_alt);
             }
         }
         
@@ -2358,7 +2363,9 @@ int LoadDataProcess() {
             tasmota_status[3] = tasmotastatus(4);
         
         // Steuerung BWWP über Tasmota Kanal4
-        if ((
+        if (
+            (
+             (
             (tasmota_status[3]>=1&&temp[13]>e3dc_config.BWWPaus*10)
             || // außerhalb der Laufzeit
             (
@@ -2370,7 +2377,10 @@ int LoadDataProcess() {
             )
 
             )
-            &&((PVon<e3dc_config.WPPVoff)||temp[13]>510))
+            &&(PVon<e3dc_config.WPPVoff)
+             )
+            ||temp[13]>e3dc_config.BWWPmax*10
+            )
         {
             tasmotaoff(4);
         }
@@ -2389,7 +2399,7 @@ int LoadDataProcess() {
                )                 
                 ||
 // BWWP bei PV Überschuss laufen lassen
-                (PVon>e3dc_config.WPPVon&&temp[13]<500)
+                (PVon>e3dc_config.WPPVon&&temp[13]<e3dc_config.BWWPmax*10-10)
 
                 )
             {
