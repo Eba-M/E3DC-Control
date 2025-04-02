@@ -2851,10 +2851,16 @@ int LoadDataProcess() {
                           ((wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
                           ||(wetter[0].waerme<wolf[wphl].wert&&(wolf[wphl].t > 0)))
                          &&
-                         (PVon < e3dc_config.WPPVoff||waermebedarf<float(iHeatStat[1]/3600000.0))
-                         )
+                         (PVon < e3dc_config.WPPVoff
+                          ||
+                          (waermebedarf<float(iHeatStat[1]/3600000.0&&waermebedarf<e3dc_config.WPLeistung*12) // Sommer?
+                           && (temp[7]==0||temp[11]+10>=temp[10])  //FBH Soll erreicht?
+                           && (temp[1]==0||temp[5]+10>=temp[4])  //HK1 Soll erreicht?
+                           )
                           )
+                        )
                     )
+                )
                     {
                         
                         if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
