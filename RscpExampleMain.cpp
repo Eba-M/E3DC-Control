@@ -2702,7 +2702,8 @@ int LoadDataProcess() {
 
                                     if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
                                         ||
-                                        PVon>e3dc_config.WPPVon)
+                                        (PVon>e3dc_config.WPPVon)
+                                        )
                                     {
                                         
                                         if (fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)
@@ -2849,7 +2850,7 @@ int LoadDataProcess() {
                          (
                           wetter[0].wpbedarf*.9<wolf[wppw].wert&&(wolf[wppw].t > 0)
                          &&
-                         PVon < e3dc_config.WPPVoff
+                         (PVon < e3dc_config.WPPVoff||waermebedarf<float(iHeatStat[1]/3600000.0))
                          )
                     )
                     {
@@ -2916,7 +2917,7 @@ int LoadDataProcess() {
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
                              ||
-                             PVon>e3dc_config.WPPVon
+                             (PVon>e3dc_config.WPPVon&&waermebedarf>float(iHeatStat[1]/3600000.0))
                              )
                              )
                             )
@@ -5816,7 +5817,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
                         int x2 = t%(24*4*900)/900+2;
                         int x4 = (t+900)%(24*3600)/900+2;
-                        printf(" WB %0.02f %0.02f %0.02f %0.02f",waermebedarf,float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0));
+                        printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0]/900000.0)*(900-(t%900)));
                     }
                 }
                 printf("%c[K\n", 27 );
