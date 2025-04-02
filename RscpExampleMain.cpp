@@ -2861,12 +2861,12 @@ int LoadDataProcess() {
                            && (
                                temp[7]==0
                                ||
-                               (temp[11]+10)>=temp[10]
+                               (temp[11]+12)>=temp[10]
                                )  //FBH Soll erreicht?
                            && (
                                temp[1]==0
                                ||
-                               (temp[5]+10)>=temp[4]
+                               (temp[5]+12)>=temp[4]
                                )  //HK1 Soll erreicht?
                            
                           )
