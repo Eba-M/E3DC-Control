@@ -751,8 +751,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
          fclose(fp);
          fclose(fp1);
-            if (e3dc.test) exit(0);
-            if (e3dc.debug) printf("NWS2\n");
+if (e3dc.debug) printf("NWS2\n");
 
 
             if (ptm->tm_min<2)
