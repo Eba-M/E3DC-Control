@@ -2950,10 +2950,10 @@ int LoadDataProcess() {
                                      // nur wenn der Puufer Wärme aufnehmen kann
                                      )
                                 {
-                                    if (PVon < 5000)
+                                    if (PVon < 3000)
                                         ALV = ALV + PVon / 1000;
                                     else
-                                        ALV = ALV + 4;
+                                        ALV = ALV + 2;
                                 }
                                 if (ALV>= e3dc_config.shelly0V10Vmax)
                                     ALV = e3dc_config.shelly0V10Vmax-1;
