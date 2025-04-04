@@ -2944,7 +2944,7 @@ int LoadDataProcess() {
                         {
                             if (PVon>e3dc_config.WPPVon)
                             {
-                                if  (
+/*                                if  (
                                      mm>sunriseAt&&mm<sunsetAt&&
                                      temp[15]<(e3dc_config.WPHK1max+2)*10
                                      // nur wenn der Puufer Wärme aufnehmen kann
@@ -2955,6 +2955,7 @@ int LoadDataProcess() {
                                     else
                                         ALV = ALV + 2;
                                 }
+*/
                                 if (ALV>= e3dc_config.shelly0V10Vmax)
                                     ALV = e3dc_config.shelly0V10Vmax-1;
                                 

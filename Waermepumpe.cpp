@@ -352,7 +352,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         wetter.erase(wetter.begin());
 
                     for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
-                            if (wetter[x1].temp < 20&&e3dc.WPLeistung>0)
+                            if (wetter[x1].temp < e3dc.WPHeizgrenze&&e3dc.WPLeistung>0)
 
                             {
                                 float f1=((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-wetter[x1].temp)+fusspunkt;
@@ -499,7 +499,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 else
                                     wet.waermepreis = wetter[x1].waermepreis;
 //                                wetter[x1].wpbedarf=0;
-                                wet.cop = wetter[x1].cop;
+                                if (wetter[x1].cop==0)
+                                    wet.cop = 6;
+                                else
+                                    wet.cop = wetter[x1].cop;
                                 wetter1.push_back(wet);
                             }
                             std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
