@@ -2882,7 +2882,7 @@ int LoadDataProcess() {
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
                         if
                             (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450)
-                            shelly(0);
+                            ALV = shelly(0);
 
                         wp_t = t;
                         
