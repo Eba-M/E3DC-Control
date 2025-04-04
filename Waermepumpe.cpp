@@ -471,17 +471,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Wenn die Laufzeit < 22h ist, beginnt der WP-Start 2h nach Sonnenaufgang
                     // bis dahin werden die Preise aus w.wpbedarf auf 0 gesetzt
                     // Wenn der bHK2on = Heizkörper aktiv ist dann beginn die WP-Start mit bHK2on
-                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*w.size()/4; // Heizgrade
+                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
                     waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
                     // Heizlast bei -15°
 /*                    float heizleistung = 0;
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                         heizleistung = heizleistung + wetter[x1].waerme;
 */
-                    if (float(HeatStat/3600000.0)/24*w.size()/4*1.2>waermebedarf)
-                        waermebedarf = waermebedarf*2 - float(HeatStat/3600000.0)/24*w.size()/4;
+                    float diff = float(HeatStat)/3600000.0-waermebedarf;
+                    if (abs(diff)*5<waermebedarf)
+                        waermebedarf = waermebedarf - diff;
                     else
-                        waermebedarf = waermebedarf*1.25;
+                        waermebedarf = waermebedarf - diff/2;
+//                    if (w.size()>96)
+                        waermebedarf = waermebedarf/96*w.size();
                     
                     if (e3dc.WPWolf)
                     {
@@ -500,7 +503,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wet.waermepreis = wetter[x1].waermepreis;
 //                                wetter[x1].wpbedarf=0;
                                 if (wetter[x1].cop==0)
-                                    wet.cop = 6;
+                                    wet.cop = 7;
                                 else
                                     wet.cop = wetter[x1].cop;
                                 wetter1.push_back(wet);
