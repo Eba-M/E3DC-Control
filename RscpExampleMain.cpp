@@ -3358,7 +3358,7 @@ int LoadDataProcess() {
         {
             iE3DC_Req_Load = e3dc_config.maximumLadeleistung;
         }
-        if (t_alt-rettime<900&&ret==1)
+        if (t_alt-rettime<9&&ret==1) // Beruhgungszeit nach den Netzladen 900sec Testweise auf 9sec
             ret = 0;
         if (e3dc_config.debug) printf("D6 %i ",ret);
 
