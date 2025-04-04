@@ -2881,9 +2881,10 @@ int LoadDataProcess() {
                         ALV =  shelly(ALV-1);
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
                         if
-                            (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450)
-                            ALV = shelly(0);
-
+                            (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450){
+                                ALV = 0;
+                                ALV = shelly(0);
+                            }
                         wp_t = t;
                         
                     }
@@ -3029,9 +3030,13 @@ int LoadDataProcess() {
             // Auswertung Steuerung
             if (btasmota_ch1)
             {
-                if (((btasmota_ch1&1||btasmota_ch1&2)
-                     &&ALV == 0&&wetter[0].kosten>0&&btasmota_ch1&16)
-                    ||btasmota_ch1&4)
+                if ((btasmota_ch1&1||btasmota_ch1&2||btasmota_ch1&4)
+                     &&ALV == 0
+                     &&wetter[0].kosten>0
+                     &&btasmota_ch1&16
+                     &&temp[14]<470
+                     &&temp[15]<460
+                    )
                 {
                     if (ALV == 0)
                     {
