@@ -603,11 +603,16 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     printf("faval %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,27);
 
-        if (faval >=-0.01||maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0)
+        if (faval >=-0.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
         {
             return 1;
         }
-// geändert am 30.9.
+    if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
+    {
+        return 0;
+    }
+
+    // geändert am 30.9.
 // suche über den gesamten Bereich
         if (SucheDiff(w,0, aufschlag,Diff)); // es wird gandenlos bis zum nächsten low entladen
         do
@@ -1091,7 +1096,7 @@ int ladedauer = 0;
 //    e3dc_config_t e3dc;
     
     time(&rawtime);
-    ptm = gmtime (&rawtime);
+    ptm = localtime (&rawtime);
     sunriseAt = sunrise;
 // alte Einträge > 1h löschen
     if (e3dc.openmeteo)
@@ -1119,7 +1124,7 @@ int ladedauer = 0;
 // die Wetterdaten alle 15min in der 14ten min holen,
         (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==14)
         ||
-        (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>11*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
+        (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>12*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
         (w.size()==0&&e3dc.aWATTar)
         )
