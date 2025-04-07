@@ -412,6 +412,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 fSoC = fSoC + anforderung + reserve + notstromreserve;
                 return 1;
         } 
+        if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
+        {
+            return 0;
+        }
+
 /*        else
         {
                 fSoC = fSoC + faval;
