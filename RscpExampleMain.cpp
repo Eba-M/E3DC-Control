@@ -60,7 +60,7 @@ static float fPower_Grid,fVoltage,fCurrent;
 static float fAvPower_Grid,fAvPower_Grid3600,fAvPower_Grid600,fAvPower_Grid60; // Durchschnitt ungewichtete Netzleistung der letzten 10sec
 static int iAvPower_GridCount = 0;
 static float fPower_WB;
-static float fPower_openWB = -1;
+static float fPower_openWB = -0.0000001;
 static float fMaxPower_WB; // höchste Ladeleistung seit das Fahrzeug verbunden ist
 static float fPVtoday=0; // Erzeugung heute
 static float fPVnextday=0; // Erzeugung heute
