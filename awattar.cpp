@@ -412,10 +412,6 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 fSoC = fSoC + anforderung + reserve + notstromreserve;
                 return 1;
         } 
-        if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
-        {
-            return 0;
-        }
 
 /*        else
         {
@@ -538,6 +534,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         fSoC = fSoC + reserve + notstromreserve;
         if (anforderung>0)
             fSoC = fSoC + anforderung;
+        
         return 0;  // kein Ergebniss gefunden
         
         
@@ -612,10 +609,6 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
         {
             return 1;
         }
-    if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
-    {
-        return 0;
-    }
 
     // geändert am 30.9.
 // suche über den gesamten Bereich
@@ -659,7 +652,12 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
                     l1 = w.size()-1;
                     break;}} // suche low nach einem high
             }
-// Überprüfen ob Entladen werden kann
+            if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
+            {
+                return 0;
+            }
+
+            // Überprüfen ob aus dem Netz Geladen werden kann
             x1 = Lowprice(w,0, hi, w[0].pp);   // bis zum high suchen
             x3 = Lowprice(w,0, w.size()-1, w[0].pp);   // bis zum high suchen
             SollSoc = fHighprice(w,wetter,0,l1,(w[0].pp)*aufschlag+ Diff,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
