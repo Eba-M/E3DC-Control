@@ -1593,7 +1593,7 @@ else
         chch = 1;
         if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24){
             old_w_size = w.size();
-            if (ch.size()>0&&ch[ch.size()-1].hh>rawtime&&ch[ch.size()-1].ch==0) // aktiver ladeauftrag
+            if (ch.size()>0&&ch[ch.size()-1].hh>rawtime) // aktiver ladeauftrag
                 return;
             if (ch.size()==0&&e3dc.wbhour<=0)  // nothing todo
                 return;

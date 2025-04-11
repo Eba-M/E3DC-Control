@@ -2618,14 +2618,11 @@ int LoadDataProcess() {
 
                 
 // HK2 zwischen WPHK2off und WPHK2on ausschalten wenn die AT über fwintertemp liegt
-                if ((e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0&&fatemp>fwintertemp)
-                    ||bHK2off&1)
+                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0&&fatemp>fwintertemp&&ALV==0)
                 {
-
-                if  (bHK2off&1)
-                        bHK2off ^= 1;
+                    bHK2off = 0;
                     
-                    float f1 = t%(24*3600)/3600.0;
+                    float f1 = float(t%(24*3600)/3600.0);
                     if (temp[17]==0&&               // Wenn Pelletskessel aus
                         (e3dc_config.WPHK2off>e3dc_config.WPHK2on)
                         &&
@@ -2638,7 +2635,7 @@ int LoadDataProcess() {
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
-                } 
+                }
                 else
                     bHK2off = 0;
 
@@ -2853,7 +2850,14 @@ int LoadDataProcess() {
                          ||
                          (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20&&temp[5]>380)
                          ||
-                         wetter[0].wpbedarf==0
+// Kein Anforderung&sommer
+                         (
+                          wetter[0].wpbedarf==0
+                          &&
+                          (waermebedarf<float(iHeatStat[1]/3600000.0)
+                         &&
+                          waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
+                          )
                          ||
                          (
                             ((wetter[0].wpbedarf*.9<wolf[wppw].wert&&wolf[wppw].t > 0)
@@ -2893,7 +2897,7 @@ int LoadDataProcess() {
                               ||temp[14]>470
                               ||temp[15]>450))
                         {
-                                ALV = 0;
+//                                ALV = 0;
                                 ALV = shelly(0);
                         }
                         else
