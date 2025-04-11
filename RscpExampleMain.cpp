@@ -2853,23 +2853,27 @@ int LoadDataProcess() {
                          ||
                          (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20&&temp[5]>380)
                          ||
+                         wetter[0].wpbedarf==0
+                         ||
                          (
                             ((wetter[0].wpbedarf*.9<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
                             (wetter[0].waerme<wolf[wphl].wert&&(wolf[wphl].t > 0)))
                          &&
-                         (PVon < e3dc_config.WPPVoff
+                         ((PVon < e3dc_config.WPPVoff)
                           ||
                           (
-                            waermebedarf<float(iHeatStat[1]/3600000.0)
+                            (waermebedarf<float(iHeatStat[1]/3600000.0)
+                           ||
+                            waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
                            &&
-                            waermebedarf<float(e3dc_config.WPLeistung*12.0) // Sommer?
-                           && (
+                           (
                                temp[7]==0
                                ||
                                (temp[11]+12)>=temp[10]
                                )  //FBH Soll erreicht?
-                           && (
+                           &&
+                           (
                                temp[1]==0
                                ||
                                (temp[5]+12)>=temp[4]
@@ -2881,16 +2885,25 @@ int LoadDataProcess() {
                 )
                     {
                         
-                        if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
-                            ALV = e3dc_config.shelly0V10Vmin+1;
-                        if (ALV>0)
-                        ALV =  shelly(ALV-1);
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
                         if
-                            (wetter[0].wpbedarf==0&&ALV>0||bHK1off&&bHK2off||temp[14]>470||temp[15]>450){
+                            (ALV==e3dc_config.shelly0V10Vmin&&
+                             (wetter[0].wpbedarf==0
+                              ||bHK1off&&bHK2off
+                              ||temp[14]>470
+                              ||temp[15]>450))
+                        {
                                 ALV = 0;
                                 ALV = shelly(0);
-                            }
+                        }
+                        else
+                        {
+                            if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
+                                ALV = e3dc_config.shelly0V10Vmin+1;
+                            if (ALV>0)
+                            ALV =  shelly(ALV-1);
+
+                        }
                         wp_t = t;
                         
                     }
@@ -2939,7 +2952,8 @@ int LoadDataProcess() {
                              ||
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                              ||
-                            ((wetter[0].wpbedarf*.8>wolf[wppw].wert
+
+                             ((wetter[0].wpbedarf*.8>wolf[wppw].wert
                              &&
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
