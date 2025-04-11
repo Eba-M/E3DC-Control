@@ -2687,7 +2687,9 @@ int LoadDataProcess() {
 // Steuerung LWWP über shelly 0-10V
             
             
-            if (ALV < 0) ALV = shelly_get();
+            if (ALV < 0||(t%60)==0)
+                ALV = shelly_get();
+
             
             static time_t wp_t,wp_t1;
             // Leistung der Wolf bei Kesselbetrieb
