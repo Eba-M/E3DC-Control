@@ -2086,7 +2086,8 @@ int LoadDataProcess() {
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
+//            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
+            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf/(24*3600)*(t-myt_alt);
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
         }
@@ -2138,7 +2139,7 @@ int LoadDataProcess() {
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iHeatStat[x4]=iHeatStat[0]; // 15min Intervall fortschreiben
 //            iHeatStat[0]=iHeat_WP*(t-t_alt);
-            iHeatStat[0]=iHeat_WP;
+            iHeatStat[0]=iHeat_WP*2;
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
 
             char fname[100];
