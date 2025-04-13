@@ -2137,7 +2137,8 @@ int LoadDataProcess() {
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iHeatStat[x4]=iHeatStat[0]; // 15min Intervall fortschreiben
-            iHeatStat[0]=iHeat_WP*(t-t_alt);
+//            iHeatStat[0]=iHeat_WP*(t-t_alt);
+            iHeatStat[0]=iHeat_WP;
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
 
             char fname[100];
