@@ -3066,11 +3066,12 @@ int LoadDataProcess() {
                      &&temp[15]<460
                     )
                 {
-                    if (ALV == 0)
+/*                    if (ALV == 0)
                     {
                         ALV = e3dc_config.shelly0V10Vmin;
                         shelly(ALV);
                     }
+*/
                 }
                 wpontime = t;
                 wpofftime = t;   //mindestlaufzeit
