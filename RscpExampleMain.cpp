@@ -2055,66 +2055,14 @@ int LoadDataProcess() {
         int x2 = t%(24*4*900)/900;
         int x3 = t%900;
         int x4 = (t+900)%(24*3600)/900+2;
-
-        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
-//            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
-            iPower_WP = wetter[0].kosten*1000;   // in Watt
-// wenn zähler vorhanden nutzen
-        shellyem_get(iPower_WP, itotal_WP);
-        if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
-        {
-            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
-            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
-        } else
-        if (not e3dc_config.WP)
-        {
-//            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
-            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
-            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
-        }
-        if (itotal_WP>=0)
-        {
-// vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
-// Differenzen als berechnete Leistung abgespeichert
-            static int64_t ilasttotal_WP = itotal_WP;
-//            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
-            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (- ilasttotal_WP + itotal_WP);
-            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] +  (- ilasttotal_WP + itotal_WP);
-            ilasttotal_WP = itotal_WP;
-
-        } else
-        {
-            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
-            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-//            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
-            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf*1000/24*(t-myt_alt);
-            iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
-
-        }
-        if (e3dc_config.tasmota)
-        {
-            if (tasmota_status[3] == 1) // Brauchwasserwärmepumpe
-            {
-                iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
-                iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
-                iHeatStat[1] = iHeatStat[1] + (1500)*(t-myt_alt);
-                iHeatStat[0] = iHeatStat[0]  + (1500)*(t-myt_alt);
-            }
-        }
         
         Gridstat = (ptm->tm_mday-1)*24*4;
         Gridstat = Gridstat+t%(24*3600)/900;
         iGridStat[Gridstat] = iGridStat[Gridstat] + fPower_Grid*(t-myt_alt);
-        float f2,f3;
         static wetter_s w_alt;
-//        if (w.size() > 0)
-        {
-            iDayStat[DayStat] = iDayStat[DayStat]+ iPower_PV*(t-myt_alt);
-            iDayStat[DayStat-2] = iDayStat[DayStat-2]+ iPower_PV*(t-myt_alt);
-            f2 = iDayStat[DayStat-1] * 2 / 10.0;
-            f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600)*2/10.0;
 
-        }
+
+
         int schalter900 = 0;
         int schalter3600 = 0;
 
@@ -2138,8 +2086,7 @@ int LoadDataProcess() {
             else
                 iWeekhourWP[x1] = iWeekhourWP[weekhour];
             iHeatStat[x4]=iHeatStat[0]; // 15min Intervall fortschreiben
-//            iHeatStat[0]=iHeat_WP*(t-t_alt);
-            iHeatStat[0]=iHeat_WP*2;
+            iHeatStat[0]=0;
             iWeekhourWP[weekhour] = iPower_WP*(t-t_alt);
 
             char fname[100];
@@ -2294,20 +2241,79 @@ int LoadDataProcess() {
             }
 
         }
+// Ende 15min Behandlung
+        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
+//            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
+            iPower_WP = wetter[0].kosten*1000;   // in Watt
+// wenn zähler vorhanden nutzen
+        shellyem_get(iPower_WP, itotal_WP);
+        if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
+        {
+            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
+            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
+        } else
+        if (not e3dc_config.WP)
+        {
+//            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
+            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
+            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
+        }
+        if (itotal_WP>=0)
+        {
+// vom Zähler werden die aktuellen Zählerstände geliefertes und es werden die
+// Differenzen als berechnete Leistung abgespeichert
+            static int64_t ilasttotal_WP = itotal_WP;
+//            if (ilasttotal_WP<0) ilasttotal_WP = itotal_WP;
+            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (- ilasttotal_WP + itotal_WP);
+            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] +  (- ilasttotal_WP + itotal_WP);
+            ilasttotal_WP = itotal_WP;
+
+        } else
+        {
+            iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
+            iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
+//            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
+            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf*1000/24*(t-myt_alt);
+            iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
+
+        }
+        if (e3dc_config.tasmota)
+        {
+            if (tasmota_status[3] == 1) // Brauchwasserwärmepumpe
+            {
+                iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
+                iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
+                iHeatStat[1] = iHeatStat[1] + (1500)*(t-myt_alt);
+                iHeatStat[0] = iHeatStat[0]  + (1500)*(t-myt_alt);
+            }
+        }
+        
+        float f2,f3;
+//        if (w.size() > 0)
+        {
+            iDayStat[DayStat] = iDayStat[DayStat]+ iPower_PV*(t-myt_alt);
+            iDayStat[DayStat-2] = iDayStat[DayStat-2]+ iPower_PV*(t-myt_alt);
+            f2 = iDayStat[DayStat-1] * 2 / 10.0;
+            f3 = iDayStat[DayStat-2]/(e3dc_config.speichergroesse*10*3600)*2/10.0;
+
+        }
+
         myt_alt = t;
 //        nächsten Eintrag suchen
         if (wetter.size()>0&&w_alt.hh==0)
             w_alt = wetter[0];
     }
     
-    if (fDCDC > high.fah) {
+    if (fDCDC > high.fah) 
+    {
         high.fah = fDCDC;
         high.fsoc = fBatt_SOC;
         high.fvoltage = fVoltage;
         high.fcurrent = fCurrent;
         high.t = t;
     };
-    if (fDCDC < low.fah) {
+    if (fDCDC < low.fah) 
+    {
         low.fah = fDCDC;
         low.fsoc = fBatt_SOC;
         low.fvoltage = fVoltage;
@@ -2887,6 +2893,8 @@ int LoadDataProcess() {
                                (temp[5]+12)>=temp[4]
                                )  //HK1 Soll erreicht?
                            
+                           &&
+                           (PVon < e3dc_config.WPPVoff)
                           )
                         )
                     )
@@ -3358,13 +3366,15 @@ int LoadDataProcess() {
         
         if (e3dc_config.debug) printf("D5\n");
         static time_t rettime = 0;
-    int ret = 0; // Steuerung Netzladen = 2, Entladen = 1
-    if (w.size()>0)
-        if (e3dc_config.openmeteo)
-        ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
-        else
-            ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve); // Ladeleistung in %
-//if (rettime>0)
+    int ret = 0; // Steuerung Netzladen = 2, Entladen zulassen = 1; Neu: 3 = Speicher ins netz entladen
+        if (w.size()>0)
+        {
+            if (e3dc_config.openmeteo)
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
+            else
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve); // Ladeleistung in %
+        }
+            //if (rettime>0)
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);
 //else
         printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
@@ -3398,7 +3408,8 @@ int LoadDataProcess() {
             if (fBatt_SOC > fht-1) break;  // do nothink
             case 3: ret = 2; break;
             case 1: ret = 1;
-            case 4: ret = 0;
+            case 4: ret = 0; // Speicher sperren
+            case 5: ret = 3; // Ins Netz Entladen
         }
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
