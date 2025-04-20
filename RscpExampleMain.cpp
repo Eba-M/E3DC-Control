@@ -1998,12 +1998,13 @@ int shelly(int ALV)
         
         if (fp != NULL)
             if (fgets(path, 1024, fp) != NULL)
-            {}
+            {
+                ALV_alt = ALV;
+            }
     if (fp != NULL)
         pclose(fp);
     }
-    ALV_alt = ALV;
-    return ALV;
+    return ALV_alt;
 }
 typedef struct {
     time_t t;
