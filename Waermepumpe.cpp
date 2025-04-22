@@ -493,7 +493,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                                for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                             {
                                 wet.x1 = x1;
-                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+//                                if (wetter[x1].solar>0)
+                                    if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
                                     wet.waermepreis = wetter[x1].waermepreis-100;
                                 else
                                     wet.waermepreis = wetter[x1].waermepreis;
@@ -510,6 +511,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                                for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
                                 // volle Leistung
+                                wet = wetter1[x1];
 //                                waermebedarf = waermebedarf + waermebedarf/96;
                                 if (wetter1[x1].waermepreis<=0&&waermebedarf>0)
                                 {

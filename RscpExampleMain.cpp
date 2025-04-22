@@ -2905,10 +2905,15 @@ int LoadDataProcess() {
                         if (e3dc_config.debug) printf("wpdown1 %i\n",ALV);
                         if
                             (ALV==e3dc_config.shelly0V10Vmin&&
-                             (wetter[0].wpbedarf==0
+                             (
+                              // keine weitere Anforderung innerhalb der nächsten Stunde dann ausschalten
+                              (wetter[0].wpbedarf==0
+                              &&wetter[1].wpbedarf==0
+                              &&wetter[2].wpbedarf==0
+                              &&wetter[3].wpbedarf==0)
                               ||bHK1off&&bHK2off
                               ||temp[14]>470
-                              ||temp[15]>450))
+                              ||temp[15]>460))
                         {
 //                                ALV = 0;
                                 ALV = shelly(0);
@@ -3005,19 +3010,20 @@ int LoadDataProcess() {
                                 
                                 
                             }
-                            if (ALV<e3dc_config.shelly0V10Vmin)
+//                            if (wetter[0].wpbedarf>0)
                             {
-                                ALV = e3dc_config.shelly0V10Vmin-1;
+                                if (ALV<e3dc_config.shelly0V10Vmin)
+                                {
+                                    ALV = e3dc_config.shelly0V10Vmin-1;
+                                }
+                                
+                                if (ALV<e3dc_config.shelly0V10Vmax)
+                                {
+                                    ALV = shelly(ALV+1);
+                                    if (e3dc_config.debug) printf("wpup1 %i\n",ALV);
+                                    
+                                }
                             }
-
-                            if (ALV<e3dc_config.shelly0V10Vmax)
-                            {
-                                ALV = shelly(ALV+1);
-                                if (e3dc_config.debug) printf("wpup1 %i\n",ALV);
-
-                            }
-                            
-                            
                             
                             
                             wp_t = t;
