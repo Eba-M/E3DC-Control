@@ -29,6 +29,7 @@
 #define AES_BLOCK_SIZE      32
 
 
+
 // json j;
 static int iSocket = -1;
 static int iAuthenticated = 0;
@@ -983,7 +984,7 @@ std::array<int, 20> oekofen{2,11,12,13,21,22,23,31,32,33,41,42,43,60,61,73,78,10
 static int x1 = 0;
 static int16_t temp[oekofen.size()];
 static uint8_t tn = 1;
-char server_ip[16];
+char server_ip[200];
 static bool brequest = false;
 
 long iModbusTCP_Set(int reg,int val,int tac)
@@ -1140,11 +1141,12 @@ int iModbusTCP()
             isocket = -1;
         }
     }
- 
+    if (e3dc_config.debug) printf("ÖKa%i",now-tlast);
     if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
     {
         if (isocket <= 0)
         {
+            if (e3dc_config.debug) printf("ÖKb%i",now-t_OeK);
             sprintf(server_ip,e3dc_config.heizung_ip);
             if (e3dc_config.debug)
                 printf("BSC");
@@ -1155,9 +1157,11 @@ int iModbusTCP()
             iLength = 0;
 
         }
+        if (e3dc_config.debug) printf("ÖKc%i",now-t_OeK);
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
             tlast = now;
+            if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
             send.resize(12);
             if (e3dc_config.debug)
                 printf("RV");
@@ -1340,8 +1344,10 @@ int iModbusTCP()
         else
             if (brequest)
             {
+                if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
                 if (isocket > 0&&iLength < 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
+                if (e3dc_config.debug) printf("ÖKe%i",receive.size());
                 if (iLength > 0)
                 {
                     if (iLength > 100)
@@ -1351,11 +1357,13 @@ int iModbusTCP()
                     x1 = receive[0]; // Startregister tan
                     iRegister = receive[0]; // Startregister tan
 //                    x3 = x1;
-                    for (x3=0;oekofen[x3] != x1&&x3<oekofen.size();x3++);
+                    for (x3=0;x3<oekofen.size()&&oekofen[x3] != x1;x3++);
                     
                     if (receive[7]==3)
-                        while (x2 < iLength)
+                        while (x2 < iLength&&x3<oekofen.size())
                         {
+//                            if (e3dc_config.debug) printf("ÖKe%i",x3);
+
                             if (oekofen[x3] == x1) // suchen der gewünschten register
                             {
                                 temp[x3] = (receive[x2]*256+receive[x2+1]);
@@ -1368,6 +1376,7 @@ int iModbusTCP()
                         WWTemp = float(receive[10]*256+receive[11])/10;
                     
                     //                SocketClose(isocket);
+                    if (e3dc_config.debug) printf("ÖKf%i",x1);
                     SocketClose(isocket);
                     isocket = -1;
                     brequest = false;
@@ -4785,7 +4794,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000)
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
+                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+1000+iWBMinimumPower; // Schon 500W früher
+/*                iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
                 else
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
                 {
@@ -4813,7 +4823,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower= -2000;
                 }
                 //            wenn nicht abgeregelt werden muss, abschalten
-                break;
+*/                break;
             case 2:
                 iPower = -iFc + iPower_Bat + fPower_Grid;
                 break;

@@ -1571,6 +1571,8 @@ else
  Checkwallbox erfolgreich ist oder sich bei der Dauereinstelleung
  wbhour, wbvon oder wbbis sich geändert haben
 */
+    if (e3dc.debug) printf("Ladezeiten\n");
+
     int chch = 0; // 0 normal 1 Automatik
     static int dauer = -1;
     if (CheckWallbox(e3dc.e3dcwallboxtxt))
@@ -1598,6 +1600,8 @@ else
             if (ch.size()==0&&e3dc.wbhour<=0)  // nothing todo
                 return;
         }
+        if (e3dc.debug) printf("LZ1\n");
+
         if (w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
             if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
@@ -1619,18 +1623,24 @@ else
             } else ladedauer = 0;
         } else return;
     }
-
+    if (e3dc.debug) printf("LZ2\n");
     long k;       // bis zu     if (k > 7) k = 24-k+7;
     static std::vector<ch_s> ch1;
      
         ww1.pp = -1000;
 //alle alten einträge löschen ch = 1
-    for (int j = 0; j < ch.size(); j++ ){
-        while (ch[j].ch == chch&&ch.size()>j)
-            ch.erase(ch.begin()+j);
+    if (ch.size()>0)
+    {
+
+        for (int j = 0; j < ch.size(); j++ )
+        {
+            while (ch.size()>j&&ch[j].ch == chch)
+                ch.erase(ch.begin()+j);
+        }
     }
 //    ch.clear();   // Alle Einträge löschen
 // neue einträge erst in die ch1 bearbeiten
+    if (e3dc.debug) printf("LZ21\n");
     for (int l = 0;(l< w.size()); l++)
     {
         if (w[l].hh>=von&&w[l].hh<bis&&(w[l].hh||w[l].hh<=rawtime))
@@ -1643,7 +1653,7 @@ else
     }
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
-
+    if (e3dc.debug) printf("LZ3\n");
     while (ch1.size()>0&&(ch1.size()>(ladedauer*4)||ch1[ch1.size()-1].hh>bis))
     {
         ch1.erase(ch1.end()-1);
@@ -1679,6 +1689,7 @@ else
     for (int l = 0;l<ch1.size();l++)
         ch.push_back(ch1[l]);
     ch1.clear();
+    if (e3dc.debug) printf("LZ4\n");
 
     std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.ch < b.ch;});
@@ -1718,6 +1729,8 @@ else
             //        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
         }
     }
+    if (e3dc.debug) printf("LZ5\n");
+
     if (chch==0)
     {
         fprintf(fp,"%s\n",ptm->tm_zone);

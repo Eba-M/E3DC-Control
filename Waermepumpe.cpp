@@ -479,9 +479,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                         heizleistung = heizleistung + wetter[x1].waerme;
 */
-                    float diff = float(HeatStat)/3600000.0-waermebedarf;
+                    float diff = float(HeatStat)/3600000.0;
+                    if (w.size()>96)
+                        waermebedarf = waermebedarf-diff;
+                    else
                         waermebedarf = waermebedarf/96*w.size()-diff;
-                    
+
                     if (e3dc.WPWolf)
                     {
 //                        if (waermebedarf < w.size()*2.5)
@@ -490,7 +493,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
-                            for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
+                            for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
 //                                for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                             {
                                 wet.x1 = x1;
