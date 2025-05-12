@@ -479,7 +479,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                         heizleistung = heizleistung + wetter[x1].waerme;
 */
-                    float diff = float(HeatStat)/3600000.0;
+                    float diff = float(HeatStat)/3600000.0-waermebedarf;
                     if (w.size()>96)
                         waermebedarf = waermebedarf-diff;
                     else

@@ -4796,7 +4796,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
                     iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower-fPower_WB; // Schon 500W früher
                     if (iPower > -iWBMinimumPower&&iPower<0)
-                        iPower = 1;
+                        iPower = -100;
                 }
 /*                iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
                 else
