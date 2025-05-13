@@ -493,7 +493,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
-                            for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
+                            int x2 = w.size();
+                            if (x2 > 96) x2 = x2-96;
+                            for (int x1=0;x1<x2;x1++)
 //                                for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
                             {
                                 wet.x1 = x1;
