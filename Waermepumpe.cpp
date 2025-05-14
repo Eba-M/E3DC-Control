@@ -528,12 +528,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 }
                                 else
 */                                {
-                                    if (waermebedarf <= 0)
+                                    if (waermebedarf < 0.1)
                                         wetter[wetter1[x1].x1].wpbedarf = 0;
                                     else
                                     {
                                         float f1 =
-                                        waermebedarf/w.size()-x1; // Anzahl PV-Überschuss
+                                        waermebedarf/(w.size()-x1); // Anzahl PV-Überschuss
 
                                         if (x1<x2)
                                         {
