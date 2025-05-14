@@ -2246,7 +2246,10 @@ int LoadDataProcess() {
                 sprintf(fname,"Ertrag.%i.txt",nextday);
                 fp = fopen(fname, "w");
                 if (fp!=NULL)
+                {
+                    fprintf(fp,"Zeit Stat: Soll/Ist %% /PV: prog real %%/ %% Verbr. Haus WP");
                     fclose(fp);
+                }
 
             }
 

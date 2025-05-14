@@ -722,8 +722,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 
     int x1 = 0;
     int x2 = 0;
-    int x3 = 0;
-    if (w.size()==0) 
+    int x3 = 1;
+    if (w.size()==0)
     {
         printf("keine Börsenpreise");
         return;
@@ -739,33 +739,37 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     {
         if (len>sizeof(line)||len==0)
         {
-//            printf("forecast #%i kann nicht verarbeitet werden ",anlage+1);
+            //            printf("forecast #%i kann nicht verarbeitet werden ",anlage+1);
+            if (anlage >0)
             return;
-        }
-        memcpy(&line,&e3dc.Forecast[anlage],len);
-        memset(var, 0, sizeof(var));
-        memset(var2, 0, sizeof(var2));
-        memset(value, 0, sizeof(value));
-        for(int j = 0;j<len&&x1==0;j++)
-        {
-            if (line[j]=='/') x1=j;
-        }
-        x2=0;
-        for(int j=x1+1;j<len&&x2==0;j++)
-        {
-            if (line[j]=='/') x2=j;
-        }
-        if (x1>0&&x2-x1-1>0&&len-x2-1>0)
-        {
-            memcpy(&var,&line[0],x1);
-            memcpy(&var2,&line[x1+1],x2-x1-1);
-            memcpy(&value,&line[x2+1],len-x2-1);
         }
         else
-            return;
-        x1 = atoi(var);
-        x2 = atoi(var2);
-        x3 = atoi(value);
+        {
+            memcpy(&line,&e3dc.Forecast[anlage],len);
+            memset(var, 0, sizeof(var));
+            memset(var2, 0, sizeof(var2));
+            memset(value, 0, sizeof(value));
+            for(int j = 0;j<len&&x1==0;j++)
+            {
+                if (line[j]=='/') x1=j;
+            }
+            x2=0;
+            for(int j=x1+1;j<len&&x2==0;j++)
+            {
+                if (line[j]=='/') x2=j;
+            }
+            if (x1>0&&x2-x1-1>0&&len-x2-1>0)
+            {
+                memcpy(&var,&line[0],x1);
+                memcpy(&var2,&line[x1+1],x2-x1-1);
+                memcpy(&value,&line[x2+1],len-x2-1);
+            }
+            else
+                return;
+            x1 = atoi(var);
+            x2 = atoi(var2);
+            x3 = atoi(value);
+        }
     }
 
    if (x3>0)

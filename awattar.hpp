@@ -95,7 +95,7 @@ static int sunsetAt;   // Sonnenuntergang
 static int tasmota_status[4]={2,2,2,2};
 
 static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
-static std::vector<wetter_s>wetter; // Stundenwerte der Börsenstrompreise
+static std::vector<wetter_s>wetter; // Stundenwerte der Wetterprognose
 static std::vector<wolf_s>wolf; // Werte der Wolf WP
 static std::vector<strompreis_s>strompreis; // Werte der variable Strompreistarife
 

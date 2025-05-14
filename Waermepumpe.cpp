@@ -488,7 +488,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     if (e3dc.WPWolf)
                     {
 //                        if (waermebedarf < w.size()*2.5)
-                        if (waermebedarf < e3dc.WPLeistung*24);
+                        int x2 = 0;
+                        if (waermebedarf < e3dc.WPLeistung*24)
                         {
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
@@ -497,8 +498,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             {
                                 wet.x1 = x1;
 //                                if (wetter[x1].solar>0)
-                                    if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+                                {
                                     wet.waermepreis = wetter[x1].waermepreis-100;
+                                    x2++;
+                                }
                                 else
                                     wet.waermepreis = wetter[x1].waermepreis;
 //                                wetter[x1].wpbedarf=0;
@@ -516,24 +520,33 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 // volle Leistung
                                 wet = wetter1[x1];
 //                                waermebedarf = waermebedarf + waermebedarf/96;
-                                if (wetter1[x1].waermepreis<=0&&waermebedarf>0)
+// nur auf Spitzenstunden verteilen
+/*                                if (wetter1[x1].waermepreis<=0&&waermebedarf>0)
                                 {
                                     wetter[wetter1[x1].x1].wpbedarf = e3dc.WPLeistung/wetter1[x1].cop/e3dc.speichergroesse*25;
                                     waermebedarf = waermebedarf - e3dc.WPLeistung/4;
                                 }
                                 else
-                                {
+*/                                {
                                     if (waermebedarf <= 0)
                                         wetter[wetter1[x1].x1].wpbedarf = 0;
                                     else
                                     {
                                         float f1 =
-                                        waermebedarf/(wetter1.size()-x1);
+                                        waermebedarf/w.size()-x1; // Anzahl PV-Überschuss
+
+                                        if (x1<x2)
+                                        {
+                                            f1 =
+                                            waermebedarf/(x2-x1); // Anzahl PV-Überschuss
+                                        }
+                                        if (f1 > e3dc.WPLeistung/4)  // max. WP Wärmeleistung
+                                            f1 = e3dc.WPLeistung/4;
                                         f1 = f1/wetter1[x1].cop/e3dc.speichergroesse*100;
                                         if (f1 < e3dc.WPmin/e3dc.speichergroesse*25)
                                             f1=e3dc.WPmin/e3dc.speichergroesse*25;
                                         wetter[wetter1[x1].x1].wpbedarf= f1;
-                                        float f2 = wetter[wetter1[x1].x1].wpbedarf*wetter1[x1].cop*e3dc.speichergroesse/100;
+                                        float f2 = f1*wetter1[x1].cop*e3dc.speichergroesse/100;
                                         waermebedarf = waermebedarf - f2;
                                     }
                                 }
