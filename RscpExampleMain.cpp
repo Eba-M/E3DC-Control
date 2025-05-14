@@ -2874,7 +2874,7 @@ int LoadDataProcess() {
                          (
                           wetter[0].wpbedarf==0
                           &&
-                          (waermebedarf<float(iHeatStat[1]/3600000.0)
+                          (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
                          &&
                           waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
                           )
@@ -2887,7 +2887,7 @@ int LoadDataProcess() {
                          ((PVon < e3dc_config.WPPVoff)
                           ||
                           (
-                            (waermebedarf<float(iHeatStat[1]/3600000.0)
+                            (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
                            ||
                             waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
                            &&
@@ -2989,7 +2989,7 @@ int LoadDataProcess() {
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
                              ||
-                             (PVon>e3dc_config.WPPVon&&waermebedarf>float(iHeatStat[1]/3600000.0))
+                             (PVon>e3dc_config.WPPVon&&waermebedarf*-1>float(iHeatStat[1]/3600000.0))
                              )
                              )
                             )
