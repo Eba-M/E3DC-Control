@@ -547,7 +547,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             f1=e3dc.WPmin/e3dc.speichergroesse*25;
                                         wetter[wetter1[x1].x1].wpbedarf= f1;
                                         float f2 = f1*wetter1[x1].cop*e3dc.speichergroesse/100;
-                                        wetter[wetter1[x1].x1].waerme = f2;
+                                        wetter[wetter1[x1].x1].waerme = f2*4;
                                         waermebedarf = waermebedarf - f2;
                                     }
                                 }
