@@ -515,6 +515,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             }
                             std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
                                 return a.waermepreis < b.waermepreis;});
+                            float fakt = 1;
+                            if (x2>0)
+                            {
+                                float av = waermebedarf*4/x2;
+                                if (av > e3dc.WPmin*cop&&av<e3dc.WPLeistung)
+                                    fakt = 1.05+(av-e3dc.WPmin*cop)/(e3dc.WPLeistung-e3dc.WPmin*cop);
+                            }
                             for (int x1=0;x1<w.size()&&x1<wetter1.size();x1++)
 //                                for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
                             {
@@ -539,7 +546,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         if (x1<x2)
                                         {
                                             f1 =
-                                            waermebedarf*1.5/(x2-x1); // Anzahl PV-Überschuss
+                                            waermebedarf*fakt/(x2-x1); // Anzahl PV-Überschuss
                                         }
                                         if (f1 > e3dc.WPLeistung/4)  // max. WP Wärmeleistung
                                             f1 = e3dc.WPLeistung/4;
