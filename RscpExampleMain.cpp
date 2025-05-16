@@ -2526,6 +2526,7 @@ int LoadDataProcess() {
                     m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0))
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
+                    || ALV > 0               // Wenn die WP läuft
                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
@@ -2540,14 +2541,16 @@ int LoadDataProcess() {
                 (
                     (temp[17]==0   // Pellets muss aus sein
                     &&
-                    fatemp > fwintertemp)
+                    fatemp > fwintertemp
+                    &&
+                    ALV == 0)           // WP ist aus
                     &&
                     (
                      m1 < (sunriseAt)
                     ||
-                     (m1 < (sunriseAt+60)&&PVon<e3dc_config.WPPVoff)
+                     (m1 < (sunriseAt+60)&&PVon<e3dc_config.WPPVoff&&ALV==0)
                     ||
-                     (m1 > (sunriseAt+720)&&PVon<e3dc_config.WPPVoff) //FBH 12h Laufzeit fest
+                     (m1 > (sunriseAt+720)&&PVon<e3dc_config.WPPVoff&&ALV==0) //FBH 12h Laufzeit fest
 // AT zu hoch und Soll unter 24°
                     || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<240)
                      )

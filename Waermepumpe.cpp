@@ -419,7 +419,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             float f1 = w[x1].hh%(24*3600)/3600.0;
                                             if (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
                                                 bHK1on = 1;
-                                            
+//                                            if (ALV>0)
+//                                                bHK1on = 1;
                                             if ((e3dc.WPHK2off>e3dc.WPHK2on)
                                                 &&(f1>e3dc.WPHK2off||f1<e3dc.WPHK2on))
                                                 bHK2on = 0;
@@ -546,8 +547,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         if (f1 < e3dc.WPmin/e3dc.speichergroesse*25)
                                             f1=e3dc.WPmin/e3dc.speichergroesse*25;
                                         wetter[wetter1[x1].x1].wpbedarf= f1;
-                                        float f2 = f1*wetter1[x1].cop*e3dc.speichergroesse/100;
-                                        wetter[wetter1[x1].x1].waerme = f2*4;
+                                        float f2 = f1*wetter1[x1].cop*e3dc.speichergroesse/25;
+                                        if (f2>wetter[wetter1[x1].x1].waerme)
+                                            wetter[wetter1[x1].x1].waerme = f2;
                                         waermebedarf = waermebedarf - f2;
                                     }
                                 }
