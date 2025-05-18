@@ -515,12 +515,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             }
                             std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
                                 return a.waermepreis < b.waermepreis;});
-                            float fakt = 1;
+                            static float fakt = 1;
                             if (x2>0)
                             {
                                 float av = waermebedarf*4/x2;
-                                if (av > e3dc.WPmin*cop&&av<e3dc.WPLeistung)
-                                    fakt = 1.05+(av-e3dc.WPmin*cop)/(e3dc.WPLeistung-e3dc.WPmin*cop);
+                                if (av > e3dc.WPmin*(cop+2-fakt)&&av<e3dc.WPLeistung)
+                                    fakt = 1.05+(av-e3dc.WPmin*(cop+2-fakt))/(e3dc.WPLeistung-e3dc.WPmin*(cop+2-fakt));
                             }
                             for (int x1=0;x1<w.size()&&x1<wetter1.size();x1++)
 //                                for (int x1=0;x1<w.size()&&x1<wetter1.size()&&x1<96;x1++)
@@ -550,11 +550,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         }
                                         if (f1 > e3dc.WPLeistung/4)  // max. WP Wärmeleistung
                                             f1 = e3dc.WPLeistung/4;
-                                        f1 = f1/wetter1[x1].cop/e3dc.speichergroesse*100;
+                                        f1 = f1/(wetter1[x1].cop+2-fakt)/e3dc.speichergroesse*100;
                                         if (f1 < e3dc.WPmin/e3dc.speichergroesse*25)
                                             f1=e3dc.WPmin/e3dc.speichergroesse*25;
                                         wetter[wetter1[x1].x1].wpbedarf= f1;
-                                        float f2 = f1*wetter1[x1].cop*e3dc.speichergroesse/25;
+                                        float f2 = (f1*wetter1[x1].cop+2-fakt)*e3dc.speichergroesse/25;
                                         if (f2>wetter[wetter1[x1].x1].waerme)
                                             wetter[wetter1[x1].x1].waerme = f2;
                                         waermebedarf = waermebedarf - f2/4;
