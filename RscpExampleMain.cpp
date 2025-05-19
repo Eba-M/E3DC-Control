@@ -4800,39 +4800,11 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000){
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower-fPower_WB; // Schon 500W früher
-                    if (iPower > -iWBMinimumPower&&iPower<0)
-                        iPower = -100;
+                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower-fPower_WB+fPower_Bat; // Schon 500W früher
+                    if (iPower_PV_E3DC > e3dc_config.maximumLadeleistung)
+                        iPower = iPower -iPower_PV_E3DC+e3dc_config.maximumLadeleistung;
                 }
-/*                iPower = iPower+iWBMinimumPower/6+iPower_Bat-iMinLade;
-                else
-                    //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower;
-                {
-                    iPower = iPower+iWBMinimumPower;
-                    if (iPower > 0)
-                    {
-                        // PV-Erzeugung > Einspeiselimit, Auto lädt noch nicht Ladevorgang sofort starten
-                        if (iAvalPower < iWBMinimumPower)
-                            iAvalPower = iWBMinimumPower;
-                    }
-                }
-                
-                if ((iPower <  (iWBMinimumPower)*-1)&&(WBchar[2] == e3dc_config.wbminladestrom)) // Erst bei Unterschreitung von Mindestladeleistung + 0W
-                {//iPower = -20000;
-                    // erst mit 30sec Verzögerung das Laden beenden
-                    if (!bWBOff)
-                    {iWBStatus = 29;
-                        bWBOff = true;
-                    }
-                } else
-                {
-                    bWBOff = false;
-                    // Bei aktivem Ladevorgang nicht gleich wieder abbrechen
-                    if ((iPower < -2000)&&(fPower_WB>1000))
-                        iPower= -2000;
-                }
-                //            wenn nicht abgeregelt werden muss, abschalten
-*/                break;
+                break;
             case 2:
                 iPower = -iFc + iPower_Bat + fPower_Grid;
                 break;
