@@ -2926,7 +2926,8 @@ int LoadDataProcess() {
                               &&wetter[1].wpbedarf==0
                               &&wetter[2].wpbedarf==0
                               &&wetter[3].wpbedarf==0)
-                              ||bHK1off&&bHK2off
+                              ||(bHK1off&&bHK2off&&wetter[0].wpbedarf==0)
+//Heizkreise aus und keine Anforderung
                               ||temp[14]>470
                               ||temp[15]>460))
                         {
