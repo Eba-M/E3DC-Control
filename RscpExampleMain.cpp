@@ -7004,7 +7004,7 @@ static int iEC = 0;
 
             LoadDataProcess();
 
-        printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
+//        printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
         if(iSocket < 0) 
         {
