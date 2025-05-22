@@ -2886,7 +2886,7 @@ int LoadDataProcess() {
                           )
                          ||
                          (
-                            ((wetter[0].wpbedarf*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
+                            ((wetter[0].wpbedarf*e3dc_config.speichergroesse*4*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
                             (wetter[0].waerme*1.2<wolf[wphl].wert&&(wolf[wphl].t > 0)))
                          &&
@@ -2962,7 +2962,7 @@ int LoadDataProcess() {
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
                              (
-                             (wetter[0].wpbedarf>wolf[wppw].wert)
+                             (wetter[0].wpbedarf*e3dc_config.speichergroesse*4/100>wolf[wppw].wert)
                             &&
                             (wetter[0].waerme>wolf[wphl].wert)
                              )
@@ -2991,7 +2991,7 @@ int LoadDataProcess() {
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                              ||
 
-                             ((wetter[0].wpbedarf>wolf[wppw].wert
+                             ((wetter[0].wpbedarf*e3dc_config.speichergroesse*4/100>wolf[wppw].wert
                              &&
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))

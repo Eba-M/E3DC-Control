@@ -519,7 +519,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             if (x2>0)
                             {
                                 float av = waermebedarf*4/x2;
-                                float av1 = e3dc.WPmin*(wetter1[0].cop+1-fakt);
+                                float av1 = e3dc.WPmin*(wetter1[0].cop+2-fakt);
                                 if (av > av1&&av<e3dc.WPLeistung)
                                     fakt = (av-av1)/(e3dc.WPLeistung-av1);
                             }
