@@ -2789,7 +2789,7 @@ int LoadDataProcess() {
                                 }
                             } else
 
-            if (t%60<5&&t - wp_t > 59&&ALV>=0&&tasmota_status[0]==0)
+            if (t%60<5&&t - wp_t > 115&&ALV>=0&&tasmota_status[0]==0)
             {
                 if (ALV!=0)
                     if (ALV > e3dc_config.shelly0V10Vmax
