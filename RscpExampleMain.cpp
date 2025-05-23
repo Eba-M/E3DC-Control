@@ -2513,7 +2513,7 @@ int LoadDataProcess() {
             int m1 = t%(24*3600)/60;
             // In der Übergangszeit wird versucht die WP möglichst tagsüber laufen zu lassen
             // Nach Sonnenunterang nur soweit der Speicher zur Verfügung steht.
-            float fwintertemp = 9;
+            float fwintertemp = 6;
 //            if   ((sunsetAt-sunriseAt) > 10*60||fatemp>fwintertemp)  // Übergangsbetrieb
             {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
@@ -2886,7 +2886,7 @@ int LoadDataProcess() {
                           )
                          ||
                          (
-                            ((wetter[0].wpbedarf*e3dc_config.speichergroesse*40*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
+                            ((wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
                             (wetter[0].waerme*1.2<wolf[wphl].wert&&(wolf[wphl].t > 0)))
                          &&
@@ -2962,7 +2962,7 @@ int LoadDataProcess() {
                             // hochsetzen nur, wenn die WP unter der geforderten Wärmeleistung liegt
                             (
                              (
-                             (wetter[0].wpbedarf*e3dc_config.speichergroesse*40>wolf[wppw].wert)
+                             (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4>wolf[wppw].wert)
                             &&
                             (wetter[0].waerme>wolf[wphl].wert)
                              )
