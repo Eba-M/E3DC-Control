@@ -5324,10 +5324,15 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                               //                || (iAvalPower < (e3dc_config.maximumLadeleistung-fAvPower_Grid)*-1)
                                               || (iAvalPower < iWBMinimumPower*-1)
                                               ))  {
-                                                  if ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
-                                                  {WBchar6[1]--;
+                                                  if (
+                                                      ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
+                                                      ||
+                                                      (WBchar6[1] < e3dc_config.wbminladestrom&&iAvalPower<-20000) //Notaus
+                                                      )
+                                                    {
+                                                        WBchar6[1]--;
                                                       
-                                                      if (WBchar6[1]==e3dc_config.wbminladestrom-1) {
+                                                      if (WBchar6[1]<=e3dc_config.wbminladestrom-1) {
                                                           WBchar6[1]=e3dc_config.wbminladestrom;
                                                           WBchar6[4] = 1;
                                                           bWBOn = false;
