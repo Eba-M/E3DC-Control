@@ -547,7 +547,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         if (x1<x2)
                                         {
                                             f1 =
-                                            waermebedarf*(1+fakt*(x2-x1)/x2)/(x2-x1); // Anzahl PV-Überschuss
+                                            waermebedarf/(x2-x1); // Anzahl PV-Überschuss
                                         }
                                         if (f1 > e3dc.WPLeistung/4)  // max. WP Wärmeleistung
                                             f1 = e3dc.WPLeistung/4;

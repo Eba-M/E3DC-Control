@@ -2258,6 +2258,7 @@ int LoadDataProcess() {
         if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
 //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
             iPower_WP = wetter[0].kosten*1000;   // in Watt
+        if (iPower_WP<0) iPower_WP = 0;
 // wenn zähler vorhanden nutzen
         shellyem_get(iPower_WP, itotal_WP);
         if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
@@ -5231,7 +5232,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             { // Wallbox lädt nicht
                 if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
-                    if ((bWBStopped)&& (iAvalPower>iWBMinimumPower))
+                    if ((bWBStopped)&& (iAvalPower>iWBMinimumPower||iAvalPower>e3dc_config.wbminladestrom*240*3))
                     
                     {
                         WBchar6[1] = e3dc_config.wbminladestrom;  // Laden von 6A aus
