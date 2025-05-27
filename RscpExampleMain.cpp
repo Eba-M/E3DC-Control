@@ -5232,6 +5232,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             { // Wallbox lädt nicht
                 if ((not bWBmaxLadestrom)&&(iWBStatus==1))
                 {
+                    if (iWBMinimumPower>e3dc_config.wbminladestrom*240*3)
+                        iWBMinimumPower=e3dc_config.wbminladestrom*240*3;
                     if ((bWBStopped)&& (iAvalPower>iWBMinimumPower||iAvalPower>e3dc_config.wbminladestrom*240*3))
                     
                     {

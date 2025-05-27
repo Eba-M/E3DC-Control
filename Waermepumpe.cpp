@@ -362,8 +362,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 
                                 // thermische Heizleistung
                                 float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
-                                if (f3 < 0) 
-                                    f3=f3; // zu warm keine Heizung
+                                if (f3 <= 0) 
+                                    f3=0.01; // zu warm keine Heizung
                                 float f4 = 0;
                                 float f5 = f3; // angeforderte Heizleistung
                                 // Heizstab verwenden? angeforderte Heizleistung > Nennleistung WP
