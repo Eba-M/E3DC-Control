@@ -2288,6 +2288,8 @@ int LoadDataProcess() {
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
 //            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
             iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf*1000/24*(t-myt_alt);
+            if (iHeatStat[1]<0&&iHeatStat[1]<waermebedarf*1000/24)
+                iHeatStat[1]=waermebedarf*1000/24;
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
         }
@@ -2848,7 +2850,7 @@ int LoadDataProcess() {
                             )   //FBH
                            &&
                            (
-                            ((temp[7]>0&&temp[10]+10<temp[11])||temp[10]+20<temp[15]&&temp[10]>350)
+                            ((temp[7]>0&&temp[10]+10<temp[11])||temp[10]+20<temp[15]&&temp[15]>350)
 //                            ||
 //                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
                             )
@@ -2865,9 +2867,9 @@ int LoadDataProcess() {
                              wolf[wpvl].wert>0)
                          ||
                          // Vorlauftemperaturen über den Minimum für FBH un HK >- Leistung runterschalten
-                         (temp[7]>0&&temp[12]>0&&temp[10]>(wolf[wpvl].wert+1)*10&&temp[11]>=temp[10]+5
+                         (temp[7]>0&&temp[12]>0&&temp[10]<(wolf[wpvl].wert-1)*10&&temp[11]>=temp[10]+5
                           &&
-                          temp[1]>0&&wolf[wpvl].wert>0&&(wolf[wpvl].wert+3)*10<temp[4])
+                          temp[1]>0&&wolf[wpvl].wert>0&&(wolf[wpvl].wert-3)*10>temp[4])
                          ||
                          (temp[15]>(e3dc_config.WPHK1max+4)*10)
 //                         ||
@@ -2875,7 +2877,8 @@ int LoadDataProcess() {
                          ||
                          (wolf[wpvl].wert>46)
                          ||
-                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20&&temp[5]>380)
+//                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20&&temp[5]>380)
+                         (temp[1]>0&&wolf[wprl].wert>0&&wolf[wprl].wert*10>temp[4]+20)
                          ||
 // Kein Anforderung&sommer
                          (
@@ -5271,11 +5274,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 bWBOn = true; WBchar6[4] = 0;
 //                WBchar6[1] = WBchar[2]; // Stur auf die egene Stromstärke regeln
                 int icurrent = WBchar[2];  //Ausgangsstromstärke
-                if (WBchar6[1]==e3dc_config.wbminladestrom) iWBMinimumPower = fPower_WB;
-                else
+                if (WBchar6[1]==e3dc_config.wbminladestrom)
+                    iWBMinimumPower = fPower_WB;
+/*                else
                     if ((iWBMinimumPower == 0) ||
                         (iWBMinimumPower < (fPower_WB/WBchar6[1]*6) ))
                         iWBMinimumPower = (fPower_WB/WBchar6[1])*6;
+*/
                 if  ((iAvalPower>=(iWBMinimumPower/6))&&
                      (WBchar6[1]<e3dc_config.wbmaxladestrom-1)){
                     WBchar6[1]++;
@@ -5302,7 +5307,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     { // Mind. 2000W Batterieladen
                         WBchar6[1]--;
                         for (int X1 = 2; X1 < 20; X1++)
-                            if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>e3dc_config.wbminladestrom+1)) WBchar6[1]--; else break;
+                            if ((iAvalPower <= ((iWBMinimumPower/6)*-X1))&& (WBchar6[1]>e3dc_config.wbminladestrom+1))
+                                WBchar6[1]--;
+                            else
+                                break;
                         WBchar[2] = WBchar6[1];
                         //                createRequestWBData2(frameBuffer);
                         if (e3dc_config.debug) printf("WB18");
@@ -5331,7 +5339,10 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                                   if (
                                                       ((WBchar6[1] >= e3dc_config.wbminladestrom)&&bWBLademodus)
                                                       ||
-                                                      (WBchar6[1] < e3dc_config.wbminladestrom&&iAvalPower<-20000) //Notaus
+                                                      (WBchar6[1] < e3dc_config.wbminladestrom
+                                                       &&
+                                                       (iAvalPower<iWBMinimumPower*-1||iAvalPower-10000)
+                                                       ) //Notaus
                                                       )
                                                     {
                                                         WBchar6[1]--;
