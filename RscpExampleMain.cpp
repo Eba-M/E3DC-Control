@@ -2524,14 +2524,15 @@ int LoadDataProcess() {
 
                 if 
                 (
-                    ((m1 > (sunriseAt+60)||PVon>e3dc_config.WPPVon)
+                    (
+                     (m1 > (sunriseAt+60)||PVon>e3dc_config.WPPVon)
                     &&
                     m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0))
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                     || ALV > 0               // Wenn die WP läuft
-                    || temp[7]>=1&&temp[15]>temp[10]               // Wenn die Puffertemp noch ausreichend hoch
-
+                    || (temp[7]>=1 && temp[15]>temp[10]) // Wenn die Puffertemp noch ausreichend hoch
+                    
                  )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
