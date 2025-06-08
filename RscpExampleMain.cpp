@@ -5201,7 +5201,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             
             if (bWBChanged) {
                 bWBChanged = false;
-                WBchar6[1] = e3dc_config.wbminladestrom+1;  // Laden von 6A aus
+                WBchar6[1] = e3dc_config.wbminladestrom+1;  // Laden von 7A aus
                 WBchar6[4] = 0; // Toggle aus
                 if (e3dc_config.debug) printf("WB8");
                 
@@ -5314,6 +5314,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             else
                                 break;
                         WBchar[2] = WBchar6[1];
+                        if (WBchar6[1]<e3dc_config.wbminladestrom)
+                            WBchar6[1]=e3dc_config.wbminladestrom;
                         //                createRequestWBData2(frameBuffer);
                         if (e3dc_config.debug) printf("WB18");
                         
