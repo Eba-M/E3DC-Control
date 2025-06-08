@@ -2549,11 +2549,12 @@ int LoadDataProcess() {
                     &&
                     fatemp > fwintertemp
                     &&
-                    ALV == 0)           // WP ist aus
+                    ALV == 0           // WP ist aus
                     &&
                     (temp[7]==0
                     ||
                     temp[15]<temp[10])
+                     )
                     &&
                     (
                      m1 < (sunriseAt)
