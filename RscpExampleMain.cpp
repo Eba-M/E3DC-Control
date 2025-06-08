@@ -2530,7 +2530,7 @@ int LoadDataProcess() {
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                     || ALV > 0               // Wenn die WP läuft
-                    || temp[15]>temp[10]               // Wenn die Puffertemp noch ausreichend hoch
+                    || temp[7]>=1&&temp[15]>temp[10]               // Wenn die Puffertemp noch ausreichend hoch
 
                  )
                 {
