@@ -2531,7 +2531,7 @@ int LoadDataProcess() {
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                     || ALV > 0               // Wenn die WP läuft
-                    || (temp[7]>=1 && temp[15]>temp[10]) // Wenn die Puffertemp noch ausreichend hoch
+                    || (temp[1]>=1 && temp[15]>temp[4]) // Wenn die Puffertemp noch ausreichend hoch
                     
                  )
                 {
@@ -2551,9 +2551,9 @@ int LoadDataProcess() {
                     &&
                     ALV == 0           // WP ist aus
                     &&
-                    (temp[7]==0
+                    (temp[1]==0
                     ||
-                    temp[15]<temp[10])
+                    temp[15]<temp[4])
                      )
                     &&
                     (
@@ -2567,7 +2567,7 @@ int LoadDataProcess() {
                      )
                 )
                 {
-//                        bHK1off = 1;
+                        bHK1off = 1;
 
                 }
                 // Steuerung der Temperatur der FBH
