@@ -5363,7 +5363,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                                       createRequestWBData(frameBuffer);
                                                       if (e3dc_config.debug) printf("WB21");
                                                       
-                                                      WBchar6[1]=e3dc_config.wbminladestrom-1;
+//                                                      WBchar6[1]=e3dc_config.wbminladestrom-1;
                                                       WBchar6[4] = 0;
                                                       WBChar_alt = WBchar6[1];
                                                       iWBStatus = 10;  // Warten bis Neustart
