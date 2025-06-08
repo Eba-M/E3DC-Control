@@ -2530,7 +2530,9 @@ int LoadDataProcess() {
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                     || ALV > 0               // Wenn die WP läuft
-                )
+                    || temp[15]>temp[10]               // Wenn die Puffertemp noch ausreichend hoch
+
+                 )
                 {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
                     {
@@ -5320,6 +5322,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         
                         if (WBchar6[1]==e3dc_config.wbminladestrom)
                             iWBStatus = 30;
+                        else
+                            iWBStatus = 9;
                         WBChar_alt = WBchar6[1];
                         
                     } else
