@@ -722,7 +722,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 
     int x1 = 0;
     int x2 = 0;
-    int x3 = 1;
+    int x3 = 10; // 10kWp
     if (w.size()==0)
     {
         printf("keine Börsenpreise");
