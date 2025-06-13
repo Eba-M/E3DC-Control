@@ -2527,7 +2527,8 @@ int LoadDataProcess() {
                     (
                      (m1 > (sunriseAt+60)||PVon>e3dc_config.WPPVon)
                     &&
-                    m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0))
+                    m1 < sunriseAt+720 && (bHK1off&1||temp[1]==0)
+                    &&fatemp<e3dc_config.WPHeizgrenze)
                     ||
                     fatemp < fwintertemp     // Nur bei Temperaturen über Wintertemp Sommmerbetrieb
                     || ALV > 0               // Wenn die WP läuft
@@ -2563,7 +2564,7 @@ int LoadDataProcess() {
                     ||
                      (m1 > (sunriseAt+720)&&PVon<e3dc_config.WPPVoff&&ALV==0) //FBH 12h Laufzeit fest
 // AT zu hoch und Soll unter 24°
-                    || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<240)
+                    || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<260)
                      )
                 )
                 {
