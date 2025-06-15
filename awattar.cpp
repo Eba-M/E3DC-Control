@@ -851,9 +851,10 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
                         f6 = f5/f4;
                     if (f6<0.1) f6 = 0.1;  // schneebedeckte Module?
-                    if (f6>3.5) f6 = 3.5;
+                    if (f6>10) f6 = 10;
                     float f7 = 0;
-                    if (iDayStat[y1]>0&&f2>f3)
+//                    if (iDayStat[y1]>0&&f2>f3)
+                    if (f2>0.1)
                         f7 = f3/f2;
 // absoluter Ertrag des letzen 15min
                     float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);

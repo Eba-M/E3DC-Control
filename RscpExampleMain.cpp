@@ -2563,8 +2563,9 @@ int LoadDataProcess() {
                      (m1 < (sunriseAt+60)&&PVon<e3dc_config.WPPVoff&&ALV==0)
                     ||
                      (m1 > (sunriseAt+720)&&PVon<e3dc_config.WPPVoff&&ALV==0) //FBH 12h Laufzeit fest
-// AT zu hoch und Soll unter 24°
-                    || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<260)
+// AT zu hoch und Soll unter 28°
+//                    || (fatemp > e3dc_config.WPHeizgrenze&&iWPHK1max<280)
+                     || (fatemp > e3dc_config.WPHeizgrenze+1)
                      )
                 )
                 {
@@ -4814,7 +4815,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000){
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower+fPower_Bat; // Schon 500W früher
+                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+fPower_Bat; // Schon 500W früher
+                    if (iPower < 0)
+                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower+fPower_Bat;
                     if (iPower_PV_E3DC > e3dc_config.maximumLadeleistung)
                         iPower = iPower -iPower_PV_E3DC + e3dc_config.maximumLadeleistung;
                 }
