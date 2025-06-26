@@ -2165,16 +2165,16 @@ int LoadDataProcess() {
             // alle 15min wird diese Routine durchlaufen
             if (iDayStat[x2]>0)  // war schon vorbelegt
             {
-                iDayStat[x2] = iDayStat[x2]*.9 + (w_alt.progsolar+0.005)*10; // 10%
+                iDayStat[x2] = iDayStat[x2]*.9 + (w_alt.progsolar)*10; // 10%
                 iDayStat[x2+96] = iDayStat[x2+96]*.9 + iDayStat[DayStat]/10; // 10%
             }
             else
             {
-                iDayStat[x2] = (w_alt.progsolar+0.005)*100;
+                iDayStat[x2] = (w_alt.progsolar)*100;
                 iDayStat[x2+96] = iDayStat[DayStat];
             }
             if (wetter.size()>0)
-            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].progsolar+0.005)*100;
+            iDayStat[DayStat-1] = iDayStat[DayStat-1] + (wetter[0].progsolar)*100;
 //            iDayStat[DayStat-2] = iDayStat[DayStat-2] + iDayStat[DayStat];
             float f2 = 0;
             float f3 = 0;
@@ -2247,7 +2247,7 @@ int LoadDataProcess() {
                 fp = fopen(fname, "w");
                 if (fp!=NULL)
                 {
-                    fprintf(fp,"Zeit Stat: Soll/Ist %% /PV: prog real %%/ %% Verbr. Haus WP");
+                    fprintf(fp,"Zeit Stat: Soll/Ist %% /PV: prog real %%/ %% Verbr. Haus WP \n");
                     fclose(fp);
                 }
 
