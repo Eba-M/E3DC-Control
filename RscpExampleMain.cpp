@@ -2713,7 +2713,7 @@ int LoadDataProcess() {
             {
                 float f4 = 0;
                 if (wetter.size()>0)
-                    f4 = (t%900)*(wetter[0].solar+0.005)*100.0/900.0;
+                    f4 = (t%900)*(wetter[0].progsolar)*100.0/900.0;
                 float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
@@ -5754,7 +5754,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
         {
             float f4 = 0;
             if (wetter.size()>0)
-                f4 = (t%900)*(wetter[0].solar+0.005)*100.0/900.0;
+                f4 = (t%900)*(wetter[0].progsolar)*100.0/900.0;
             float f2 = (iDayStat[DayStat-1]+f4) * e3dc_config.speichergroesse/10000.0;
             float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
             
