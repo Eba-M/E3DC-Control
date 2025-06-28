@@ -130,6 +130,7 @@ static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
 // index 200 heutiger Ertrag 15min
 // index 199 heutige Prognose kumuliert
 // Index 198 heutiger Ertrag kumuliert
+// Index 197 heutiger Ertrag vorletztes 15min Intervall für Ermittlung Tendenz
 static int DayStat = sizeof(iDayStat)/sizeof(u_int32_t)-1;
 static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
 
@@ -2546,16 +2547,19 @@ int LoadDataProcess() {
                 }
                 if      // bei Sommerbetrieb (fatemp > fwintertemp) nachts FB ausschalten
                 (
-                    (temp[17]==0   // Pellets muss aus sein
+                  (temp[17]==0   // Pellets muss aus sein
                     &&
                     fatemp > fwintertemp
                     &&
                     ALV == 0           // WP ist aus
                     &&
-                    (temp[1]==0
+                    (
+                     temp[1]==0
                     ||
-                    temp[15]+20<temp[4])
-                     )
+                    temp[15]+20<temp[4]
+                    || (fatemp > e3dc_config.WPHeizgrenze+1)
+                    )
+                  )
                     &&
                     (
                      m1 < (sunriseAt)

@@ -831,11 +831,13 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 if (w.size()>0)
 //                while (w[x1].hh < item1->valueint&&x1<w.size())
 //                    x1++;
-                while (x2<wetter.size()-1&&wetter[x2].hh < item1->valueint-900)  // um 15min verschieben
+                while (x2<wetter.size()-1&&wetter[x2].hh < item1->valueint)  // um 15min verschieben
+//                while (x2<wetter.size()-1&&wetter[x2].hh < item1->valueint-900)  // um 15min verschieben
                     x2++;
                 if (x2 >= wetter.size()-1)
                     break;
-                if (wetter[x2].hh == item1->valueint-900)
+                if (wetter[x2].hh == item1->valueint)
+//                    if (wetter[x2].hh == item1->valueint-900)
                 {
                     // index 200 heutiger Ertrag 15min
                     // index 199 heutige Prognose kumuliert
