@@ -3666,7 +3666,7 @@ bDischarge = false;
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     static float soc_alt = 100;
-    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3&&e3dc_config.unload >= 0) 
+    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3-1&&e3dc_config.unload >= 0) 
     {
         //            tLadezeitende = tLadezeitende3;
         // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
@@ -4309,7 +4309,7 @@ bDischarge = false;
         
 //        ControlLoadData2(frameBuffer,iBattLoad);
     }
-    if (iAvBatt_Count < 120) iAvBatt_Count++;
+    if (iAvBatt_Count < 30) iAvBatt_Count++;
     fAvBatterie = fAvBatterie*(iAvBatt_Count-1)/iAvBatt_Count;
     fAvBatterie = fAvBatterie + (float(iPower_Bat)/iAvBatt_Count);
 
@@ -4690,7 +4690,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
  der lineare Ladebedarf wird durch iMinLoad ermittelt
  die berechnete dynamische Ladeleistung wird in iFc ermittelt.
  ffAvBatterie und fAvBatterie900 zeigt die durchschnittliche Ladeleistung
- der letzen 120 bzw. 900 Sekunden an.
+ der letzen 60 bzw. 900 Sekunden an.
  
  WBModus = 0 KEINE STEUERUNG
  
