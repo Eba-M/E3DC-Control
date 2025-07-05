@@ -4821,10 +4821,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
                     iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+fPower_Bat; // Schon 500W früher
 //                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower+fPower_Bat;
-                    float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
+                                        float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
                     if (fDiff > 0)
-                        iPower = iPower - fDiff;
-                    if (iPower > -iWBMinimumPower-500&&iPower<0)
+                        iPower = iPower + fDiff;
+                    if (fPower_WB-iWBMinimumPower<100   //  bis auf minimum heruntergeregelt
+                        &&iPower > -iWBMinimumPower-500
+                        &&iPower<0)
                         iPower = 10;
                 }
                 break;
