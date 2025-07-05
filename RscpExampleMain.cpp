@@ -4815,15 +4815,13 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         {
             case 1:
                 //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+fPower_WB;
-                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+iWBMinimumPower+iPower_Bat; // Schon 500W früher einschalten
+                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+fPower_WB+iPower_Bat; // Schon 500W früher einschalten
                 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                 if (fPower_WB > 1000){
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
-                    iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+fPower_Bat; // Schon 500W früher
-//                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower+fPower_Bat;
-                                        float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
+                float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
                     if (fDiff > 0)
-                        iPower = iPower + fDiff;
+                        iPower = iPower - fDiff;
                     if (fPower_WB-iWBMinimumPower<100   //  bis auf minimum heruntergeregelt
                         &&iPower > -iWBMinimumPower-500
                         &&iPower<0)
