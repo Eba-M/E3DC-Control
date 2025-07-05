@@ -4821,8 +4821,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     //                    iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
                     iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+fPower_Bat; // Schon 500W früher
 //                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+iWBMinimumPower+fPower_Bat;
-                    if (iPower_PV_E3DC > (e3dc_config.maximumLadeleistung))
-                        iPower = iPower - (iPower_PV_E3DC - e3dc_config.maximumLadeleistung);
+                    float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
+                    if (fDiff > 0)
+                        iPower = iPower - fDiff;
                     if (iPower > -iWBMinimumPower-500&&iPower<0)
                         iPower = 10;
                 }
@@ -4868,6 +4869,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             case 3:
                 
                 iPower = -fPower_Grid;
+                if (iRefload > iBattLoad)
+                    iRefload = iBattLoad;
+
                 idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-2;
                 
                 // Wenn das System im Gleichgewicht ist, gleichen iAvalPower und idynPower sich aus
