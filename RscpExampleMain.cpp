@@ -2291,7 +2291,7 @@ int LoadDataProcess() {
             if (iHeatStat[1]<0&&iHeatStat[1]<waermebedarf*1000/24)
                 iHeatStat[1]=waermebedarf*1000/24;
             if (iHeatStat[1]<0)
-                iHeatStat[1]=waermebedarf*1000/24;
+                iHeatStat[1]=0;
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
         }
