@@ -2287,9 +2287,10 @@ int LoadDataProcess() {
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-//            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - iHeatStat[x4]/900*(t-myt_alt);
             iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf*1000/24*(t-myt_alt);
             if (iHeatStat[1]<0&&iHeatStat[1]<waermebedarf*1000/24)
+                iHeatStat[1]=waermebedarf*1000/24;
+            if (iHeatStat[1]<0)
                 iHeatStat[1]=waermebedarf*1000/24;
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
@@ -4815,10 +4816,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         {
             case 1:
                 //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+WBMinimumPower;
-                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+iPower_Bat; // Schon 500W früher einschalten
+                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+iPower_Bat+iWBMinimumPower;
+                // Schon 500W früher einschalten
                 //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
-                if (fPower_WB > 1000){
-                iPower = iPower+iPower_Bat-iRefload+iWBMinimumPower/6;
+                if (fPower_WB > 100)
+                {
+                iPower = -fPower_Grid-e3dc_config.einspeiselimit-iRefload+iWBMinimumPower/6;
                 float fDiff = iPower_PV_E3DC - e3dc_config.maximumLadeleistung;
                     if (fDiff > 0)
                         iPower = iPower - fDiff;

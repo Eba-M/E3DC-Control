@@ -1641,14 +1641,17 @@ else
     static std::vector<ch_s> ch1;
      
         ww1.pp = -1000;
-//alle alten einträge löschen ch = 1
-    if (ch.size()>0)
+//alle alten einträge löschen ch = 1 ändernung 9.8.25 die alten einträge bleiben gültig
+    if (ch.size()>0&&(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
     {
 
         for (int j = 0; j < ch.size(); j++ )
         {
             while (ch.size()>j&&ch[j].ch == chch)
+//                if (ch[j].hh+3600 < rawtime)
                 ch.erase(ch.begin()+j);
+//                else break;
+            
         }
     }
 //    ch.clear();   // Alle Einträge löschen
