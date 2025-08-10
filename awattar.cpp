@@ -1648,7 +1648,7 @@ else
         for (int j = 0; j < ch.size(); j++ )
         {
             while (ch.size()>j&&ch[j].ch == chch)
-                if (ch[j].hh+3600 < rawtime)
+                if (ch[j].hh+900 < rawtime)
                 ch.erase(ch.begin()+j);
                 else break;
             
