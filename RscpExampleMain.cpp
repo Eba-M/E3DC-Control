@@ -2287,11 +2287,11 @@ int LoadDataProcess() {
         {
             iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (iPower_WP)*(t-myt_alt);
             iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (iPower_WP)*(t-myt_alt);
-            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt) - waermebedarf*1000/24*(t-myt_alt);
-            if (iHeatStat[1]<0&&iHeatStat[1]<waermebedarf*1000/24)
-                iHeatStat[1]=waermebedarf*1000/24;
-            if (iHeatStat[1]<0)
-                iHeatStat[1]=0;
+            iHeatStat[1] = iHeatStat[1] + (iHeat_WP)*(t-myt_alt);
+// Nur wenn Wärmebedarf besteht geht der wärmebedarf in die Statistik ein;
+            if (waermebedarf>0) iHeatStat[1] = iHeatStat[1] - waermebedarf*1000/24*(t-myt_alt);
+//            if (iHeatStat[1]<0&&iHeatStat[1]<waermebedarf*1000/24)
+//                iHeatStat[1]=waermebedarf*1000/24;
             iHeatStat[0] = iHeatStat[0]  + (iHeat_WP)*(t-myt_alt);
 
         }
