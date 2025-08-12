@@ -2731,7 +2731,13 @@ int LoadDataProcess() {
             
             if (ALV < 0||(t%60)==0)
                 ALV = shelly_get();
-
+            if (ALV > 0)
+            {
+                if (wetter.size()==0||wolf.size()==0)
+                    shelly(0);
+            };
+            if (wetter.size()==0||wolf.size()==0)
+                return(1);
             
             static time_t wp_t,wp_t1;
             // Leistung der Wolf bei Kesselbetrieb

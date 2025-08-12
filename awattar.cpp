@@ -1614,8 +1614,8 @@ else
                 return;
         }
         if (e3dc.debug) printf("LZ1\n");
-
-        if (w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
+// Nur wenn es neue Preise für morgen gibt oder wbhour wird geändert
+        if (dauer >= 0&&(w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
             if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
@@ -1634,7 +1634,11 @@ else
             {
                 ladedauer = e3dc.wbhour;
             } else ladedauer = 0;
-        } else return;
+/*        } else
+        {
+            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
+            return;
+*/        }
     }
     if (e3dc.debug) printf("LZ2\n");
     long k;       // bis zu     if (k > 7) k = 24-k+7;
