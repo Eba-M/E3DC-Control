@@ -7029,6 +7029,7 @@ static int iEC = 0;
             x1 = fread (&iGridStat, sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
             fclose (pFile);
         }
+        if (e3dc_config.wallbox>=0)
         GetWallbox(ch);
     }
     
@@ -7145,6 +7146,7 @@ static int iEC = 0;
                     x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
                     fclose (pFile);
                 }
+                if (e3dc_config.wallbox>=0)
                 PutWallbox(ch);
             }
 
