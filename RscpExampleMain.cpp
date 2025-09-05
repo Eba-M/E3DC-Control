@@ -2733,7 +2733,12 @@ int LoadDataProcess() {
                 ALV = shelly_get();
             if (ALV > 0)
             {
-                if (wetter.size()==0||wolf.size()==0)
+                if (wetter.size()==0
+                    ||wolf.size()==0
+                    ||waermebedarf<-10
+                    ||(waermebedarf-float(iHeatStat[1]/3600000.0))<-100
+                
+                    )
                     shelly(0);
             };
             if (wetter.size()==0||wolf.size()==0)
@@ -2905,7 +2910,8 @@ int LoadDataProcess() {
                          (
                           wetter[0].wpbedarf==0
                           &&
-                          (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
+//                          (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
+                          (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0
                          &&
                           waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
                           )
@@ -2918,7 +2924,8 @@ int LoadDataProcess() {
                          ((PVon < e3dc_config.WPPVoff)
                           ||
                           (
-                            (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
+//                            (waermebedarf*-1<float(iHeatStat[1]/3600000.0)
+                           ((waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0)
                            ||
                             waermebedarf<float(e3dc_config.WPLeistung*12.0)) // Sommer?
                            &&
@@ -3021,10 +3028,13 @@ int LoadDataProcess() {
                              wetter[0].waerme>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
                              ||
-                             (PVon>e3dc_config.WPPVon&&waermebedarf*-1>float(iHeatStat[1]/3600000.0))
+//                             (PVon>e3dc_config.WPPVon&&waermebedarf*-1>float(iHeatStat[1]/3600000.0))
+                              ((PVon>e3dc_config.WPPVon&&waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)>0)
+                              
                              )
                              )
                             )
+                        )
                         {
                             if (PVon>e3dc_config.WPPVon)
                             {
@@ -5940,6 +5950,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         int x2 = t%(24*4*900)/900+2;
                         int x4 = (t+900)%(24*3600)/900+2;
                         printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0])/(t%900)/1000);
+// Bei negativen Wärmebilanz, wird die Bilanz zurückgesetzt
+                        if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0)
+                            iHeatStat[1]=waermebedarf/96*w.size()*3600000;
                     }
                 }
                 printf("%c[K\n", 27 );
