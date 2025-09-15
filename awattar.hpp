@@ -73,7 +73,8 @@ typedef struct {time_t hh; float pp; float hourly; float pn;}watt_s;
 // wpbedarf: Wärmebedarf in % der Speichergröße
 // waerme: erforderliche Wärmeleistung in kW
 // cop: Effizienz WP
-typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;float wpbedarf;float waerme;float waermepreis;float cop;}wetter_s;
+typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;
+    float wpbedarf;float wwwpbedarf;float heizstabbedarf;float waerme;float waermepreis;float cop;}wetter_s;
 // information for the wolf heatpump
 typedef struct {time_t t; std::string feld; std::string AK; std::string status; float wert;}wolf_s;
 // central information for automation depending on price and for various channels
