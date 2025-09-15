@@ -1908,8 +1908,8 @@ int shellyem_get(int &power,int64_t &total){
     static time_t shellytimer = 0;
     memset(line,0,sizeof(line));
     memset(path,0,sizeof(path));
-    power = 0;
-    total = 0;
+//    power = 0;
+//    total = 0;
     int x2=0;
     if  (t - shellytimer >= 60)
     {
