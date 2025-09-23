@@ -578,7 +578,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         waermebedarf = waermebedarf - f2/4;
                                         
                                         float cop = wetter[wetter1[0].x1].cop+1-((leistung + 0.1 - e3dc.WPmin)/diffleistung);
-                                        wetter1[0].waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
+                                        float waermepreis = wetter1[0].waermepreis;
+                                        if (waermepreis<0)
+                                            waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
+                                        else
+                                            waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
+                                        wetter1[0].waermepreis = waermepreis;
                                         wetter1[0].cop = cop;
                                     }
                                     
