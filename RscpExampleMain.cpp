@@ -2739,7 +2739,13 @@ int LoadDataProcess() {
                     ||wolf.size()==0
                     ||waermebedarf<-10
                     ||(waermebedarf-float(iHeatStat[1]/3600000.0))<-100
-                
+                    // keine weitere Anforderung innerhalb der nächsten Stunde dann ausschalten
+                    ||
+                    (wetter[0].wpbedarf==0
+                    &&wetter[1].wpbedarf==0
+                    &&wetter[2].wpbedarf==0
+                    &&wetter[3].wpbedarf==0)
+
                     )
                     shelly(0);
             };
