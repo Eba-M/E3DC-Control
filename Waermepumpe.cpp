@@ -510,10 +510,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 else
                                     // cop um 1 erhöhen für minimum Leistung
                                     wet.cop = wetter[x1].cop+1;
-                                wet.waermepreis = (w[x1].pp*1.19+e3dc.AWAufschlag)/wet.cop;
+                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWAufschlag)/wet.cop;
                                 if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
                                 {
-                                    wet.waermepreis = wet.waermepreis-100;
+                                    wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                     x2++;
                                 }
                                 wetter[x1].wpbedarf=0;
@@ -551,8 +551,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 waermebedarf = waermebedarf + wetter[wetter1[0].x1].waerme/4;
 // Kann die WP noch aus der Solarleistung abgedeckt werden?
                                                 
-                                                if (wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar&&wetter1[0].waermepreis<0)
-                                                    wetter1[0].waermepreis = wetter1[0].waermepreis + 100;
+                                                if (wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
+                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*1.19+e3dc.AWAufschlag)/wet.cop;
                                                     
 
                                                 // dyn. cop abhängig von der Leistung berechnen
@@ -560,7 +560,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             else
                                             {
                                                 if (wetter1[0].waermepreis < 0)
-                                                    wetter1[0].waermepreis = wetter1[0].waermepreis + 100;
+                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp+.1*1.19+e3dc.AWAufschlag)/wet.cop;
                                                 wetter1[0].waermepreis = wetter1[0].waermepreis + 1;
                                                 schleife = false;
                                             }

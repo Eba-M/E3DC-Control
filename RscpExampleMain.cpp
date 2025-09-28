@@ -1664,7 +1664,7 @@ int wolfstatus()
                     iHeat_WP = wolf[wphl].wert*1000;
                 else
                     iHeat_WP = 0;
-                if (iPower_WP==0&&ALV>0&&tasmota_status[0]==0) // keine EVU sperre
+                if (iPower_WP==0&&ALV>0&&wetter[0].wpbedarf>0&&tasmota_status[0]==0) // keine EVU sperre und WP Anforderung
                     iPower_WP = 700;
                 else
                     if (iPower_WP>0&&ALV==0)
