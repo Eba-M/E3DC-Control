@@ -521,6 +521,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 wetter1.push_back(wet);
                             }
                             float wb2;
+                            if (waermebedarf>e3dc.WPLeistung*24) waermebedarf= e3dc.WPLeistung*24;
                             while (waermebedarf>1)
                             {
                                 std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {

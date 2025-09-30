@@ -1399,7 +1399,7 @@ if (e3dc.AWLand == 2)
                                         {
                                             if (e3dc.openmeteo)
                                             {
-                                                for (int x1=0;x1<=3;x1++)
+//                                                for (int x1=0;x1<=3;x1++)
                                                 {
                                                     w.push_back(ww);
                                                     ww.hh = ww.hh + 900;
