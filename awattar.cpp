@@ -86,6 +86,7 @@ oder jede Stunde wird aWATTar aufgerufen, um die neuen aWATTar preise zu verarbe
 }
 bool PutWallbox(std::vector<ch_s> &ch)
 {
+    return 0;
     FILE *mfp;
     char path[100];
     mfp = NULL;
@@ -102,6 +103,7 @@ bool PutWallbox(std::vector<ch_s> &ch)
 
 bool GetWallbox(std::vector<ch_s> &ch)
 {
+    return 0;
     FILE *mfp;
     mfp = NULL;
     mfp = fopen("e3dc.wallbox.out","r");
