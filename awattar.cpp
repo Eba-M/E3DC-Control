@@ -1727,6 +1727,16 @@ else
     if (e3dc.debug) printf("LZ4\n");
 
     std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
+        return a.hh < b.hh;});
+    static std::vector<ch_s>::iterator it;
+    for (it=ch.begin();it != ch.end();++it)
+    {
+        if (it->hh == (it+1)->hh)
+            ch.erase(it);
+    }
+
+    
+    std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.ch < b.ch;});
 
     
