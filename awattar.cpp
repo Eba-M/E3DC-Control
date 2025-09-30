@@ -1225,8 +1225,8 @@ if (not e3dc.statistik)
             von = rawtime-rawtime%3600;
             von = von*1000;
             bis = rawtime-rawtime%(24*3600);
-//            bis = (bis + 48*3600);
-            bis = (bis + 22*3600);
+            bis = (bis + 48*3600);
+//            bis = (bis + 22*3600);
             bis = bis*1000;
         }
         
