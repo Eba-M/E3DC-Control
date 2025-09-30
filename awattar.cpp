@@ -1225,7 +1225,8 @@ if (not e3dc.statistik)
             von = rawtime-rawtime%3600;
             von = von*1000;
             bis = rawtime-rawtime%(24*3600);
-            bis = (bis + 48*3600);
+//            bis = (bis + 48*3600);
+            bis = (bis + 22*3600);
             bis = bis*1000;
         }
         
@@ -1373,8 +1374,17 @@ if (e3dc.AWLand == 2)
                             ptm->tm_sec = 0;
                             ww.hh = mktime(ptm);
                             int status;
+                            int y1=0;
                             char var [2] [20];
-                            
+                            if (fgets(line, sizeof(line), fp))
+                            {
+                                while (fgets(line, sizeof(line), fp))
+                                    y1++;;
+
+                                    if (fp!=NULL)
+                                    fclose(fp);
+                                fp = fopen("epexspot.txt","r");
+                            }
                             if (fgets(line, sizeof(line), fp))
                             
                             {
@@ -1399,7 +1409,12 @@ if (e3dc.AWLand == 2)
                                         {
                                             if (e3dc.openmeteo)
                                             {
-//                                                for (int x1=0;x1<=3;x1++)
+                                                if (y1==24)
+                                                for (int x1=0;x1<=3;x1++)
+                                                {
+                                                    w.push_back(ww);
+                                                    ww.hh = ww.hh + 900;
+                                                } else
                                                 {
                                                     w.push_back(ww);
                                                     ww.hh = ww.hh + 900;
