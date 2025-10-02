@@ -563,6 +563,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 if (wetter1[0].waermepreis < 0)
                                                     wetter1[0].waermepreis = (w[wetter1[0].x1].pp+.1*1.19+e3dc.AWAufschlag)/wet.cop;
                                                 wetter1[0].waermepreis = wetter1[0].waermepreis + 1;
+                                                if (wetter1[0].waermepreis>100)
+                                                    break;
                                                 schleife = false;
                                             }
                                     }
