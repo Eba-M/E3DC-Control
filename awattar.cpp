@@ -1460,14 +1460,21 @@ int ladedauer = 0;
                     &&w.size()<=4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=22)
                 {
 // Inhalt prophylaktisch löschen
+                    char land [6];
+                    if (e3dc.AWLand == 1)
+                        strcpy(land,"DE-LU");
+                    if (e3dc.AWLand == 2)
+                        strcpy(land,"AT");
+
                     fp = fopen("epexspot.txt","w");
                     if (fp!=NULL)
                         fclose(fp);
 
-                    sprintf(line,"python3 E3DC-V1/epexspot.py>epexspot.log");
+                    sprintf(line,"python3 E3DC-V1/epexspot.py 1 %s >epexspot.log",land);
                     int res = system(line);
-                    if (res!=0){
-                        sprintf(line,"python3 ../E3DC-V1/epexspot.py>epexspot.log");
+                    if (res!=0)
+                    {
+                        sprintf(line,"python3 ../E3DC-V1/epexspot.py 1 %s >epexspot.log",land);
                         res = system(line);
                     }
                     if (not simu&& not res)
