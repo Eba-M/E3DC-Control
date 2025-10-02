@@ -1258,7 +1258,7 @@ int ladedauer = 0;
                     if (fp!=NULL)
                         fclose(fp);
                     
-                    sprintf(line,"pyhton3 E3DC-V1/epexspot.py 0 %s >epexspot.log",land);
+                    sprintf(line,"python3 E3DC-V1/epexspot.py 0 %s >epexspot.log",land);
                     int res = system(line);
                     if (res!=0)
                     {
