@@ -584,7 +584,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 {
                                                     wetter[wetter1[0].x1].heizstabbedarf =
                                                     wetter[wetter1[0].x1].heizstabbedarf + 3;
-                                                    waermebedarf = waermebedarf - 3/4;
+                                                    waermebedarf = waermebedarf - .75;
                                                 }
 
                                             }
