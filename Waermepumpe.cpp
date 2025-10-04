@@ -586,8 +586,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 }
                                                 if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
                                                 {
+                                                    if (wetter1[0].waermepreis>=1000)
+                                                        break; // keine heizreserven mehr
                                                     wetter[wetter1[0].x1].heizstabbedarf =
                                                     wetter[wetter1[0].x1].heizstabbedarf + 3;
+                                                    if (wetter[wetter1[0].x1].heizstabbedarf>=9)
+                                                        wetter1[0].waermepreis = 1000;
+                                                        
                                                     waermebedarf = waermebedarf - .75;
                                                 }
 

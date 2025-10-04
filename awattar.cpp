@@ -1456,8 +1456,11 @@ int ladedauer = 0;
             }
         }
         // Abfragen EPEXSPOT
+        ptm = localtime(&rawtime); // nächster Tag
                 if (e3dc.aWATTar>0
-                    &&w.size()<=4*12&&ptm->tm_hour*60+ptm->tm_min>12*60+50&&ptm->tm_hour<=23)
+                    &&w.size()<=4*12
+                    &&ptm->tm_hour*60+ptm->tm_min>12*60+50
+                    )
                 {
 // Inhalt prophylaktisch löschen
                     char land [6];
