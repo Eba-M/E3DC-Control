@@ -496,6 +496,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     {
 //                        if (waermebedarf < w.size()*2.5)
                         int x2 = 0;
+                        
 //                        if (waermebedarf < e3dc.WPLeistung*24)
                         {
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
@@ -509,7 +510,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wet.cop = 7;
                                 else
                                     // cop um 1 erhöhen für minimum Leistung
-                                    wet.cop = wetter[x1].cop+1;
+//                                    wet.cop = wetter[x1].cop+1;
+                                wet.cop = wetter[x1].cop*1.3; // COP um 30% anheben bei minimum-Leistung
                                 wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
                                 if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
                                 {
@@ -535,7 +537,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wet = wetter1[0];
                                     
                                     float av = e3dc.WPLeistung/(wetter[wetter1[0].x1].cop);  // Power bei WP NennLeistung
-                                    float av1 = e3dc.WPmin*(wetter[wetter1[0].x1].cop+1);   // Wärmeleistung bei Minimum
+//                                    float av1 = e3dc.WPmin*(wetter[wetter1[0].x1].cop+1);   // Wärmeleistung bei Minimum
+                                    float av1 = e3dc.WPmin*(wetter[wetter1[0].x1].cop*1.3);   // Wärmeleistung bei Minimum
                                     float leistung = e3dc.WPmin;
                                     float diffleistung = av - leistung;
                                     

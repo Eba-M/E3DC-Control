@@ -1775,11 +1775,11 @@ else
             {
                 ladedauer = e3dc.wbhour;
             } else ladedauer = 0;
-/*        } else
+        } else
         {
             dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
             return;
-*/        }
+        }
     }
     if (e3dc.debug) printf("LZ2\n");
     long k;       // bis zu     if (k > 7) k = 24-k+7;
@@ -1855,7 +1855,7 @@ else
     std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.hh < b.hh;});
     static std::vector<ch_s>::iterator it;
-    for (it=ch.begin();it != ch.end();++it)
+    for (it=ch.begin();it < ch.end()-1;++it)
     {
         if (it->hh == (it+1)->hh)
             ch.erase(it);
