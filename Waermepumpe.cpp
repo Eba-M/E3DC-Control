@@ -522,8 +522,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 wetter[x1].waerme=0;
                                 wetter1.push_back(wet);
                             }
-                            float wb2;
-                            if (waermebedarf>e3dc.WPLeistung*24) waermebedarf= e3dc.WPLeistung*24;
+//                            waermebedarf= 109;
                             int schleife = 0;
                             while (waermebedarf>1)
                             {
@@ -567,7 +566,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 wetter[wetter1[0].x1].waerme = f2;
                                             waermebedarf = waermebedarf - f2/4;
                                             
-                                            float cop = wetter[wetter1[0].x1].cop+1-((leistung + 0.1 - e3dc.WPmin)/diffleistung);
+                                            float cop = wetter[wetter1[0].x1].cop*1.3-((leistung + 0.1 - e3dc.WPmin)/diffleistung);
                                             float waermepreis = wetter1[0].waermepreis;
                                             if (waermepreis<0)
                                                 waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;

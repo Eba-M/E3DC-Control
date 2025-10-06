@@ -2412,6 +2412,7 @@ int LoadDataProcess() {
 
             )
             &&(PVon<e3dc_config.WPPVoff)
+            &&(wetter[0].wwwpbedarf==0)    //keine Anforderung der WWWP zur Heizungsunterstützung
              )
             ||temp[13]>e3dc_config.BWWPmax*10
             )
@@ -2434,6 +2435,8 @@ int LoadDataProcess() {
                 ||
 // BWWP bei PV Überschuss laufen lassen
                 (PVon>e3dc_config.WPPVon&&temp[13]<e3dc_config.BWWPmax*10-10)
+                ||
+                (wetter[0].wwwpbedarf>0) // BWWP zur Heizungsünterstützung angefordert
 
                 )
             {

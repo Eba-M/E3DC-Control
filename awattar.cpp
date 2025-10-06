@@ -1815,6 +1815,7 @@ else
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
     if (e3dc.debug) printf("LZ3\n");
+    if (ch1.size()>1)
     while (ch1.size()>0&&(ch1.size()>(ladedauer*4)||ch1[ch1.size()-1].hh>bis))
     {
         ch1.erase(ch1.end()-1);
@@ -1855,7 +1856,7 @@ else
     std::stable_sort(ch.begin(), ch.end(), [](const ch_s& a, const ch_s& b) {
         return a.hh < b.hh;});
     static std::vector<ch_s>::iterator it;
-    for (it=ch.begin();it < ch.end()-1;++it)
+    for (it=ch.begin();it!=ch.end()&&it < ch.end()-1;++it)
     {
         if (it->hh == (it+1)->hh)
             ch.erase(it);
@@ -1867,7 +1868,7 @@ else
 
     
     int ptm_alt;
-    for (int j = 0; j < ch.size(); j=j+4 )
+    for (int j = 0; j < ch.size(); j++ )
     {
         if ((j==0&&ch[j].ch==1)
             ||
@@ -1888,16 +1889,12 @@ else
                 if (j%2==1) fprintf(fp,"\n");
                 fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
             }
-            fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  ",j/4+1,ptm->tm_hour,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+            fprintf(fp,"um %i:%2i zu %.3fct/kWh  ",ptm->tm_hour,ptm->tm_min,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
             if (ch.size() < 40||(j/4)%2==1)
                 fprintf(fp,"\n");
             ptm_alt = ptm->tm_mday;
             
             
-            if (ch.size()>=4&&ch[ch.size()-1].hh/3600!=ch[ch.size()-4].hh/3600)
-                fprintf(fp,"%i. um %i:00 zu %.3fct/kWh  \n",ch.size()/4+1,ptm->tm_hour,ch[ch.size()-1].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
-            //    if (e3dc.wbhour>0&&chch==0)
-            //        fprintf(fp,"Achtung Ladezeitenautomatik ist noch aktiv\nund kann diese Zeiten verändern\n");
         }
     }
     if (e3dc.debug) printf("LZ5\n");
