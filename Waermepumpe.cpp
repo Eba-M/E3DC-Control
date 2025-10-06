@@ -513,7 +513,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                                    wet.cop = wetter[x1].cop+1;
                                 wet.cop = wetter[x1].cop*1.3; // COP um 30% anheben bei minimum-Leistung
                                 wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
-                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+//                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
+//                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
+                                if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                 {
                                     wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                     x2++;
