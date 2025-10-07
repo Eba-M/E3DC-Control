@@ -567,8 +567,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                             if (f2>wetter[wetter1[0].x1].waerme)
                                                 wetter[wetter1[0].x1].waerme = f2;
                                             waermebedarf = waermebedarf - f2/4;
-                                            
-                                            float cop = wetter[wetter1[0].x1].cop*1.3-((leistung + 0.1 - e3dc.WPmin)/diffleistung);
+                                            float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*0.3;
+                                            float cop = wetter[wetter1[0].x1].cop*(1.3-cop1);
                                             float waermepreis = wetter1[0].waermepreis;
                                             if (waermepreis<0)
                                                 waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
@@ -585,8 +585,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 if (wetter[wetter1[0].x1].wwwpbedarf==0)
                                                 {
                                                     wetter[wetter1[0].x1].wwwpbedarf=0.5;
-                                                    waermebedarf = waermebedarf - 0.5/4;
-                                                    wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                    waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*wetter1[0].cop/4;
+                                                    // Einsatz Heizstab Wärmepreis sind die Bezugskosten
+                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                 }
                                                 if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
                                                 {
