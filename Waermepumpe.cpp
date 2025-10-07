@@ -521,6 +521,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     x2++;
                                 }
                                 wetter[x1].wpbedarf=0;
+                                wetter[x1].wwwpbedarf=0;
+                                wetter[x1].heizstabbedarf=0;
                                 wetter[x1].waerme=0;
                                 wetter1.push_back(wet);
                             }
