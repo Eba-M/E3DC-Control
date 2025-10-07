@@ -1070,9 +1070,9 @@ float suchenstrompreis(int x2)
         for(int x1=0;x1+1<=strompreis.size();x1++)
         {
             if (
-                (x2 >= strompreis[x1].stunde&&x2 < strompreis[x1+1].stunde)
-                ||
                 (x2 >= strompreis[x1].stunde&&x1+1 == strompreis.size())
+                ||
+                (x2 >= strompreis[x1].stunde&&x2 < strompreis[x1+1].stunde)
                 )
             {
                 return(strompreis[x1].strompreis*10);
@@ -1169,13 +1169,16 @@ int ladedauer = 0;
             {
                 memset(var, 0x00, sizeof(var));
                 memset(value, 0x00, sizeof(value));
-                sscanf(line, "%s %s", var, value);
+                int ret = sscanf(line, "%s %s", var, value);
                 //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
-                ptm->tm_hour = atoi(var);
-                mytime = mktime(ptm);
-                strom.stunde = (mytime%(24*3600))/3600;
-                strom.strompreis = atof(value);
-                strompreis.push_back(strom);
+                if (ret==2)
+                {
+                    ptm->tm_hour = atoi(var);
+                    mytime = mktime(ptm);
+                    strom.stunde = (mytime%(24*3600))/3600;
+                    strom.strompreis = atof(value);
+                    strompreis.push_back(strom);
+                }
                 
             }
             fclose(fp);
