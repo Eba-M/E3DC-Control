@@ -34,7 +34,7 @@ else:
 soup = BeautifulSoup(req.text, "html.parser")
 # Finding the main title tag.
 title = soup.find("table", class_="table-01 table-length-1")
-if title.cdata_list_attributes is None:
+if title is None:
         print ('keine Werte gefunden')
 else:
         line = title.contents
