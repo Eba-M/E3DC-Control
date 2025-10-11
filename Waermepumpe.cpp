@@ -573,12 +573,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         // Um 100W erhöhen
                                         if (leistung < av)
                                         {
-                                            int j1;
-                                            if (wetter[wetter1[0].x1].hh<itime[0])
+                                            int j1=0;
+/*                                            if (wetter[wetter1[0].x1].hh<itime[0])
                                                 j1=0;
                                             else
                                                 j1=1;
-                                            if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar||
+*/                                            if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar||
                                                 flowsoc[j1] > 0.1/e3dc.speichergroesse*25+e3dc.AWReserve||
                                                 wet.status)
                                             {
