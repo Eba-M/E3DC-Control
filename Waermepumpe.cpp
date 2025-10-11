@@ -496,6 +496,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     {
 //                        if (waermebedarf < w.size()*2.5)
                         int x2 = 0;
+                        int x3 = 0;
+                        float flowsoc[2];
+                        time_t itime[2];
+                        float fsoc = soc;
                         
 //                        if (waermebedarf < e3dc.WPLeistung*24)
                         {
@@ -504,6 +508,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             wetter1_s wet;
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                             {
+                                if (wetter[x1].solar>0)
+                                fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf;
+                                    else
+                                fsoc = fsoc - wetter[x1].hourly;
+                                if (fsoc>100) fsoc = 100;
+                                if (fsoc<0) fsoc = 0;
+                                if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
+                                {
+                                    flowsoc[x3] = fsoc;
+                                    itime[x3] = wetter[x1].hh+3*3600;
+                                    x3++;
+                                }
                                 wet.x1 = x1;
 //                                if (wetter[x1].solar>0)
                                 if (wetter[x1].cop==0)
@@ -512,7 +528,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     // cop um 1 erhöhen für minimum Leistung
 //                                    wet.cop = wetter[x1].cop+1;
                                 wet.cop = wetter[x1].cop*1.3; // COP um 30% anheben bei minimum-Leistung
-                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
+//                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
 //                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
 //                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
                                 if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
@@ -520,6 +536,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                     x2++;
                                 }
+                                else
+                                    wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
+                                wet.status = false;
                                 wetter[x1].wpbedarf=0;
                                 wetter[x1].wwwpbedarf=0;
                                 wetter[x1].heizstabbedarf=0;
@@ -531,7 +550,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             while (waermebedarf>1)
                             {
                                 schleife++;
-                                if (schleife>10000)
+                                if (schleife>100000)
                                     break;
                                 std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
                                     return a.waermepreis < b.waermepreis;});
@@ -554,30 +573,58 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         // Um 100W erhöhen
                                         if (leistung < av)
                                         {
-                                            if (wetter[wetter1[0].x1].wpbedarf > 0)
-                                            {
-                                                leistung = leistung + 0.1;
-                                                waermebedarf = waermebedarf + wetter[wetter1[0].x1].waerme/4;
-                                                // Kann die WP noch aus der Solarleistung abgedeckt werden?
-                                            }
-                                            if (wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
-                                                wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
-                                            
-                                            wetter[wetter1[0].x1].wpbedarf=leistung/e3dc.speichergroesse*25;
-                                            float f1 = wetter[wetter1[0].x1].wpbedarf;
-                                            float f2 = leistung*(wetter1[0].cop);
-                                            if (f2>wetter[wetter1[0].x1].waerme)
-                                                wetter[wetter1[0].x1].waerme = f2;
-                                            waermebedarf = waermebedarf - f2/4;
-                                            float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*0.3;
-                                            float cop = wetter[wetter1[0].x1].cop*(1.3-cop1);
-                                            float waermepreis = wetter1[0].waermepreis;
-                                            if (waermepreis<0)
-                                                waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
+                                            int j1;
+                                            if (wetter[wetter1[0].x1].hh<itime[0])
+                                                j1=0;
                                             else
-                                                waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
-                                            wetter1[0].waermepreis = waermepreis;
-                                            wetter1[0].cop = cop;
+                                                j1=1;
+                                            if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar||
+                                                flowsoc[j1] > 0.1/e3dc.speichergroesse*25+e3dc.AWReserve||
+                                                wet.status)
+                                            {
+                                                // WP wird aus dem Speicher bedient
+                                                if (not wet.status
+                                                    &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
+                                                {
+                                                    if (wpbedarf >0)
+                                                        flowsoc[j1] = flowsoc[j1] - 0.1/e3dc.speichergroesse*25;
+                                                    else
+                                                        flowsoc[j1] = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                }
+                                            
+                                                
+                                                if (wetter[wetter1[0].x1].wpbedarf > 0)
+                                                {
+                                                    leistung = leistung + 0.1;
+                                                    waermebedarf = waermebedarf + wetter[wetter1[0].x1].waerme/4;
+                                                    // Kann die WP noch aus der Solarleistung abgedeckt werden?
+                                                }
+                                                
+                                                wetter[wetter1[0].x1].wpbedarf=leistung/e3dc.speichergroesse*25;
+                                                float f1 = wetter[wetter1[0].x1].wpbedarf;
+                                                float f2 = leistung*(wetter1[0].cop);
+                                                if (f2>wetter[wetter1[0].x1].waerme)
+                                                    wetter[wetter1[0].x1].waerme = f2;
+                                                waermebedarf = waermebedarf - f2/4;
+                                                float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*0.3;
+                                                float cop = wetter[wetter1[0].x1].cop*(1.3-cop1);
+                                                float waermepreis = wetter1[0].waermepreis;
+                                                if (waermepreis<0)
+                                                    waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
+                                                else
+                                                    waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
+                                                wetter1[0].waermepreis = waermepreis;
+                                                wetter1[0].cop = cop;
+                                                
+                                                if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar&&
+                                                    wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar)
+                                                    wetter1[0].waermepreis =                                                 wetter1[0].waermepreis * 1.2;
+                                            }
+                                            else
+                                            {
+                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
+                                                wetter1[0].status = true;
+                                            }
 
                                             // dyn. cop abhängig von der Leistung berechnen
                                         }
@@ -589,18 +636,37 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                     wetter[wetter1[0].x1].wwwpbedarf=0.5;
                                                     waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*wetter1[0].cop/4;
                                                     // Einsatz Heizstab Wärmepreis sind die Bezugskosten
+                                                    if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+3/e3dc.speichergroesse*25
+                                                        >wetter[wetter1[0].x1].solar)
+                                                        wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                    else
+                                                        wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+
                                                     wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                 }
                                                 if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
                                                 {
                                                     if (wetter1[0].waermepreis>=1000)
                                                         break; // keine heizreserven mehr
-                                                    wetter[wetter1[0].x1].heizstabbedarf =
-                                                    wetter[wetter1[0].x1].heizstabbedarf + 3;
+                                                    if (wetter[wetter1[0].x1].heizstabbedarf < 9)
+                                                        wetter[wetter1[0].x1].heizstabbedarf =
+                                                        wetter[wetter1[0].x1].heizstabbedarf + 3;
                                                     if (wetter[wetter1[0].x1].heizstabbedarf>=9)
                                                         wetter1[0].waermepreis = 1000;
                                                         
                                                     waermebedarf = waermebedarf - .75;
+
+                                                    if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf
+                                                        +0.5/e3dc.speichergroesse*25
+                                                        +(wetter[wetter1[0].x1].heizstabbedarf + 3)/e3dc.speichergroesse*25
+                                                        < wetter[wetter1[0].x1].solar)
+                                                        
+                                                        wetter1[0].waermepreis =                                                         wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                    else
+                                                        (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                    
+                                                    (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+
                                                 }
 
                                             }
@@ -608,11 +674,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
 
                                     if (leistung  > av)
+                                    {
+                                        // WP Leistung erreicht, jetzt gehts mit der BWWP weiter
+                                        if (wetter[wetter1[0].x1].wwwpbedarf==0)
                                         {
-                                            // WP Leistung erreicht, jetzt gehts mit der BWWP weiter
-                                            if (wetter[wetter1[0].x1].wwwpbedarf==0)
-                                            wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/3;
+                                            if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+0.5/e3dc.speichergroesse*25
+                                                >wetter[wetter1[0].x1].solar)
+                                                wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/3;
+                                            else
+                                                
+                                                wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/3;
                                         }
+                                    }
 
                                     
                                 }
