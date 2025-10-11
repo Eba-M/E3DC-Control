@@ -1891,7 +1891,7 @@ int shelly_get(){
             return(item->valueint);
         else
         {
-            shellytimer = t+600;
+            shellytimer = t+60;
             return(-1);
         }
     }
@@ -1998,14 +1998,16 @@ int shelly(int ALV)
     static int ALV_alt = -1;
     FILE *fp;
     fp==NULL;
-    if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
+    if (ALV>1&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
     if (e3dc_config.shelly0V10V&&shellytimer < t&&ALV!=ALV_alt)
     {
-        if (ALV>0)
+        if (ALV>1)
             sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":true, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
         else
-            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":false, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);
+        {
+            ALV = 0;
+            sprintf(buf,"curl -s -X POST -d '{""id"":0, ""on"":false, ""brightness"":%i}' ""http://%s/rpc/Light.Set?",ALV,e3dc_config.shelly0V10V_ip);}
         fp = popen(buf, "r");
         
         if (fp != NULL)
@@ -2750,7 +2752,7 @@ int LoadDataProcess() {
                     &&wetter[3].wpbedarf==0)
 
                     )
-                    shelly(0);
+                    shelly(1);
             };
             if (wetter.size()==0||wolf.size()==0)
                 return(1);
