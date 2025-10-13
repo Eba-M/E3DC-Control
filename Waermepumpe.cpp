@@ -535,14 +535,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 {
                                     wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                     x2++;
+                                    wet.status = false;
                                 }
                                 else
+                                {
                                     wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
-                                wet.status = false;
+                                    wet.status = true;
+                                }
                                 wetter[x1].wpbedarf=0;
                                 wetter[x1].wwwpbedarf=0;
                                 wetter[x1].heizstabbedarf=0;
                                 wetter[x1].waerme=0;
+                                wetter[x1].waermepreis=wet.waermepreis;
                                 wetter1.push_back(wet);
                             }
 //                            waermebedarf= 109;
@@ -614,11 +618,15 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 else
                                                     waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
                                                 wetter1[0].waermepreis = waermepreis;
+                                                wetter[wetter1[0].x1].waermepreis = waermepreis;
                                                 wetter1[0].cop = cop;
                                                 
-                                                if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar&&
-                                                    wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar)
-                                                    wetter1[0].waermepreis =                                                 wetter1[0].waermepreis * 1.2;
+                                                if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
+                                                    && wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar
+                                                    && not wetter1[0].status )
+                                                {
+                                                    wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.2;
+                                                    wetter1[0].status = true;}
                                             }
                                             else
                                             {
