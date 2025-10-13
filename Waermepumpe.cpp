@@ -507,19 +507,31 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
-                            {
-                                if (wetter[x1].solar>0)
-                                fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf;
-                                    else
-                                fsoc = fsoc - wetter[x1].hourly;
-                                if (fsoc>100) fsoc = 100;
-                                if (fsoc<0) fsoc = 0;
-                                if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
                                 {
-                                    flowsoc[x3] = fsoc;
-                                    itime[x3] = wetter[x1].hh+3*3600;
-                                    x3++;
+                                    if (wetter[x1].solar>0)
+                                    fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf;
+                                        else
+                                    fsoc = fsoc - wetter[x1].hourly;
+                                    if (fsoc>100) fsoc = 100;
+                                    if (fsoc<0) fsoc = 0;
+                                    if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
+                                    {
+                                        flowsoc[x3] = fsoc;
+                                        itime[x3] = wetter[x1].hh+3*3600;
+                                        x3++;
+                                    }
+                                    if (itime[0]>0&&wetter[x1].hh<itime[0]
+                                        &&wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf<0)
+                                    {
+                                        flowsoc[0] = flowsoc[0] + wetter[x1].solar - wetter[x1].wpbedarf;
+                                        if (flowsoc[0] < 0)
+                                            flowsoc[0] = 0;
+                                    }
+
                                 }
+                                fsoc = flowsoc[0];
+                                for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
+                                {
                                 wet.x1 = x1;
 //                                if (wetter[x1].solar>0)
                                 if (wetter[x1].cop==0)
@@ -531,6 +543,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
 //                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
 //                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
+                                if (wetter[x1].solar==0)
+                                    fsoc = fsoc - wetter[x1].hourly;
                                 if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                 {
                                     wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
