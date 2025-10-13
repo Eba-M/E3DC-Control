@@ -716,6 +716,7 @@ int fp_status = -1;  //
 void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage,u_int32_t iDayStat[25*4*2+1])
 {
     FILE * fp;
+    FILE * fp1;
     char line[1024];
     char path [65000];
     char value[25];
@@ -725,6 +726,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     int x1 = 0;
     int x2 = 0;
     int x3 = 10; // 10kWp
+    time_t rawtime;
+    time(&rawtime);
     if (w.size()==0)
     {
         printf("keine Börsenpreise");
@@ -824,6 +827,13 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             item1 = item1->child;
             if (item1!=NULL)
             item2 = item2->child;
+            if (item2->valueint>0)
+            {
+                sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
+                fp1 = fopen(line,"w");
+                fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");
+            } else
+                fp1 = NULL;
             int x1 = 0;
             int x2 = 0;
             if (e3dc.debug)
@@ -903,11 +913,14 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                                     (wetter[x2].solar=(wetter[x2].progsolar*f6+f8)/2);
                             else
                         wetter[x2].solar = wetter[x2].progsolar*f6;
-                    if (x2=1&&wetter[0].solar==0&&wetter[0].progsolar==0)
+                    if (x2==1&&wetter[0].solar==0&&wetter[0].progsolar==0)
                     {
                         wetter[0].solar = wetter[1].solar;
                         wetter[0].progsolar = wetter[1].progsolar;
                     }
+                    if (fp1!=NULL)
+                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f4,f5,f6,f7,f8,wetter[x2].solar,wetter[x2].progsolar);
+
                     x1++;
                     x2++;
                     if (x2 > wetter.size())
@@ -915,6 +928,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                         if (e3dc.debug)
                             printf("om.bfc\n");
                         if (fp!=NULL) pclose(fp);
+                        if (fp1!=NULL) pclose(fp1);
                         if (e3dc.debug)
                         printf("om.afc\n");
                         return;
@@ -927,6 +941,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             if (e3dc.debug)
                 printf("om.bfc\n");
             if (fp!=NULL) pclose(fp);
+            if (fp1!=NULL) pclose(fp1);
             if (e3dc.debug)
             printf("om.afc\n");
             return;

@@ -539,7 +539,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 }
                                 else
                                 {
-                                    wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
+                                    if (fsoc-e3dc.AWReserve-notstromreserve>0)
+                                        wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
+                                    else
+                                        wet.waermepreis = (w[x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
                                     wet.status = true;
                                 }
                                 wetter[x1].wpbedarf=0;
