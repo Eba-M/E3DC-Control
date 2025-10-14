@@ -859,7 +859,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f2 = iDayStat[y1]/100.0;  // Soll
                     float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);  //Ist
                     // aktuelle PV-Leistung ermitteln aus Prog
-                    float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
+                    float f44 = (rawtime%900)*(wetter[0].progsolar)*100.0/900.0;
+                    float f4 = (iDayStat[199]+f44) * e3dc.speichergroesse/10000.0;
                     float f5 = iDayStat[198]/3600.0/1000.0;
                     float f6 = 1;
 //                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
