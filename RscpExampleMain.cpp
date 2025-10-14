@@ -3118,7 +3118,7 @@ int LoadDataProcess() {
                 btasmota_ch1 ^=1;
             if (btasmota_ch1 & 2&&wetter[0].kosten==0)
                 btasmota_ch1 ^=2;
-            if (btasmota_ch1 & 8&&not(btasmota_ch1 &4) &&not(btasmota_ch1 &16) &&wetter.size()>0&&wetter[0].kosten==0)
+            if (btasmota_ch1 & 8&&not(btasmota_ch1 &4) &&not(btasmota_ch1 &16) &&wetter.size()>0&&wetter[0].kosten==0&&wetter[0].wpbedarf==0)
             {
                 if (ALV > 0)
                 {
