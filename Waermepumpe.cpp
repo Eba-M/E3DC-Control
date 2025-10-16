@@ -722,10 +722,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                         {
                                             if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+0.5/e3dc.speichergroesse*25
                                                 >wetter[wetter1[0].x1].solar)
-                                                wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/3;
+                                                wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/4;
                                             else
                                                 
-                                                wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/3;
+                                                wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/4;
+                                            wetter1[0].cop = 4;
                                         }
                                     }
 
