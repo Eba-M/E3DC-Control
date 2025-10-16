@@ -349,7 +349,7 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     }
     return posmax;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float notstromreserve,float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float notstromreserve,float ladeleistung, float speicherev, float speichereta) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -543,7 +543,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
     }
 }
 
-int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve, float speicherev, float speichereta) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 1 = keine Aktion, 0 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -864,7 +864,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f5 = iDayStat[198]/3600.0/1000.0;
                     float f6 = 1;
 //                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
-                        if (f4>1&&f5>0) // erst nach der ersten kWh
+                        if (f4>0.2&&f5>0) // erst nach der ersten kWh
                         f6 = f5/f4;
                     if (f6<0.1) f6 = 0.1;  // schneebedeckte Module?
                     if (f6>10) f6 = 10;
@@ -1662,7 +1662,7 @@ else
             }
             int ret;
             float strompreis;
-            ret = CheckaWATTar(w,wetter, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve, notstromreserve);
+            ret = CheckaWATTar(w,wetter, fSoC,fmaxSoC,fCharge,Diff,aufschlag, ladeleistung,1,strompreis,e3dc.AWReserve, notstromreserve,e3dc.speicherev, e3dc.speichereta);
             if (ret == 0)
             {
                 direkt = direkt + fConsumption;

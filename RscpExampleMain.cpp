@@ -490,6 +490,8 @@ bool GetConfig()
         e3dc_config.powerfaktor = POWERFAKTOR;
         e3dc_config.wrleistung = WRLEISTUNG;
         e3dc_config.speichergroesse = SPEICHERGROESSE;
+        e3dc_config.speichereta = 0.95; // Speicherwirkungsgrad 95%
+        e3dc_config.speicherev = 60; // Grund bzw. Standbyverbrauch 60W
         e3dc_config.winterminimum = WINTERMINIMUM;
         e3dc_config.RB = -1;
         e3dc_config.sommermaximum = SOMMERMAXIMUM;
@@ -748,6 +750,10 @@ bool GetConfig()
                         e3dc_config.wrleistung = atoi(value);
                     else if(strcmp(var, "speichergroesse") == 0)
                         e3dc_config.speichergroesse = atof(value);
+                    else if(strcmp(var, "speichereta") == 0)
+                        e3dc_config.speichereta = atof(value);
+                    else if(strcmp(var, "speicherev") == 0)
+                        e3dc_config.speicherev = atof(value);
                     else if(strcmp(var, "winterminimum") == 0)
                         e3dc_config.winterminimum = atof(value);
                     else if(strcmp(var, "wpheizlast") == 0)
@@ -3441,9 +3447,9 @@ int LoadDataProcess() {
         if (w.size()>0)
         {
             if (e3dc_config.openmeteo)
-                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve); // Ladeleistung in %
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve, e3dc_config.speicherev, e3dc_config.speichereta); // Ladeleistung in %
             else
-                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve); // Ladeleistung in %
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta); // Ladeleistung in %
         }
             //if (rettime>0)
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);

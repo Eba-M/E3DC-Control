@@ -506,12 +506,14 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
-                                for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
+                            float adj = (1-(1-e3dc.speichereta)/96);
+                            for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
                                     if (wetter[x1].solar>0)
                                     fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf;
                                         else
-                                    fsoc = fsoc - wetter[x1].hourly;
+                                    fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
+//                                    fsoc = fsoc * adj;
                                     if (fsoc>100) fsoc = 100;
                                     if (fsoc<0) fsoc = 0;
                                     if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
@@ -523,7 +525,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     if (itime[0]>0&&wetter[x1].hh<itime[0]
                                         &&wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf<0)
                                     {
-                                        flowsoc[0] = flowsoc[0] + wetter[x1].solar - wetter[x1].wpbedarf;
+                                        flowsoc[0] = flowsoc[0] - (wetter[x1].wpbedarf-wetter[x1].solar)/e3dc.speichereta
+                                        -e3dc.speicherev/1000/e3dc.speichergroesse/4;
+                                        flowsoc[0]= flowsoc[0] * adj;
                                         if (flowsoc[0] < 0)
                                             flowsoc[0] = 0;
                                     }
@@ -831,7 +835,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             if (e3dc.debug) printf("NWS1\n");
             if (e3dc.unload < 0) return;
 
-            int    ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve,notstromreserve);
+            int    ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve,notstromreserve,e3dc.speicherev, e3dc.speichereta);
 
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.txt","w");
@@ -881,7 +885,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
-             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, notstromreserve, ladeleistung);
+             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, notstromreserve, ladeleistung,e3dc.speicherev, e3dc.speichereta);
 //             if (e3dc.debug) {printf("NWj%i %i %i %f %f \n",j,ret,e3dc.maximumLadeleistung,e3dc.speichergroesse,ladeleistung);
 //                 sleep(1);}
              if (ret == 1)
@@ -890,7 +894,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     soc = soc_alt + ladeleistung;
                 else
                 {
-                    soc = soc_alt + anforderung;
+                    if (anforderung > 0)
+                        soc = soc_alt + anforderung*e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse;
+                    else
+                        soc = soc_alt + anforderung/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse;
                 }
                 if (soc > 100) soc = 100;
                 if (soc < notstromreserve) soc = notstromreserve;
@@ -898,7 +905,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
              else
              if (ret == 0)
              {
-                     float soc2 = soc_alt + fsolar;
+                     float soc2 = soc_alt + fsolar - e3dc.speicherev/1000/e3dc.speichergroesse;
                      if (soc>soc2)
                          soc = soc2;
                      if (soc > 100) soc = 100;
