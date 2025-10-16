@@ -875,7 +875,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 // absoluter Ertrag des letzen 15min
                     float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
                     f8 = f8 * (10 - x2)/10;
-                    fprintf(fp1,"f6 %0.2f f7 %0.2f %i ",f6,f7,x2);
+                    fprintf(fp1,"f6 %0.2f f7 %0.2f x2 %i ",f6,f7,x2);
                     // relativer ertrag aus statistik höher als aktueller ertrag
                     if (f4 > 1&&x2<10)
                         f6 = (f7*(x2+1)+(10-x2)*f6)/(11);
