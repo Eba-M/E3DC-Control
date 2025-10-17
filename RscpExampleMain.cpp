@@ -4858,6 +4858,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         
         switch (e3dc_config.wbmode)
         {
+            case 0: return 0;
             case 1:
                 //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+WBMinimumPower;
                 iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500-iRefload+iPower_Bat+iWBMinimumPower;
