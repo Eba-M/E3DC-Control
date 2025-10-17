@@ -512,6 +512,7 @@ bool GetConfig()
         e3dc_config.hton = 0;
         e3dc_config.htoff = 24*3600; // in Sekunden
         e3dc_config.htsockel = 0;
+        e3dc_config.prognosetest = false;
         e3dc_config.peakshave = 0;
         e3dc_config.peakshavesoc = 0;
         e3dc_config.peakshaveuppersoc = 50;
