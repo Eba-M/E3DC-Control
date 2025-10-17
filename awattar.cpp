@@ -880,7 +880,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 //                    if (fp1!=NULL)
 //                    fprintf(fp1,"f6 %0.2f f7 %0.2f x2 %i ",f6,f7,x2);
                     // relativer ertrag aus statistik höher als aktueller ertrag
-                    if (f4 > 1&&x2<10)
+                    if (f4 > 0.1&&x2<10)
                         f6 = (f7*(x2+1)+(10-x2)*f6)/(11);
                     else
                         if (f7>0)
