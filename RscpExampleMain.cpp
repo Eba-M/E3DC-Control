@@ -696,6 +696,14 @@ bool GetConfig()
                           if (strcmp(value, "true") == 0)
                               e3dc_config.tasmota = true;
                   }
+                  else if((strcmp(var, "pprognosetest") == 0))
+                  {
+                      if (strcmp(value, "false") == 0)
+                          e3dc_config.prognosetest = false;
+                      else
+                          if (strcmp(value, "true") == 0)
+                              e3dc_config.prognosetest = true;
+                  }
                   else if((strcmp(var, "wp") == 0)&&
                             (strcmp(value, "true") == 0))
                             e3dc_config.WP = true;

@@ -829,9 +829,10 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             item2 = item2->child;
             if (item2->valueint>0)
             {
-                sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
-                fp1 = fopen(line,"w");
-                fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");
+                if (e3dc.prognosetest)
+                {                sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
+                    fp1 = fopen(line,"w");
+                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");}
             } else
                 fp1 = NULL;
             int x1 = 0;

@@ -49,7 +49,7 @@ typedef struct {
     char BWWPTasmota[50];
     char e3dcwallboxtxt[128];
     char analyse[128];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo,statistik;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo,statistik,prognosetest;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wbminladestrom,wrsteuerung,stop,test;
     int32_t ht, unload,untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshaveuppersoc,peakshavepvcharge,wbtest,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl,shelly0V10Vmin,shelly0V10Vmax;
