@@ -4850,7 +4850,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //        if (iMaxBattLade < iMinLade) iMaxBattLade = iMinLade*.9;
     float fwbminSoC = e3dc_config.wbminSoC;
         
-    if ((e3dc_config.wbmode>0)) // Dose verriegelt, bereit zum Laden
+    if ((e3dc_config.wbmode>=0)) // Dose verriegelt, bereit zum Laden
     {
         
         //        if (iMaxBattLade < iRefload) // Führt zu Überreaktion
