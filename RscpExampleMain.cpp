@@ -3627,7 +3627,7 @@ bDischarge = false;
         }
 
         else          // Entladen ok
-        if ((fPower_Grid>200)&&(fAvPower_Grid > 100)&&(fAvPower_Grid < 1000)&&(iPower_Bat > -200)&&(fAvBatterie>=-200)&&fBatt_SOC>fNotstromreserve&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
+        if ((fPower_Grid>200)&&(fAvPower_Grid > 100)&&(fAvPower_Grid < 1000)&&(iPower_Bat > 200)&&(fAvBatterie>=-200)&&fBatt_SOC>fNotstromreserve&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = (fPower_Grid-iPower_Bat)*-1;  //Automatik anstossen
                    if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
