@@ -831,9 +831,15 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             if (item2->valueint>0)
             {
                 if (e3dc.prognosetest)
-                {                sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
+                    
+                {
+                    float f9 =iDayStat[197]/(e3dc.speichergroesse*10*3600);
+                    float f10 = item2->valuedouble/4/e3dc.speichergroesse;
+                    f10 = f9 / f10;
+
+                    sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
                     fp1 = fopen(line,"w");
-                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");
+                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 f9 %0.2f f10 %0.2f \n",f9,f10);
                 }
             }
             int x1 = 0;
