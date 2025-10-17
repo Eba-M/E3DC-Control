@@ -832,7 +832,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 if (e3dc.prognosetest)
                 {                sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
                     fp1 = fopen(line,"w");
-                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");}
+                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 \n");
+                }
             } else
                 fp1 = NULL;
             int x1 = 0;
@@ -865,7 +866,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f5 = iDayStat[198]/3600.0/1000.0;
                     float f6 = 1;
 //                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
-                        if (f4>0.2&&f5>0) // erst nach der ersten kWh
+                        if (f4>0.1&&f5>0) // erst nach der ersten kWh
                         f6 = f5/f4;
                     if (f6<0.1) f6 = 0.1;  // schneebedeckte Module?
                     if (f6>10) f6 = 10;
@@ -876,8 +877,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 // absoluter Ertrag des letzen 15min
                     float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
                     f8 = f8 * (10 - x2)/10;
-                    if (fp1!=NULL)
-                    fprintf(fp1,"f6 %0.2f f7 %0.2f x2 %i ",f6,f7,x2);
+//                    if (fp1!=NULL)
+//                    fprintf(fp1,"f6 %0.2f f7 %0.2f x2 %i ",f6,f7,x2);
                     // relativer ertrag aus statistik höher als aktueller ertrag
                     if (f4 > 1&&x2<10)
                         f6 = (f7*(x2+1)+(10-x2)*f6)/(11);
@@ -886,8 +887,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                             f6=f7;
 //                    if (x2<10)
 //                    f6 = (f6*(x2)+f8*(10-x2))/10;
-                    if (fp1!=NULL)
-                    fprintf(fp1,"f6 %0.2f f7 %0.2f ",f6,f7);
+//                    if (fp1!=NULL)
+//                    fprintf(fp1,"f6 %0.2f f7 %0.2f ",f6,f7);
 
                     if (anlage==0){
                         wetter[x2].progsolar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
