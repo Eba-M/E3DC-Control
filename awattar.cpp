@@ -884,7 +884,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     if (f2>0.1)
                         f7 = f3/f2;
 // absoluter Ertrag des letzen 15min
-                    float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
+                    float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600)/wetter[0].progsolar;
                     if (f6>0.1&&f7>0.1&&f8>0.1)
                         f6=(f6+f7+f8)/3;  //hist. Werte und akt. Werte mitteln
                     f8 = f8 * (10 - x2)/10;
