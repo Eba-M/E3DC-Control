@@ -592,6 +592,9 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
         reserve = Verbrauch*0.8;
     if (ret==0) reserve = 0;
+    reserve = reserve + fSoC*(1-speichereta);
+    reserve = reserve + ret*speicherev; // speichereta 15minverbrauch in % Speicher
+
     fSoC = fSoC - reserve;
 // Überprüfen ob entladen werden kann
     fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,minsoc,maxpos,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -880,10 +883,10 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 //                    if (iDayStat[y1]>0&&f2>f3)
                     if (f2>0.1)
                         f7 = f3/f2;
-                    if (f6>0.1&&f7>0.1)
-                        f6=(f6+f7)/2;  //hist. Werte und akt. Werte mitteln
 // absoluter Ertrag des letzen 15min
                     float f8 = iDayStat[197] /(e3dc.speichergroesse*10*3600);
+                    if (f6>0.1&&f7>0.1&&f8>0.1)
+                        f6=(f6+f7+f8)/3;  //hist. Werte und akt. Werte mitteln
                     f8 = f8 * (10 - x2)/10;
 //                    if (fp1!=NULL)
 //                    fprintf(fp1,"f6 %0.2f f7 %0.2f x2 %i ",f6,f7,x2);

@@ -629,7 +629,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 }
                                                 
                                                 if (wet.status)
-                                                    flowsoc[j1] = flowsoc[j1] - wetter[wetter1[0].x1].wpbedarf;
+                                                    flowsoc[j1] = flowsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
                                                 
                                                 if (wetter[wetter1[0].x1].wpbedarf > 0)
                                                 {
@@ -654,7 +654,10 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 wetter1[0].waermepreis = waermepreis;
                                                 wetter[wetter1[0].x1].waermepreis = waermepreis;
                                                 wetter1[0].cop = cop;
-                                                
+
+                                                if (wet.status)
+                                                    flowsoc[j1] = flowsoc[j1] - wetter[wetter1[0].x1].wpbedarf;
+
                                                 if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
                                                     && wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar
                                                     && not wetter1[0].status )

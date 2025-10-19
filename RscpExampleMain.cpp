@@ -3456,9 +3456,9 @@ int LoadDataProcess() {
         if (w.size()>0)
         {
             if (e3dc_config.openmeteo)
-                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve, e3dc_config.speicherev, e3dc_config.speichereta); // Ladeleistung in %
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta); // Ladeleistung in %
             else
-                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta); // Ladeleistung in %
+                ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10,0,fstrompreis,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta); // Ladeleistung in %
         }
             //if (rettime>0)
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);
