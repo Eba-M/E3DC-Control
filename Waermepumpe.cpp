@@ -839,7 +839,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             if (e3dc.debug) printf("NWS1\n");
             if (e3dc.unload < 0) return;
 
-            int    ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve,notstromreserve,e3dc.speicherev, e3dc.speichereta);
+            int    ret = CheckaWATTar(w ,wetter, soc, 99, -1.31, e3dc.AWDiff, e3dc.AWAufschlag,  e3dc.maximumLadeleistung*.9,0,strompreis,e3dc.AWReserve,notstromreserve,e3dc.speicherev/1000/e3dc.speichergroesse/4, e3dc.speichereta);
 
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.txt","w");
