@@ -480,7 +480,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // dann Einsatz des Heizstabs mit 3/6/9 kW
                     // dabei soll
                     float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
-                    waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze + 15)) * waermebedarf;
+                    waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                     // Heizlast bei -15°
 /*                    float heizleistung = 0;
                     for (int x1=0;x1<w.size()&&x1<wetter.size()&&x1<96;x1++)
