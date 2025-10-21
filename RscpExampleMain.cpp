@@ -5159,11 +5159,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 //                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
                     {
                         WBchar6[4] = 1;
+                    }
                         WBchar6[0] = 2; // Netz  Mischmodus
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                         bWBmaxLadestrom = true;
                         bWBLademodus = false;    //Grid
-                    }
+                    
                 if (e3dc_config.debug) printf("WB31");
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
                 createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
@@ -7094,8 +7095,8 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
                     mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }

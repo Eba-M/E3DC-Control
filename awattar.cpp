@@ -831,16 +831,16 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             if (item1!=NULL)
             item2 = item2->child;
             fp1 = NULL;
-            float f9,f10;
+            float f9=0,f10=0;
             if (item2->valueint>0)
             {
+                f9 =iDayStat[197]/(e3dc.speichergroesse*10*3600);
+                f10 = item2->valuedouble/4/e3dc.speichergroesse;
+                f10 = f9 / f10;
+
                 if (e3dc.prognosetest)
                     
                 {
-                    f9 =iDayStat[197]/(e3dc.speichergroesse*10*3600);
-                    f10 = item2->valuedouble/4/e3dc.speichergroesse;
-                    f10 = f9 / f10;
-
                     sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
                     fp1 = fopen(line,"w");
                     fprintf(fp1,"f2 f3 f4 f5 f6 f7 f9 %0.2f f10 %0.2f \n",f9,f10);
@@ -886,7 +886,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                         f7 = f3/f2;
 // absoluter Ertrag des letzen 15min
                     float f8 = f9;
-                    if (f6>0.1&&f7>0.1&&f10>0.1)
+//                    if (f6>0.01&&f7>0.01&&f10>0.01)
                         f6=(f6+f7+f10)/3;  //hist. Werte und akt. Werte mitteln
                     f8 = f8 * (10 - x2)/10;
 //                    if (fp1!=NULL)
