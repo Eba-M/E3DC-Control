@@ -5158,16 +5158,19 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         WBchar6[4] = 1;
                 }
                 else
-                    if (bWBZeitsteuerung&&(not bWBCharge||bWBStopped))
-//                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
+                    
+                    if (bWBZeitsteuerung)
                     {
-                        WBchar6[4] = 1;
-                    }
+                        if (not bWBCharge||bWBStopped)
+                            //                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
+                        {
+                            WBchar6[4] = 1;
+                        }
                         WBchar6[0] = 2; // Netz  Mischmodus
                         WBchar6[1] = e3dc_config.wbmaxladestrom;
                         bWBmaxLadestrom = true;
                         bWBLademodus = false;    //Grid
-                    
+                    }
                 if (e3dc_config.debug) printf("WB31");
                 // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
                 createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
