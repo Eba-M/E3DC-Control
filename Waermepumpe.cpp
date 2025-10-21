@@ -361,7 +361,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 if (cop <= 0) cop = f2;
                                 
                                 // thermische Heizleistung
-                                float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze+15));
+                                float f3 = ((e3dc.WPHeizgrenze-wetter[x1].temp))*(e3dc.WPHeizlast/(e3dc.WPHeizgrenze-e3dc.WPNat));
                                 if (f3 <= 0) 
                                     f3=0.01; // zu warm keine Heizung
                                 float f4 = 0;

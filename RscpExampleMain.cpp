@@ -559,6 +559,7 @@ bool GetConfig()
         e3dc_config.WPHeizlast = -1;
         e3dc_config.WPLeistung = -1;
         e3dc_config.WPHeizgrenze = -1;
+        e3dc_config.WPNat = -15; // Normaussentemperatur
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
         e3dc_config.WPPVon = -1;
@@ -769,6 +770,8 @@ bool GetConfig()
                         e3dc_config.WPHeizlast = atof(value);
                     else if(strcmp(var, "wpheizgrenze") == 0)
                         e3dc_config.WPHeizgrenze = atof(value);
+                    else if(strcmp(var, "wpnat") == 0)
+                        e3dc_config.WPNat = atof(value);
                     else if(strcmp(var, "wpleistung") == 0)
                         e3dc_config.WPLeistung = atof(value);
                     else if(strcmp(var, "wpmin") == 0)
