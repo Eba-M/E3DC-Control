@@ -5975,7 +5975,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (e3dc_config.WP)
                     {
                         waermebedarf = (e3dc_config.WPHeizgrenze - fatemp)*24; // Heizgrade
-                        waermebedarf = (e3dc_config.WPHeizlast / (e3dc_config.WPHeizgrenze + 15)) * waermebedarf;
+                        waermebedarf = (e3dc_config.WPHeizlast / (e3dc_config.WPHeizgrenze - e3dc_config.WPNat)) * waermebedarf;
 
                         printf("%c[K\n", 27 );
                         printf(" WP %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhourWP[x1]/900000.0,iWeekhourWP[x2]/900000.0,iWeekhourWP[x3]/900000.0,float(iWeekhourWP[weekhour])/f4/1000.0,iWeekhourWP[dayhour]/3600000.0); // Tages Hausverbrauch

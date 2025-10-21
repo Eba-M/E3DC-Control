@@ -345,7 +345,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     // Die Pelletsheizung wird eingesetzt, wenn die Leistung der WP nicht mehr
                     // ausreicht
                     float fbitemp = e3dc.WPHeizgrenze -
-                    float(e3dc.WPLeistung/float(e3dc.WPHeizlast/(15+e3dc.WPHeizgrenze)));
+                    float(e3dc.WPLeistung/float(e3dc.WPHeizlast/(e3dc.WPHeizgrenze-e3dc.WPNat)));
                     // fbitemp Bivalenztemperator unter dieser Schwelle muss Pellets oder Heizstab
                     // eingesetzt werden EHZ
                     if (wetter.size()>0&&wetter.size()>0&&w[0].hh>wetter[0].hh)
@@ -356,7 +356,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
                             {
                                 float f1=((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-wetter[x1].temp)+fusspunkt;
-                                // Temperaturhub
+                                // Temperaturhub aud -15° bezogen
                                 float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.6; // COP
                                 if (cop <= 0) cop = f2;
                                 
