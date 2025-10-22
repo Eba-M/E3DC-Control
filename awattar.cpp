@@ -617,8 +617,8 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     char line[256];
     memset(&line, 0, sizeof(line));
     struct stat stats;
-     stat(line,&stats);
     sprintf(line,"protokoll.%s.txt",wday_name[ptm->tm_wday]);
+    stat(line,&stats);
     static time_t rawtime_alt = 0;
     if (rawtime>rawtime_alt+50&&rawtime%60<10)
     {   time_t t = *(&stats.st_mtime);
