@@ -558,6 +558,9 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     float minsoc;
     int x1,x2,x3,x4;
     int Minuten = rawtime%(24*3600)/60;
+    static int minuten_alt;
+    FILE *fp = NULL;
+
 
 //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
 /*
@@ -608,7 +611,32 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
         faval = fSoC-fConsumption + maxsoc -minsoc;
     }
  */
-    printf("faval %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,27);
+    static const char wday_name[][3] = {
+      "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"
+    };
+    char line[256];
+    memset(&line, 0, sizeof(line));
+    struct stat stats;
+     stat(line,&stats);
+    sprintf(line,"protokoll.%s.txt",wday_name[ptm->tm_wday]);
+    static time_t rawtime_alt = 0;
+    if (rawtime>rawtime_alt+50&&rawtime%60<10)
+    {   time_t t = *(&stats.st_mtime);
+        if (rawtime-t>24*3600*5) // nach 5 tagen überschreiben
+            fp = fopen(line,"w");
+        
+        fp = fopen(line, "a");
+        if(!fp)
+            fp = fopen(line, "w");
+        if(fp)
+        {
+            fprintf(fp,"%2i:%2i %2.2f %2.2f %2.2f %2.2f %2.2f\n"
+                    ,ptm->tm_hour,ptm->tm_min, faval,fSoC+reserve,reserve,fConsumption,maxsoc);
+            fclose(fp);
+        }
+        rawtime_alt=rawtime;
+    }
+    printf("faval %2.2f %2.2f %2.2f %2.2f %2.2f %c[K",faval,fSoC,fConsumption,maxsoc,minsoc,27);
 
         if (faval >=-0.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
         {
@@ -887,7 +915,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 // absoluter Ertrag des letzen 15min
                     float f8 = f9;
 //                    if (f6>0.01&&f7>0.01&&f10>0.01)
-                        f6=(f6+f7+f10)/3;  //hist. Werte und akt. Werte mitteln
+                        f6=(f6+f7*2+f10*2)/5;  //hist. Werte und akt. Werte mitteln
                     f8 = f8 * (10 - x2)/10;
                     if (f8>100) f8 = 100;
                     if (f8<-100) f8 = -100;
