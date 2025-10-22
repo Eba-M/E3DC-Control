@@ -623,15 +623,17 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     if (rawtime>rawtime_alt+50&&rawtime%60<10)
     {   time_t t = *(&stats.st_mtime);
         if (rawtime-t>24*3600*5) // nach 5 tagen überschreiben
+        {
             fp = fopen(line,"w");
-        
-        fp = fopen(line, "a");
+        }
+        else
+            fp = fopen(line, "a");
         if(!fp)
             fp = fopen(line, "w");
         if(fp)
         {
-            fprintf(fp,"%2i:%2i %2.2f %2.2f %2.2f %2.2f %2.2f\n"
-                    ,ptm->tm_hour,ptm->tm_min, faval,fSoC+reserve,reserve,fConsumption,maxsoc);
+            fprintf(fp,"%2i:%2i %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f\n"
+                    ,ptm->tm_hour,ptm->tm_min, faval,fSoC+reserve,reserve,fConsumption,maxsoc,minsoc);
             fclose(fp);
         }
         rawtime_alt=rawtime;
