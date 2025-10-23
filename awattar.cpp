@@ -320,7 +320,7 @@ int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
 {
     
     Verbrauch = 0;
-    for (;x1<w.size()&&w[x1].hourly>w[x1].solar;x1++)
+    for (;x1<w.size()&&w[x1].hourly+w[x1].wpbedarf>w[x1].solar;x1++)
     {
         Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf - w[x1].solar;
     }
