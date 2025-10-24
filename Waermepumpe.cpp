@@ -203,14 +203,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
 // Jede Stunde oder wenn neue Börsenstrompreise verfügbar sind auch früher
     if 
-        ((ptm->tm_min%15==1||oldhour==0||w.size()!=oldwsize)&&  //2 min im 15min Intervall
-        (
-        (rawtime-oldhour)>=60||w.size()!=oldwsize)
+        ((ptm->tm_min%15==1||oldhour==0||oldwsize < w.size())
+         &&  //2 min im 15min Intervall
+        (rawtime-oldhour)>60
         )
     {
-        oldhour = rawtime;
-        oldwsize = w.size();
-//    /*{
+        if (w.size()>0)
+        {
+            oldhour = rawtime;
+            oldwsize = w.size();
+        }
         FILE * fp;
         FILE * fp1;
         char path [65000];
