@@ -1352,6 +1352,8 @@ int ladedauer = 0;
                             ptm->tm_min = 0;
                             ptm->tm_sec = 0;
                             ww.hh = mktime(ptm);
+                            if (ptm->tm_hour == 1)
+                                ww.hh = ww.hh-3600;
                             int status;
                             int y1=0;
                             char var [2] [20];
