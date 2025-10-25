@@ -588,7 +588,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     int ret = 0;
     if (wetter.size()>1)
         ret = suchenSolar(wetter,1, Verbrauch);
-
+//    if (ret > 0) ret--;
     // Überprüfen ob entladen werden kann
     fSoC = fSoC - notstromreserve;
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
@@ -1206,7 +1206,7 @@ int ladedauer = 0;
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
 // die Wetterdaten alle 15min in der 1ten min holen,
-        (e3dc.openmeteo&&((rawtime-oldhour)>=900)&&ptm->tm_min%15==1)
+        (e3dc.openmeteo&&((rawtime-oldhour)>=800)&&ptm->tm_min%15==1)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>12*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
@@ -1564,10 +1564,12 @@ int ladedauer = 0;
                             ptm = localtime(&rawtime);
                             x3 = 0;
                             ptm->tm_hour = 0;
-                            a_time = mktime(ptm);
+//                            a_time = mktime(ptm);
                             ptm->tm_min = 0;
                             ptm->tm_sec = 0;
                             ww.hh = mktime(ptm);
+                            if (ptm->tm_hour == 1)
+                                ww.hh = ww.hh-3600;
                             int status;
                             int y1=0;
                             char var [2] [20];

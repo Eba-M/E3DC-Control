@@ -397,6 +397,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 
                                 if ((w.size()>0)&&x1<=w.size())
                                     if (wetter[x1].hh != w[x1].hh)
+                                        if (wetter[x1].hh >= w[x1].hh)
+                                            
                                         x1 = x1;
                                     if (wetter[x1].hh == w[x1].hh){
                                         // Überprüfen ob WP oder Pelletsheizung günstiger
@@ -540,8 +542,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 {
                                 wet.x1 = x1;
 //                                if (wetter[x1].solar>0)
-                                if (wetter[x1].cop==0)
-                                    wet.cop = 7;
+                                    if (wetter[x1].cop==0)
+                                    {
+                                        wet.cop = 7;
+                                        wetter[x1].cop = 7;
+                                    }
                                 else
                                     // cop um 1 erhöhen für minimum Leistung
 //                                    wet.cop = wetter[x1].cop+1;
