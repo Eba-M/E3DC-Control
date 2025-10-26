@@ -706,6 +706,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
                                                     wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                 }
+                                                else
                                                 if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
                                                 {
                                                     if (wetter1[0].waermepreis>=1000)

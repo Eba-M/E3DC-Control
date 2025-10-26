@@ -3629,7 +3629,7 @@ bDischarge = false;
                 }
         }
 
-        else          // Entladen ok
+/*        else          // Entladen ok   // Muss überprüft werden
         if ((fPower_Grid>200)&&(fAvPower_Grid > 100)&&(fAvPower_Grid < 1000)&&(iPower_Bat > 200)&&(fAvBatterie>=-200)&&fBatt_SOC>fNotstromreserve&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = (fPower_Grid-iPower_Bat)*-1;  //Automatik anstossen
@@ -3643,7 +3643,7 @@ bDischarge = false;
             } else
                 iLMStatus = -7;
         }
-
+*/
 
         
         
