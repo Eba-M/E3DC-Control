@@ -3562,7 +3562,7 @@ if (                             // Das Entladen aus dem Speicher
     ||
     (e3dc_config.aWATTar&& iPower_PV > 100  && not bWBmaxLadestrom && ((fAvPower_Grid60 < -100)||(fAvBatterie+fAvBatterie900)>100)) // Bei Solarertrag vorübergehend Entladen freigeben
 // in Ausnahmefällen das Entladen zulassen obwohl Stop gesetzt wurde, nicht wenn eAuto geladen wird
-    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&(iAvalPower>0&&fAvBatterie>100)))) // Es wird nicht mehr geladen
+//    || (e3dc_config.aWATTar&&iPower_PV > 100 &&(iBattLoad<100||(e3dc_config.wallbox >= 0&&(iAvalPower>0&&fAvBatterie>100)))) // Es wird nicht mehr geladen
     ||(iNotstrom==1)  //Notstrom
     ||(iNotstrom==4)  //Inselbetrieb
    ){
