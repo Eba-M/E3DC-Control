@@ -3553,11 +3553,11 @@ if (                             // Das Entladen aus dem Speicher
     ||
 //        (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100||fAvBatterie900>100))       // Wenn der SoC > der berechneten Reserve liegt
     (e3dc_config.aWATTar&&fPower_WB>1000&&(fAvBatterie>100)&&fAvPower_Grid600<1000)       // Es wird über Wallbox geladen und der Speicher aus dem Netz nachgeladen daher anschließend den Speicher zum Entladen sperren
-//    ||
+    ||
 // Wenn der SoC > fht (Reserve) und (fAvPower_Grid600 < -100) und Batterie wird noch geladen ->Einspeisesitutaton dann darf entladen werden
 // bei negativen Börsenpreisen nach Nebenkosten darf aus dem Netz bezogen werden
-//    (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)<0
-//        &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
+    (e3dc_config.aWATTar&& iPower_PV > 100 && (fstrompreis/10+fstrompreis*e3dc_config.AWMWSt/1000+e3dc_config.AWNebenkosten)<0
+        &&((fAvPower_Grid60 < -100)||fAvBatterie>100||fAvBatterie900>100)) // Bei Solarertrag vorübergehend Entladen freigeben
 // Entladen nach Laden kurzzeitig erlauben
     ||
     (e3dc_config.aWATTar&& iPower_PV > 100  && not bWBmaxLadestrom && ((fAvPower_Grid60 < -100)||(fAvBatterie+fAvBatterie900)>100)) // Bei Solarertrag vorübergehend Entladen freigeben
@@ -3629,7 +3629,7 @@ bDischarge = false;
                 }
         }
 
-/*        else          // Entladen ok   // Muss überprüft werden
+        else          // Entladen ok   // Muss überprüft werden
         if ((fPower_Grid>200)&&(fAvPower_Grid > 100)&&(fAvPower_Grid < 1000)&&(iPower_Bat > 200)&&(fAvBatterie>=-200)&&fBatt_SOC>fNotstromreserve&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = (fPower_Grid-iPower_Bat)*-1;  //Automatik anstossen
@@ -3643,7 +3643,7 @@ bDischarge = false;
             } else
                 iLMStatus = -7;
         }
-*/
+
 
         
         

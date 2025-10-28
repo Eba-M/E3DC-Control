@@ -753,6 +753,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     
                                 }
                             }
+                            for (int x1=3;x1 < wetter.size()-3;x1++)
+                            {
+                                if (wetter[x1-3].wpbedarf==0&&
+                                    wetter[x1-2].wpbedarf==0&&
+                                    wetter[x1-1].wpbedarf==0&&
+                                    wetter[x1+1].wpbedarf==0&&
+                                    wetter[x1+2].wpbedarf==0&&
+                                    wetter[x1+3].wpbedarf==0)
+                                    wetter[x1].wpbedarf = 0;
+                            }
                             wetter1.clear();
                         }
                     }

@@ -632,7 +632,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
             fp = fopen(line, "w");
         if(fp)
         {
-            fprintf(fp,"%2i:%2i %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2i  %2.2f\n"
+            fprintf(fp,"%2i:%2i %2.3f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2i  %2.2f\n"
                     ,ptm->tm_hour,ptm->tm_min, w[0].pp/10,faval,fSoC+reserve,reserve,fConsumption,maxsoc,minsoc,ret,Verbrauch);
             fclose(fp);
         }
