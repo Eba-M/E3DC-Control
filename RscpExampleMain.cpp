@@ -2756,6 +2756,12 @@ int LoadDataProcess() {
             
             if (ALV < 0||(t%60)==0)
                 ALV = shelly_get();
+// wenn die WP aus ist aber eine einzelne Anforderung kommt, löschen, damit nicht ausführen.
+            if (ALV == 0
+                &&wetter[1].wpbedarf==0
+                &&wetter[2].wpbedarf==0
+                &&wetter[3].wpbedarf==0)
+                wetter[0].wpbedarf=0;
             if (ALV > 0)
             {
                 if (wetter.size()==0
