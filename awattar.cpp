@@ -862,6 +862,9 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             item2 = item2->child;
             fp1 = NULL;
             float f9=0,f10=0;
+            float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
+            float f5 = iDayStat[198]/3600.0/1000.0;
+            float f6 = 1;
             if (item2->valueint>0)
             {
                 f9 =iDayStat[197]/(e3dc.speichergroesse*10*3600);
@@ -873,7 +876,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 {
                     sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
                     fp1 = fopen(line,"w");
-                    fprintf(fp1,"f2 f3 f4 f5 f6 f7 f9 %0.2f f10 %0.2f \n",f9,f10);
+                    fprintf(fp1,"f2 f3 f4 %0.2f f5 %0.2f f6 %0.2f f7 f9 %0.2f f10 %0.2f \n",f4,f5,f5/f4,f9,f10);
                 }
             }
             int x1 = 0;
@@ -902,9 +905,6 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                     float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);  //Ist
                     // aktuelle PV-Leistung ermitteln aus Prog
                     float f44 = (rawtime%900)*(wetter[0].progsolar)*100.0/900.0;
-                    float f4 = (iDayStat[199]+f44) * e3dc.speichergroesse/10000.0;
-                    float f5 = iDayStat[198]/3600.0/1000.0;
-                    float f6 = 1;
 //                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
                         if (f4>0.1&&f5>0) // erst nach der ersten kWh
                         f6 = f5/f4;
@@ -917,7 +917,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 // absoluter Ertrag des letzen 15min
                     float f8 = f9;
 //                    if (f6>0.01&&f7>0.01&&f10>0.01)
-                        f6=(f6+f7*2+f10*2)/5;  //hist. Werte und akt. Werte mitteln
+                        f6=(f6+f7*2+f10*4)/7;  //hist. Werte und akt. Werte mitteln
                     f8 = f8 * (10 - x2)/10;
                     if (f8>100) f8 = 100;
                     if (f8<-100) f8 = -100;
