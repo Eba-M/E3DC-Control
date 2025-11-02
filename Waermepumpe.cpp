@@ -501,7 +501,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                        if (waermebedarf < w.size()*2.5)
                         int x2 = 0;
                         int x3 = 0;
-                        float flowsoc[2];
+                        float flowsoc[3];
+                        float fhighsoc[3];
                         time_t itime[2];
                         float fsoc = soc;
                         
@@ -511,18 +512,23 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
                             float adj = (1-(1-e3dc.speichereta)/96);
-                            for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
+                            for (int x1=0;x1<w.size()-1&&x1<wetter.size()-1;x1++)
                                 {
                                     if (wetter[x1].solar>0)
-                                    fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf;
+                                    fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar;
                                         else
                                     fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
 //                                    fsoc = fsoc * adj;
-                                    if (fsoc>100) fsoc = 100;
+                                    if (fsoc>100)
+                                    {
+                                        fhighsoc[x3] = fhighsoc[x3] + fsoc-100;
+                                        fsoc = 100;
+                                    }
                                     if (fsoc<0) fsoc = 0;
                                     if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
                                     {
                                         flowsoc[x3] = fsoc;
+                                        fhighsoc[x3] = fsoc;
                                         itime[x3] = wetter[x1].hh+3*3600;
                                         x3++;
                                     }
@@ -618,7 +624,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                 j1=1;
 */                                            if (
                                                   // aus PV bedienen
-                                                  (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
+                                                  (
+                                                   (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
+                                                    && fhighsoc[0]>0)
                                                    ||
                                                    // aus dem Netz bedienen
                                                    wet.status == 0
@@ -643,10 +651,25 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                     else
                                                         flowsoc[j1] = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
                                                 }
-                                                
+                                                if (wet.status == 2)
+                                                {
+                                                    if (fhighsoc[0]>0)
+                                                        
+                                                    {
+                                                        if (wpbedarf >0)
+                                                            fhighsoc[j1] = fhighsoc[j1] - 0.1/e3dc.speichergroesse*25;
+                                                        else
+                                                            fhighsoc[j1] = fhighsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                    }
+                                                    else
+                                                        wetter1[0].status = 1;
+                                                }
+
                                                 if (wet.status == 1)
                                                     flowsoc[j1] = flowsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
-                                                
+                                                if (wet.status == 2&&fhighsoc[0]>0)
+                                                    fhighsoc[j1] = fhighsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
+
                                                 if (wetter[wetter1[0].x1].wpbedarf > 0)
                                                 {
                                                     leistung = leistung + 0.1;

@@ -946,7 +946,7 @@ bool GetConfig()
         e3dc_config.AWDiff = (e3dc_config.AWNebenkosten/(e3dc_config.AWMWSt+100) * (e3dc_config.AWAufschlag-1)*1000);
         if (e3dc_config.powerfaktor < 0)
             e3dc_config.powerfaktor = (float(e3dc_config.maximumLadeleistung)/(e3dc_config.obererLadekorridor-e3dc_config.untererLadekorridor));
-        if (e3dc_config.aWATTar) {
+        if (e3dc_config.aWATTar>=0) {
 // wenn awattar dann hton/htoff deaktivieren
             e3dc_config.htoff = e3dc_config.hton+1;
             e3dc_config.htsat = false;
@@ -3674,7 +3674,7 @@ bDischarge = false;
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
-    if (e3dc_config.aWATTar) printf("%.2f",fspreis);
+    if (e3dc_config.aWATTar>=0) printf("%.2f",fspreis);
     
 // PVon dynamischer Berechnung unter Ausnutzung des Rest SoC am Morgen
     int iMinlade = iMinLade;
@@ -5134,12 +5134,12 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 
             
             // Zeitsteuerung WB am laufen? Ja oder Gridmodus
-            if ((bWBZeitsteuerung||not bWBLademodus)&&bWBConnect&&e3dc_config.aWATTar)
+            if ((bWBZeitsteuerung||not bWBLademodus)&&bWBConnect&&e3dc_config.aWATTar>=0)
                 // Zeitsteuerung aktiv + wenn Auto angesteckt
             {
                 // Überprüfen ob noch Zeitsteuerung aktiv
                 bWBZeitsteuerung = false;
-                if (e3dc_config.aWATTar>0||w.size()>0)
+                if (e3dc_config.aWATTar>=0||w.size()>0)
                     for (int j = 0; j < ch.size(); j++ ) // suchen nach dem Zeitfenster
                         // Umstellung auf 15min Intervall
                         if ((ch[j].hh <= tE3DC)&&(ch[j].hh+910 >= tE3DC)){
@@ -6895,7 +6895,7 @@ static void mainLoop(void)
         if(iAuthenticated == 1) {
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1\n");
-            if (e3dc_config.aWATTar||e3dc_config.openmeteo)
+            if (e3dc_config.aWATTar>=0||e3dc_config.openmeteo)
             aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunrise,iDayStat);
             
 //            test;
