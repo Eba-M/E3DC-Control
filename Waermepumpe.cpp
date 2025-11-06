@@ -590,6 +590,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 wetter[x1].waermepreis=wet.waermepreis;
                                 wetter1.push_back(wet);
                             }
+                            int z1 = 5;
+                            if (zuluft > -99)
+                            for (int z2=0;z2<z1;z2++)
+                                wetter[z2].temp = ((z1-z2)*zuluft+wetter[z2].temp*z2)/z1;
+                                
 //                            waermebedarf= 109;
                             int schleife = 0;
                             while (waermebedarf>1)
