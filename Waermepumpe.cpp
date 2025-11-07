@@ -357,6 +357,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 //                            if (wetter[x1].temp < e3dc.WPHeizgrenze&&e3dc.WPLeistung>0)
 
                             {
+                                int z1 = 5;
+                                if (zuluft > -99&&x1<z1)
+//                                for (int z2=0;z2<z1;z2++)
+                                    wetter[x1].temp = ((z1-x1)*zuluft+wetter[x1].temp*x1)/z1;
+
                                 float f1=((-fusspunkt+endpunkt)/(e3dc.WPHeizgrenze+15))*(e3dc.WPHeizgrenze-wetter[x1].temp)+fusspunkt;
                                 // Temperaturhub aud -15° bezogen
                                 float f2 = ((absolutenull+wetter[x1].temp)/(f1))*.6; // COP
@@ -506,12 +511,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         int iindxsoc[3]= {0,0,0};
                         time_t itime[2]= {0,0};
                         float fsoc = soc;
-                        
+/*
                         int z1 = 5;
                         if (zuluft > -99)
                         for (int z2=0;z2<z1;z2++)
                             wetter[z2].temp = ((z1-z2)*zuluft+wetter[z2].temp*z2)/z1;
-
+*/
                         
 //                        if (waermebedarf < e3dc.WPLeistung*24)
                         {
