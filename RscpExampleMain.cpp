@@ -572,6 +572,7 @@ bool GetConfig()
         e3dc_config.WPZWE = -99;
         e3dc_config.WPZWEPVon = -1;
         e3dc_config.WPOffset = 2;
+        e3dc_config.WPDynCop = 0.3;
         e3dc_config.MQTTavl = -1;
         e3dc_config.DCDC = true;
 
@@ -798,6 +799,8 @@ bool GetConfig()
                         e3dc_config.WPZWEPVon = atof(value);
                     else if(strcmp(var, "wpoffset") == 0)
                         e3dc_config.WPOffset = atof(value);
+                    else if(strcmp(var, "wpdyncop") == 0)
+                        e3dc_config.WPDynCop = atof(value); // Anpassung COP an die Leistungsrampe, COP WPMin / WPLeistung
                     else if(strcmp(var, "bwwpein") == 0)
                         e3dc_config.BWWPein = atof(value);
                     else if(strcmp(var, "bwwpaus") == 0)
