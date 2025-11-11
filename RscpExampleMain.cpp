@@ -6902,7 +6902,13 @@ static void mainLoop(void)
             if (e3dc_config.debug) printf("M2\n");
             float zulufttemp = -99;
             if (e3dc_config.WPWolf&&wolf.size()>0)
-                zulufttemp = wolf[wpzl].wert;
+                // Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
+                if (
+                    (wolf[wpzl].wert>-90)
+                    &&
+                    (wolf[wpbhg].wert!=6)
+                    )
+                    zulufttemp = wolf[wpzl].wert;
             if (fBatt_SOC >= 0)
             mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3\n");
