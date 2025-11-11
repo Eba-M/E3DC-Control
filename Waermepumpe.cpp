@@ -505,6 +505,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     if (e3dc.WPWolf)
                     {
 //                        if (waermebedarf < w.size()*2.5)
+                        float dyncop = 0.6; // Anpassung cop bei minimum- zu normaleistung um 40%
                         int x2 = 0;
                         int x3 = 0;
                         float flowsoc[3]= {0,0,0};
@@ -570,7 +571,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 else
                                     // cop um 1 erhöhen für minimum Leistung
 //                                    wet.cop = wetter[x1].cop+1;
-                                wet.cop = wetter[x1].cop*1.3; // COP um 30% anheben bei minimum-Leistung
+
+                                    wet.cop = wetter[x1].cop*(1+dyncop); // COP anheben bei minimum-Leistung
 //                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
 //                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
 //                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
@@ -697,7 +699,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                     wetter[wetter1[0].x1].waerme = f2;
                                                 waermebedarf = waermebedarf - f2/4;
 // Ermitteln des dyn. cop bei Minimum/Maximum bzw. der angeforderten Leistung
-                                                float dyncop = 0.4; // Anpassung cop bei minimum- zu normaleistung um 40%
                                                 float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*dyncop;
                                                 float cop = wetter[wetter1[0].x1].cop*(1+dyncop-cop1);
                                                 float waermepreis = wetter1[0].waermepreis;
