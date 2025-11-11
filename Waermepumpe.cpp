@@ -505,7 +505,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                     if (e3dc.WPWolf)
                     {
 //                        if (waermebedarf < w.size()*2.5)
-                        float dyncop = 0.6; // Anpassung cop bei minimum- zu normaleistung um 40%
+                        float dyncop = .4; // Anpassung cop bei minimum- zu normaleistung um 40%
                         int x2 = 0;
                         int x3 = 0;
                         float flowsoc[3]= {0,0,0};
