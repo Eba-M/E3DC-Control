@@ -6903,7 +6903,7 @@ static void mainLoop(void)
             
 //            test;
             if (e3dc_config.debug) printf("M2\n");
-            float zulufttemp = -99;
+            static float zulufttemp = -99;
             if (e3dc_config.WPWolf&&wolf.size()>0)
                 // Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
                 if (
