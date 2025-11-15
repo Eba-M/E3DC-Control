@@ -521,13 +521,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         {
                             // Verteilen des Wärmebedarfs auf die Zeiten der günstigsten Erzeugung, d.h. höchste Temperatur
                             std::vector<wetter1_s>wetter1; // Stundenwerte der Börsenstrompreise
+                            std::vector<wetter1_s>wetter2; // Stundenwerte der Börsenstrompreise
                             wetter1_s wet;
                             float adj = (1-(1-e3dc.speichereta)/96);
-                            for (int y1=0;y1<w.size()&&y1<wetter.size();y1=y1+96)
                             {
-                                if (y1>0)
-                                    waermebedarf = waermebedarf1;
-                                for (int x1=y1;x1<w.size()-1&&x1<wetter.size()-1&&x1<y1+96;x1++)
+                                for (int x1=0;x1<w.size()-1&&x1<wetter.size()-1;x1++)
                                 {
                                     if (wetter[x1].solar>0)
                                         fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar;
@@ -560,7 +558,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     
                                 }
                                 fsoc = flowsoc[0];
-                                for (int x1=y1;x1<w.size()&&x1<wetter.size()&&x1<y1+96;x1++)
+                                for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
                                     wet.x1 = x1;
                                     //                                if (wetter[x1].solar>0)
@@ -603,222 +601,232 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                     wetter[x1].heizstabbedarf=0;
                                     wetter[x1].waerme=0;
                                     wetter[x1].waermepreis=wet.waermepreis;
-                                    wetter1.push_back(wet);
+                                    if (x1<96)
+                                        wetter1.push_back(wet);
+                                    else
+                                        wetter2.push_back(wet);
                                 }
                                 
                                 //                            waermebedarf= 109;
                                 int schleife = 0;
-                                while (waermebedarf>1)
+                                for (int y1=0;y1<2;y1++)
                                 {
-                                    schleife++;
-                                    if (schleife>100000)
-                                        break;
-                                    std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
-                                        return a.waermepreis < b.waermepreis;});
+                                    if (y1==1)
                                     {
-                                        wet = wetter1[0];
-                                        
-                                        float av = e3dc.WPLeistung/(wetter[wetter1[0].x1].cop);  // Power bei WP NennLeistung
-                                        float leistung = e3dc.WPmin;
-                                        float diffleistung = av - leistung;
-                                        
+                                        waermebedarf=waermebedarf1;
+                                        wetter1.clear();
+                                        wetter1 = wetter2;
+                                        wetter2.clear();
+                                    }
+                                
+                                    while (waermebedarf>1)
+                                    {
+                                        schleife++;
+                                        if (schleife>100000)
+                                            break;
+                                        std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b) {
+                                            return a.waermepreis < b.waermepreis;});
                                         {
-                                            float wpbedarf = wetter[wetter1[0].x1].wpbedarf;
-                                            leistung=wetter[wetter1[0].x1].wpbedarf*e3dc.speichergroesse/25;
-                                            if (leistung < e3dc.WPmin)
-                                                leistung = e3dc.WPmin;
+                                            wet = wetter1[0];
                                             
-                                            // Um 100W erhöhen
-                                            int j1 = (-iindxsoc[0] + wet.x1+96) / 96;
-                                            if (leistung < av)   // Verdichterleistung erhöhen
+                                            float av = e3dc.WPLeistung/(wetter[wetter1[0].x1].cop);  // Power bei WP NennLeistung
+                                            float leistung = e3dc.WPmin;
+                                            float diffleistung = av - leistung;
+                                            
                                             {
+                                                float wpbedarf = wetter[wetter1[0].x1].wpbedarf;
+                                                leistung=wetter[wetter1[0].x1].wpbedarf*e3dc.speichergroesse/25;
+                                                if (leistung < e3dc.WPmin)
+                                                    leistung = e3dc.WPmin;
                                                 
-                                                /*                                            if (wetter[wetter1[0].x1].hh<itime[0])
-                                                 j1=0;
-                                                 else
-                                                 j1=1;
-                                                 */                                            if (
-                                                                                                   // aus PV bedienen
-                                                                                                   (
-                                                                                                    (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
-                                                                                                     && fhighsoc[j1]>0&&wet.status==2)
-                                                                                                    ||
-                                                                                                    // aus dem Netz bedienen
-                                                                                                    wet.status == 0
-                                                                                                    ||
-                                                                                                    // aus dem Speicher bedienen
-                                                                                                    (flowsoc[j1] > 0.1/e3dc.speichergroesse*25+e3dc.AWReserve
-                                                                                                     &&
-                                                                                                     wet.status == 1
-                                                                                                     &&
-                                                                                                     wetter[wetter1[0].x1].hh < itime[j1]
-                                                                                                     
-                                                                                                     )
-                                                                                                    )
-                                                                                                   )
-                                                 {
-                                                     // WP wird aus dem Speicher bedient
-                                                     if (wet.status == 1
-                                                         &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
-                                                     {
-                                                         
-                                                         if (wpbedarf >0)
-                                                             flowsoc[j1] = flowsoc[j1] - 0.1/e3dc.speichergroesse*25;
-                                                         else
-                                                             flowsoc[j1] = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
-                                                     }
-                                                     if (wet.status == 2)
-                                                     {
-                                                         if (fhighsoc[j1]>0)
-                                                             
-                                                         {
-                                                             if (wpbedarf >0)
-                                                                 fhighsoc[j1] = fhighsoc[j1] - 0.1/e3dc.speichergroesse*25;
-                                                             else
-                                                                 fhighsoc[j1] = fhighsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
-                                                         }
-                                                         else
-                                                             wetter1[0].status = 1;
-                                                     }
-                                                     
-                                                     //                                                if (wet.status == 1)
-                                                     //                                                    flowsoc[j1] = flowsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
-                                                     //                                                if (wet.status == 2&&fhighsoc[j1]>0&&wpbedarf>0)
-                                                     //                                                    fhighsoc[j1] = fhighsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
-                                                     
-                                                     if (wetter[wetter1[0].x1].wpbedarf > 0)
-                                                     {
-                                                         leistung = leistung + 0.1;
-                                                         waermebedarf = waermebedarf + wetter[wetter1[0].x1].waerme/4;
-                                                         // Kann die WP noch aus der Solarleistung abgedeckt werden?
-                                                     }
-                                                     
-                                                     wetter[wetter1[0].x1].wpbedarf=leistung/e3dc.speichergroesse*25;
-                                                     float f1 = wetter[wetter1[0].x1].wpbedarf;
-                                                     float f2 = leistung*(wetter1[0].cop);
-                                                     if (f2>wetter[wetter1[0].x1].waerme)
-                                                         wetter[wetter1[0].x1].waerme = f2;
-                                                     waermebedarf = waermebedarf - f2/4;
-                                                     // Ermitteln des dyn. cop bei Minimum/Maximum bzw. der angeforderten Leistung
-                                                     float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*dyncop;
-                                                     float cop = wetter[wetter1[0].x1].cop*(1+dyncop-cop1);
-                                                     float waermepreis = wetter1[0].waermepreis;
-                                                     if (waermepreis<0)
-                                                         waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
-                                                     else
-                                                         waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
-                                                     wetter1[0].waermepreis = waermepreis;
-                                                     wetter[wetter1[0].x1].waermepreis = waermepreis;
-                                                     wetter1[0].cop = cop;
-                                                     
-                                                     if (wet.status == 1)
-                                                         flowsoc[j1] = flowsoc[j1] - wetter[wetter1[0].x1].wpbedarf;
-                                                     
-                                                     if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
-                                                         && wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar
-                                                         && wetter1[0].status == 2 )
-                                                     {
-                                                         wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
-                                                         wetter1[0].status = 1;
-                                                     }
-                                                 }
-                                                 else
-                                                 {
-                                                     if (wet.status==2)
-                                                     {
-                                                         wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
-                                                         wetter1[0].status = 1;
-                                                     }
-                                                     else
-                                                         if (wet.status==1)
-                                                         {
-                                                             
-                                                             wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
-                                                             wetter1[0].status = 0;
-                                                         }
-                                                 }
+                                                // Um 100W erhöhen
+                                                int j1 = (-iindxsoc[0] + wet.x1+96) / 96;
+                                                if (leistung < av)   // Verdichterleistung erhöhen
+                                                {
+                                                    
+                                                    if (
+                                                        // aus PV bedienen
+                                                        (
+                                                         (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
+                                                          && fhighsoc[j1]>0&&wet.status==2)
+                                                         ||
+                                                         // aus dem Netz bedienen
+                                                         wet.status == 0
+                                                         ||
+                                                         // aus dem Speicher bedienen
+                                                         (flowsoc[j1] > 0.1/e3dc.speichergroesse*25+e3dc.AWReserve
+                                                          &&
+                                                          wet.status == 1
+                                                          &&
+                                                          wetter[wetter1[0].x1].hh < itime[j1]
+                                                          
+                                                          )
+                                                         )
+                                                        )
+                                                    {
+                                                        // WP wird aus dem Speicher bedient
+                                                        if (wet.status == 1
+                                                            &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
+                                                        {
+                                                            
+                                                            if (wpbedarf >0)
+                                                                flowsoc[j1] = flowsoc[j1] - 0.1/e3dc.speichergroesse*25;
+                                                            else
+                                                                flowsoc[j1] = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                        }
+                                                        if (wet.status == 2)
+                                                        {
+                                                            if (fhighsoc[j1]>0)
+                                                                
+                                                            {
+                                                                if (wpbedarf >0)
+                                                                    fhighsoc[j1] = fhighsoc[j1] - 0.1/e3dc.speichergroesse*25;
+                                                                else
+                                                                    fhighsoc[j1] = fhighsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                            }
+                                                            else
+                                                                wetter1[0].status = 1;
+                                                        }
+                                                        
+                                                        //                                                if (wet.status == 1)
+                                                        //                                                    flowsoc[j1] = flowsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
+                                                        //                                                if (wet.status == 2&&fhighsoc[j1]>0&&wpbedarf>0)
+                                                        //                                                    fhighsoc[j1] = fhighsoc[j1] + wetter[wetter1[0].x1].wpbedarf;
+                                                        
+                                                        if (wetter[wetter1[0].x1].wpbedarf > 0)
+                                                        {
+                                                            leistung = leistung + 0.1;
+                                                            waermebedarf = waermebedarf + wetter[wetter1[0].x1].waerme/4;
+                                                            // Kann die WP noch aus der Solarleistung abgedeckt werden?
+                                                        }
+                                                        
+                                                        wetter[wetter1[0].x1].wpbedarf=leistung/e3dc.speichergroesse*25;
+                                                        float f1 = wetter[wetter1[0].x1].wpbedarf;
+                                                        float f2 = leistung*(wetter1[0].cop);
+                                                        if (f2>wetter[wetter1[0].x1].waerme)
+                                                            wetter[wetter1[0].x1].waerme = f2;
+                                                        waermebedarf = waermebedarf - f2/4;
+                                                        // Ermitteln des dyn. cop bei Minimum/Maximum bzw. der angeforderten Leistung
+                                                        float cop1 = ((leistung + 0.1 - e3dc.WPmin)/diffleistung)*dyncop;
+                                                        float cop = wetter[wetter1[0].x1].cop*(1+dyncop-cop1);
+                                                        float waermepreis = wetter1[0].waermepreis;
+                                                        if (waermepreis<0)
+                                                            waermepreis = wetter1[0].waermepreis*cop/wetter1[0].cop;
+                                                        else
+                                                            waermepreis = wetter1[0].waermepreis*wetter1[0].cop/cop;
+                                                        wetter1[0].waermepreis = waermepreis;
+                                                        wetter[wetter1[0].x1].waermepreis = waermepreis;
+                                                        wetter1[0].cop = cop;
+                                                        
+                                                        if (wet.status == 1)
+                                                            flowsoc[j1] = flowsoc[j1] - wetter[wetter1[0].x1].wpbedarf;
+                                                        
+                                                        if (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
+                                                            && wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar
+                                                            && wetter1[0].status == 2 )
+                                                        {
+                                                            wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
+                                                            wetter1[0].status = 1;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (wet.status==2)
+                                                        {
+                                                            wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
+                                                            wetter1[0].status = 1;
+                                                        }
+                                                        else
+                                                            if (wet.status==1)
+                                                            {
+                                                                
+                                                                wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
+                                                                wetter1[0].status = 0;
+                                                            }
+                                                    }
+                                                    
+                                                    // dyn. cop abhängig von der Leistung berechnen
+                                                }
                                                 
-                                                // dyn. cop abhängig von der Leistung berechnen
+                                                else  // Einsatz BWWP und Heizstäbe
+                                                {
+                                                    if (wet.status==2)
+                                                    {
+                                                        if (fhighsoc[j1]>3/e3dc.speichergroesse*25)
+                                                            fhighsoc[j1]=fhighsoc[j1]-3/e3dc.speichergroesse*25;
+                                                        else
+                                                            wetter1[0].status=1;
+                                                    }
+                                                    
+                                                    if (wet.status==1)
+                                                    {
+                                                        if (flowsoc[j1]>3/e3dc.speichergroesse*25)
+                                                            flowsoc[j1]=flowsoc[j1]-3/e3dc.speichergroesse*25;
+                                                        else
+                                                            wetter1[0].status=0;
+                                                    }
+                                                    if (wetter[wetter1[0].x1].wwwpbedarf==0)
+                                                    {
+                                                        wetter[wetter1[0].x1].wwwpbedarf=0.5;
+                                                        waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*wetter1[0].cop/4;
+                                                        // Einsatz Heizstab Wärmepreis sind die Bezugskosten
+                                                        if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+3/e3dc.speichergroesse*25
+                                                            >wetter[wetter1[0].x1].solar+fhighsoc[j1])
+                                                            wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                        else
+                                                            wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                        
+                                                        //                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                    }
+                                                    else
+                                                        if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
+                                                        {
+                                                            if (wetter1[0].waermepreis>=1000)
+                                                                break; // keine heizreserven mehr
+                                                            if (wetter[wetter1[0].x1].heizstabbedarf < 9)
+                                                                wetter[wetter1[0].x1].heizstabbedarf =
+                                                                wetter[wetter1[0].x1].heizstabbedarf + 3;
+                                                            if (wetter[wetter1[0].x1].heizstabbedarf>=9)
+                                                                wetter1[0].waermepreis = 1000;
+                                                            
+                                                            waermebedarf = waermebedarf - .75;
+                                                            
+                                                            if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf
+                                                                +0.5/e3dc.speichergroesse*25
+                                                                +(wetter[wetter1[0].x1].heizstabbedarf + 3)/e3dc.speichergroesse*25
+                                                                < wetter[wetter1[0].x1].solar)
+                                                                
+                                                                wetter1[0].waermepreis =                                                         wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                            else
+                                                                wetter1[0].waermepreis =
+                                                                (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                            
+                                                        }
+                                                    
+                                                }
                                             }
                                             
-                                            else  // Einsatz BWWP und Heizstäbe
+                                            
+                                            if (leistung  > av)
                                             {
-                                                if (wet.status==2)
-                                                {
-                                                    if (fhighsoc[j1]>3/e3dc.speichergroesse*25)
-                                                        fhighsoc[j1]=fhighsoc[j1]-3/e3dc.speichergroesse*25;
-                                                    else
-                                                        wetter1[0].status=1;
-                                                }
-                                                
-                                                if (wet.status==1)
-                                                {
-                                                    if (flowsoc[j1]>3/e3dc.speichergroesse*25)
-                                                        flowsoc[j1]=flowsoc[j1]-3/e3dc.speichergroesse*25;
-                                                    else
-                                                        wetter1[0].status=0;
-                                                }
+                                                // WP Leistung erreicht, jetzt gehts mit der BWWP weiter
                                                 if (wetter[wetter1[0].x1].wwwpbedarf==0)
                                                 {
-                                                    wetter[wetter1[0].x1].wwwpbedarf=0.5;
-                                                    waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*wetter1[0].cop/4;
-                                                    // Einsatz Heizstab Wärmepreis sind die Bezugskosten
-                                                    if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+3/e3dc.speichergroesse*25
-                                                        >wetter[wetter1[0].x1].solar+fhighsoc[j1])
-                                                        wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                    if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+0.5/e3dc.speichergroesse*25
+                                                        >wetter[wetter1[0].x1].solar)
+                                                        wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/4;
                                                     else
-                                                        wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
-                                                    
-                                                    //                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
+                                                        
+                                                        wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/4;
+                                                    wetter1[0].cop = 4;
                                                 }
-                                                else
-                                                    if (wetter[wetter1[0].x1].wwwpbedarf>0) //heizstab
-                                                    {
-                                                        if (wetter1[0].waermepreis>=1000)
-                                                            break; // keine heizreserven mehr
-                                                        if (wetter[wetter1[0].x1].heizstabbedarf < 9)
-                                                            wetter[wetter1[0].x1].heizstabbedarf =
-                                                            wetter[wetter1[0].x1].heizstabbedarf + 3;
-                                                        if (wetter[wetter1[0].x1].heizstabbedarf>=9)
-                                                            wetter1[0].waermepreis = 1000;
-                                                        
-                                                        waermebedarf = waermebedarf - .75;
-                                                        
-                                                        if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf
-                                                            +0.5/e3dc.speichergroesse*25
-                                                            +(wetter[wetter1[0].x1].heizstabbedarf + 3)/e3dc.speichergroesse*25
-                                                            < wetter[wetter1[0].x1].solar)
-                                                            
-                                                            wetter1[0].waermepreis =                                                         wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
-                                                        else
-                                                            wetter1[0].waermepreis =
-                                                            (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
-                                                        
-                                                    }
-                                                
                                             }
+                                            
+                                            
                                         }
-                                        
-                                        
-                                        if (leistung  > av)
-                                        {
-                                            // WP Leistung erreicht, jetzt gehts mit der BWWP weiter
-                                            if (wetter[wetter1[0].x1].wwwpbedarf==0)
-                                            {
-                                                if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+0.5/e3dc.speichergroesse*25
-                                                    >wetter[wetter1[0].x1].solar)
-                                                    wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/4;
-                                                else
-                                                    
-                                                    wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/4;
-                                                wetter1[0].cop = 4;
-                                            }
-                                        }
-                                        
-                                        
                                     }
+                                    wetter1.clear();
                                 }
-                                wetter1.clear();
                             }
                         }
                     }
