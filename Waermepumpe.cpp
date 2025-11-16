@@ -609,9 +609,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                 
                                 //                            waermebedarf= 109;
                                 int schleife = 0;
-                                for (int y1=0;y1<2;y1++)
+                                for (int y2=0;y2<2;y2++)
                                 {
-                                    if (y1==1)
+                                    if (y2==1)
                                     {
                                         waermebedarf=waermebedarf1;
                                         wetter1.clear();
@@ -1032,7 +1032,15 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
 
             for (int j = 0;j<w.size();j++)
                 if (e3dc.openmeteo)
-                    fprintf(fp,"%0.2f %0.3f %0.2f %0.2f %0.2f %0.2f  \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                {
+                    fprintf(fp,"%0.2f %0.3f %0.2f %0.2f %0.2f %0.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                    if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
+                        fprintf(fp," %0.2f",wetter[j].wwwpbedarf);
+                    if (e3dc.WPWolf&&wetter[j].heizstabbedarf>0)
+                        fprintf(fp," %0.1f",wetter[j].heizstabbedarf);
+
+                    fprintf(fp,"\n");
+                }
                 else
                     fprintf(fp,"%i %0.3f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
 
