@@ -2799,7 +2799,7 @@ int LoadDataProcess() {
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
                                     float fkostensoll = fspreis/fcop;
 
-                                    if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0)
+                                    if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0&&wolf[wpbhg].wert!=6)
                                         ||
                                         (PVon>e3dc_config.WPPVon)
                                         )
@@ -2859,7 +2859,7 @@ int LoadDataProcess() {
                                 }
                             } else
 
-            if (t%60<5&&t - wp_t > 115&&ALV>=0&&(tasmota_status[0]==0||wetter[0].wpbedarf>0))
+                                if (t%60<5&&t - wp_t > 115&&wolf[wpbhg].wert!=6&&ALV>=0&&(tasmota_status[0]==0||wetter[0].wpbedarf>0))
             {
                 if (ALV!=0)
                     if (ALV > e3dc_config.shelly0V10Vmax
@@ -2899,7 +2899,7 @@ int LoadDataProcess() {
                 
                 // Leistung nur erhöhen, wenn der Bufferstpeicher unterhalb der Grenze liegt
                 //
-                if (wolf.size()>0)
+                if (wolf.size()>0&&wolf[wpbhg].wert!=6)
                     
                 {
                     ALV = shelly_get();
