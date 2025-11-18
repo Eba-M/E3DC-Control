@@ -470,6 +470,9 @@ bool GetConfig()
         e3dc_config.shelly0V10V = false;
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
+        e3dc_config.shelly0V10VEZH1 = 0;
+        e3dc_config.shelly0V10VEZH2 = 0;
+        e3dc_config.shelly0V10VEZH3 = 0;
         e3dc_config.tasmota = false;
         e3dc_config.statistik = true;
         e3dc_config.WP = false;
@@ -747,6 +750,12 @@ bool GetConfig()
                         e3dc_config.shelly0V10Vmin = atoi(value);
                     else if(strcmp(var, "shelly0v10vmax") == 0)
                         e3dc_config.shelly0V10Vmax = atoi(value);
+                    else if(strcmp(var, "shelly0v10ezh1") == 0)
+                        e3dc_config.shelly0V10VEZH1 = atoi(value);
+                    else if(strcmp(var, "shelly0v10ezh2") == 0)
+                        e3dc_config.shelly0V10VEZH3 = atoi(value);
+                    else if(strcmp(var, "shelly0v10ezh3") == 0)
+                        e3dc_config.shelly0V10VEZH3 = atoi(value);
                     else if(strcmp(var, "untererladekorridor") == 0)
                         e3dc_config.untererLadekorridor = atoi(value);
                     else if(strcmp(var, "obererladekorridor") == 0)
@@ -2326,8 +2335,8 @@ int LoadDataProcess() {
             {
                 iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
                 iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
-                iHeatStat[1] = iHeatStat[1] + (1500)*(t-myt_alt);
-                iHeatStat[0] = iHeatStat[0]  + (1500)*(t-myt_alt);
+                iHeatStat[1] = iHeatStat[1] + (1800)*(t-myt_alt);
+                iHeatStat[0] = iHeatStat[0]  + (1800)*(t-myt_alt);
             }
         }
         
@@ -2903,6 +2912,22 @@ int LoadDataProcess() {
                     
                 {
                     ALV = shelly_get();
+                    // Einsatz Heizstäbe
+                    if (wetter[0].heizstabbedarf>0)
+                    {
+                        switch (wetter[0].heizstabbedarf)
+                        {
+                            case 3:
+                                shelly(e3dc_config.shelly0V10VEZH1);
+                                break;
+                            case 6:
+                                shelly(e3dc_config.shelly0V10VEZH2);
+                                break;
+                            case 9:
+                                shelly(e3dc_config.shelly0V10VEZH3);
+                                break;
+                        }
+                    } else
                     // Verdichterleistung herunterfahren
                     if
                         (
@@ -7117,6 +7142,7 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
