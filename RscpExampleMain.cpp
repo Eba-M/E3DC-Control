@@ -5196,8 +5196,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     
                     if (bWBZeitsteuerung)
                     {
-                        if (not bWBCharge||bWBStopped)
-                            //                        if (bWBZeitsteuerung&&not bWBCharge&& not bWBStart&&bWBStopped)
+                        if (bWBStopped)
+//                            if (not bWBCharge||bWBStopped)
                         {
                             WBchar6[4] = 1;
                         }
