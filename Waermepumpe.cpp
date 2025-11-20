@@ -777,7 +777,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                                                         waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*wetter1[0].cop/4;
                                                         // Einsatz Heizstab Wärmepreis sind die Bezugskosten
                                                         if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+3/e3dc.speichergroesse*25
-                                                            >wetter[wetter1[0].x1].solar+fhighsoc[j1])
+                                                            >wetter[wetter1[0].x1].solar
+                                                            ||
+                                                            fhighsoc[j1]<3/e3dc.speichergroesse*25)
                                                             wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                         else
                                                             wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
