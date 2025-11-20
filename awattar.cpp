@@ -150,7 +150,7 @@ float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int
         return 0;
     for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
     {
-        x3 = wetter[j].hourly + wetter[j].wpbedarf - wetter[j].solar;;
+        x3 = wetter[j].hourly + wetter[j].wpbedarf + wetter[j].wwwpbedarf + wetter[j].heizstabbedarf - wetter[j].solar;;
         // Suchen nach Hoch und Tiefs
         if (w[j].pp > preis) 
         {
@@ -320,9 +320,9 @@ int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
 {
     
     Verbrauch = 0;
-    for (;x1<w.size()&&w[x1].hourly+w[x1].wpbedarf>w[x1].solar;x1++)
+    for (;x1<w.size()&&w[x1].hourly+w[x1].wpbedarf+ w[x1].wwwpbedarf + w[x1].heizstabbedarf>w[x1].solar;x1++)
     {
-        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf - w[x1].solar;
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf- w[x1].solar;
     }
     return x1;
 }
@@ -338,8 +338,8 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     int posmax = 0;
     for (;x1<w.size()&&w[x1].hourly>w[x1].solar;x1++)
     {
-        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf + w[x1].solar;
-        soc = soc + w[x1].hourly + w[x1].wpbedarf + w[x1].solar;
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
+        soc = soc + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
         if (soc <= 0) soc = 0; else
             if (soc > maxsoc)
             {

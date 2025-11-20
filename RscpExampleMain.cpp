@@ -473,6 +473,7 @@ bool GetConfig()
         e3dc_config.shelly0V10VEZH1 = 0;
         e3dc_config.shelly0V10VEZH2 = 0;
         e3dc_config.shelly0V10VEZH3 = 0;
+        e3dc_config.shelly0V10VEZH4 = 0;
         e3dc_config.tasmota = false;
         e3dc_config.statistik = true;
         e3dc_config.WP = false;
@@ -756,6 +757,8 @@ bool GetConfig()
                         e3dc_config.shelly0V10VEZH2 = atoi(value);
                     else if(strcmp(var, "shelly0v10vezh3") == 0)
                         e3dc_config.shelly0V10VEZH3 = atoi(value);
+                    else if(strcmp(var, "shelly0v10vezh4") == 0)
+                        e3dc_config.shelly0V10VEZH4 = atoi(value);
                     else if(strcmp(var, "untererladekorridor") == 0)
                         e3dc_config.untererLadekorridor = atoi(value);
                     else if(strcmp(var, "obererladekorridor") == 0)
@@ -2029,7 +2032,7 @@ int shelly(int ALV)
     FILE *fp;
     fp==NULL;
     if (ALV>1&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
-    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
+//    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
     if (e3dc_config.shelly0V10V&&shellytimer < t&&ALV!=ALV_alt)
     {
         if (ALV>1)
@@ -2054,7 +2057,133 @@ typedef struct {
     time_t t;
     float fah, fsoc, fvoltage, fcurrent;
 }soc_t;
+int Ermitteln_Statistik()
+{
+    float f2 = 0;  // Tägliche solare Erzeugung
+    float f3 = 0;
+    float f7 = 0;  // Zum Speichern zur Verfügung stehende Energie
+    fPVdirect = 0;
+    fPVtoday = -1;
+    fPVcharge = 0;
 
+    //            for (int x1=0; x1<wetter.size(); x1++) {
+        for (int x1=0; x1<wetter.size(); x1++) // nur die nächsten 24h
+        {
+            int hh = (wetter[x1].hh%(24*3600));
+            int x2 = (wetter[x1].hh%(24*7*4*900))/900;
+            int x5 = (wetter[x1].hh%(24*4*900))/900;
+
+            {
+                        
+                if (e3dc_config.statistik)
+                {
+                    int x4 = 0;
+                    int x6 = 0;
+                    float f4 = 0;
+                    float f6 = 0;
+
+                    for (int y1=-1;y1<2;y1++)
+                    {
+                        int x3 = x5 + y1;
+                        for (int y2=0;y2<7;y2++)
+                        {
+                            x3=x3+4*24;
+                            if (x3 < 0) x3 = x3 + 24*4*7;
+                            if (x3 > 24*4*7) x3 = x3 -24*4*7;
+                            if (iWeekhour[x3] > 0)
+                                x4++;
+                            float f8 = iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+                            f4 = f4 + f8;
+                            if (iWeekhourWP[x3] > 0)
+                                x6++;
+                            f6 = f6 + iWeekhourWP[x3]/36000.0/e3dc_config.speichergroesse;
+
+                        }
+                    }
+                    if (x4 > 0)
+                    {
+                        if (x1==0)  // die ersten 15min anteilig berechnen
+                        {
+                            f3 = (f4/x4)/900*(900-t%900);
+                        }
+                        else
+                        {
+                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                                f3 = f3 + f4 / x4;
+                        }
+                        wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
+// den tatsächlichen Verbrauch der WP zu Grunde legen
+                        float wpbedarf = (f6/x4);
+//                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0||e3dc_config.WPWolf)
+                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
+                            wetter[x1].wpbedarf = wpbedarf;
+                        // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
+                        int wbpower = fPower_WB;
+                        if (wbpower == 0) wbpower = 11000;
+// Energiebedarf der Wallbox berücksichtigen
+
+                        if (ch.size()>0&&fPower_WB>0)
+                        {
+                            for (int j=0;j<ch.size();j++)
+                                if (ch[j].hh==wetter[x1].hh)
+                                    wetter[x1].hourly = wetter[x1].hourly +
+                                    wbpower/e3dc_config.speichergroesse/40;
+                                    
+                        }
+
+                    }
+                    if (x6 > 0)
+                    {
+                        if (x1==0)  // die ersten 15min anteilig berechnen
+                        {
+                            f3 = f3 + (f6/x6)/900*(900-t%900);
+                        }
+                        else
+                        {
+                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                                f3 = f3 + f6 / x6;
+
+                        }
+// statistische Daten verwenden bei gemessenen Verbrauch wie bei meiner Wolf
+//                        Es werden nur die hochgerechneten Prognosedaten herangezogen
+//                        if (e3dc_config.WPWolf&&wetter[x1].kosten>0)
+//                            wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
+
+                    }
+
+                } else
+                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                        f3 = f3 + wetter[x1].hourly+wetter[x1].wpbedarf;
+                if (x1==0)  // die ersten 15min anteilig berechnen
+                    f7 = wetter[x1].solar/900*(900-t%900);
+                else
+                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
+                    {
+                        int ze = (wetter[x1].solar-wetter[x1].hourly)*e3dc_config.speichergroesse*40;
+                        if (ze>e3dc_config.maximumLadeleistung)
+// nur die nutzbare Solarleistung berücksichtigen unter Berücksichtigung des Verbrauchs
+                            f7 = f7 + e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/40;
+                        else
+                            if (wetter[x1].solar>wetter[x1].hourly)
+                                f7 = f7 + wetter[x1].solar-wetter[x1].hourly; // Nur Überschuss
+                    }
+                f2 = f2 + wetter[x1].solar;
+            }
+            if ((hh>(21*3600)||x1>=wetter.size()-1)&&f2>fPVtoday)
+            {
+                fPVnextday = f2 - fPVtoday;
+            }
+            if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
+            {
+                fPVtoday=f2;
+                fPVdirect=f3;
+                fPVcharge = f7*e3dc_config.speichergroesse/100;  // Energiemenge in kWh zum Speichern
+                fPVSoll = fPVdirect*e3dc_config.ForcecastConsumption+(-fBatt_SOC+fLadeende2)*e3dc_config.ForcecastSoc+e3dc_config.ForcecastReserve;
+//                break;
+            }
+        }
+    return 0;
+}
 int LoadDataProcess() {
     //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
     static int iLeistungHeizstab = 0;
@@ -2915,18 +3044,23 @@ int LoadDataProcess() {
                     // Einsatz Heizstäbe
                     if (wetter[0].heizstabbedarf>0)
                     {
-                        switch (wetter[0].heizstabbedarf)
+                        int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04);
+                        switch (int(wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04))
                         {
-                            case 3:
+                            case 1:
                                 shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
-                            case 6:
+                            case 4:
                                 shelly(e3dc_config.shelly0V10VEZH2);
                                 break;
-                            case 9:
+                            case 7:
                                 shelly(e3dc_config.shelly0V10VEZH3);
                                 break;
+                            case 10:
+                                shelly(e3dc_config.shelly0V10VEZH4);
+                                break;
                         }
+                        ALV = shelly_get();
                     } else
                     // Verdichterleistung herunterfahren
                     if
@@ -3241,134 +3375,11 @@ int LoadDataProcess() {
                 }
         }
     }
+
     if (e3dc_config.debug) printf("D4c\n");
 
-    float f2 = 0;  // Tägliche solare Erzeugung
-    float f3 = 0;
-    float f7 = 0;  // Zum Speichern zur Verfügung stehende Energie
-    fPVdirect = 0;
-    fPVtoday = -1;
-    fPVcharge = 0;
+    int ret = Ermitteln_Statistik();
 
-    //            for (int x1=0; x1<wetter.size(); x1++) {
-        for (int x1=0; x1<wetter.size(); x1++) // nur die nächsten 24h
-        {
-            int hh = (wetter[x1].hh%(24*3600));
-            int x2 = (wetter[x1].hh%(24*7*4*900))/900;
-            int x5 = (wetter[x1].hh%(24*4*900))/900;
-
-            {
-                        
-                if (e3dc_config.statistik)
-                {
-                    int x4 = 0;
-                    int x6 = 0;
-                    float f4 = 0;
-                    float f6 = 0;
-
-                    for (int y1=-1;y1<2;y1++)
-                    {
-                        int x3 = x5 + y1;
-                        for (int y2=0;y2<7;y2++)
-                        {
-                            x3=x3+4*24;
-                            if (x3 < 0) x3 = x3 + 24*4*7;
-                            if (x3 > 24*4*7) x3 = x3 -24*4*7;
-                            if (iWeekhour[x3] > 0) 
-                                x4++;
-                            float f8 = iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
-                            f4 = f4 + f8;
-                            if (iWeekhourWP[x3] > 0) 
-                                x6++;
-                            f6 = f6 + iWeekhourWP[x3]/36000.0/e3dc_config.speichergroesse;
-
-                        }
-                    }
-                    if (x4 > 0)
-                    {
-                        if (x1==0)  // die ersten 15min anteilig berechnen
-                        {
-                            f3 = (f4/x4)/900*(900-t%900);
-                        }
-                        else
-                        {
-                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                                f3 = f3 + f4 / x4;
-                        }
-                        wetter[x1].hourly = (f4/x4)*(100+e3dc_config.AWReserve)/100;
-// den tatsächlichen Verbrauch der WP zu Grunde legen
-                        float wpbedarf = (f6/x4);
-//                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0||e3dc_config.WPWolf)
-                        if (strcmp(e3dc_config.shellyEM_ip,"0.0.0.0")!=0)
-                            wetter[x1].wpbedarf = wpbedarf;
-                        // wenn ein Ladefenster aktiv ist, die Ladeleistung-/bedarf berücksichtigen
-                        int wbpower = fPower_WB;
-                        if (wbpower == 0) wbpower = 11000;
-// Energiebedarf der Wallbox berücksichtigen
-
-                        if (ch.size()>0&&fPower_WB>0)
-                        {
-                            for (int j=0;j<ch.size();j++)
-                                if (ch[j].hh==wetter[x1].hh)
-                                    wetter[x1].hourly = wetter[x1].hourly +
-                                    wbpower/e3dc_config.speichergroesse/40;
-                                    
-                        }
-
-                    }
-                    if (x6 > 0)
-                    {
-                        if (x1==0)  // die ersten 15min anteilig berechnen
-                        {                            
-                            f3 = f3 + (f6/x6)/900*(900-t%900);
-                        }
-                        else
-                        {
-                            if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                                f3 = f3 + f6 / x6;
-
-                        }
-// statistische Daten verwenden bei gemessenen Verbrauch wie bei meiner Wolf
-//                        Es werden nur die hochgerechneten Prognosedaten herangezogen
-//                        if (e3dc_config.WPWolf&&wetter[x1].kosten>0)
-//                            wetter[x1].wpbedarf = (f6/x6)*(100+e3dc_config.AWReserve)/100;;
-
-                    }
-
-                } else
-                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                        f3 = f3 + wetter[x1].hourly+wetter[x1].wpbedarf;
-                if (x1==0)  // die ersten 15min anteilig berechnen
-                    f7 = wetter[x1].solar/900*(900-t%900);
-                else
-                    if (wetter[x1].solar>0&&hh<tLadezeitende2) // Ziel  bis Ladezeitende 2
-                    {     
-                        int ze = (wetter[x1].solar-wetter[x1].hourly)*e3dc_config.speichergroesse*40;
-                        if (ze>e3dc_config.maximumLadeleistung)
-// nur die nutzbare Solarleistung berücksichtigen unter Berücksichtigung des Verbrauchs
-                            f7 = f7 + e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/40;
-                        else
-                            if (wetter[x1].solar>wetter[x1].hourly)
-                                f7 = f7 + wetter[x1].solar-wetter[x1].hourly; // Nur Überschuss
-                    }
-                f2 = f2 + wetter[x1].solar;
-            }
-            if ((hh>(21*3600)||x1>=wetter.size()-1)&&f2>fPVtoday)
-            {
-                fPVnextday = f2 - fPVtoday;
-            }
-            if (hh>(21*3600)&&fPVtoday<=0.0&&f2>0.0)
-            {
-                fPVtoday=f2;
-                fPVdirect=f3;
-                fPVcharge = f7*e3dc_config.speichergroesse/100;  // Energiemenge in kWh zum Speichern
-                fPVSoll = fPVdirect*e3dc_config.ForcecastConsumption+(-fBatt_SOC+fLadeende2)*e3dc_config.ForcecastSoc+e3dc_config.ForcecastReserve;
-//                break;
-            }
-        }
-
-    
-    
     
 
     printf("%c[K\n", 27 );
@@ -7144,6 +7155,7 @@ static int iEC = 0;
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                Ermitteln_Statistik();
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
                 mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
