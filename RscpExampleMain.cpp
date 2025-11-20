@@ -750,11 +750,11 @@ bool GetConfig()
                         e3dc_config.shelly0V10Vmin = atoi(value);
                     else if(strcmp(var, "shelly0v10vmax") == 0)
                         e3dc_config.shelly0V10Vmax = atoi(value);
-                    else if(strcmp(var, "shelly0v10ezh1") == 0)
+                    else if(strcmp(var, "shelly0v10vezh1") == 0)
                         e3dc_config.shelly0V10VEZH1 = atoi(value);
-                    else if(strcmp(var, "shelly0v10ezh2") == 0)
+                    else if(strcmp(var, "shelly0v10vezh2") == 0)
                         e3dc_config.shelly0V10VEZH3 = atoi(value);
-                    else if(strcmp(var, "shelly0v10ezh3") == 0)
+                    else if(strcmp(var, "shelly0v10vezh3") == 0)
                         e3dc_config.shelly0V10VEZH3 = atoi(value);
                     else if(strcmp(var, "untererladekorridor") == 0)
                         e3dc_config.untererLadekorridor = atoi(value);
