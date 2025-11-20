@@ -753,7 +753,7 @@ bool GetConfig()
                     else if(strcmp(var, "shelly0v10vezh1") == 0)
                         e3dc_config.shelly0V10VEZH1 = atoi(value);
                     else if(strcmp(var, "shelly0v10vezh2") == 0)
-                        e3dc_config.shelly0V10VEZH3 = atoi(value);
+                        e3dc_config.shelly0V10VEZH2 = atoi(value);
                     else if(strcmp(var, "shelly0v10vezh3") == 0)
                         e3dc_config.shelly0V10VEZH3 = atoi(value);
                     else if(strcmp(var, "untererladekorridor") == 0)
