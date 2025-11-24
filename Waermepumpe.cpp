@@ -1054,9 +1054,9 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 {
                     fprintf(fp,"%0.2f %0.3f %0.2f %0.2f %0.2f %0.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
-                        fprintf(fp," %0.2f",wetter[j].wwwpbedarf*e3dc.speichergroesse*.04);
+                        fprintf(fp," %0.1f",wetter[j].wwwpbedarf*e3dc.speichergroesse*.04);
                     if (e3dc.WPWolf&&wetter[j].heizstabbedarf>0)
-                        fprintf(fp," %0.2f",wetter[j].heizstabbedarf*e3dc.speichergroesse*.04);
+                        fprintf(fp," %0.0f",wetter[j].heizstabbedarf*e3dc.speichergroesse*.04);
 
                     fprintf(fp,"\n");
                 }

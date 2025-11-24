@@ -1893,6 +1893,7 @@ int tasmotaoff(int ch)
     }    return 0;
 }
 static time_t shellytimer = t;
+static int ALV_alt = -1;
 
 int shelly_get(){
     FILE *fp;
@@ -1921,7 +1922,10 @@ int shelly_get(){
             }
         status = pclose(fp);
         if (item!=NULL)
+        {
+            ALV_alt = item->valueint;
             return(item->valueint);
+        }
         else
         {
             shellytimer = t+60;
@@ -2028,7 +2032,6 @@ int shelly(int ALV)
 {
     char path[1024];
     char buf[127];
-    static int ALV_alt = -1;
     FILE *fp;
     fp==NULL;
     if (ALV>1&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
