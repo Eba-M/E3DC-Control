@@ -745,7 +745,6 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     return 0;
 }
 int fp_status = -1;  //
-
 void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage,u_int32_t iDayStat[25*4*2+1])
 {
     FILE * fp;
@@ -1150,6 +1149,88 @@ float suchenstrompreis(int x2)
     }
     return(-1);
 };
+void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
+{
+    FILE * fp;
+    char line[1024];
+    char path [65000];
+    time_t  t;
+    time(&t);
+    struct tm * ptm;
+    struct tm * pta;
+    t=t+dayoffset*24*3600;
+    ptm = localtime (&t);
+    char land [6];
+    if (e3dc.AWLand == 1)
+        strcpy(land,"DE-LU");
+    if (e3dc.AWLand == 2)
+        strcpy(land,"AT");
+    if (e3dc.debug)
+        printf("ec.1\n");
+    sprintf(line,"curl -X GET   'https://api.energy-charts.info/price?bzn=%s&start=%4i-%2i-%2i&end=%4i-%2i-%2i'  -H 'accept: application/json'",land,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
+    
+    fp = NULL;
+    fp = popen(line, "r");
+    int fd = fileno(fp);
+    int flags = fcntl(fd, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    fcntl(fd, F_SETFL, flags);
+    fp_status = 2;
+    
+    int timeout = 0;
+    if (e3dc.debug)
+        printf("ec.2\n");
+    if (fp != NULL)
+        while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
+        {
+            sleep(1);
+            timeout++;
+        }
+    if (e3dc.debug)
+        printf("om%i.3\n",timeout);
+    
+    if (timeout >= 30)
+    {
+        if (fp!=NULL) pclose(fp);
+        return;
+    }
+    {
+        const cJSON *item = NULL;
+        const cJSON *item1 = NULL;
+        const cJSON *item2 = NULL;
+        
+        std::string feld;
+        cJSON *wolf_json = cJSON_Parse(path);
+        feld = "license_info";
+        char * c = &feld[0];
+        item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+        feld = "unix_seconds";
+        item1 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+        feld = "price";
+        c = &feld[0];
+        item2 = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+        if (item1!=NULL)
+            item1 = item1->child;
+        if (item1!=NULL)
+            item2 = item2->child;
+        while (item1!=NULL)
+        {
+            ww.hh = item1->valueint;
+            ww.pp = item2->valuedouble;
+            int x2 =ww.hh%(24*3600);
+            x2 = x2/3600;
+            if (strompreis.size()>0)
+                ww.pp = ww.pp + suchenstrompreis(x2);
+
+            w.push_back(ww);
+            item1 = item1->next;
+            item2 = item2->next;
+
+        }
+            if (fp!=NULL) pclose(fp);
+    }
+}
+
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
@@ -1308,10 +1389,17 @@ int ladedauer = 0;
         //        system("curl -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=50.2525&lon=10.3083&appid=615b8016556d12f6b2f1ed40f5ab0eee' | jq .hourly| jq '.[]' | jq '.dt%259200/3600, .clouds'>weather.out");
         // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
         //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
-        
+
+
         if ((e3dc.aWATTar||e3dc.unload<0))
             // aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
         {
+            if (w.size()==0)
+            {
+                energycharts(w,e3dc,0);
+                energycharts(w,e3dc,1);
+            }
+
             if (w.size()==0)
             {
                 // Abfragen EPEXSPOT aktueller Tag
@@ -1528,6 +1616,13 @@ int ladedauer = 0;
         }
         // Abfragen EPEXSPOT
         ptm = localtime(&rawtime); // nächster Tag
+        if (e3dc.aWATTar>0
+            &&w.size()<=4*12
+            &&ptm->tm_hour*60+ptm->tm_min>12*60+50
+            )
+        {
+            energycharts(w,e3dc,1);
+        }
                 if (e3dc.aWATTar>0
                     &&w.size()<=4*12
                     &&ptm->tm_hour*60+ptm->tm_min>12*60+50
