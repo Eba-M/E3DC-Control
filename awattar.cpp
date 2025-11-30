@@ -1167,7 +1167,7 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
         strcpy(land,"AT");
     if (e3dc.debug)
         printf("ec.1\n");
-    sprintf(line,"curl -X GET   'https://api.energy-charts.info/price?bzn=%s&start=%4i-%2i-%2i&end=%4i-%2i-%2i'  -H 'accept: application/json'",land,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
+    sprintf(line,"curl -X GET   'https://api.energy-charts.info/price?bzn=%s&start=%4i-%02i-%02i&end=%4i-%02i-%02i'  -H 'accept: application/json'",land,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday,ptm->tm_year+1900,ptm->tm_mon+1,ptm->tm_mday);
     
     fp = NULL;
     fp = popen(line, "r");
