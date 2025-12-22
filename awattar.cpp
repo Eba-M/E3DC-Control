@@ -834,6 +834,8 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
         }
           if (e3dc.debug)
               printf("om%i.3\n",timeout);
+          if (timeout>1)
+              printf("timeout open-meteo%i.3\n",timeout);
 
           if (timeout >= 30)
           {

@@ -1272,7 +1272,7 @@ int iModbusTCP()
 //                     (now - wolf[wppw].t > 300)||
                      (wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
+                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert!=6&&temp[17]==0)
 //                     ||
 //                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
@@ -1296,7 +1296,7 @@ int iModbusTCP()
 //                     (now - wolf[wppw].t > 300)||
                      (wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert!=6&&temp[17]==0)
+                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert!=6&&temp[17]==0)
 //                     ||
 //                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
@@ -1327,7 +1327,7 @@ int iModbusTCP()
                     ||
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                     ||
-                     (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6&&temp[17]==0)
+                     (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert==6&&temp[17]==0)
 
                     )
                     )
@@ -1350,7 +1350,7 @@ int iModbusTCP()
                      ||
                       (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
                      ||
-                      (now - wolf[wpbhg].t < 100&&wolf[wpbhg].wert==6&&temp[17]==0)
+                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert==6&&temp[17]==0)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
@@ -2600,7 +2600,7 @@ int LoadDataProcess() {
 // BWWP bei PV Überschuss laufen lassen
                 (PVon>e3dc_config.WPPVon&&temp[13]<e3dc_config.BWWPmax*10-10)
                 ||
-                (wetter[0].wwwpbedarf>0) // BWWP zur Heizungsünterstützung angefordert
+                (wetter.size()>0&&wetter[0].wwwpbedarf>0) // BWWP zur Heizungsünterstützung angefordert
 
                 )
             {
@@ -2898,7 +2898,7 @@ int LoadDataProcess() {
 // Steuerung LWWP über shelly 0-10V
             
             
-            if (ALV < 0||(t%60)==0)
+            if (ALV < 0||(t%10)==0)
                 ALV = shelly_get();
 // wenn die WP aus ist aber eine einzelne Anforderung kommt, löschen, damit nicht ausführen.
             if (ALV == 0
@@ -3120,9 +3120,14 @@ int LoadDataProcess() {
                           )
                          ||
                          (
-                            ((wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
+                          (
+                           (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
-                            (wetter[0].waerme*1.2<wolf[wphl].wert&&(wolf[wphl].t > 0)))
+                            (wetter[0].waerme*1.2<wolf[wphl].wert&&(wolf[wphl].t > 0))
+                          ||
+                               (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0)
+                                &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.05<wolf[wppw].wert&&wolf[wppw].t > 0)
+                          )
                          &&
                          ((PVon < e3dc_config.WPPVoff)
                           ||
@@ -3175,6 +3180,7 @@ int LoadDataProcess() {
                                 ALV = e3dc_config.shelly0V10Vmin+1;
                             if (ALV>0)
                             ALV =  shelly(ALV-1);
+                            ALV = shelly_get();
 
                         }
                         wp_t = t;
@@ -7157,12 +7163,12 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 Ermitteln_Statistik();
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
-                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,55.5,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }
             while (e3dc_config.test)
                 LoadDataProcess();

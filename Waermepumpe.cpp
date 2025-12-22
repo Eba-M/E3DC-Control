@@ -878,7 +878,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
             {
                 w.clear();
                 wetter.clear();
-
+                e3dc.speichergroesse = 29.5;
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
@@ -893,14 +893,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                 char key2[] = " Data \n";
                 memset(&line, 0, sizeof(line));
                 int ret = sizeof(line);
-//                fgets(line,sizeof(line),fp);
+//                fgets(line,sizeof(line)-1,fp);
                 while (fp != NULL)
                 {
                     memset(&line, 0, sizeof(line));
                     if (fgets(line,sizeof(line),fp)==NULL)
                         break;
                     sscanf(line, " %[^ \t=]%*[ \t ] %*[\t ]%[^ \n]", var, value);
-
+                    char s1[20],s2[20],s3[20],s4[20];
+                    float f1,f2;
+                    sscanf(line, "%s %s %f %s %s %f", s1,s2,&f1,s3,s4,&f2);
+                    soc = f1;
+                    notstromreserve = f2;
                     ret = (strcmp(key,var));
                     if (ret == 0)
                         break;
