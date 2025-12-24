@@ -1272,7 +1272,7 @@ int iModbusTCP()
 //                     (now - wolf[wppw].t > 300)||
                      (wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert!=6&&temp[17]==0)
+                      (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert!=6&&temp[17]==0)
 //                     ||
 //                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
                      )
@@ -3178,10 +3178,18 @@ int LoadDataProcess() {
                         {
                             if (ALV>0&&ALV<= e3dc_config.shelly0V10Vmin)
                                 ALV = e3dc_config.shelly0V10Vmin+1;
+                            if (ALV>0&&ALV> e3dc_config.shelly0V10Vmax)
+                                ALV = e3dc_config.shelly0V10Vmax;
+                            int soll = ALV-1;
                             if (ALV>0)
                             ALV =  shelly(ALV-1);
                             ALV = shelly_get();
-
+                            if (ALV != soll)
+                            {
+                                sleep(1);
+                                shelly(soll);
+                                ALV = shelly_get();
+                            }
                         }
                         wp_t = t;
                         
@@ -6041,9 +6049,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         if (itotal_WP > 0) printf(" %0.03fW %0.04fkWh",float(iPower_WP/1000.0),float(itotal_WP/3600000.0));
                         int x2 = t%(24*4*900)/900+2;
                         int x4 = (t+900)%(24*3600)/900+2;
-                        printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,waermebedarf-float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0])/(t%900)/1000);
-// Bei negativen Wärmebilanz, wird die Bilanz zurückgesetzt
-                        if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0)
+                        printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,waermebedarf-float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0])/(t%900+1)/1000);
+// Bei negativen Wärmebilanz oder wenn Pellets an, wird die Bilanz zurückgesetzt
+                        if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0||temp[17]==1)
                             iHeatStat[1]=waermebedarf/96*w.size()*3600000;
                     }
                 }
