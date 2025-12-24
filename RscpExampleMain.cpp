@@ -6052,7 +6052,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,waermebedarf-float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0])/(t%900+1)/1000);
 // Bei negativen Wärmebilanz oder wenn Pellets an, wird die Bilanz zurückgesetzt
                         if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0||temp[17]==1)
-                            iHeatStat[1]=waermebedarf/96*w.size()*3600000;
+//                            iHeatStat[1]=waermebedarf/96*w.size()*3600000*-1;
+                            iHeatStat[1]=0;;
                     }
                 }
                 printf("%c[K\n", 27 );
