@@ -1402,8 +1402,9 @@ int ladedauer = 0;
                 energycharts(w,e3dc,1);
             }
 
-            if (w.size()==0)
+            if (w.size()<=96)
             {
+                w.clear();
                 // Abfragen EPEXSPOT aktueller Tag
                 if (e3dc.aWATTar>0)
                 {
