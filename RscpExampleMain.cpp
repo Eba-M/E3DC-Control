@@ -2938,7 +2938,7 @@ int LoadDataProcess() {
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
-                                    float fkostensoll = fspreis/fcop;
+                                    float fkostensoll = fspreis/(fcop*.9);
 
                                     if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0&&wolf[wpbhg].wert!=6)
                                         ||
@@ -2949,7 +2949,7 @@ int LoadDataProcess() {
                                         if (fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)
                                             ALV--;
                                         else
-                                            if (fkosten < fkostensoll||PVon>e3dc_config.WPPVon){
+                                            if (fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon){
                                                 ALV++;
                                                 btasmota_ch1|=16;
                                             }
@@ -6053,7 +6053,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // Bei negativen Wärmebilanz oder wenn Pellets an, wird die Bilanz zurückgesetzt
                         if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0||temp[17]==1)
 //                            iHeatStat[1]=waermebedarf/96*w.size()*3600000*-1;
-                            iHeatStat[1]=0;;
+                            iHeatStat[1]=0;
                     }
                 }
                 printf("%c[K\n", 27 );
