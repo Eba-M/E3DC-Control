@@ -122,6 +122,7 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
+static float ftemp[96+1]; // Temperaturdiff Ist/Soll für die vergangenen 24h in 15min Intervall + Summe
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
@@ -1314,9 +1315,9 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
                 } // HK werden nur beim Abtauen abgeschaltet, wenn der pellets nicht läuft
-                if (temp[1]==1&&
+                if (temp[1]==1&&temp[17]==0&&
                     (
-                     (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
+                     (tasmota_status[0]==1&&temp[14]<300)
 // wenn der Puffer > 30° läuft die FBH nach
                     ||
                      (bHK1off>0)
@@ -1325,9 +1326,9 @@ int iModbusTCP()
 //                      &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
                       )
                     ||
-                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
                     ||
-                     (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert==6&&temp[17]==0)
+                     (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert==6)
 
                     )
                     )
@@ -1337,9 +1338,9 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
-                if (temp[7]==1&&
+                if (temp[7]==1&&temp[17]==0&&
                     (
-                     (tasmota_status[0]==1&&temp[17]==0&&temp[14]<300)
+                     (tasmota_status[0]==1&&temp[14]<300)
                     ||
                      (bHK2off>0)
                      ||
@@ -1348,9 +1349,9 @@ int iModbusTCP()
 //                       &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
                        )
                      ||
-                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0&&temp[17]==0)
+                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
                      ||
-                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert==6&&temp[17]==0)
+                      (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert==6)
                      )
                     )
 // wenn Puffer > 30° läuft die HKZ nach
@@ -4406,7 +4407,7 @@ bDischarge = false;
 
     printf(" %i:%i:%i ",hh,mm,ss);
     if (wetter.size()>0)
-    printf("%.2f° %.2f° ",wetter[0].temp,fatemp);
+    printf("%.2f° %.2f° %.2f°",wetter[0].temp,fatemp,ftemp[0]);
     printf("%c[K\n", 27 );
     
     int iPower = 0;
@@ -6967,8 +6968,9 @@ static void mainLoop(void)
                     (wolf[wpbhg].wert!=6)
                     )
                     zulufttemp = wolf[wpzl].wert;
+            int len = sizeof(ftemp)/sizeof(float);
             if (fBatt_SOC >= 0)
-            mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
+            mewp(w,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
@@ -7128,6 +7130,15 @@ static int iEC = 0;
         }
 
         pFile = NULL;
+        pFile = fopen ("TempStat.dat","rb");
+        if (pFile!=NULL)
+        {
+            size_t x1 = sizeof(ftemp);
+            x1 = fread (&ftemp , sizeof(float), sizeof(ftemp)/sizeof(float), pFile);
+            fclose (pFile);
+        }
+
+        pFile = NULL;
         char fname[100];
         time(&t);
         int day = (t%(24*3600*28))/(24*3600);
@@ -7172,12 +7183,12 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,ftemp,97,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 Ermitteln_Statistik();
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat); // im Master nicht aufrufen
-                mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,ftemp,97,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
-                    mewp(w,wetter,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                    mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }
             while (e3dc_config.test)
                 LoadDataProcess();
@@ -7250,6 +7261,13 @@ static int iEC = 0;
                 {
                     size_t x1;
                     x1 = fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeatStat)/sizeof(uint32_t), pFile);
+                    fclose (pFile);
+                }
+                pFile = fopen ("TempStat.dat","wb");
+                if (pFile!=NULL)
+                {
+                    size_t x1;
+                    x1 = fwrite (ftemp , sizeof(float), sizeof(ftemp)/sizeof(float), pFile);
                     fclose (pFile);
                 }
                 char fname[100];

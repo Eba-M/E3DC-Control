@@ -174,7 +174,7 @@ void bwwptasmota(std::vector<watt_s> &w,e3dc_config_t &e3dc,int sunrise, int sun
 static wetter_s we;
 static float fusspunkt = 28; // Fusspunkt bei 15°
 
-static float endpunkt = 45;  // Endpunkt bei -15°
+static float endpunkt = 50;  // Endpunkt bei -15°
 static float absolutenull = 273; // absoluter Nullpunkt 0K
 static float cop,wm,wp;
 static time_t oldhour = 0;
@@ -184,7 +184,7 @@ static int oldwsize = -1;
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
 
-void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
+void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -285,8 +285,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float &fatemp,floa
                         item2 = item2->next;
                         x1++;
                 }
-                fatemp = fatemp / x1;
                 if (fp!=NULL) pclose(fp);
+                if (zuluft >-99) // Temperaturabgleich
+                {
+                    int j1 = (wetter[0].hh%24*3600)/900+1;
+                    ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
+                    ftemp[j1] = wetter[0].temp - zuluft;
+                }
+                
+                fatemp = fatemp / x1;
+                fatemp = fatemp - ftemp[0]/96;
             }
             if (e3dc.debug) printf("NW2\n");
         }
