@@ -1266,16 +1266,11 @@ int iModbusTCP()
                     }
                 }
 // Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
-                if (temp[1]==0&&
+                if (temp[1]==0&&wolf[wphl].wert>0&&
                     (
-//                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)||
-//                     (now - wolf[wphl].t > 300)||
-//                     (now - wolf[wppw].t > 300)||
-                     (wolf[wpeevk].wert==0)
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert!=6&&temp[17]==0)
-//                     ||
-//                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                      (now - wolf[wpbhg].t > 300||wolf[wpbhg].wert!=6)
                      )
                     &&
 
@@ -1290,16 +1285,11 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(11,1,11); //FBH?
   //                  brequest = true;
                 }
-                if (temp[7]==0&&
+                if (temp[7]==0&&wolf[wphl].wert>0&&
                     (
-//                     ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>3)||
-//                     (now - wolf[wphl].t > 300)||
-//                     (now - wolf[wppw].t > 300)||
-                     (wolf[wpeevk].wert==0)
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t < 200&&wolf[wpbhg].wert!=6&&temp[17]==0)
-//                     ||
-//                     ((now - wolf[wppw].t < 300)&&wolf[wppw].wert==0)
+                      (now - wolf[wpbhg].t > 300||wolf[wpbhg].wert!=6)
                      )
                     &&
                     (
