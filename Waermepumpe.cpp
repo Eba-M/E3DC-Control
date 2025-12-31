@@ -824,7 +824,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
 
                                                                 wetter1[0].waermepreis =
                                                                 (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)+
-                                                                wetter[wetter1[0].x1].heizstabbedarf;
+                                                                wetter[wetter1[0].x1].heizstabbedarf*.1;
 
                                                             if (wetter[wetter1[0].x1].heizstabbedarf>=10/e3dc.speichergroesse*25)
                                                                 wetter1[0].waermepreis = 1000;
