@@ -14,8 +14,8 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3400"
-            endingLineNumber = "3400"
+            startingLineNumber = "3402"
+            endingLineNumber = "3402"
             landmarkName = "LoadDataProcess()"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,10 +78,40 @@
             filePath = "../RscpExampleMain.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3405"
-            endingLineNumber = "3405"
+            startingLineNumber = "3407"
+            endingLineNumber = "3407"
             landmarkName = "LoadDataProcess()"
             landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "E40DEF46-FBEA-45CE-BFA6-3E92CBE43B5D - 6e35935ca2bde806"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoadDataProcess()"
+                  moduleName = "E3DC-C1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/eberhardmayer/Documents/E3DC-New/E3DC-C1/E3DC-C1/E3DC-Control/RscpExampleMain.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "3407"
+                  endingLineNumber = "3407">
+               </Location>
+               <Location
+                  uuid = "E40DEF46-FBEA-45CE-BFA6-3E92CBE43B5D - 6e35935ca2bde827"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoadDataProcess()"
+                  moduleName = "E3DC-C1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/eberhardmayer/Documents/E3DC-New/E3DC-C1/E3DC-C1/E3DC-Control/RscpExampleMain.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "3408"
+                  endingLineNumber = "3408">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
