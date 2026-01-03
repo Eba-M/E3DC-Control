@@ -1259,7 +1259,7 @@ int ladedauer = 0;
     int x3,x2;
     char value[256];
     char var[256];
-    int64_t von, bis;
+    time_t von, bis;
 //    e3dc_config_t e3dc;
     
     time(&rawtime);
@@ -1893,7 +1893,8 @@ else
 /* die gewünschten Ladezeiten werden ermittelt
  Die neuen Ladezeiten werden ermittelt, wenn entweder
  Checkwallbox erfolgreich ist oder sich bei der Dauereinstelleung
- wbhour, wbvon oder wbbis sich geändert haben
+ 
+ , wbvon oder wbbis sich geändert haben
 */
     if (e3dc.debug) printf("Ladezeiten\n");
 
@@ -1917,7 +1918,8 @@ else
     {
         // ist die ladezeit schon belegt oder abgelaufen
         chch = 1;
-        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24){
+        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
+        {
             old_w_size = w.size();
             if (ch.size()>0&&ch[ch.size()-1].hh>rawtime) // aktiver ladeauftrag
                 return;
@@ -1926,21 +1928,24 @@ else
         }
         if (e3dc.debug) printf("LZ1\n");
 // Nur wenn es neue Preise für morgen gibt oder wbhour wird geändert
-        if (dauer >= 0&&(w.size()>old_w_size||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)))
+        if ((dauer >= 0&&w.size()>=old_w_size+96)||(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
             if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
             dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
             old_w_size = w.size();
-            bis = w[w.size()-1].hh;
-            bis = bis - bis%(24*3600) + e3dc.wbbis*3600;
-            von = w[0].hh;
-            von = von - von%(24*3600) + e3dc.wbvon*3600;
-
-            if (von > bis)
+            ptm->tm_min = 0;
+            ptm->tm_sec = 0;
+            ptm->tm_hour = e3dc.wbbis;
+            bis = mktime(ptm);
+            ptm->tm_hour = e3dc.wbvon;
+            von = mktime(ptm);
+            if (von<rawtime)
+                von = von + 24*3600;   // nächster tag
+            while (von > bis)
                 bis = bis + 24*3600;   // nächster tag
-            
+            ptm = localtime(&bis);
             if (e3dc.wbhour > 0)
             {
                 ladedauer = e3dc.wbhour;
@@ -1974,7 +1979,7 @@ else
     if (e3dc.debug) printf("LZ21\n");
     for (int l = 0;(l< w.size()); l++)
     {
-        if (w[l].hh>=von&&w[l].hh<bis&&(w[l].hh||w[l].hh<=rawtime))
+        if (w[l].hh>=von&&w[l].hh<bis)
         {
             cc.hh = w[l].hh;
             cc.ch = chch;
