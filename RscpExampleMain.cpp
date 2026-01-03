@@ -2937,10 +2937,11 @@ int LoadDataProcess() {
                                         )
                                     {
                                         
-                                        if (fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)
+                                        if ((fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)||fkosten>e3dc_config.WPZWEPVon)
                                             ALV--;
                                         else
-                                            if (fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon){
+                                            if ((fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon)&&fkosten<e3dc_config.WPZWEPVon)
+                                            {
                                                 ALV++;
                                                 btasmota_ch1|=16;
                                             }
@@ -2975,10 +2976,8 @@ int LoadDataProcess() {
                                         fkosten>e3dc_config.WPZWEPVon+.5
                                         &&
                                         PVon<e3dc_config.WPPVoff
-                                        )
-                                        if (ALV > e3dc_config.shelly0V10Vmin)
-                                            ALV --;
-                                        else
+                                        &&
+                                        ALV < e3dc_config.shelly0V10Vmin)
                                         
                                         {
                                             btasmota_ch1=0;
