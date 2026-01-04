@@ -2940,9 +2940,12 @@ int LoadDataProcess() {
                                         if ((fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)||fkosten>e3dc_config.WPZWEPVon)
                                             ALV--;
                                         else
-                                            if ((fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon)&&fkosten<e3dc_config.WPZWEPVon)
+                                            if ((fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon)&&fkosten<e3dc_config.WPZWEPVon-.5)
                                             {
-                                                ALV++;
+                                                if (ALV==0)
+                                                    ALV = e3dc_config.shelly0V10Vmin;
+                                                else
+                                                    ALV++;
                                                 btasmota_ch1|=16;
                                             }
                                         
