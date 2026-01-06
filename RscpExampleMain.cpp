@@ -2929,7 +2929,7 @@ int LoadDataProcess() {
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
                                     if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
-                                    float fkostensoll = fspreis/(fcop*.9);
+                                    float fkostensoll = fspreis/(fcop);
 
                                     if ((ALV>0&&wolf[wphl].wert>0&&wolf[wppw].wert>0&&wolf[wpbhg].wert!=6)
                                         ||
