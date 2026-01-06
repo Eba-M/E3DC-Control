@@ -2957,7 +2957,7 @@ int LoadDataProcess() {
                                             { 
                                                 if(fkostensoll>e3dc_config.WPZWEPVon+.2)
                                                 {
-                                                btasmota_ch1 ^=16;
+                                                btasmota_ch1 = 0;
                                                 //                                                if (btasmota_ch1<=1)
                                                 ALV = 0;
                                                 }
