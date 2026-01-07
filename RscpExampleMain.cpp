@@ -2937,10 +2937,12 @@ int LoadDataProcess() {
                                         )
                                     {
                                         
-                                        if ((fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)||fkosten>e3dc_config.WPZWEPVon)
+//                                        if ((fkosten > fkostensoll+1&&PVon<e3dc_config.WPPVoff)||fkosten>e3dc_config.WPZWEPVon)
+                                        if (fkosten>e3dc_config.WPZWEPVon)
                                             ALV--;
                                         else
-                                            if ((fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon)&&fkosten<e3dc_config.WPZWEPVon-.5)
+//                                            if ((fkosten < fkostensoll+1||PVon>e3dc_config.WPPVon)&&fkosten<e3dc_config.WPZWEPVon-.5)
+                                            if (fkosten<e3dc_config.WPZWEPVon-.5)
                                             {
                                                 if (ALV==0)
                                                     ALV = e3dc_config.shelly0V10Vmin;
@@ -2950,7 +2952,8 @@ int LoadDataProcess() {
                                             }
                                         
                                         
-                                        if (fkosten>fkostensoll+1&&PVon<e3dc_config.WPPVoff)
+                                        if(fkostensoll>e3dc_config.WPZWEPVon)
+//                                        if (fkosten>fkostensoll+1&&PVon<e3dc_config.WPPVoff)
                                         {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
@@ -2968,13 +2971,13 @@ int LoadDataProcess() {
                                         }
                                     }
                                     if ((ALV==0||not (btasmota_ch1&16))
-                                        &&fkostensoll<e3dc_config.WPZWEPVon)
+                                        &&fkostensoll+.5<e3dc_config.WPZWEPVon)
                                     {
                                         ALV = e3dc_config.shelly0V10Vmin;
                                         btasmota_ch1|=16;
                                     }
 // wenn die Wärmekosten zu hoch (WPZWEPVon+1), WP über EVU ganz ausschalten
-                                    if (fkostensoll>e3dc_config.WPZWEPVon+.2
+                                    if (fkostensoll>e3dc_config.WPZWEPVon
                                         &&
                                         fkosten>e3dc_config.WPZWEPVon+.5
                                         &&
@@ -3301,7 +3304,7 @@ int LoadDataProcess() {
  // Bei Übertemperatur > 500 WP ausschalten
 // Bei Untertemperatur < 300 WP einschalten
 
-            if ((temp[14] > 550&&temp[17]==0||bWP<0)) //nur wenn Pellet aus
+            if ((temp[14] > 550&&temp[17]==0)||bWP<0) //nur wenn Pellet aus
             {
                 btasmota_ch1 = 0;
                 bWP = -1;
