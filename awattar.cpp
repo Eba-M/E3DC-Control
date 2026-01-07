@@ -1921,6 +1921,9 @@ else
 //        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
         {
 //            old_w_size = w.size();
+            if (dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
+                return;
+            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
             if (e3dc.wbhour<=0)  // nothing todo
             {
                 if (ch.size()>0)
@@ -1930,8 +1933,6 @@ else
                 }
                 return;
             }
-            if (dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
-                return;
             if (ch.size()>0&&ch[ch.size()-1].hh+900>rawtime) // aktiver ladeauftrag
                 return;
 
@@ -1941,10 +1942,10 @@ else
 //        if ((dauer >= 0&&w.size()>=old_w_size+96)&&(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24
 //            ||ch.size()==0||(ch.size()>0&&ch[ch.size()-1].hh+900<rawtime)))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
+            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
             if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
-            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
             old_w_size = w.size();
             ptm->tm_min = 0;
             ptm->tm_sec = 0;
