@@ -1921,12 +1921,20 @@ else
 //        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
         {
 //            old_w_size = w.size();
-            if (ch.size()>0&&ch[ch.size()-1].hh+900>rawtime) // aktiver ladeauftrag
+            if (e3dc.wbhour<=0)  // nothing todo
+            {
+                if (ch.size()>0)
+                {
+                    ch.clear();
+                    PutWallbox(ch); // Schaltzeiten schreiben
+                }
                 return;
-            if (ch.size()==0&&e3dc.wbhour<=0)  // nothing todo
-                return;
+            }
             if (dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
                 return;
+            if (ch.size()>0&&ch[ch.size()-1].hh+900>rawtime) // aktiver ladeauftrag
+                return;
+
         }
         if (e3dc.debug) printf("LZ1\n");
 // Nur wenn es neue Preise für morgen gibt oder wbhour wird geändert
