@@ -1954,6 +1954,7 @@ else
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
             old_w_size = w.size();
+            ptm = localtime (&rawtime);
             ptm->tm_min = 0;
             ptm->tm_sec = 0;
             ptm->tm_hour = e3dc.wbbis;
@@ -1962,11 +1963,12 @@ else
             von = mktime(ptm);
             if (von<rawtime)
                 von = von + 24*3600;   // nächster tag
-            while (von > bis)
+            while (von >= bis)
                 bis = bis + 24*3600;   // nächster tag
             if (w[w.size()-1].hh<bis)
                 return;
             ptm = localtime(&bis);
+            ptm = localtime(&von);
             if (e3dc.wbhour > 0)
             {
                 ladedauer = e3dc.wbhour;
