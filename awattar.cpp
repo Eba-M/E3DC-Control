@@ -1921,19 +1921,26 @@ else
 //        if (w.size()<=old_w_size&&dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
         {
 //            old_w_size = w.size();
-            if (dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
-                return;
-            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
-            if (e3dc.wbhour<=0)  // nothing todo
+//            if (dauer == e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24)
+//                return;
+//            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
+            if (e3dc.wbhour<=0||(dauer>=0&&dauer!=e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24))  // nothing todo
             {
                 if (ch.size()>0)
                 {
-                    ch.clear();
+
+                        for (int j = 0; j < ch.size(); j++ )
+                        {
+                            while (ch.size()>j&&ch[j].ch == chch)
+                                ch.erase(ch.begin()+j);
+                            
+                        }
+                    
                     PutWallbox(ch); // Schaltzeiten schreiben
                 }
-                return;
             }
-            if (ch.size()>0&&ch[ch.size()-1].hh+900>rawtime) // aktiver ladeauftrag
+            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
+            if (ch.size()>0&&ch[ch.size()-1].ch==chch&&ch[ch.size()-1].hh+900>rawtime) // aktiver ladeauftrag
                 return;
 
         }
@@ -1942,8 +1949,8 @@ else
 //        if ((dauer >= 0&&w.size()>=old_w_size+96)&&(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24
 //            ||ch.size()==0||(ch.size()>0&&ch[ch.size()-1].hh+900<rawtime)))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
-            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
-            if (e3dc.wbhour < 0) return;  // nichts zu ermitteln;
+            if (e3dc.wbhour <= 0)
+                return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
             old_w_size = w.size();
@@ -1957,6 +1964,8 @@ else
                 von = von + 24*3600;   // nächster tag
             while (von > bis)
                 bis = bis + 24*3600;   // nächster tag
+            if (w[w.size()-1].hh<bis)
+                return;
             ptm = localtime(&bis);
             if (e3dc.wbhour > 0)
             {
@@ -1965,7 +1974,6 @@ else
         }
 //        else
         {
-            dauer =  e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24;
 //            return;
         }
     }
