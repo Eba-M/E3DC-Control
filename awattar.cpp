@@ -1408,7 +1408,7 @@ int ladedauer = 0;
         //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 
 
-        if ((e3dc.aWATTar||e3dc.unload<0))
+        if (e3dc.aWATTar)
             // aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
         {
             if (w.size()==0)
