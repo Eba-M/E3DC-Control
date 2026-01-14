@@ -1303,8 +1303,8 @@ int ladedauer = 0;
         ||
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
-// die Wetterdaten alle 15min in der 1ten min holen,
-        (e3dc.openmeteo&&((rawtime-oldhour)>=800)&&ptm->tm_min%15==1)
+// die Wetterdaten alle 15min + 30sekundenin  holen,
+        (e3dc.openmeteo&&((rawtime-oldhour)>=800)&&ptm->tm_min%15==0&&ptm->tm_sec>30)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>12*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
