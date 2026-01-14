@@ -745,8 +745,15 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
     return 0;
 }
 int fp_status = -1;  //
-void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_config_t &e3dc,int anlage,u_int32_t iDayStat[25*4*2+1])
+void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_config_t * e3dc,int anlage,u_int32_t *iDayStat)
+//void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_config_t &e3dc,int anlage,u_int32_t &iDayStat)
 {
+//    std::vector<watt_s> * w;
+//    std::vector<wetter_s> * wetter;
+//    e3dc_config_t e3dc;
+//    int anlage;
+
+//    int iDayStat[2000];
     FILE * fp;
     FILE * fp1;
     char line[1024];
@@ -760,17 +767,17 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
     int x3 = 10; // 10kWp
     time_t rawtime;
     time(&rawtime);
-    if (w.size()==0)
+    if (w->size()==0)
     {
         printf("keine Börsenpreise");
         return;
     }
-    if (wetter.size()==0) 
+    if (wetter->size()==0)
     {
         printf("keine Wetterdaten");
         return;
     }
-    int len = strlen(e3dc.Forecast[anlage]);
+    int len = strlen(e3dc->Forecast[anlage]);
     
     if (anlage >=0)
     {
@@ -782,7 +789,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
         }
         else
         {
-            memcpy(&line,&e3dc.Forecast[anlage],len);
+            memcpy(&line,&e3dc->Forecast[anlage],len);
             memset(var, 0, sizeof(var));
             memset(var2, 0, sizeof(var2));
             memset(value, 0, sizeof(value));
@@ -811,9 +818,9 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 
    if (x3>0)
       {
-          if (e3dc.debug)
+          if (e3dc->debug)
               printf("om.1\n");
-          sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc.hoehe,e3dc.laenge,x1,x2);
+          sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc->hoehe,e3dc->laenge,x1,x2);
 
           fp = NULL;
           fp = popen(line, "r");
@@ -824,7 +831,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
           fp_status = 2;
 
         int timeout = 0;
-          if (e3dc.debug)
+          if (e3dc->debug)
               printf("om.2\n");
           if (fp != NULL)
           while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
@@ -832,7 +839,7 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             sleep(1);
             timeout++;
         }
-          if (e3dc.debug)
+          if (e3dc->debug)
               printf("om%i.3\n",timeout);
           if (timeout>1)
               printf("timeout open-meteo%i.3\n",timeout);
@@ -842,37 +849,37 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
               if (fp!=NULL) pclose(fp);
               return;
           }
-        {
-            const cJSON *item = NULL;
-            const cJSON *item1 = NULL;
-            const cJSON *item2 = NULL;
-
-            std::string feld;
-            cJSON *wolf_json = cJSON_Parse(path);
-            feld = "minutely_15";
-            char * c = &feld[0];
-            item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-            feld = "time";
-            item1 = cJSON_GetObjectItemCaseSensitive(item, c );
-            feld = "global_tilted_irradiance_instant";
-            c = &feld[0];
-            item2 = cJSON_GetObjectItemCaseSensitive(item, c );
-            if (item1!=NULL)
-            item1 = item1->child;
-            if (item1!=NULL)
-            item2 = item2->child;
-            fp1 = NULL;
-            float f9=0,f10=0;
-            float f4 = (iDayStat[199]) * e3dc.speichergroesse/10000.0;
+          {
+              const cJSON *item = NULL;
+              const cJSON *item1 = NULL;
+              const cJSON *item2 = NULL;
+              
+              std::string feld;
+              cJSON *wolf_json = cJSON_Parse(path);
+              feld = "minutely_15";
+              char * c = &feld[0];
+              item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
+              feld = "time";
+              item1 = cJSON_GetObjectItemCaseSensitive(item, c );
+              feld = "global_tilted_irradiance_instant";
+              c = &feld[0];
+              item2 = cJSON_GetObjectItemCaseSensitive(item, c );
+              if (item1!=NULL)
+                  item1 = item1->child;
+              if (item1!=NULL)
+                  item2 = item2->child;
+              fp1 = NULL;
+              float f9=0,f10=0;
+              float f4 = (iDayStat[199]) * e3dc->speichergroesse/10000.0;
             float f5 = iDayStat[198]/3600.0/1000.0;
             float f6 = 1;
             if (item2->valueint>0)
             {
-                f9 =iDayStat[197]/(e3dc.speichergroesse*10*3600);
-                f10 = item2->valuedouble/4/e3dc.speichergroesse;
+                f9 =iDayStat[197]/(e3dc->speichergroesse*10*3600);
+                f10 = item2->valuedouble/4/e3dc->speichergroesse;
                 f10 = f9 / f10;
 
-                if (e3dc.prognosetest)
+                if (e3dc->prognosetest)
                     
                 {
                     sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
@@ -882,31 +889,31 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
             }
             int x1 = 0;
             int x2 = 0;
-            if (e3dc.debug)
+              if (e3dc->debug)
                 printf("om.4\n");
             while (item1!=NULL)
             {
-                if (w.size()>0)
+                if (w->size()>0)
 //                while (w[x1].hh < item1->valueint&&x1<w.size())
 //                    x1++;
-                while (x2<wetter.size()-1&&wetter[x2].hh < item1->valueint)  // um 15min verschieben
-//                while (x2<wetter.size()-1&&wetter[x2].hh < item1->valueint-900)  // um 15min verschieben
+                while (x2<wetter->size()-1&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
+//                while (x2<wetter.size()-1&&wetter->[x2].hh < item1->valueint-900)  // um 15min verschieben
                     x2++;
-                if (x2 >= wetter.size()-1)
+                if (x2 >= wetter->size()-1)
                     break;
-                if (wetter[x2].hh == item1->valueint)
-//                    if (wetter[x2].hh == item1->valueint-900)
+                if (wetter->at(x2).hh == item1->valueint)
+//                    if (wetter->at(x2).hh == item1->valueint-900)
                 {
                     // index 200 heutiger Ertrag 15min
                     // index 199 heutige Prognose kumuliert
                     // Index 198 heutiger Ertrag kumuliert
 
-                    int y1 = wetter[x2].hh%(24*3600)/900;
+                    int y1 = wetter->at(x2).hh%(24*3600)/900;
                     float f2 = iDayStat[y1]/100.0;  // Soll
-                    float f3 = iDayStat[y1+96]/(e3dc.speichergroesse*10*3600);  //Ist
+                    float f3 = iDayStat[y1+96]/(e3dc->speichergroesse*10*3600);  //Ist
                     // aktuelle PV-Leistung ermitteln aus Prog
-                    float f44 = (rawtime%900)*(wetter[0].progsolar)*100.0/900.0;
-//                    if (f4>1&&f5>0&&(wetter[x2].hh-wetter[0].hh)<12*3600) // erst nach der ersten kWh
+                    float f44 = (rawtime%900)*(wetter->at(0).progsolar)*100.0/900.0;
+//                    if (f4>1&&f5>0&&(wetter->at(x2).hh-wetter->at(0).hh)<12*3600) // erst nach der ersten kWh
                         if (f4>0.1&&f5>0) // erst nach der ersten kWh
                         f6 = f5/f4;
                     if (f6<0.1) f6 = 0.1;  // schneebedeckte Module?
@@ -937,51 +944,51 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
 //                    fprintf(fp1,"f6 %0.2f f7 %0.2f ",f6,f7);
 
                     if (anlage==0){
-                        wetter[x2].progsolar = item2->valuedouble*x3/4/e3dc.speichergroesse/10;
+                        wetter->at(x2).progsolar = item2->valuedouble*x3/4/e3dc->speichergroesse/10;
                         
-                            wetter[x2].solar = wetter[x2].progsolar*f6;
+                            wetter->at(x2).solar = wetter->at(x2).progsolar*f6;
 
                         // (15min Intervall daher /4
                     }
                     else {
-                            wetter[x2].progsolar = wetter[x2].progsolar+item2->valuedouble*x3/4/e3dc.speichergroesse/10;
-                            wetter[x2].solar = wetter[x2].progsolar*f6;
+                        wetter->at(x2).progsolar = wetter->at(x2).progsolar+item2->valuedouble*x3/4/e3dc->speichergroesse/10;
+                            wetter->at(x2).solar = wetter->at(x2).progsolar*f6;
 
                     }
-                    int hh = wetter[x2].hh-wetter[0].hh;
-                    if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6>f8
+                    int hh = wetter->at(x2).hh-wetter->at(0).hh;
+                    if (wetter->at(x2).solar<f8&&wetter->at(x2).progsolar*f6>f8
                         &&
-                        (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                            (wetter[x2].solar=(2*f8+wetter[x2].progsolar*f6)/3);
+                        (wetter->at(x2).hh-wetter->at(0).hh)<12*3600)    // 12h
+                            (wetter->at(x2).solar=(2*f8+wetter->at(x2).progsolar*f6)/3);
                     else
-                        if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6>f8
+                        if (wetter->at(x2).solar<f8&&wetter->at(x2).progsolar*f6>f8
                             &&
-                            (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                                (wetter[x2].solar=(1*f8+wetter[x2].progsolar*f6)/2);
+                            (wetter->at(x2).hh-wetter->at(0).hh)<12*3600)    // 12h
+                                (wetter->at(x2).solar=(1*f8+wetter->at(x2).progsolar*f6)/2);
                         else
-                            if (wetter[x2].solar<f8&&wetter[x2].progsolar*f6<f8
-                                && (wetter[x2].progsolar > 1) &&
-                                (wetter[x2].hh-wetter[0].hh)<12*3600)    // 12h
-                                    (wetter[x2].solar=(wetter[x2].progsolar*f6+f8)/2);
+                            if (wetter->at(x2).solar<f8&&wetter->at(x2).progsolar*f6<f8
+                                && (wetter->at(x2).progsolar > 1) &&
+                                (wetter->at(x2).hh-wetter->at(0).hh)<12*3600)    // 12h
+                                    (wetter->at(x2).solar=(wetter->at(x2).progsolar*f6+f8)/2);
                             else
-                        wetter[x2].solar = wetter[x2].progsolar*f6;
-                    if (x2==1&&wetter[0].solar==0&&wetter[0].progsolar==0)
+                        wetter->at(x2).solar = wetter->at(x2).progsolar*f6;
+                    if (x2==1&&wetter->at(0).solar==0&&wetter->at(0).progsolar==0)
                     {
-                        wetter[0].solar = wetter[1].solar;
-                        wetter[0].progsolar = wetter[1].progsolar;
+                        wetter->at(0).solar = wetter->at(1).solar;
+                        wetter->at(0).progsolar = wetter->at(1).progsolar;
                     }
                     if (fp1!=NULL&&item2->valuedouble>0)
-                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter[x2].solar,wetter[x2].progsolar);
+                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter->at(x2).solar,wetter->at(x2).progsolar);
 
                     x1++;
                     x2++;
-                    if (x2 > wetter.size())
+                    if (x2 > wetter->size())
                     {                        
-                        if (e3dc.debug)
+                        if (e3dc->debug)
                             printf("om.bfc\n");
                         if (fp!=NULL) pclose(fp);
                         if (fp1!=NULL) pclose(fp1);
-                        if (e3dc.debug)
+                        if (e3dc->debug)
                         printf("om.afc\n");
                         return;
                     }
@@ -990,16 +997,16 @@ void openmeteo(std::vector<watt_s> &w,std::vector<wetter_s>  &wetter, e3dc_confi
                 item2 = item2->next;
 
             }
-            if (e3dc.debug)
+              if (e3dc->debug)
                 printf("om.bfc\n");
             if (fp!=NULL) pclose(fp);
             if (fp1!=NULL) pclose(fp1);
-            if (e3dc.debug)
+              if (e3dc->debug)
             printf("om.afc\n");
             return;
         }
     }
-    if (e3dc.debug)
+    if (e3dc->debug)
         printf("om.5");
     return;
 }
@@ -1232,7 +1239,15 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
             if (fp!=NULL) pclose(fp);
     }
 }
+void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc)
+{
+    printf("ch ist %2i groß %2f",chref->size(),e3dc->AWAufschlag);
+    chref->erase(chref->begin());
+    printf("ch ist %2i groß %i",chref->size(),j);
+    chref->erase(chref->begin());
+    printf("ch ist %2i groß %i",chref->size(),j);
 
+}
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
@@ -1739,16 +1754,35 @@ int ladedauer = 0;
 
         if (e3dc.debug)
             printf("wetter.size = %i\n",wetter.size());
-if (wetter.size()==0) return;
+        if (w.size()==0)
+        {
+            printf("keine Börsenpreise");
+            return;
+        }
+        if (wetter.size()==0)
+        {
+            printf("keine Wetterdaten");
+            return;
+        }
+
 if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
     for (int j=0;j<4;j++){
+        std::vector<watt_s> * wattref;
+        wattref = &w;
+        std::vector<wetter_s> * wetterref;
+        wetterref = &wetter;
 
-//        std::thread  t1(openmeteo(w,wetter, e3dc, j));
+//        std::thread  t1(openmeteo,&w,&wetter, &e3dc, j, &iDayStat[0]);
+        std::thread  t1(openmeteo,&w,&wetter,&e3dc,j,iDayStat);
 
-        if (e3dc.debug) printf("openmeteo%i\n",j);
-        openmeteo(w,wetter, e3dc, j, iDayStat);
+//        std::thread  t1(openmeteo);
+        t1.detach();
+//        std::thread  t1(openmeteo);
+//        t1.detach();
+//        if (e3dc.debug) printf("openmeteo%i\n",j);
+//        openmeteo(w,wetter, e3dc, j, iDayStat);
     }
 }
 else
