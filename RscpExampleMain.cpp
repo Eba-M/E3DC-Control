@@ -7078,6 +7078,8 @@ int main(int argc, char *argv[])
     }
  */
 //    signgam(EPIPE, SIG_IGN);
+printf("Program Start Version:%s\n",VERSION);
+
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
@@ -7175,7 +7177,6 @@ static int iEC = 0;
             sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
             WriteLog();
             // connect to server
-            printf("Program Start Version:%s\n",VERSION);
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 //            CheckConfig();
 //            printf("GetConfig done");
