@@ -7037,7 +7037,8 @@ if (e3dc_config.debug) printf("M6");
                      u_int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
                 now=now%1000;
-                std::this_thread::sleep_for(1000ms);
+                ms=1000ms-ms%1000;
+                std::this_thread::sleep_for(ms);
 //                sleep(1);
                     printf("%c[H", 27 );
                 if (e3dc_config.debug)
