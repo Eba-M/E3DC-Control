@@ -1458,7 +1458,8 @@ int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
                 Msend.Count = 1*256; // Anzahl Register // 22.6° setzen
                 memcpy(&send[0],&Msend,send.size());
                 SocketSendData(isocket,&send[0],send.size());
-                sleep(0.1);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//                sleep(0.1);
 // Auslesen der maximalen Leistung
             
                 iLength = SocketRecvData(isocket,&receive[0],receive.size());
@@ -1515,7 +1516,8 @@ int iRelayEin(const char * cmd)
 //      isocket = SocketConnect_noblock(relay_ip, iPort);
     if (isocket > 0){
         SocketSendData(isocket,&send[0],2);
-    sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//        sleep(1);
        iLength = SocketRecvData(isocket,&receive[0],receive.size());
         SocketClose(isocket);
     }
@@ -3185,7 +3187,7 @@ int LoadDataProcess() {
                             ALV = shelly_get();
                             if (ALV != soll)
                             {
-                                sleep(1);
+                                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                                 shelly(soll);
                                 ALV = shelly_get();
                             }
@@ -7028,7 +7030,9 @@ if (e3dc_config.debug) printf("M6");
             }
             else {
                 // go into receive loop and wait for response
-                sleep(1);
+                int clock = 1000 - std::clock()%1000;
+                std::this_thread::sleep_for(std::chrono::milliseconds(clock));
+//                sleep(1);
                     printf("%c[H", 27 );
                 if (e3dc_config.debug)
                     printf("%c[2J", 27 );
