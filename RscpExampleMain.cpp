@@ -7034,7 +7034,8 @@ if (e3dc_config.debug) printf("M6");
                 milliseconds ms = duration_cast< milliseconds >(
                     system_clock::now().time_since_epoch()
                 );
-                ms=ms%1000;
+                ms=ms%1100;
+                
                 std::this_thread::sleep_for(ms);
 //                sleep(1);
                     printf("%c[H", 27 );
