@@ -7030,15 +7030,19 @@ if (e3dc_config.debug) printf("M6");
             }
             else {
                 // go into receive loop and wait for response
-                int myclock = 1100 - std::clock()%1000;
-                std::this_thread::sleep_for(std::chrono::milliseconds(myclock));
+                using namespace std::chrono;
+                milliseconds ms = duration_cast< milliseconds >(
+                    system_clock::now().time_since_epoch()
+                );
+                ms=ms%1000;
+                std::this_thread::sleep_for(ms);
 //                sleep(1);
                     printf("%c[H", 27 );
                 if (e3dc_config.debug)
                     printf("%c[2J", 27 );
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf("%s %2ld:%2ld:%2ld %2i %3i",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,t%60,myclock);
+                printf("%s %2ld:%2ld:%2ld %2i %3i",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,t%60,ms);
                 printf(" %0.02f %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVnextday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
                 int x2 = (t%(24*4*900))/900+1;
                 if (x2 > 0&&e3dc_config.statistik)
