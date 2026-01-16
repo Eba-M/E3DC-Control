@@ -7030,7 +7030,7 @@ if (e3dc_config.debug) printf("M6");
             }
             else {
                 // go into receive loop and wait for response
-                int clock = 1000 - std::clock()%1000;
+                int clock = 1100 - std::clock()%1000;
                 std::this_thread::sleep_for(std::chrono::milliseconds(clock));
 //                sleep(1);
                     printf("%c[H", 27 );
