@@ -772,11 +772,12 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
         printf("keine Börsenpreise");
         return;
     }
-    if (wetter->size()==0)
+/*    if (wetter->size()==0)
     {
         printf("keine Wetterdaten");
-        return;
+//        return;
     }
+*/
     int len = strlen(e3dc->Forecast[anlage]);
     
     if (anlage >=0)
@@ -820,7 +821,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
       {
           if (e3dc->debug)
               printf("om.1\n");
-          sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc->hoehe,e3dc->laenge,x1,x2);
+          sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=temperature_2m&minutely_15=global_tilted_irradiance_instant&timeformat=unixtime&forecast_minutely_15=192&tilt=%i&azimuth=%i'",e3dc->hoehe,e3dc->laenge,x1,x2);
 
           fp = NULL;
           fp = popen(line, "r");
@@ -829,6 +830,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           flags |= O_NONBLOCK;
           fcntl(fd, F_SETFL, flags);
           fp_status = 2;
+          static wetter_s we;
+
 
         int timeout = 0;
           if (e3dc->debug)
@@ -853,7 +856,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               const cJSON *item = NULL;
               const cJSON *item1 = NULL;
               const cJSON *item2 = NULL;
-              
+              const cJSON *item3 = NULL;
+
               std::string feld;
               cJSON *wolf_json = cJSON_Parse(path);
               feld = "minutely_15";
@@ -864,10 +868,17 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               feld = "global_tilted_irradiance_instant";
               c = &feld[0];
               item2 = cJSON_GetObjectItemCaseSensitive(item, c );
+              feld = "temperature_2m";
+              c = &feld[0];
+              item3 = cJSON_GetObjectItemCaseSensitive(item, c );
+              if (item!=NULL)
+                  item = item->child;
               if (item1!=NULL)
                   item1 = item1->child;
-              if (item1!=NULL)
+              if (item2!=NULL)
                   item2 = item2->child;
+              if (item3!=NULL)
+                  item3 = item3->child;
               fp1 = NULL;
               float f9=0,f10=0;
               float f4 = (iDayStat[199]) * e3dc->speichergroesse/10000.0;
@@ -896,11 +907,15 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                 if (w->size()>0)
 //                while (w[x1].hh < item1->valueint&&x1<w.size())
 //                    x1++;
-                while (x2<wetter->size()-1&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
+//                while (x2<wetter->size()-1&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
 //                while (x2<wetter.size()-1&&wetter->[x2].hh < item1->valueint-900)  // um 15min verschieben
-                    x2++;
-                if (x2 >= wetter->size()-1)
-                    break;
+//                    x2++;
+                if (x2+1 > wetter->size())
+                {
+                    we.hh = item1->valueint;
+                    we.temp = item3->valueint;
+                    wetter->push_back(we);
+                }
                 if (wetter->at(x2).hh == item1->valueint)
 //                    if (wetter->at(x2).hh == item1->valueint-900)
                 {
@@ -995,6 +1010,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                 }
                 item1 = item1->next;
                 item2 = item2->next;
+                item3 = item3->next;
 
             }
               if (e3dc->debug)
@@ -1283,8 +1299,8 @@ int ladedauer = 0;
 // alte Einträge > 1h löschen
     if (e3dc.openmeteo)
     {
-        if (wetter.size() == 0)
-            return;
+//        if (wetter.size() == 0)
+//            return;
         while ((not simu)&&w.size()>0&&(w[0].hh+900<=rawtime))
             w.erase(w.begin());
     }
@@ -1759,12 +1775,12 @@ int ladedauer = 0;
             printf("keine Börsenpreise");
             return;
         }
-        if (wetter.size()==0)
+/*        if (wetter.size()==0)
         {
             printf("keine Wetterdaten");
             return;
         }
-
+*/
 if (e3dc.openmeteo)
 {
 //    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
@@ -1775,10 +1791,21 @@ if (e3dc.openmeteo)
         wetterref = &wetter;
 
 //        std::thread  t1(openmeteo,&w,&wetter, &e3dc, j, &iDayStat[0]);
-        std::thread  t1(openmeteo,&w,&wetter,&e3dc,j,iDayStat);
-
-//        std::thread  t1(openmeteo);
-        t1.detach();
+        int len = strlen(e3dc.Forecast[j]);
+        
+        if (j >=0)
+        {
+            if ((len>sizeof(line)||len==0)&&j>0)
+            {
+                    return;
+            }
+            else
+            {
+                std::thread  t1(openmeteo,&w,&wetter,&e3dc,j,iDayStat);
+//                t1.join();
+                t1.detach();
+            }
+        }
 //        std::thread  t1(openmeteo);
 //        t1.detach();
 //        if (e3dc.debug) printf("openmeteo%i\n",j);

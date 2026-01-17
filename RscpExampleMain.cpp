@@ -7205,8 +7205,10 @@ static int iEC = 0;
                 chref = &ch;
                 std::thread t1(aWATT,&ch,1,&e3dc_config);
                 t1.join();
-                sleep(1);
 */
+                while (wetter.size()==0)
+                sleep(1);
+
                 mewp(w,wetter,ftemp,97,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
                     mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);

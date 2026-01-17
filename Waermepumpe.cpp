@@ -224,6 +224,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
 
         if (e3dc.openmeteo)
         {
+/*
             sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=temperature_2m&timeformat=unixtime&forecast_minutely_15=192'",e3dc.hoehe,e3dc.laenge);
             fp = NULL;
             fp = popen(line, "r");
@@ -286,6 +287,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                         x1++;
                 }
                 if (fp!=NULL) pclose(fp);
+
                 if (zuluft >-99) // Temperaturabgleich
                 {
                     int j1 = (wetter[0].hh%(24*3600));
@@ -294,15 +296,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     ftemp[j1] = wetter[0].temp - zuluft;
                 }
                 
-                fatemp = fatemp / x1;
-                fatemp = fatemp - ftemp[0]/96;
             }
+ */
+            if (wetter.size()==0) return;
+            for (int j=0;j<wetter.size();j++)
+                fatemp = fatemp + wetter[j].temp;
+                
+            fatemp = fatemp / wetter.size();
+            fatemp = fatemp - ftemp[0]/96;
             if (e3dc.debug) printf("NW2\n");
         }
         else
         if (strlen(e3dc.openweathermap)>0)
         {
-            
+
             sprintf(line,"curl -s -X GET 'https://api.openweathermap.org/data/2.5/onecall?lat=%0.6f&lon=%0.6f&appid=%s&exclude=(current,minutely,alerts)&units=metric' | jq .hourly| jq '.[]' | jq '.dt, .temp, .clouds, .uvi'>wetter.out",e3dc.hoehe,e3dc.laenge,e3dc.openweathermap);
             int res = system(line);
             fp = fopen("wetter.out","r");
@@ -337,12 +344,13 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     wetter.push_back(we);
                     x1++;
                 }
-                
+
                 fclose(fp);
                 fatemp = fatemp / 48;
-                
+
             }
-        }
+
+ }
         if (e3dc.debug) printf("NW3\n");
         if (w.size()==0) return;
         if (e3dc.unload < 0) return;
