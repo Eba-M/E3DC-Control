@@ -1983,8 +1983,6 @@ else
 //        if ((dauer >= 0&&w.size()>=old_w_size+96)&&(dauer != e3dc.wbhour+e3dc.wbvon*24+e3dc.wbbis*24*24
 //            ||ch.size()==0||(ch.size()>0&&ch[ch.size()-1].hh+900<rawtime)))
         {  // Es wurden die neuen Preise ausgelesen = neue ladezeiten ermitteln
-            if (e3dc.wbhour <= 0)
-                return;  // nichts zu ermitteln;
             if (e3dc.wbvon < 0) e3dc.wbvon = 0;
             if (e3dc.wbbis > 24) e3dc.wbbis = 24;
             old_w_size = w.size();
@@ -2012,6 +2010,10 @@ else
         {
 //            return;
         }
+
+        if (e3dc.wbhour <= 0||w[w.size()-1].hh<bis)
+            return;  // nichts zu ermitteln;
+
     }
     if (e3dc.debug) printf("LZ2\n");
     long k;       // bis zu     if (k > 7) k = 24-k+7;
