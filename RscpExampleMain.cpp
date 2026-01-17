@@ -4905,7 +4905,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
 //            createRequestWBData(frameBuffer);
     }
-    if (iWBStatus == 0)
+//    if (iWBStatus == 0)
     {
         
         int iRefload=0;
