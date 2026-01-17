@@ -913,7 +913,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                 if (x2+1 > wetter->size())
                 {
                     we.hh = item1->valueint;
-                    we.temp = item3->valueint;
+                    we.temp = item3->valuedouble;
                     wetter->push_back(we);
                 }
                 if (wetter->at(x2).hh == item1->valueint)
