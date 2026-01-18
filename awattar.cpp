@@ -1007,6 +1007,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                         if (fp1!=NULL) pclose(fp1);
                         if (e3dc->debug)
                         printf("om.afc\n");
+                        sleep(1);
                         return;
                     }
                 }
@@ -1021,11 +1022,13 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
             if (fp1!=NULL) pclose(fp1);
               if (e3dc->debug)
             printf("om.afc\n");
-            return;
+              sleep(1);
+              return;
         }
     }
     if (e3dc->debug)
         printf("om.5");
+    sleep(1);
     return;
 }
             
