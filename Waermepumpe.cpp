@@ -1012,7 +1012,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
              if (w[j].hh > wetter[j].hh)
                  soc_alt = soc;
 
-             anforderung = (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf );
+//             float x3 = wetter[j].hourly + wetter[j].wpbedarf + wetter[j].wwwpbedarf + wetter[j].heizstabbedarf - wetter[j].solar;;
+             anforderung = (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf - wetter[j].wwwpbedarf - wetter[j].heizstabbedarf);
              if ( anforderung> e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10)
                  anforderung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              
