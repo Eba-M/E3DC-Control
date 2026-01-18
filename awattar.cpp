@@ -994,8 +994,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                         wetter->at(0).solar = wetter->at(1).solar;
                         wetter->at(0).progsolar = wetter->at(1).progsolar;
                     }
-                    if (fp1!=NULL&&item2->valuedouble>0)
-                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter->at(x2).solar,wetter->at(x2).progsolar);
+                    if (fp1!=NULL)
+                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter->at(x2).solar,wetter->at(x2).progsolar,wetter->at(x2).temp);
 
                     x1++;
                     x2++;
