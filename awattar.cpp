@@ -895,7 +895,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                 {
                     sprintf(line,"prognose.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
                     fp1 = fopen(line,"w");
-                    fprintf(fp1,"f2 f3 f4 %0.2f f5 %0.2f f6 %0.2f f7 f9 %0.2f f10 %0.2f \n",f4,f5,f5/f4,f9,f10);
+                    fprintf(fp1,"f2 f3 f4 %0.2f f5 %0.2f f6 %0.2f f7 f9 %0.2f f10 %0.2f %3i %3i \n",f4,f5,f5/f4,f9,f10,w->size(),wetter->size());
                 }
             }
             int x1 = 0;
@@ -905,11 +905,11 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
             while (item1!=NULL)
             {
                 if (w->size()>0)
-//                while (w[x1].hh < item1->valueint&&x1<w.size())
-//                    x1++;
-//                while (x2<wetter->size()-1&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
+                while (w->at(x1).hh < item1->valueint&&x1<w->size())
+                    x1++;
+                while (x2+1<wetter->size()&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
 //                while (x2<wetter.size()-1&&wetter->[x2].hh < item1->valueint-900)  // um 15min verschieben
-//                    x2++;
+                    x2++;
                 if (x2+1 > wetter->size())
                 {
                     we.hh = item1->valueint;
@@ -995,7 +995,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                         wetter->at(0).progsolar = wetter->at(1).progsolar;
                     }
                     if (fp1!=NULL)
-                        fprintf(fp1,"%0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f %0.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter->at(x2).solar,wetter->at(x2).progsolar,wetter->at(x2).temp);
+                        fprintf(fp1,"%2.2f %3.2f %0.2f %0.2f %0.2f %0.2f %0.2f %2.2f %0.2f %2.2f \n",float(item1->valueint%(24*3600))/3600,item2->valuedouble,f2,f3,f7,f8,f6,wetter->at(x2).solar,wetter->at(x2).progsolar,wetter->at(x2).temp);
 
                     x1++;
                     x2++;
@@ -1322,7 +1322,7 @@ int ladedauer = 0;
         ((ptm->tm_hour>=12)&&(ptm->tm_min%5==1)&&(ptm->tm_sec==0)&&(w.size()<12))
         ||
 // die Wetterdaten alle 15min + 30sekundenin  holen,
-        (e3dc.openmeteo&&((rawtime-oldhour)>=800)&&ptm->tm_min%15==0&&ptm->tm_sec>30)
+        (e3dc.openmeteo&&((rawtime-oldhour)>=100)&&ptm->tm_min%15==0&&ptm->tm_sec>30)
         ||
         (e3dc.openmeteo&&(ptm->tm_hour*60+ptm->tm_min>12*60+50)&&((rawtime-oldhour)>=60)&&(w.size()<=48))
         ||
