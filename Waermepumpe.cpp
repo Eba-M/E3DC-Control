@@ -298,7 +298,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 
             }
  */
-            if (zuluft >-99) // Temperaturabgleich
+            if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
             {
                 int j1 = (wetter[0].hh%(24*3600));
                 j1 = j1/900+1;
@@ -361,7 +361,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
  }
         if (e3dc.debug) printf("NW3\n");
         if (w.size()==0) return;
-        if (e3dc.unload < 0) return;
+//        if (e3dc.unload < 0) return;
         if (e3dc.debug) printf("NW4\n");
         
         

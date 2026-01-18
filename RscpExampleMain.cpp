@@ -7092,7 +7092,9 @@ int main(int argc, char *argv[])
     }
  */
 //    signgam(EPIPE, SIG_IGN);
-printf("Program Start Version:%s\n",VERSION);
+printf("Program Start Version:",VERSION);
+printf("%s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
+
 
  for (int i=1; i < argc; i++)
  {
