@@ -905,7 +905,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
             while (item1!=NULL)
             {
                 if (w->size()>0)
-                while (w->at(x1).hh < item1->valueint&&x1<w->size())
+                while (x1+1<w->size()&&w->at(x1).hh < item1->valueint)
                     x1++;
                 while (x2+1<wetter->size()&&wetter->at(x2).hh < item1->valueint)  // um 15min verschieben
 //                while (x2<wetter.size()-1&&wetter->[x2].hh < item1->valueint-900)  // um 15min verschieben
@@ -915,7 +915,11 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                     we.hh = item1->valueint;
                     we.temp = item3->valuedouble;
                     wetter->push_back(we);
+                    printf("om.4.1\n");
                 }
+                if (e3dc->debug)
+                  printf("om.4.2\n");
+
                 if (wetter->at(x2).hh == item1->valueint)
 //                    if (wetter->at(x2).hh == item1->valueint-900)
                 {
