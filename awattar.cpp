@@ -915,6 +915,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                     we.hh = item1->valueint;
                     we.temp = item3->valuedouble;
                     wetter->push_back(we);
+                    if (e3dc->debug)
                     printf("om.4.1\n");
                 }
                 if (e3dc->debug)
