@@ -2372,7 +2372,7 @@ int LoadDataProcess() {
             if (wetter.size()>0&&w_alt.hh<wetter[0].hh)
                 w_alt = wetter[0];
             else
-//                if (wetter.size()>0&&w_alt.hh<wetter[1].hh)
+                if (wetter.size()>0&&w_alt.hh<wetter[1].hh)
                     w_alt = wetter[1];
             iDayStat[DayStat-3] = iDayStat[DayStat];
             iDayStat[DayStat] = iPower_PV*(t-myt_alt);
