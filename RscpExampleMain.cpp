@@ -4232,8 +4232,8 @@ bDischarge = false;
                                 iFc = iFc + e3dc_config.peakshave - f[0];
 */
 //Einspeisung beim Master, Leistung abschöpfen
-//                            if (f[0]<1000)
-//                                iFc = iFc -f[0];
+                            if (f[0]<-200)
+                                iFc = iFc -f[0]-200;
                             
                             if (f[2]==0||(-f[3]+f[4])>2000)
                             { // Master-WR arbeitet nicht oder muss nicht laden
@@ -4293,8 +4293,8 @@ bDischarge = false;
                             if (iFc ==0) iFc = 1;
                             printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc3, int(f[2])*100/iFc, f[1]);
 // Leistung des Slave begrenzen
-                            if (abs(iFc)>abs(f[2]*3)&&abs(f[2])>2000&&f[0]>2000)
-                                iFc = f[2]*3;
+                            if (abs(iFc)>abs(f[2]*2)&&abs(f[2])>2000)
+                                iFc = f[2]*2;
 
 //                            if (iFc<iBattLoad)
 //                            iFc = (2*iFc -iBattLoad);
