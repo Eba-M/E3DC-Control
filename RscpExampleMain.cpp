@@ -1247,11 +1247,11 @@ int iModbusTCP()
                         &&
                         ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
                         )
-                        isttemp = (wolf[wpzl].wert + wetter[0].temp)/2 + 1;
+                        isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
                     // wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
                     if (isttemp>-99)
                     {
-                        if ((isttemp<(e3dc_config.WPZWE))&&temp[17]==0)
+                        if ((isttemp<=(e3dc_config.WPZWE))&&temp[17]==0)
                             //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                         {
                             iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
@@ -1259,7 +1259,7 @@ int iModbusTCP()
                             //                    brequest = true;
                         }
                         // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
-                        if (isttemp>(e3dc_config.WPZWE+2)&&temp[17]==1)
+                        if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
                         {
                             iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
                             iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
@@ -4088,9 +4088,13 @@ bDischarge = false;
                 // Master E3DC sendet die grid-werte
             {
                 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
-                if ((fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100||abs(fAvPower_Grid60)<500||iPower_PV>iPowerHome)
-//                    &&iPower_PV_E3DC>100&&fpeakshaveminsoc-4 < fBatt_SOC)
-                    &&fpeakshaveminsoc-4 < fBatt_SOC)
+                if (
+                    (fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100
+//                     ||abs(fAvPower_Grid60)<500
+                     ||iPower_PV>iPowerHome)
+//                    &&fpeakshaveminsoc-4 < fBatt_SOC
+                    &&fpeakshaveminsoc < fBatt_SOC
+                    )
                 {
                     //                    iFc = 0;
                     idauer = -1; // Freilauf
@@ -4214,7 +4218,7 @@ bDischarge = false;
                         // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                         {
                             iFc = f[2]+iBattLoad;
-                            if ((f[1]>fBatt_SOC&&iFc>0)||(f[1]<fBatt_SOC&&iFc<0))
+                            if ((f[1]>fBatt_SOC*1.1&&iFc>0)||(f[1]<=fBatt_SOC*1.1&&iFc<0))
                                 iFc = iFc*0.7;
                             else
                                 iFc = iFc*0.6;
@@ -4232,7 +4236,7 @@ bDischarge = false;
                                 iFc = iFc + e3dc_config.peakshave - f[0];
 */
                             
-                            if (f[2]==0||(-f[3]+f[4])>2000)
+                            if (f[2]==0||(-f[3]+f[4])>2000||f[0]<-200)
                             { // Master-WR arbeitet nicht oder muss nicht laden
                                 fcurrentGrid = f[3];
                                 fsollGrid = f[4];
@@ -7048,9 +7052,11 @@ if (e3dc_config.debug) printf("M6");
                     printf("%c[H", 27 );
                 if (e3dc_config.debug)
                     printf("%c[2J", 27 );
+                static time_t myclock = t_alt-1;
+                myclock++;
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,t%60,ms);
+                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,myclock%60,ms);
 //                printf("%s %2ld:%2ld:%2ld %3i",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,ms);
 //                printf("%s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVnextday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
