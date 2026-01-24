@@ -1248,18 +1248,16 @@ int iModbusTCP()
                         ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
                         )
                         isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
-                    // wenn die WP läuft wird die isttemp um 1° hochgesetzt ???? überprüfen
                     if (isttemp>-99)
                     {
                         if ((isttemp<=(e3dc_config.WPZWE))&&temp[17]==0)
-                            //                if (temp[0]<(e3dc_config.WPZWE)*10&&temp[17]==0)
                         {
                             iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
                             iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
                             //                    brequest = true;
                         }
                         // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
-                        if (isttemp>(e3dc_config.WPZWE+1)&&temp[17]==1)
+                        if (isttemp>=(e3dc_config.WPZWE+2)&&temp[17]==1)
                         {
                             iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
                             iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
