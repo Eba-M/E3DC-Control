@@ -5251,7 +5251,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         }
                     if (e3dc_config.debug) printf("WB31");
                     // Laden stoppen bei Sonne Starten wenn Zeitsteuerung ab nicht am Laden
-                    createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
+                    if (WBchar6[4]==1)
+                        createRequestWBData(frameBuffer);  // Laden stoppen und/oeder Modi ändern
                     WBchar6[4] = 0; // Toggle aus
                     iWBStatus = 22;
                     return(0);
@@ -7055,11 +7056,14 @@ if (e3dc_config.debug) printf("M6");
                     printf("%c[H", 27 );
                 if (e3dc_config.debug)
                     printf("%c[2J", 27 );
-                static time_t myclock = t_alt-1;
-                myclock++;
+                static time_t myclock = 0;
+                if (myclock==0)
+                    myclock = t_alt;
+                else
+                    myclock++;
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,(t_alt-myclock)%100,ms);
+                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,(t_alt-myclock)%100,1000ms-ms);
 //                printf("%s %2ld:%2ld:%2ld %3i",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,ms);
 //                printf("%s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVnextday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
