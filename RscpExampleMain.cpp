@@ -1233,19 +1233,24 @@ int iModbusTCP()
                     {
                         isttemp  = (isttemp  + wetter[0].temp)/2;
                         if (
-                            (now - wolf[wpzl].t > 300)||wolf[wpzl].wert<-90
+                            ((now - wolf[wpzl].t > 600)||wolf[wpzl].wert<-90)
+                            &&
+                            ((now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6))
                             )
                             isttemp = wetter[0].temp;
                     }
                     // Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
                     if (
-                        (((now - wolf[wppw].t < 300)&&wolf[wppw].wert>0)
+                        (((now - wolf[wppw].t < 600)&&wolf[wppw].wert>0)
                          ||
-                         ((now - wolf[wpalv].t < 300)&&wolf[wpalv].wert>0))
+                         ((now - wolf[wpalv].t < 600)&&wolf[wpalv].wert>0))
                         &&
-                        ((now - wolf[wphl].t < 300)&&wolf[wphl].wert>0)
+                        ((now - wolf[wphl].t < 600)&&wolf[wphl].wert>0)
                         &&
-                        ((now - wolf[wpzl].t < 300)&&wolf[wpzl].wert>-90)
+                        ((now - wolf[wpzl].t < 600)&&wolf[wpzl].wert>-90)
+                        &&
+                        ((now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6))
+
                         )
                         isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
                     if (isttemp>-99)
@@ -1270,7 +1275,7 @@ int iModbusTCP()
                     (
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t > 300||wolf[wpbhg].wert!=6)
+                      (now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6)
                      )
                     &&
 
@@ -4087,11 +4092,11 @@ bDischarge = false;
             {
                 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
                 if (
-                    (fAvBatterie900-200>iFc||fAvBatterie-100>iFc||fPower_Grid<-100
-//                     ||abs(fAvPower_Grid60)<500
+                    (fAvBatterie900-200>iFc||fAvBatterie-100>iFc
+                     ||fPower_Grid<-100
                      ||iPower_PV>iPowerHome)
-//                    &&fpeakshaveminsoc-4 < fBatt_SOC
                     &&fpeakshaveminsoc < fBatt_SOC
+                    &&iPower_PV_E3DC>100
                     )
                 {
                     //                    iFc = 0;
