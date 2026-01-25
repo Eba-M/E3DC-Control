@@ -4092,8 +4092,8 @@ bDischarge = false;
             {
                 // Freilauf bei PV Ertrag + Durchschnitssverbrauch kleiner verfügbare Leistung
                 if (
-                    (fAvBatterie900-200>iFc||fAvBatterie-100>iFc
-                     ||fPower_Grid<-100
+                    (fAvBatterie900-200>iFc||fAvBatterie-200>iFc
+                     ||fPower_Grid<200
                      ||iPower_PV>iPowerHome)
                     &&fpeakshaveminsoc < fBatt_SOC
                     &&iPower_PV_E3DC>100
@@ -7059,7 +7059,7 @@ if (e3dc_config.debug) printf("M6");
                 myclock++;
 //                printf("Request cyclic example data done %s
 //                printf("Request data done %s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
-                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,myclock%60,ms);
+                printf("%s %2ld:%2ld:%2ld %2li %3li",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,(t_alt-myclock)%100,ms);
 //                printf("%s %2ld:%2ld:%2ld %3i",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60,ms);
 //                printf("%s %2ld:%2ld:%2ld",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
                 printf(" %0.02f %0.02f %0.02f %0.02f %0.02fkWh", fPVcharge,fPVtoday*e3dc_config.speichergroesse/100,fPVnextday*e3dc_config.speichergroesse/100,fPVSoll*e3dc_config.speichergroesse/100,fPVdirect*e3dc_config.speichergroesse/100); // erwartete PV Ertrag in % des Speichers
