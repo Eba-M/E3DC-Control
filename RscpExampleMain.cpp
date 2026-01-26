@@ -2375,7 +2375,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
 // Uhrzeit Average prog. Solar real Solar % letzte Progose Ertrag real Ertrag % kumm tagesverbrauch Haus WP
-                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f / %0.2f%% %0.2f%% %0.2f / %0.2f %0.2f %0.2f° %0.2f \n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0,fatemp,ftemp[0],iGridStat[Gridstat]/900000.0);
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f / %0.2f%% %0.2f%% %0.2f / %0.2f %0.2f %0.2f° %0.2f %0.2f \n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0,fatemp,ftemp[0],iGridStat[Gridstat]/900000.0);
                     fclose(fp);
                 }
             }
