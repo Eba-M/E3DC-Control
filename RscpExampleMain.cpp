@@ -139,7 +139,7 @@ static int32_t iGridStat[31*24*4]; //15min Gridbezug Monat
 
 static char fnameGrid[100];
 static float waermebedarf;
-static int Gridstat;
+static int Gridstat,Gridstat1,Gridstat2; // index für akt. Position und -1 / -2
 
 
 SunriseCalc * location;
@@ -2233,6 +2233,13 @@ int LoadDataProcess() {
         
         Gridstat = (ptm->tm_mday-1)*24*4;
         Gridstat = Gridstat+t%(24*3600)/900;
+        Gridstat1=Gridstat-1;
+        Gridstat2=Gridstat-2;
+        if (Gridstat1<0)
+            Gridstat1 = Gridstat1+31*24*4;
+        if (Gridstat2<0)
+            Gridstat2 = Gridstat2+31*24*4;
+
         iGridStat[Gridstat] = iGridStat[Gridstat] + fPower_Grid*(t-myt_alt);
         static wetter_s w_alt;
 
@@ -2368,7 +2375,7 @@ int LoadDataProcess() {
                 if(fp)
                 {
 // Uhrzeit Average prog. Solar real Solar % letzte Progose Ertrag real Ertrag % kumm tagesverbrauch Haus WP
-                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f / %0.2f%% %0.2f%% %0.2f / %0.2f %0.2f %0.2f° %0.2f\n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0,fatemp,ftemp[0]),iGridStat[Gridstat]/900000.0;
+                    fprintf(fp,"%0.2f %0.2f%% %0.2f%% %0.2f / %0.2f%% %0.2f%% %0.2f / %0.2f %0.2f %0.2f° %0.2f \n",f4,f2,f3,f3/f2,w_alt.progsolar,f5,f5/w_alt.progsolar,iWeekhour[dayhour]/3600000.0,iWeekhourWP[dayhour]/3600000.0,fatemp,ftemp[0],iGridStat[Gridstat]/900000.0);
                     fclose(fp);
                 }
             }
@@ -6053,7 +6060,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (e3dc_config.peakshave>0)
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.04f/%0.04f/%0.04f %0.04f %0.04fW",iGridStat[Gridstat-2]/900000.0,iGridStat[Gridstat-1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
+                        printf(" %0.04f/%0.04f/%0.04f %0.04f %0.04fW",iGridStat[Gridstat2]/900000.0,iGridStat[Gridstat1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
                     }
 // Grid
                     if (e3dc_config.WP)
