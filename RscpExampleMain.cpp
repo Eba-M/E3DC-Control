@@ -4233,18 +4233,7 @@ bDischarge = false;
                             else
                                 iFc = iFc*0.6;
 
-                            
-/*                            if (f[0] < -500)
-                                if (-f[0] > (iFc-f[0]))
-                                    iFc = -f[0];
-                                else
-                                    iFc = iPower_Bat - f[0]*2;
-
-                            if (iFc3<iFc&&iFc3<0&&f[2]<-500)
-                                iFc = iFc3;
-                            if (f[0]>e3dc_config.peakshave)
-                                iFc = iFc + e3dc_config.peakshave - f[0];
-*/
+                            iFc3 = iFc;
                             
                             if (f[2]==0||(-f[3]+f[4])>2000||f[0]<-200)
                             { // Master-WR arbeitet nicht oder muss nicht laden
@@ -4290,8 +4279,8 @@ bDischarge = false;
                                             iFc = iFc - adjust;
                                         }
 
-                                        if (iFc3 > iFc)
-                                            iFc = iFc3;
+//                                        if (iFc3 > iFc)
+//                                            iFc = iFc3;
                                         
                                         // Nicht wenn Master entlädt
                                         if (f[2] <-100) iFc = f[2];
