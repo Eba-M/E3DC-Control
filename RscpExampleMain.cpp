@@ -2361,7 +2361,7 @@ int LoadDataProcess() {
                     // Ausgabe Soll/Ist/ %  -15min, akt Soll Ist
                     f2 = iDayStat[x2]/100.0;
                     f3 = iDayStat[x2+96]/(e3dc_config.speichergroesse*10*3600);
-                    f4 = (w_alt.hh%(24*3600))/3600.0;
+                    f4 = (w.begin()->hh%(24*3600))/3600.0;
                     f5 = iDayStat[DayStat]/(e3dc_config.speichergroesse*10*3600);
                 }
                 sprintf(fname,"Ertrag.%i.txt",day);
@@ -4217,7 +4217,7 @@ bDischarge = false;
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt3_ip,"0.0.0.0")!=0))
                 // Slave E3DC
             {
-                iFc3 = iFc;
+                int iFc2 = iFc;
                 {
                     // Aus den Werten f[2] des Masters wird das verhalten des Slave abgeleide
                     // Ist diese < 0 wird mehr Verbraucht, ist diese > 0 wird mehr erzeugt
@@ -4232,7 +4232,7 @@ bDischarge = false;
                                 iFc = iFc*0.7;
                             else
                                 iFc = iFc*0.6;
-                            iFc3 = iFc;
+
                             
 /*                            if (f[0] < -500)
                                 if (-f[0] > (iFc-f[0]))
@@ -4303,9 +4303,9 @@ bDischarge = false;
 
                             printf("%c[K\n", 27 );
                             if (iFc ==0) iFc = 1;
-                            printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc,iFc3, int(f[2])*100/iFc, f[1]);
+                            printf("f[0,2,3,4] %2.0f %2.0f %2.0f %2.0f %i %i %i %i%% %2.2f%%",f[0],f[2],f[3],f[4],iFc,iFc2,iFc3, int(f[2])*100/iFc, f[1]);
 // Leistung des Slave begrenzen
-                            if (abs(iFc)>abs(f[2]*2)&&abs(f[2])>2000)
+                            if (abs(iFc)>abs(f[2]*2)&&abs(iFc)>1000)
                                 iFc = f[2]*2;
 //Einspeisung beim Master, Leistung abschöpfen
                             if (f[0]<-200)
