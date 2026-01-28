@@ -4229,12 +4229,13 @@ bDischarge = false;
                         {
                             iFc = f[2];
                             if ((f[1]>fBatt_SOC*1.1&&iFc>0)||(f[1]<=fBatt_SOC*1.1&&iFc<0))
-                                iFc = iFc*2.5;
+                                iFc = iFc*((f[1]-fBatt_SOC)/10+2);
                             else
-                                iFc = iFc*1.5;
+                                iFc = iFc*((10-f[1]+fBatt_SOC)/10);
+                                
                             
-                            if (abs(iFc)<abs(f[2])*1.5)
-                                iFc = f[2]*1.5;
+//                            if (abs(iFc)<abs(f[2])*1.5)
+//                                iFc = f[2]*1.5;
 
                             iFc3 = iFc;
                             
