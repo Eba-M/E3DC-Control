@@ -4231,7 +4231,7 @@ bDischarge = false;
                             if ((f[1]>fBatt_SOC*1.1&&iFc>0)||(f[1]<=fBatt_SOC*1.1&&iFc<0))
                                 iFc = iFc*((f[1]-fBatt_SOC)/10+2);
                             else
-                                iFc = iFc*((10-f[1]+fBatt_SOC)/10);
+                                iFc = iFc*((10-f[1]+fBatt_SOC)/10+1);
                                 
                             
 //                            if (abs(iFc)<abs(f[2])*1.5)
