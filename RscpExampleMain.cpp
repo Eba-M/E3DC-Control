@@ -4231,14 +4231,14 @@ bDischarge = false;
                             if ((f[1]>fBatt_SOC*1.1&&iFc>0)||(f[1]<=fBatt_SOC*1.1&&iFc<0))
                                 iFc = iFc*0.7;
                             else
-                                iFc = iFc*0.6;
+                                iFc = iFc*0.5;
                             
                             if (abs(iFc)<abs(f[2])*1.5)
                                 iFc = f[2]*1.5;
 
                             iFc3 = iFc;
                             
-                            if (f[2]==0||(-f[3]+f[4])>2000||f[0]<-200)
+                            if ((f[2]==0&&f[1]<5)||(-f[3]+f[4])>2000)
                             { // Master-WR arbeitet nicht oder muss nicht laden
                                 fcurrentGrid = f[3];
                                 fsollGrid = f[4];
