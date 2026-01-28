@@ -4227,11 +4227,11 @@ bDischarge = false;
                         //                    iFc3 = f[2];
                         // werte vom Master f[0]  = Grid (<0 Einspeisung) f[1]=SoC  f[2] = Speicher (>0 Laden <0 Entladen)
                         {
-                            iFc = f[2]+iBattLoad;
+                            iFc = f[2];
                             if ((f[1]>fBatt_SOC*1.1&&iFc>0)||(f[1]<=fBatt_SOC*1.1&&iFc<0))
-                                iFc = iFc*0.7;
+                                iFc = iFc*2.5;
                             else
-                                iFc = iFc*0.5;
+                                iFc = iFc*1.5;
                             
                             if (abs(iFc)<abs(f[2])*1.5)
                                 iFc = f[2]*1.5;
