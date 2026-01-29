@@ -4152,14 +4152,14 @@ bDischarge = false;
                             // es wird punktgenau (-200 W) aus dem Netz bis zur peakshave grenze geladen
                             
 //                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
-                            iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
+                            iFc = - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
                             if (iFc < 0) iFc = 0;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
                             printf("B fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
                             if (fPower_Grid>e3dc_config.peakshave+2000)
-                                    iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
+                                    iFc =  - fPower_Grid + e3dc_config.peakshave+2000;
                             printf("  %i",iFc);
 
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
