@@ -4126,7 +4126,7 @@ bDischarge = false;
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
 
-                        printf("A fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid,fsollGrid,iFc);
+                        printf("A fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
 // Begrenzung des Netzbezug
                         if (iFc - iBattLoad + fPower_Grid>e3dc_config.peakshave+2000)
@@ -4136,6 +4136,8 @@ bDischarge = false;
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
                         if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                             iFc = -iBattLoad - 10;
+                        printf("  %4i",iFc);
+                        if (iFc>0) iFc = 0;
                         printf("  %4i",iFc);
 
 
@@ -4153,7 +4155,7 @@ bDischarge = false;
                             if (iFc < 0) iFc = 0;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
-                            printf("B fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid,fsollGrid,iFc);
+                            printf("B fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
                             if (fPower_Grid>e3dc_config.peakshave+2000)
                                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
