@@ -4114,7 +4114,7 @@ bDischarge = false;
                     // peakshaveing notwendig??
                     // Es wird auf das exakte 15min Intervall geregelt
                     printf("%c[K\n", 27 );
-                    if (fcurrentGrid>e3dc_config.peakshave-50||fsollGrid<e3dc_config.peakshave+50)
+                    if (fcurrentGrid>e3dc_config.peakshave-100||fsollGrid<e3dc_config.peakshave+100)
                     {
                         // Peakshave Grenze erreich Entladeleistung erhöhen
                         //                        if (fsollGrid < e3dc_config.peakshave&&f4>800)
@@ -4147,7 +4147,7 @@ bDischarge = false;
                     {
                         // Nachladen aus dem Netz bis zur peakshaving grenze da fpeakshaveminsoc 5% unter Soll
                         //                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
-                        if (fpeakshaveminsoc-4 > fBatt_SOC&&fsollGrid>e3dc_config.peakshave+100)
+                        if (fpeakshaveminsoc-4 > fBatt_SOC)
                         {
                             // es wird punktgenau (-200 W) aus dem Netz bis zur peakshave grenze geladen
                             
@@ -4190,7 +4190,6 @@ bDischarge = false;
                                 iFc = -100;
                             else
                                 iFc = 0;
-                                printf("  %i",iFc);
                             }
                         //                        iFc3 = iFc;
                         
@@ -6071,11 +6070,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (fsollGrid > e3dc_config.peakshave) fsollGrid = e3dc_config.peakshave;
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
-                    printf(" %0.04f/%0.04f/%0.04f %0.04f  %0.04fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.3f/%0.3f/%0.3f %0.3f  %0.3fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
                     if (e3dc_config.peakshave>0)
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.04f/%0.04f/%0.04f %0.04f %0.04fW",iGridStat[Gridstat2]/900000.0,iGridStat[Gridstat1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
+                        printf(" %0.3f/%0.3f/%0.3f %0.3f %0.04fW",iGridStat[Gridstat2]/900000.0,iGridStat[Gridstat1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
                     }
 // Grid
                     if (e3dc_config.WP)
