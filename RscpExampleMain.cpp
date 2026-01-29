@@ -4120,11 +4120,11 @@ bDischarge = false;
                         //                        if (fsollGrid < e3dc_config.peakshave&&f4>800)
 
                         if (fsollGrid-100 < fPower_Grid&&f4>800)
-                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
+                            iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave - 200;
                         else
                             if (fcurrentGrid>e3dc_config.peakshave-100)
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
-                                iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
+                                iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
 
                         printf("A fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
