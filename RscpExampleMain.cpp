@@ -4113,24 +4113,32 @@ bDischarge = false;
                 {
                     // peakshaveing notwendig??
                     // Es wird auf das exakte 15min Intervall geregelt
+                    printf("%c[K\n", 27 );
                     if (fcurrentGrid>e3dc_config.peakshave-50||fsollGrid<e3dc_config.peakshave+50)
                     {
                         // Peakshave Grenze erreich Entladeleistung erhöhen
                         //                        if (fsollGrid < e3dc_config.peakshave&&f4>800)
+
                         if (fsollGrid-100 < fPower_Grid&&f4>800)
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
                         else
                             if (fcurrentGrid>e3dc_config.peakshave-100)
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
+
+                        printf("A fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid,fsollGrid,iFc);
+
 // Begrenzung des Netzbezug
                         if (iFc - iBattLoad + fPower_Grid>e3dc_config.peakshave+2000)
                             iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
-
+                        printf("  %4i",iFc);
                         iFc = (2*iFc -iBattLoad);
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
                         if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                             iFc = -iBattLoad - 10;
+                        printf("  %4i",iFc);
+
+
                     }
                     else
                         // Besteht noch PV Überschuss?
@@ -4144,31 +4152,41 @@ bDischarge = false;
                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -50;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
-                                if (fPower_Grid>e3dc_config.peakshave+2000)
+                            printf("B fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid,fsollGrid,iFc);
+
+                            if (fPower_Grid>e3dc_config.peakshave+2000)
                                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
+                            printf("  %i",iFc);
+
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
                             if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
                                 iFc = -iBattLoad - 10;
+                            printf("  %i",iFc);
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                             if (iFc>fmax)
                                 iFc= fmax;
                             if (fmax>iFc)
                                 fmax = iFc;
 
+                            printf("  %i",iFc);
+
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
                             if (adjust<0||fPower_Grid<0)
                             {
                                 adjust = adjust + fPower_Grid/2.0;
                                 iFc = iFc - adjust;
+                                printf("  %i",iFc);
                             }
                         }
                         else
                             if (fpeakshaveminsoc-4 > fBatt_SOC&&fPower_Grid>-500)
                                 //       nicht weiter entladen sonder
-                            {if (iPower_Bat<500)
+                            {
+                                if (iPower_Bat<500)
                                 iFc = -100;
                             else
                                 iFc = 0;
+                                printf("  %i",iFc);
                             }
                         //                        iFc3 = iFc;
                         
