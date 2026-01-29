@@ -4126,7 +4126,7 @@ bDischarge = false;
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                 iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
 
-                        printf("A fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
+                        printf("A fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
 // Begrenzung des Netzbezug
                         if (iFc - iBattLoad + fPower_Grid>e3dc_config.peakshave+2000)
@@ -4151,11 +4151,11 @@ bDischarge = false;
                         {
                             // es wird punktgenau (-200 W) aus dem Netz bis zur peakshave grenze geladen
                             
-                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -200;
+                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
                             if (iFc < 0) iFc = 0;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
-                            printf("B fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
+                            printf("B fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
                             if (fPower_Grid>e3dc_config.peakshave+2000)
                                     iFc = iBattLoad - fPower_Grid + e3dc_config.peakshave+2000;
@@ -4170,7 +4170,8 @@ bDischarge = false;
                                 iFc= fmax;
                             if (fmax>iFc)
                                 fmax = iFc;
-
+                            if (iFc<0)
+                                iFc= 0;
                             printf("  %i",iFc);
 
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
