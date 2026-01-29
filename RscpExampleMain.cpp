@@ -4147,9 +4147,10 @@ bDischarge = false;
                         //                        if (fpeakshaveminsoc-5 > fBatt_SOC&&fPower_Grid>-500)
                         if (fpeakshaveminsoc-4 > fBatt_SOC)
                         {
-                            // es wird punktgenau (-50 W) aus dem Netz bis zur peakshave grenze geladen
+                            // es wird punktgenau (-200 W) aus dem Netz bis zur peakshave grenze geladen
                             
-                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -50;
+                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid -200;
+                            if (iFc < 0) iFc = 0;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
                             printf("B fcurrentGrid %2.4f fsollGrid %2.4f %4i",fcurrentGrid,fsollGrid,iFc);
