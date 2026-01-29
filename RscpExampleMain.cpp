@@ -4352,7 +4352,7 @@ bDischarge = false;
                 if (iFc > 0)
                 {
                     if (iFc >e3dc_config.maximumLadeleistung) iFc = e3dc_config.maximumLadeleistung-500;
-                    average = average * .8 + float(iFc)*0.2;
+                    average = average * .95 + float(iFc)*0.05;
                     /*
                      if (average > 0)
                      {
@@ -4366,7 +4366,7 @@ bDischarge = false;
                     if (iFc < 0)
                     {
                         if (iFc < e3dc_config.maximumLadeleistung*-1) iFc = e3dc_config.maximumLadeleistung*-1;
-                        average = average * .8 + float(iFc)*0.2;
+                        average = average * .9 + float(iFc)*0.1;
                         iFc = average;
                     }
                     else
@@ -6074,7 +6074,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (e3dc_config.peakshave>0)
                     {
                         printf("%c[K\n", 27 );
-                        printf(" %0.3f/%0.3f/%0.3f %0.3f %0.04fW",iGridStat[Gridstat2]/900000.0,iGridStat[Gridstat1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
+                        printf(" %0.3f/%0.3f/%0.3f %0.3f %0.03fW",iGridStat[Gridstat2]/900000.0,iGridStat[Gridstat1]/900000.0,iGridStat[Gridstat]/900000.0,iGridStat[Gridstat]/f4/1000.0,(fsollGrid)); // Tages Hausverbrauch
                     }
 // Grid
                     if (e3dc_config.WP)
