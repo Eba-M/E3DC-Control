@@ -4165,9 +4165,9 @@ bDischarge = false;
                             printf("  %i",iFc);
 
 // Überschwingungen beim Peaskhaveing verhindern, Laden unterdrücken
-                            if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
-                                iFc = -iBattLoad - 10;
-                            printf("  %i",iFc);
+//                            if (iPowerHome>e3dc_config.peakshave&&fPower_Grid>fsollGrid&&iFc+iBattLoad>0)
+//                                iFc = -iBattLoad - 10;
+//                            printf("  %i",iFc);
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                             if (iFc>fmax)
                                 iFc= fmax;
