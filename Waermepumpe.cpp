@@ -306,17 +306,21 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 ftemp[j1] = wetter[0].temp - zuluft;
 
             }
-            FILE *fp;
-
-            fp = fopen("temp.txt","a");
-            fprintf(fp,"%2.4f\n",ftemp[0]);
-            ftemp[0]=0;
-            for (int j=1;j<len;j++)
+            if (e3dc.WPWolf)
             {
-                ftemp[0] = ftemp[0] + ftemp[j];
-                fprintf(fp,"%2.4f %2.4f \n",ftemp[0],ftemp[j]);
+                FILE *fp;
+                char fname[100];
+                sprintf(fname,"temp.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
+                fp = fopen(fname,"w");
+                fprintf(fp,"%2.4f\n",ftemp[0]);
+                ftemp[0]=0;
+                for (int j=1;j<len;j++)
+                {
+                    ftemp[0] = ftemp[0] + ftemp[j];
+                    fprintf(fp,"%2.4f %2.4f \n",ftemp[0],ftemp[j]);
+                }
+                fclose(fp);
             }
-            fclose(fp);
 
             if (wetter.size()==0) return;
             for (int j=0;j<wetter.size();j++)
