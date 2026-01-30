@@ -4171,18 +4171,18 @@ bDischarge = false;
                             float fmax = (fpeakshaveminsoc-fBatt_SOC-4.0)*e3dc_config.maximumLadeleistung/10;
                             if (iFc>fmax)
                                 iFc= fmax;
-                            if (fmax>iFc)
-                                fmax = iFc;
+//                            if (fmax>iFc)
+//                                fmax = iFc;
                             if (iFc<0)
                                 iFc= 0;
-                            printf("  %i",iFc);
+                            printf("fmax %f  %i",fmax,iFc);
 
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
                             if (adjust<0||fPower_Grid<0)
                             {
                                 adjust = adjust + fPower_Grid/2.0;
                                 iFc = iFc - adjust;
-                                printf("  %i",iFc);
+                                printf("adjust  %i",iFc);
                             }
                         }
                         else
