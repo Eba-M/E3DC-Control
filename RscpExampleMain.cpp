@@ -4126,7 +4126,7 @@ bDischarge = false;
                                 //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
 //                                iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
 //                        iFc = fPower_Bat - fcurrentGrid + fsollGrid + fPower_Grid - e3dc_config.peakshave;
-                        iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
+                        iFc = -fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave - 200;
 
                         printf("A fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
 
