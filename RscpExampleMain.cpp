@@ -4161,7 +4161,7 @@ bDischarge = false;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
                             printf("B fcurrentGrid %2.3f fsollGrid %2.3f %4i",fcurrentGrid/1000,fsollGrid/1000,iFc);
-// 
+//
                             if (iFc <= 0) iFc = iFc3;
 
                             if (fPower_Grid>e3dc_config.peakshave+2000)
@@ -4177,8 +4177,6 @@ bDischarge = false;
                                 iFc= fmax;
 //                            if (fmax>iFc)
 //                                fmax = iFc;
-                            if (iFc<0)
-                                iFc= 0;
                             printf(" %i",iFc);
 
                             static int adjust;  //Ladeleistung bei PV-Überschuss anpassen
