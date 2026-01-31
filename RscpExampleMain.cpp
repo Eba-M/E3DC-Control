@@ -4155,6 +4155,9 @@ bDischarge = false;
                             
 //                            iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid - 200;
                             iFc = fPower_Bat - fcurrentGrid + fsollGrid - fPower_Grid + e3dc_config.peakshave;
+// Es wird nachts nur noch bis e3dc_config.peakshaveuppersoc aus dem Netz geladen
+                            if ((fpeakshaveendsoc<fBatt_SOC||e3dc_config.peakshaveuppersoc<fBatt_SOC)&&iPower_PV_E3DC==0)
+                                iFc = 0;
                             if (iFc < 0) iFc = 0;
 // Begrenzung der Ladeleistung
 //                            if (iFc-iBattLoad+fPower_Grid>e3dc_config.peakshave+2000)
