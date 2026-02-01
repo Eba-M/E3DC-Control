@@ -224,80 +224,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
 
         if (e3dc.openmeteo)
         {
-/*
-            sprintf(line,"curl -s -X GET 'https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&minutely_15=temperature_2m&timeformat=unixtime&forecast_minutely_15=192'",e3dc.hoehe,e3dc.laenge);
-            fp = NULL;
-            fp = popen(line, "r");
-            int fd = fileno(fp);
-            int flags = fcntl(fd, F_GETFL, 0);
-            flags |= O_NONBLOCK;
-            fcntl(fd, F_SETFL, flags);
-            
-            int timeout = 0;
-            while (fgets(path, 65000, fp) == NULL&&timeout < 30)
-            {
-                sleep(1);
-                timeout++;
-            }
-            if (timeout >= 30) return;
-            {
-                const cJSON *item = NULL;
-                const cJSON *item1 = NULL;
-                const cJSON *item2 = NULL;
+            if (wetter.size()==0) return;
+            for (int j=0;j<wetter.size();j++)
+                fatemp = fatemp + wetter[j].temp;
                 
-                std::string feld;
-                cJSON *wolf_json = cJSON_Parse(path);
-                feld = "minutely_15";
-                char * c = &feld[0];
-                item = cJSON_GetObjectItemCaseSensitive(wolf_json, c );
-                feld = "time";
-                item1 = cJSON_GetObjectItemCaseSensitive(item, c );
-                feld = "temperature_2m";
-                c = &feld[0];
-                item2 = cJSON_GetObjectItemCaseSensitive(item, c );
-                if (item1!=NULL)
-                    item1 = item1->child;
-                if (item2!=NULL)
-                item2 = item2->child;
-                int x1 = 0;
-//                wetter.clear();
-                fatemp = 0;
-                if ((item1!=NULL)&&wetter.size()>0)
-                while (wetter[0].hh < item1->valueint&&wetter.size()>0)
-                    wetter.erase(wetter.begin());
-                while (item1!=NULL)
-                {
-                    if(x1<wetter.size())
-                    {
-                        if (wetter[x1].hh == item1->valueint)
-                        {
-                            wetter[x1].temp = item2->valuedouble;
-                        }
-                        
-                    }
-                    else
-                    {
-                        we.hh = item1->valueint;
-                        we.temp = item2->valuedouble;
-                        wetter.push_back(we);
-                    }
-                        fatemp = fatemp + item2->valuedouble;
-                        item1 = item1->next;
-                        item2 = item2->next;
-                        x1++;
-                }
-                if (fp!=NULL) pclose(fp);
-
-                if (zuluft >-99) // Temperaturabgleich
-                {
-                    int j1 = (wetter[0].hh%(24*3600));
-                    j1 = j1/900+1;
-                    ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
-                    ftemp[j1] = wetter[0].temp - zuluft;
-                }
-                
-            }
- */
+            fatemp = fatemp / wetter.size();
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
             {
                 int j1 = (wetter[0].hh%(24*3600));
@@ -308,14 +239,16 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     char fname[100];
                     sprintf(fname,"temp.txt");
                     fp = fopen(fname,"a");
-                    fprintf(fp,"%2.2f %2.2f %2.4f %2.4f %2.4f %2.4f %2.4f %2.4f \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft);
-                    ftemp[0]=0;
+                    fprintf(fp,"%2.2f %2.2f %2.4f %2.4f %2.4f %2.4f %2.4f %2.4f %2.2f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
                     fclose(fp);
                 }
                 ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
                 ftemp[j1] = wetter[0].temp - zuluft;
 
             }
+
+            fatemp = fatemp - ftemp[0]/96;
+
             if (e3dc.WPWolf)
             {
                 FILE *fp;
@@ -332,12 +265,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 fclose(fp);
             }
 
-            if (wetter.size()==0) return;
-            for (int j=0;j<wetter.size();j++)
-                fatemp = fatemp + wetter[j].temp;
-                
-            fatemp = fatemp / wetter.size();
-            fatemp = fatemp - ftemp[0]/96;
             if (e3dc.debug) printf("NW2\n");
         }
         else
