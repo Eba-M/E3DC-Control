@@ -237,9 +237,20 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 {
                     FILE *fp;
                     char fname[100];
-                    sprintf(fname,"temp.txt");
+                    static const char wday_name[][3] = {
+                      "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"
+                    };
+
+                    sprintf(fname,"temp.%s.txt",wday_name[ptm->tm_wday+1]);
+                    fp = fopen(fname,"w");
+                    if (fp)
+                        fclose(fp);
+
+                    sprintf(fname,"temp.%s.txt",wday_name[ptm->tm_wday]);
                     fp = fopen(fname,"a");
-                    fprintf(fp,"%2.2f %2.2f %2.4f %2.4f %2.4f %2.4f %2.4f %2.4f %2.2f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
+                    if (!fp)
+                        fp = fopen(fname,"w");
+                    fprintf(fp,"%2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.4f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
                     fclose(fp);
                 }
                 ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;

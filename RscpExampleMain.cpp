@@ -3060,19 +3060,25 @@ int LoadDataProcess() {
                     if (wetter[0].heizstabbedarf>0)
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04);
-                        switch (int(wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04))
+                        if (temp[14]>=e3dc_config.BWWPmax)
+                        {
+                            shelly(e3dc_config.shelly0V10VEZH1);
+                        }
+                        else
+
+                        switch (x1)
                         {
                             case 1:
                                 shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
                             case 4:
-                                shelly(e3dc_config.shelly0V10VEZH2);
+                                    shelly(e3dc_config.shelly0V10VEZH2);
                                 break;
                             case 7:
-                                shelly(e3dc_config.shelly0V10VEZH3);
+                                    shelly(e3dc_config.shelly0V10VEZH3);
                                 break;
                             case 10:
-                                shelly(e3dc_config.shelly0V10VEZH4);
+                                    shelly(e3dc_config.shelly0V10VEZH4);
                                 break;
                         }
                         ALV = shelly_get();
