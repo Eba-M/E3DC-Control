@@ -1328,9 +1328,10 @@ int iModbusTCP()
                     )
                     )
 // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
+// Abschalten der heizkreise aussetzen
                 {
-                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
-                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
+//                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+//                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
 //                    brequest = true;
                 }
                 if (temp[7]==1&&temp[17]==0&&
@@ -1352,8 +1353,8 @@ int iModbusTCP()
 // wenn Puffer > 30° läuft die HKZ nach
 // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
-                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
+//                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
+//                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
 //                    brequest = true;
 
                 }
