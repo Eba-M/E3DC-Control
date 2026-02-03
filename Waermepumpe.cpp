@@ -264,14 +264,18 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
             {
                 FILE *fp;
                 char fname[100];
-                sprintf(fname,"temp.%2.2f.txt",float((rawtime%(24*3600))/900)/4);
+                sprintf(fname,"temp.%05.2f.txt",float((rawtime%(24*3600))/900)/4);
                 fp = fopen(fname,"w");
                 fprintf(fp,"%2.4f\n",ftemp[0]);
                 ftemp[0]=0;
-                for (int j=1;j<len;j++)
+                int j1 = (wetter[0].hh%(24*3600));
+                j1 = j1/900+1;
+
+                for (int j=1;j<len;j++,j1++)
                 {
-                    ftemp[0] = ftemp[0] + ftemp[j];
-                    fprintf(fp,"%2.4f %2.4f \n",ftemp[0],ftemp[j]);
+                    if (j1>len) j1 = 1;
+                    ftemp[0] = ftemp[0] + ftemp[j1];
+                    fprintf(fp,"%5.2f %7.4f %7.4f %7.4f \n",float((wetter[j-1].hh%(24*3600))/900)/4,wetter[j-1].temp,ftemp[0],ftemp[j1]);
                 }
                 fclose(fp);
             }
