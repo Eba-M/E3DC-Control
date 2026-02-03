@@ -469,7 +469,7 @@ bool GetConfig()
         e3dc_config.test = 0; // 1 = Programm beenden
         e3dc_config.wallbox = -1;
         e3dc_config.openWB = false;
-        e3dc_config.openmeteo = false;
+        e3dc_config.openmeteo = true;
         e3dc_config.shelly0V10V = false;
         e3dc_config.shelly0V10Vmin = 12;
         e3dc_config.shelly0V10Vmax = 47;
