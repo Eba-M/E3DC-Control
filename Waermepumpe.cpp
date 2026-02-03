@@ -271,7 +271,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 int j1 = (wetter[0].hh%(24*3600));
                 j1 = j1/900+1;
 
-                for (int j=1;j<=len;j++,j1++)
+                for (int j=1;j<len;j++,j1++)
                 {
                     if (j1==len)
                         j1 = 1;
