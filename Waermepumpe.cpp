@@ -250,7 +250,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     fp = fopen(fname,"a");
                     if (!fp)
                         fp = fopen(fname,"w");
-                    fprintf(fp,"%2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %2.4f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
+                    fprintf(fp,"%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
                     fclose(fp);
                 }
                 ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
@@ -266,7 +266,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 char fname[100];
                 sprintf(fname,"temp.%05.2f.txt",float((rawtime%(24*3600))/900)/4);
                 fp = fopen(fname,"w");
-                fprintf(fp,"%2.4f\n",ftemp[0]);
+                fprintf(fp,"%7.4f\n",ftemp[0]);
                 ftemp[0]=0;
                 int j1 = (wetter[0].hh%(24*3600));
                 j1 = j1/900+1;

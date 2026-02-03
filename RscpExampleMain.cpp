@@ -124,7 +124,7 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
-static float ftemp[96+1]; // Temperaturdiff Ist/Soll für die vergangenen 24h in 15min Intervall + Summe
+static float ftemp[1+96]; // Temperaturdiff Ist/Soll für die vergangenen 24h in 15min Intervall + Summe
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
 static u_int32_t iDayStat[25*4*2+1]; // Tagesertragstatisik SOLL/IST Vergleich
@@ -7248,7 +7248,7 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,ftemp,97,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 (Ermitteln_Statistik());
 
                 aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
@@ -7261,7 +7261,7 @@ static int iEC = 0;
                 while (wetter.size()==0)
                 sleep(1);
 
-                mewp(w,wetter,ftemp,97,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
                     mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }

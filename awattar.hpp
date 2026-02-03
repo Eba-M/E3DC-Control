@@ -102,7 +102,7 @@ static std::vector<wetter_s>wetter; // Stundenwerte der Wetterprognose
 static std::vector<wolf_s>wolf; // Werte der Wolf WP
 static std::vector<strompreis_s>strompreis; // Werte der variable Strompreistarife
 
-static int32_t iHeatStat[24*4+2]; //15min WP Heizleistung der letzten 24h
+static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
 
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter, float ftemp[],const size_t &len, float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft, float notromreserve,int32_t HeatStat);
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc,float soc,float notstromreserve, int sunriseAt,u_int32_t iDayStat[25*4*2+1]);
