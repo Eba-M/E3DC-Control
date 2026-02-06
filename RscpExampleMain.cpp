@@ -210,6 +210,69 @@ int WriteSoC()
 return(0);
 }
 
+static float fBatt_SOC = -1;
+static float fBatt_SOC_alt;
+static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
+static int32_t iDiffLadeleistung, iDiffLadeleistung2;
+static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
+static time_t t,t_alt;
+static time_t tm_CONF_dt;
+static bool bCheckConfig;
+struct tm * ptm;
+
+void DateienSichern()
+{
+    FILE * pFile;
+    pFile = NULL;
+    pFile = fopen ("Weekhour.dat","wb");
+    if (pFile!=NULL)
+    {
+        fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
+        fclose (pFile);
+    }
+    pFile = fopen ("WeekhourWP.dat","wb");
+    if (pFile!=NULL)
+    {
+        fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
+        fclose (pFile);
+    }
+    pFile = fopen ("HeatStat.dat","wb");
+    if (pFile!=NULL)
+    {
+        size_t x1;
+        x1 = fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeatStat)/sizeof(uint32_t), pFile);
+        fclose (pFile);
+    }
+    pFile = fopen ("TempStat.dat","wb");
+    if (pFile!=NULL)
+    {
+        size_t x1;
+        x1 = fwrite (ftemp , sizeof(float), sizeof(ftemp)/sizeof(float), pFile);
+        fclose (pFile);
+    }
+    char fname[100];
+    time(&t);
+    int day = (t%(24*3600*28))/(24*3600);
+    sprintf(fname,"%s.dat","PVStat");
+    pFile = fopen(fname,"wb");       // altes logfile löschen
+
+    if (pFile!=NULL)
+    {
+        size_t x1;
+        x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
+        fclose (pFile);
+    }
+    pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
+    if (pFile!=NULL)
+    {
+        size_t x1;
+        x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
+        fclose (pFile);
+    }
+    if (e3dc_config.wallbox>=0)
+    PutWallbox(ch);
+
+}
 int MQTTsend(char host[20],char buffer[127])
 
 {
@@ -407,15 +470,7 @@ int createRequestWBData2(SRscpFrameBuffer * frameBuffer) {
 }
 
 
-static float fBatt_SOC = -1;
-static float fBatt_SOC_alt;
-static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
-static int32_t iDiffLadeleistung, iDiffLadeleistung2;
-static time_t tLadezeit_alt,tLadezeitende_alt,tE3DC_alt;
-static time_t t,t_alt;
-static time_t tm_CONF_dt;
-static bool bCheckConfig;
-struct tm * ptm;
+
 bool CheckConfig()
 {
     struct stat stats;
@@ -7317,53 +7372,7 @@ static int iEC = 0;
             printf("Program stop Reason e3dc_config.stop=%i",e3dc_config.stop);
             if (e3dc_config.statistik)
             {
-                FILE * pFile;
-                pFile = NULL;
-                pFile = fopen ("Weekhour.dat","wb");
-                if (pFile!=NULL)
-                {
-                    fwrite (iWeekhour , sizeof(uint32_t), sizeof(iWeekhour)/sizeof(uint32_t), pFile);
-                    fclose (pFile);
-                }
-                pFile = fopen ("WeekhourWP.dat","wb");
-                if (pFile!=NULL)
-                {
-                    fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
-                    fclose (pFile);
-                }
-                pFile = fopen ("HeatStat.dat","wb");
-                if (pFile!=NULL)
-                {
-                    size_t x1;
-                    x1 = fwrite (iHeatStat , sizeof(uint32_t), sizeof(iHeatStat)/sizeof(uint32_t), pFile);
-                    fclose (pFile);
-                }
-                pFile = fopen ("TempStat.dat","wb");
-                if (pFile!=NULL)
-                {
-                    size_t x1;
-                    x1 = fwrite (ftemp , sizeof(float), sizeof(ftemp)/sizeof(float), pFile);
-                    fclose (pFile);
-                }
-                char fname[100];
-                time(&t);
-                int day = (t%(24*3600*28))/(24*3600);
-                sprintf(fname,"%s.dat","PVStat");
-                pFile = fopen(fname,"wb");       // altes logfile löschen
-
-                if (pFile!=NULL)
-                {
-                    x1 = fwrite (iDayStat , sizeof(uint32_t), sizeof(iDayStat)/sizeof(uint32_t), pFile);
-                    fclose (pFile);
-                }
-                pFile = fopen(fnameGrid,"wb");       // datei zurückschreiben
-                if (pFile!=NULL)
-                {
-                    x1 = fwrite (iGridStat , sizeof(int32_t), sizeof(iGridStat)/sizeof(int32_t), pFile);
-                    fclose (pFile);
-                }
-                if (e3dc_config.wallbox>=0)
-                PutWallbox(ch);
+                DateienSichern();
             }
 
     }

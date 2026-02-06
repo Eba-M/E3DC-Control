@@ -827,8 +827,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           fp = popen(line, "r");
           int fd = fileno(fp);
           int flags = fcntl(fd, F_GETFL, 0);
-          flags |= O_NONBLOCK;
-          fcntl(fd, F_SETFL, flags);
+//          flags |= O_NONBLOCK;
+//          fcntl(fd, F_SETFL, flags);
           fp_status = 2;
           static wetter_s we;
 
@@ -837,7 +837,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           if (e3dc->debug)
               printf("om.2\n");
           if (fp != NULL)
-          while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
+          while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)
         {
             sleep(1);
             timeout++;
@@ -847,7 +847,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           if (timeout>1)
               printf("timeout open-meteo%i.3\n",timeout);
 
-          if (timeout >= 30)
+          if (timeout >= 10||fp==NULL)
           {
               if (fp!=NULL) pclose(fp);
               printf("end thread\n");
