@@ -54,26 +54,29 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
 
     day = (t%(24*3600*4))/(24*3600);
     hour = (t%(24*3600))/(3600*4)*4;
-if (level!=1)
- {
-
-    if (hour!=t_alt) // neuer Tag
+    if (level!=1)
     {
-//        int tt = (t%(24*3600)+12*3600);
+    
+    if (hour!=t_alt) // neuer Tag
+        {
+        //        int tt = (t%(24*3600)+12*3600);
         snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
-        fclose(fp);
-    }
-        sprintf(fname,"%s.%i.%i.txt",e3dc.logfile,day,hour);
-        fp = fopen(fname, "a");
+        if (!fp)
+            fclose(fp);
+        }
+    sprintf(fname,"%s.%i.%i.txt",e3dc.logfile,day,hour);
+    fp = fopen(fname, "a");
     if(!fp)
         fp = fopen(fname, "w");
     if(fp)
-    fprintf(fp,"%s\n",log);
-        fclose(fp);}
-        t_alt = hour;
-;
-return(0);
+    {
+        fprintf(fp,"%s\n",log);
+        fclose(fp);
+    }
+    t_alt = hour;
+    }
+    return(0);
 }
 
 bool Checkfile(char myfile[20],int minuten)
