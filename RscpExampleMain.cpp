@@ -3455,6 +3455,7 @@ int LoadDataProcess() {
 // Erstellen Statistik, Eintrag Logfile
         CheckConfig(); //Lesen Parameter aus e3dc.config.txt
         sprintf(Log1,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
+        memset(Log1, 0, sizeof(Log1));
         WriteLog(e3dc_config,Log1,0);
         if (fSavedtoday > 0)
         {
