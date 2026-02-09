@@ -62,18 +62,20 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
     if (hour!=t_alt) // neuer Tag
         {
         //        int tt = (t%(24*3600)+12*3600);
-        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc.logfile,day,hour);
+        snprintf(fname,sizeof(fname),"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
+//        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         if (!fp)
             fclose(fp);
         }
-    sprintf(fname,"%s.%i.%i.txt",e3dc.logfile,day,hour);
-    printf(fname);
+    sprintf(fname,"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
+//    printf(fname);
     fp = fopen(fname, "a");
     if(!fp)
         fp = fopen(fname, "w");
     if(fp)
     {
+        fprintf(fp,"%2i:%2i:%2i ",ptm->tm_hour,ptm->tm_min,ptm->tm_sec);
         fprintf(fp,"%s\n",log);
         fclose(fp);
     }
