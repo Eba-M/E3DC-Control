@@ -7269,7 +7269,8 @@ static int iEC = 0;
             int hh = sunriseAt / 60;
             int mm = sunriseAt % 60;
             sprintf(Log1,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
-            WriteLog(e3dc_config,Log1,0);
+            printf(e3dc_config.logfile);
+//            WriteLog(e3dc_config,Log1,0);
             // connect to server
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 //            CheckConfig();
