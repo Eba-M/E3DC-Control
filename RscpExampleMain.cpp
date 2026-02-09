@@ -49,7 +49,7 @@ static uint8_t WBchar6[6]; // Steuerstring zur Wallbox
 static uint8_t WBcharALG[8]; // Steuerstring zur Wallbox
 static uint8_t WBcharPara2[8]; // Steuerstring zur Wallbox
 const uint16_t iWBLen = 6;
-
+char Log1[300];
 
 static AES aesEncrypter;
 static AES aesDecrypter;
@@ -156,42 +156,9 @@ float fLadeende2 = e3dc_config.ladeende2;
 float fLadeende3 = e3dc_config.unload;
 
 
-FILE * pFile;
-char Log[3000];
 
-int WriteLog()
-{
-  static time_t t,t_alt = 0;
-    int day,hour;
-    char fname[256];
-    time(&t);
-    FILE *fp;
-    struct tm * ptm;
-    ptm = gmtime(&t);
 
-    day = (t%(24*3600*4))/(24*3600);
-    hour = (t%(24*3600))/(3600*4)*4;
 
-    if (e3dc_config.debug) {
-
-    if (hour!=t_alt) // neuer Tag
-    {
-//        int tt = (t%(24*3600)+12*3600);
-        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
-        fp = fopen(fname,"w");       // altes logfile löschen
-        fclose(fp);
-    }
-        sprintf(fname,"%s.%i.%i.txt",e3dc_config.logfile,day,hour);
-        fp = fopen(fname, "a");
-    if(!fp)
-        fp = fopen(fname, "w");
-    if(fp)
-    fprintf(fp,"%s\n",Log);
-        fclose(fp);}
-        t_alt = hour;
-;
-return(0);
-}
 
 int WriteSoC()
 {
@@ -204,7 +171,7 @@ int WriteSoC()
         fp = fopen(fname, "w");
     if(fp)
     {
-        fprintf(fp,"%s\n",Log);
+        fprintf(fp,"%s\n",Log1);
         fclose(fp);
     }
 return(0);
@@ -2587,12 +2554,12 @@ int LoadDataProcess() {
             soc_t *p;
             p=&high;
             ts = gmtime(&t);
-            sprintf(Log,"Hoch %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+            sprintf(Log1,"Hoch %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
                     int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
             p=&low;
-            sprintf(Log,"Tief %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
+            sprintf(Log1,"Tief %02i.%02i.%02i %02i:%02i Time %02i:%02i:%02i %0.04fAh SoC %0.04f%% %0.02fV %0.02fA\n",ts->tm_mday,ts->tm_mon,ts->tm_year-100,ts->tm_hour,ts->tm_min,
                     int((p->t%(24*3600))/3600),int((p->t%3600)/60),int(p->t%60),
                     p->fah/3600,p->fsoc,p->fvoltage,p->fcurrent);
             WriteSoC();
@@ -3487,8 +3454,8 @@ int LoadDataProcess() {
     {
 // Erstellen Statistik, Eintrag Logfile
         CheckConfig(); //Lesen Parameter aus e3dc.config.txt
-        sprintf(Log,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
-        WriteLog();
+        sprintf(Log1,"Time %s U:%0.04f td:%0.04f yd:%0.04f WB%0.04f", strtok(asctime(ts),"\n"),fSavedtotal/3600000,fSavedtoday/3600000,fSavedyesderday/3600000,fSavedWB/3600000);
+        WriteLog(e3dc_config,Log1,0);
         if (fSavedtoday > 0)
         {
         FILE *fp;
@@ -3496,7 +3463,7 @@ int LoadDataProcess() {
         if(!fp)
             fp = fopen("savedtoday.txt", "w");
             if(fp){
-                fprintf(fp,"%s\n",Log);
+                fprintf(fp,"%s\n",Log1);
                 fclose(fp);}
         }
         fSavedyesderday=fSavedtoday; fSavedtoday=0;
@@ -3707,8 +3674,8 @@ if (                             // Das Entladen aus dem Speicher
         if ((iPower_Bat == 0)&&(fPower_Grid>100)&&fBatt_SOC>0.5
             &&(e3dc_config.peakshave==0)  //peakshave?
             )
-{            sprintf(Log,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
-        WriteLog();
+        {            sprintf(Log1,"BAT %s %0.02f %i %i% 0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+        WriteLog(e3dc_config,Log1,1);
     iLMStatus = 10;
 }
        bDischarge = true;
@@ -4740,8 +4707,8 @@ bDischarge = false;
                                     if (e3dc_config.debug) printf("RQ5 %i2",iPower);
                                     iLMStatus = 3;
                                     if (iLastReq>0)
-                                    {sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
-                                        WriteLog();
+                                    {sprintf(Log1,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                        WriteLog(e3dc_config,Log1,1);
                                         iLastReq--;}
                                 }
                                 else
@@ -4757,9 +4724,9 @@ bDischarge = false;
                                     }else
                                         iLMStatus = -6;
                                     iLastReq = 6;
-                                    sprintf(Log,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
-                                    WriteLog();}
-                            } else 
+                                    sprintf(Log1,"CTL %s %0.02f %i %i %0.02f",strtok(asctime(ts),"\n"),fBatt_SOC, iE3DC_Req_Load, iPower_Bat, fPower_Grid);
+                                    WriteLog(e3dc_config,Log1,1);}
+                            } else
                             {
                                 if (iLMStatus > 0)
                                 iLMStatus = 11;
@@ -5475,8 +5442,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     WBchar6[4] = 0; // Toggle aus
                     WBChar_alt = WBchar6[1];
                     iWBStatus = 30;
-                    sprintf(Log,"WB starten %s", strtok(asctime(ptm),"\n"));
-                    WriteLog();
+                    sprintf(Log1,"WB starten %s", strtok(asctime(ptm),"\n"));
+                    WriteLog(e3dc_config,Log1,1);
                     bWBOn = true;
                 };
                 
@@ -5934,8 +5901,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
     if(response->dataType == RSCP::eTypeError) {
         // handle error for example access denied errors
         uint32_t uiErrorCode = protocol->getValueAsUInt32(response);
-        sprintf(Log,"ERR Tag 0x%08X received error code %u.\n", response->tag, uiErrorCode);
-        WriteLog();
+        sprintf(Log1,"ERR Tag 0x%08X received error code %u.\n", response->tag, uiErrorCode);
+        WriteLog(e3dc_config,Log1,1);
         return -1;
     }
 
@@ -7300,8 +7267,8 @@ static int iEC = 0;
             int mm1 = sunsetAt % 60;
             int hh = sunriseAt / 60;
             int mm = sunriseAt % 60;
-            sprintf(Log,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
-            WriteLog();
+            sprintf(Log1,"Start %s %s", strtok(asctime(ptm),"\n"),VERSION);
+            WriteLog(e3dc_config,Log1,0);
             // connect to server
             printf("Sonnenaufgang %i:%i %i:%i\n", hh, mm, hh1, mm1);
 //            CheckConfig();

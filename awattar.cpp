@@ -36,12 +36,45 @@ static time_t oldhour = 0; // zeitstempel Wallbox Steurungsdatei;
 static int old_w_size = 0;
 int Diff = 100;           // Differenz zwischen niedrigsten und höchsten Börsenwert zum der Speicher nachgeladen werden soll.
 int hwert = 5; // Es wird angenommen, das pro Stunde dieser Wert aus dem Speicher entnommen wird.
-
+char Log[300];
 static watt_s high;
 static watt_s high2;
 static watt_s low;
 static int l1 = 0, l2 = 0, h1 = 0, h2 = 0;
 int maxpos = 0;
+int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
+{
+  static time_t t,t_alt = 0;
+    int day,hour;
+    char fname[256];
+    time(&t);
+    FILE *fp;
+    struct tm * ptm;
+    ptm = gmtime(&t);
+
+    day = (t%(24*3600*4))/(24*3600);
+    hour = (t%(24*3600))/(3600*4)*4;
+if (level!=1)
+ {
+
+    if (hour!=t_alt) // neuer Tag
+    {
+//        int tt = (t%(24*3600)+12*3600);
+        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc.logfile,day,hour);
+        fp = fopen(fname,"w");       // altes logfile löschen
+        fclose(fp);
+    }
+        sprintf(fname,"%s.%i.%i.txt",e3dc.logfile,day,hour);
+        fp = fopen(fname, "a");
+    if(!fp)
+        fp = fopen(fname, "w");
+    if(fp)
+    fprintf(fp,"%s\n",log);
+        fclose(fp);}
+        t_alt = hour;
+;
+return(0);
+}
 
 bool Checkfile(char myfile[20],int minuten)
 {
@@ -836,6 +869,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
         int timeout = 0;
           if (e3dc->debug)
               printf("om.2\n");
+          sprintf(Log,"vor Daten");
+          WriteLog(*e3dc,Log,2);
           if (fp != NULL)
           if (fgets(path, sizeof(path), fp) == NULL)
 /*              while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)
@@ -852,7 +887,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           if (timeout >= 10||fp==NULL)
           {
               if (fp!=NULL) pclose(fp);
-              printf("end thread\n");
+              sprintf(Log,"Aufruf openmeteo nicht erfolgreich end thread\n");
+              WriteLog(*e3dc,Log,2);
               std::terminate();
           }
           {
@@ -874,6 +910,12 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               feld = "temperature_2m";
               c = &feld[0];
               item3 = cJSON_GetObjectItemCaseSensitive(item, c );
+              if (item==NULL)
+              {
+                  sprintf(Log,"keine Daten end thread\n");
+                  WriteLog(*e3dc,Log,2);
+                  std::terminate();
+              }
               if (item!=NULL)
                   item = item->child;
               if (item1!=NULL)
