@@ -54,6 +54,8 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
 
     day = (t%(24*3600*4))/(24*3600);
     hour = (t%(24*3600))/(3600*4)*4;
+    printf("Writelog");
+    printf(log);
     if (level!=1)
     {
     
@@ -66,6 +68,7 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
             fclose(fp);
         }
     sprintf(fname,"%s.%i.%i.txt",e3dc.logfile,day,hour);
+    printf(fname);
     fp = fopen(fname, "a");
     if(!fp)
         fp = fopen(fname, "w");
