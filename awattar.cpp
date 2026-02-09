@@ -837,11 +837,13 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
           if (e3dc->debug)
               printf("om.2\n");
           if (fp != NULL)
-          while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)
+          if (fgets(path, sizeof(path), fp) == NULL)
+/*              while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)
         {
             sleep(1);
             timeout++;
         }
+*/
           if (e3dc->debug)
               printf("om%i.3\n",timeout);
           if (timeout>1)

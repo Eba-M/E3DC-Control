@@ -7074,7 +7074,12 @@ static void mainLoop(void)
                     zulufttemp = wolf[wpzl].wert;
             int len = sizeof(ftemp)/sizeof(float);
             if (fBatt_SOC >= 0)
-            mewp(w,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
+            {
+                if (w.begin()->hh!=wetter.begin()->hh)
+                    DateienSichern();
+                mewp(w,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
+            }
+            
             if (e3dc_config.debug) printf("M3\n");
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
