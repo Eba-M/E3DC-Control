@@ -52,8 +52,6 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
     ptm = gmtime(&t);
     static int day=ptm->tm_mday;
 
-//    printf("Writelog");
-    printf(log);
     if (level!=1)
     {
     
@@ -61,7 +59,6 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
         {
         //        int tt = (t%(24*3600)+12*3600);
         snprintf(fname,sizeof(fname),"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
-//        snprintf(fname,sizeof(fname),"%s.%i.%i.txt",e3dc.logfile,day,hour);
         fp = fopen(fname,"w");       // altes logfile löschen
         if (!fp)
             fclose(fp);
@@ -69,8 +66,7 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
         day = ptm->tm_mday;
 
         }
-    sprintf(fname,"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
-//    printf(fname);
+    snprintf(fname,sizeof(fname),"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
     fp = fopen(fname, "a");
     if(!fp)
         fp = fopen(fname, "w");
@@ -877,7 +873,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
         int timeout = 0;
           if (e3dc->debug)
               printf("om.2\n");
-          sprintf(Log,"vor Daten");
+          sprintf(Log,"openmeteo vor Daten");
           WriteLog(*e3dc,Log,2);
           if (fp != NULL)
           if (fgets(path, sizeof(path), fp) == NULL)
@@ -920,7 +916,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               item3 = cJSON_GetObjectItemCaseSensitive(item, c );
               if (item==NULL)
               {
-                  sprintf(Log,"keine Daten end thread\n");
+                  sprintf(Log,"keine Daten von openmeteo end thread\n");
                   WriteLog(*e3dc,Log,2);
                   std::terminate();
               }
