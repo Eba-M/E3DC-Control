@@ -45,19 +45,19 @@ int maxpos = 0;
 int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
 {
   static time_t t,t_alt = 0;
-    int day,hour;
     char fname[256];
     time(&t);
     FILE *fp;
     struct tm * ptm;
     ptm = gmtime(&t);
+    static int day=ptm->tm_mday;
 
-    printf("Writelog");
+//    printf("Writelog");
     printf(log);
     if (level!=1)
     {
     
-    if (hour!=t_alt) // neuer Tag
+    if (day!=ptm->tm_mday) // neuer Tag
         {
         //        int tt = (t%(24*3600)+12*3600);
         snprintf(fname,sizeof(fname),"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
@@ -65,6 +65,9 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
         fp = fopen(fname,"w");       // altes logfile löschen
         if (!fp)
             fclose(fp);
+
+        day = ptm->tm_mday;
+
         }
     sprintf(fname,"%s.%i.txt",e3dc.logfile,ptm->tm_mday);
 //    printf(fname);
@@ -77,7 +80,6 @@ int WriteLog(e3dc_config_t &e3dc,char log[300], int level)
         fprintf(fp,"%s\n",log);
         fclose(fp);
     }
-    t_alt = ptm->tm_mday;
     }
     return(0);
 }
