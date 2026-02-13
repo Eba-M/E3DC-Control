@@ -52,7 +52,7 @@ typedef struct {
     char e3dcwallboxtxt[128];
     char analyse[128];
     bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo,statistik,prognosetest;
-    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wbminladestrom,wrsteuerung,stop,test;
+    uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wbminladestrom,wrsteuerung,stop,test,DV;
     int32_t ht, unload,untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshaveuppersoc,peakshavepvcharge,wbtest,wbmode,wbminlade,wbhour,wbvon,wbbis;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl,shelly0V10Vmin,shelly0V10Vmax,shelly0V10VEZH1,shelly0V10VEZH2,shelly0V10VEZH3,shelly0V10VEZH4;
     float_t RB,RE,LE,speichergroesse,speichereta,speicherev,winterminimum, sommermaximum,sommerladeende, einspeiselimit,powerfaktor,peakshavesoc,ladeende2rampe,
@@ -97,7 +97,7 @@ static int sunsetAt;   // Sonnenuntergang
 
 static int tasmota_status[4]={2,2,2,2};
 
-static std::vector<watt_s> w; // Stundenwerte der Börsenstrompreise
+static std::vector<watt_s> w,e; // Stundenwerte der Börsenstrompreise, e =  einspeisetarif
 static std::vector<wetter_s>wetter; // Stundenwerte der Wetterprognose
 static std::vector<wolf_s>wolf; // Werte der Wolf WP
 static std::vector<strompreis_s>strompreis; // Werte der variable Strompreistarife
@@ -106,7 +106,7 @@ static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
 
 int WriteLog(e3dc_config_t &e3dc,char log[300],int level);
 void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter, float ftemp[],const size_t &len, float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft, float notromreserve,int32_t HeatStat);
-void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc,float soc,float notstromreserve, int sunriseAt,u_int32_t iDayStat[25*4*2+1]);
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc,float soc,float notstromreserve, int sunriseAt,u_int32_t iDayStat[25*4*2+1]);
 void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc);
 
 int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter,int h, float &fSoC,float &anforderung, float Diff,float aufschlag, float reserve, float notstromreserve, float ladeleistung, float speicherev, float speichereta);

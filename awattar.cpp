@@ -1250,6 +1250,7 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
     struct tm * pta;
     t=t+dayoffset*24*3600;
     ptm = localtime (&t);
+    time(&t);
     char land [6];
     if (e3dc.AWLand == 1)
         strcpy(land,"DE-LU");
@@ -1308,11 +1309,18 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
             ww.hh = item1->valueint;
             ww.pp = item2->valuedouble;
             int x2 =ww.hh%(24*3600);
+            int hh = x2/3600;
+            int min = (x2%3600)/60;
             x2 = x2/3600;
-            if (strompreis.size()>0)
+            if (strompreis.size()>0&&not e3dc.DV)
                 ww.pp = ww.pp + suchenstrompreis(x2);
-
-            w.push_back(ww);
+            if (
+                ww.hh>(t-900)&&
+                (w.size()==0
+                 ||
+                 ww.hh>w.back().hh)
+                )
+                w.push_back(ww);
             item1 = item1->next;
             item2 = item2->next;
 
@@ -1330,7 +1338,7 @@ void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc)
 
 }
 //void aWATTar(std::vector<watt_s> &ch, int32_t Land, int MWSt, float Nebenkosten)
-void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
+void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc, float soc, float notstromreserve, int sunrise, u_int32_t iDayStat[25*4*2+1])
 /*
  
  Diese Routine soll beim Programmstart und bei Änderungen in der
@@ -1488,7 +1496,16 @@ int ladedauer = 0;
         // es wird der orginale Zeitstempel übernommen um den Ablauf des Zeitstempels zu erkennen
         //    system("curl -X GET 'https://api.awattar.de/v1/marketdata'| jq .data| jq '.[]' | jq '.start_timestamp/1000, .marketprice'> awattar.out");
 
+        if (e3dc.DV)
+        {
+            if (e.size()==0)
+                energycharts(e,e3dc,0);
 
+            if(e.size()<=4*12
+               &&ptm->tm_hour*60+ptm->tm_min>12*60+50)
+                energycharts(e,e3dc,1);
+
+        }
         if (e3dc.aWATTar)
             // aWATTar Preise auch für rasdorf holen wg. statistik ausgaben
         {

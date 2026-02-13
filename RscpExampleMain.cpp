@@ -512,6 +512,7 @@ bool GetConfig()
         sprintf(e3dc_config.logfile,"logfile");
         e3dc_config.debug = false;
         e3dc_config.wurzelzaehler = 0;
+        e3dc_config.DV = 0;
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
         e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
@@ -688,6 +689,10 @@ bool GetConfig()
                         e3dc_config.wrsteuerung = atoi(value);
                     else if(strcmp(var, "stop") == 0)
                         e3dc_config.stop = atoi(value);
+                    else if(strcmp(var, "stop") == 0)
+                        e3dc_config.stop = atoi(value);
+                    else if(strcmp(var, "dv") == 0) // Direktvermakrtung
+                        e3dc_config.DV = atoi(value);
                     else if(strcmp(var, "test") == 0)
                         e3dc_config.test = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -3080,7 +3085,7 @@ int LoadDataProcess() {
                 {
                     ALV = shelly_get();
                     // Einsatz Heizstäbe
-                    if (wetter[0].heizstabbedarf>0)
+                    if (wetter[0].heizstabbedarf>0&&(temp[1]>0&&temp[6]>0&&temp[4]+15<temp[5]))
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04);
                         if (temp[14]>=e3dc_config.BWWPmax*10)
@@ -3114,7 +3119,7 @@ int LoadDataProcess() {
                           (PVon < e3dc_config.WPPVoff || fPVtoday<fPVSoll) && temp[17]==0 && // nicht bei Pelletsbetrieb
                           (
                            (
-                            (temp[1]>0&&temp[6]>0&&temp[4]+5<temp[5])
+                            (temp[1]>0&&temp[6]>0&&temp[4]+15<temp[5])
                             ||
                             (temp[1]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
                             )   //FBH
@@ -7027,7 +7032,7 @@ static void mainLoop(void)
             int sunrise = sunriseAt;
             if (e3dc_config.debug) printf("M1\n");
             if (e3dc_config.aWATTar>=0||e3dc_config.openmeteo)
-            aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunrise,iDayStat);
+            aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunrise,iDayStat);
             
 //            test;
             if (e3dc_config.debug) printf("M2\n");
@@ -7279,7 +7284,7 @@ static int iEC = 0;
                 mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 (Ermitteln_Statistik());
 
-                aWATTar(ch,w,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
+                aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
 //                aWATTar.join();
 /*                std::vector<ch_s> * chref;
                 chref = &ch;
