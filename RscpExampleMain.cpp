@@ -7050,8 +7050,20 @@ static void mainLoop(void)
             int len = sizeof(ftemp)/sizeof(float);
             if (fBatt_SOC >= 0)
             {
-                if (ptm->tm_min%15==3&&ptm->tm_sec==0)
+                if ((ptm->tm_min%15==3&&ptm->tm_sec==0)||(w.begin()->hh!=wetter.begin()->hh))
                     DateienSichern();
+                if (w.begin()->hh!=wetter.begin()->hh)
+                {
+                    if (w.begin()->hh>wetter.begin()->hh)
+                    {
+                        wetter.erase(wetter.begin());
+                    }
+                    if (w.begin()->hh<wetter.begin()->hh)
+                    {
+                        w.erase(w.begin());
+                    }
+
+                }
                 mewp(w,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             }
             
