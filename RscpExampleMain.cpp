@@ -3089,8 +3089,19 @@ int LoadDataProcess() {
  Die Pufferspeichertemperaturen dürfen die Soll Temperaturen der FBH max. um 3°, der HZK um 6° nicht übersteigen.
  Die Ist-Temp der FBH darf die Soll Temp nicht über 1,5° überschreiten.
  */
-                    if (wetter[0].heizstabbedarf>0&&(temp[1]>0&&temp[6]>0&&temp[4]+15>temp[5])
-                        &&((temp[14]<temp[4]+60||temp[14]<temp[10]+30))
+                    if (wetter[0].heizstabbedarf>0
+                        &&
+                        (
+                         temp[1]>0
+                         &&temp[6]>0
+                         &&temp[4]+15>temp[5]
+                         )
+                        &&
+                        (
+                         (temp[14]<temp[4]+60
+                          ||
+                          temp[14]<temp[10]+30)
+                         )
                         )
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04);
