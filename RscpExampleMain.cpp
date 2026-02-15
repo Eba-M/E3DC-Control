@@ -3088,7 +3088,7 @@ int LoadDataProcess() {
                     if (wetter[0].heizstabbedarf>0&&(temp[1]>0&&temp[6]>0&&temp[4]+15>temp[5]))
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04);
-//                        if (temp[14]>=e3dc_config.BWWPmax*10-10||(temp[14]>=temp[4]+40&&temp[14]>=temp[10]+10))
+//                        if (temp[14]>=e3dc_config.BWWPmax*10-10||(temp[14]>=temp[4]+50&&temp[14]>=temp[10]+20))
                         if ((temp[14]>=temp[4]+40&&temp[14]>=temp[10]+10))
                         {
                             shelly(e3dc_config.shelly0V10VEZH1);
