@@ -918,7 +918,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               {
                   sprintf(Log,"keine Daten von openmeteo end thread\n");
                   WriteLog(*e3dc,Log,2);
-                  std::terminate();
+//                  std::terminate();
+                  return;
               }
               if (item!=NULL)
                   item = item->child;
