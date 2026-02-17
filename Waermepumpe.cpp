@@ -189,6 +189,8 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
     struct tm * ptm;
     time(&rawtime);
     float anforderung;
+    static float waermebedarf,waermebedarf1; // Heizgrade
+
     ptm = gmtime (&rawtime);
     debug = e3dc.debug;
     if (e3dc.BWWPTasmotaDauer > 0)
@@ -229,8 +231,21 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                 fatemp = fatemp + wetter[j].temp;
                 
             fatemp = fatemp / wetter.size();
+            waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
+            waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
+            // Heizlast bei -15°
+            if (w.size()>96)
+                waermebedarf1 = waermebedarf = waermebedarf/96*(w.size()-96); // wärmbedarf nach 24h
+            else
+                waermebedarf1 = 0;
+            float diff = float(HeatStat)/3600000.0;
+                waermebedarf = waermebedarf-diff;
+
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
             {
+                waermebedarf = (e3dc.WPHeizgrenze - fatemp- ftemp[0]/96)*24; // Heizgrade
+                waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
+                waermebedarf = waermebedarf-diff;
                 int j1 = (wetter[0].hh%(24*3600));
                 j1 = j1/900+1;
                 if (e3dc.WPWolf)
@@ -250,7 +265,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     fp = fopen(fname,"a");
                     if (!fp)
                         fp = fopen(fname,"w");
-                    fprintf(fp,"%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° \n",float((rawtime%(24*3600))/900)/4,float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0],ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96);
+                    fprintf(fp,"%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° %5.2f %5.2f  \n",float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96,waermebedarf1,waermebedarf);
                     fclose(fp);
                 }
                 ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
@@ -482,16 +497,6 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     // dann wird die BWWP mit P = 500W und COP 3 vergeben
                     // dann Einsatz des Heizstabs mit 3/6/9 kW
                     // dabei soll
-                    float waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
-                    waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
-                    // Heizlast bei -15°
-                    float waermebedarf1;
-                    if (w.size()>96)
-                        waermebedarf1 = waermebedarf = waermebedarf/96*(w.size()-96); // wärmbedarf nach 24h
-                    else
-                        waermebedarf1 = 0;
-                    float diff = float(HeatStat)/3600000.0;
-                        waermebedarf = waermebedarf-diff;
 
                     if (e3dc.WPWolf)
                     {

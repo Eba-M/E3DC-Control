@@ -807,7 +807,7 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
     if (w->size()==0)
     {
         printf("keine Börsenpreise");
-        std::terminate();
+        return;
     }
 /*    if (wetter->size()==0)
     {
@@ -823,7 +823,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
         {
             //            printf("forecast #%i kann nicht verarbeitet werden ",anlage+1);
             if (anlage >0)
-                std::terminate();
+                return;
+
         }
         else
         {
@@ -847,7 +848,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
                 memcpy(&value,&line[x2+1],len-x2-1);
             }
             else
-                std::terminate();
+                return;
+
             x1 = atoi(var);
             x2 = atoi(var2);
             x3 = atoi(value);
@@ -893,7 +895,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               if (fp!=NULL) pclose(fp);
               sprintf(Log,"Aufruf openmeteo nicht erfolgreich end thread\n");
               WriteLog(*e3dc,Log,2);
-              std::terminate();
+              return;
+
           }
           {
               const cJSON *item = NULL;
@@ -918,7 +921,6 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
               {
                   sprintf(Log,"keine Daten von openmeteo end thread\n");
                   WriteLog(*e3dc,Log,2);
-//                  std::terminate();
                   return;
               }
               if (item!=NULL)
