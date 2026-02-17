@@ -244,11 +244,11 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
             {
                 int j1 = (wetter[0].hh%(24*3600));
+                j1 = j1/900+1;
                 waermebedarf = (e3dc.WPHeizgrenze - fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96)*24; // Heizgrade
                 waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                 waermebedarf1 = waermebedarf/96*(w.size()-96);
                 waermebedarf = waermebedarf-diff;
-                j1 = j1/900+1;
                 if (e3dc.WPWolf)
                 {
                     FILE *fp;
