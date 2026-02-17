@@ -243,7 +243,7 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
 
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
             {
-                waermebedarf = (e3dc.WPHeizgrenze - fatemp- ftemp[0]/96)*24; // Heizgrade
+                waermebedarf = (e3dc.WPHeizgrenze - fatemp + ftemp[0]/96)*24; // Heizgrade
                 waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                 waermebedarf = waermebedarf-diff;
                 int j1 = (wetter[0].hh%(24*3600));
@@ -497,6 +497,15 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
                     // dann wird die BWWP mit P = 500W und COP 3 vergeben
                     // dann Einsatz des Heizstabs mit 3/6/9 kW
                     // dabei soll
+                    waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
+                    waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
+                    // Heizlast bei -15°
+                    if (w.size()>96)
+                        waermebedarf1 = waermebedarf = waermebedarf/96*(w.size()-96); // wärmbedarf nach 24h
+                    else
+                        waermebedarf1 = 0;
+                    float diff = float(HeatStat)/3600000.0;
+                        waermebedarf = waermebedarf-diff;
 
                     if (e3dc.WPWolf)
                     {
