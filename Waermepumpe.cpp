@@ -227,10 +227,12 @@ void mewp(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,float ftemp[],cons
         if (e3dc.openmeteo)
         {
             if (wetter.size()==0) return;
+            fatemp = 0;
             for (int j=0;j<wetter.size();j++)
                 fatemp = fatemp + wetter[j].temp;
                 
             fatemp = fatemp / wetter.size();
+//            fatemp = -0.43;
             waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
             waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
             // Heizlast bei -15°

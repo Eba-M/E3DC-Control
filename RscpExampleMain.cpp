@@ -3100,6 +3100,8 @@ int LoadDataProcess() {
                         (
                          (temp[14]<temp[4]+60
                           ||
+                          temp[14]<400     // Pufferspeicher unter 40°
+                          ||
                           temp[14]<temp[10]+30)
                          )
                         )
