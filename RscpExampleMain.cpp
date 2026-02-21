@@ -6152,8 +6152,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0||temp[17]==1)
 //                            iHeatStat[1]=waermebedarf/96*w.size()*3600000*-1;
                             iHeatStat[1]=0;
-                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.1)
-                            iHeatStat[1]=waermebedarf*-10*36000;  // wärmebedarf korrektur auf 10%
+                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.2)
+                            iHeatStat[1]=waermebedarf*-20*36000;  // wärmebedarf korrektur auf 20%
                     }
                 }
                 printf("%c[K\n", 27 );
