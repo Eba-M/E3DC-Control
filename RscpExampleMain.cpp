@@ -3116,6 +3116,7 @@ int LoadDataProcess() {
 
                         switch (x1)
                         {
+                            case 0:
                             case 1:
                                 shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
