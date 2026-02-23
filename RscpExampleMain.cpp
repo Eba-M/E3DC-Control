@@ -3142,11 +3142,11 @@ int LoadDataProcess() {
                            (
                             (temp[1]>0&&temp[6]>0&&temp[4]+15<temp[5])
                             ||
-                            (temp[1]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+20)
+                            (temp[1]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[4]+50)
                             )   //FBH
                            &&
                            (
-                            ((temp[7]>0&&temp[10]+10<temp[11])||temp[10]+20<temp[15]&&temp[15]>350)
+                            ((temp[7]>0&&temp[10]+15<temp[11])||(temp[14]+15<temp[15]&&temp[15]>350))
 //                            ||
 //                            (wolf[wpvl].wert>0&&wolf[wpvl].wert*10>temp[10]+50)
                             )
@@ -3597,7 +3597,6 @@ int LoadDataProcess() {
             //if (rettime>0)
 //        printf("ret = %i %i%c[K",ret,t-rettime,27);
 //else
-        printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (ret == 2)  // Wenn tagsüber nachgeladen wird, nur bis ladeende bzw. ladeende2 1% drunter
         {
             if (
@@ -3631,6 +3630,7 @@ int LoadDataProcess() {
             case 4: ret = 0; // Speicher sperren
             case 5: ret = 3; // Ins Netz Entladen
         }
+        printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
         if  ((ret == 2)&&
@@ -3651,6 +3651,20 @@ int LoadDataProcess() {
         } else
         {
             if (ret == 2) ret = 0;
+            if  ((ret == 3)&&
+                 (
+                  (e3dc_config.aWATTar==1)||
+                  ((e3dc_config.aWATTar==0)&&w.size()>0))
+                 )
+            {
+                  iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-.9;
+                if (e3dc_config.debug) printf("RQ7b %i ",ret);
+                iLMStatus = -7;
+                bDischargeDone = false;
+                fAvBatterie=0;
+                fAvBatterie900=100;
+                return 0;
+            }
         }
        
         ts = gmtime(&tE3DC);
@@ -3676,8 +3690,10 @@ if (                             // Das Entladen aus dem Speicher
      // Das Entladen wird durch hton/htoff zugelassen
     )  //
 //    || (CheckaWATTar(sunriseAt,sunsetAt,fBatt_SOC,e3dc_config.Avhourly,e3dc_config.AWDiff)==1) // Rückgabewert aus CheckaWattar
-    || 
+    ||
     (ret==1) // Rückgabewert aus CheckaWattar
+    ||
+    (ret==3) // Rückgabewert aus CheckaWattar Speicher ins Netz entladen
    // Das Entladen wird zu den h mit den höchsten Börsenpreisen entladen
     ||
         (fht<fBatt_SOC&& not e3dc_config.aWATTar&&w.size()==0)        // Wenn der SoC > der berechneten Reserve liegt
@@ -3764,7 +3780,7 @@ bDischarge = false;
         if ((fPower_Grid>200)&&(fAvPower_Grid > 100)&&(fAvPower_Grid < 1000)&&(iPower_Bat > 200)&&(fAvBatterie>=-200)&&fBatt_SOC>fNotstromreserve&&idauer==0)  // es wird Strom bezogen Entladesperre solange aufheben
         {
                 iE3DC_Req_Load = (fPower_Grid-iPower_Bat)*-1;  //Automatik anstossen
-                   if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1)  //Auf maximumLadeleistung begrenzen
+                   if (iE3DC_Req_Load < e3dc_config.maximumLadeleistung*-1||ret==3)  //Auf maximumLadeleistung begrenzen
                     iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;  //Automatik anstossen
                  printf("\nEntladen starten ");
             if (e3dc_config.AWtest == 1||e3dc_config.AWtest == 4){
