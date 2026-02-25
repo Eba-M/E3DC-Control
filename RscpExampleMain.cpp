@@ -2461,16 +2461,20 @@ int LoadDataProcess() {
         if (iPower_WP<0) iPower_WP = 0;
 // wenn zähler vorhanden nutzen
         shellyem_get(iPower_WP, itotal_WP);
+        int j1 = (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
+        if (not e3dc_config.WP)
+            j1 = (iPowerHome-fPower_openWB)*(t-myt_alt);
+        if (j1 > 20000) j1 = 0;
         if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
-            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
-            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
+            iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
+            iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
         } else
         if (not e3dc_config.WP)
         {
 //            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
-            iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
-            iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB)*(t-myt_alt);
+            iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
+            iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
         }
         if (itotal_WP>=0)
         {
