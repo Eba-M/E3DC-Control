@@ -2500,6 +2500,8 @@ int LoadDataProcess() {
             {
                 iWeekhourWP[weekhour] = iWeekhourWP[weekhour] + (450)*(t-myt_alt);
                 iWeekhourWP[dayhour] = iWeekhourWP[dayhour] + (450)*(t-myt_alt);
+                iWeekhour[weekhour] = iWeekhour[weekhour] - (450)*(t-myt_alt);
+                iWeekhour[dayhour] = iWeekhour[dayhour] - (450)*(t-myt_alt);
                 iHeatStat[1] = iHeatStat[1] + (1800)*(t-myt_alt);
                 iHeatStat[0] = iHeatStat[0]  + (1800)*(t-myt_alt);
             }
