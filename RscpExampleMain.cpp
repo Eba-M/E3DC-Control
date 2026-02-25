@@ -2461,7 +2461,7 @@ int LoadDataProcess() {
         if (iPower_WP<0) iPower_WP = 0;
 // wenn zähler vorhanden nutzen
         shellyem_get(iPower_WP, itotal_WP);
-        if (iPower_WP < iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
+        if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
             iWeekhour[dayhour] = iWeekhour[dayhour] + (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
