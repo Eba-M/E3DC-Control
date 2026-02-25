@@ -2285,7 +2285,7 @@ int LoadDataProcess() {
             if (iWeekhourWP[weekhour] == 0)
                 iWeekhourWP[weekhour] = 1;
             if (iWeekhour[x1]>0)
-                iWeekhour[x1] = iWeekhour[x1]*.9 + iWeekhour[weekhour]*.1;
+                iWeekhour[x1] = iWeekhour[x1]*.5 + iWeekhour[weekhour]*.5;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
 //            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
