@@ -2099,8 +2099,8 @@ int Ermitteln_Statistik()
         for (int x1=0; x1<wetter.size(); x1++) // nur die nächsten 24h
         {
             int hh = (wetter[x1].hh%(24*3600));
-            int x2 = (wetter[x1].hh%(24*7*4*900))/900;
-            int x5 = (wetter[x1].hh%(24*4*900))/900;
+            int x2 = (wetter[x1].hh%(24*7*4*900))/900; // position innerhalb der Woche
+            int x5 = (wetter[x1].hh%(24*4*900))/900; // position innerhalb des Tages
 
             {
                         
@@ -2114,7 +2114,7 @@ int Ermitteln_Statistik()
                     for (int y1=-1;y1<2;y1++)
                     {
                         int x3 = x5 + y1;
-                        for (int y2=0;y2<7;y2++)
+                        for (int y2=0;y2<7;y2++) // über die ganze Woche hinweg
                         {
                             x3=x3+4*24;
                             if (x3 < 0) x3 = x3 + 24*4*7;
@@ -2285,7 +2285,7 @@ int LoadDataProcess() {
             if (iWeekhourWP[weekhour] == 0)
                 iWeekhourWP[weekhour] = 1;
             if (iWeekhour[x1]>0)
-                iWeekhour[x1] = iWeekhour[x1]*.5 + iWeekhour[weekhour]*.5;
+                iWeekhour[x1] = iWeekhour[x1]/2 + iWeekhour[weekhour]/2;
             else
                 iWeekhour[x1] = iWeekhour[weekhour];
 //            iWeekhour[weekhour] = (iPowerHome-iPower_WP)*(t-t_alt);
@@ -2464,7 +2464,8 @@ int LoadDataProcess() {
         int j1 = (iPowerHome-fPower_openWB-iPower_WP)*(t-myt_alt);
         if (not e3dc_config.WP)
             j1 = (iPowerHome-fPower_openWB)*(t-myt_alt);
-        if (j1 > 20000) j1 = 0;
+        if (j1 > 100000||j1<0)
+            j1 = 0;
         if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
@@ -3632,9 +3633,9 @@ int LoadDataProcess() {
             case 2:
             if (fBatt_SOC > fht-1) break;  // do nothink
             case 3: ret = 2; break;
-            case 1: ret = 1;
-            case 4: ret = 0; // Speicher sperren
-            case 5: ret = 3; // Ins Netz Entladen
+            case 1: ret = 1; break;
+            case 4: ret = 0; break; // Speicher sperren
+            case 5: ret = 3; break; // Ins Netz Entladen
         }
         printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
