@@ -4755,7 +4755,11 @@ bDischarge = false;
                             
                             if (iPower_PV>0||e3dc_config.unload<0)  // Nur wenn die Sonne scheint
                             {
-                                if (e3dc_config.debug) printf("RQ4 %i2",iPower);
+                                if (e3dc_config.debug)
+                                {
+                                    printf("RQ4 %i2",iPower);
+                                    sleep(5);
+                                }
 
                                 static int iLastReq;
                                 if (
