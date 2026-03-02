@@ -2468,13 +2468,17 @@ int LoadDataProcess() {
             j1 = 0;
         if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
-            iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
-            iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
+            if (iWeekhour[weekhour] + j1>0)
+                iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
+            if (iWeekhour[dayhour] + j1>0)
+                iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
         } else
         if (not e3dc_config.WP)
         {
 //            printf("weekhour %i %i %i ",weekhour, iWeekhour[weekhour], iPowerHome);
+            if (iWeekhour[weekhour] + j1>0)
             iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
+            if (iWeekhour[dayhour] + j1>0)
             iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
         }
         if (itotal_WP>=0)
@@ -3634,7 +3638,9 @@ int LoadDataProcess() {
             if (fBatt_SOC > fht-1) break;  // do nothink
             case 3: ret = 2; break;
             case 1: ret = 1; break;
-            case 4: ret = 0; break; // Speicher sperren
+            case 4: ret = 0;
+                iE3DC_Req_Load = 0;
+                break; // Speicher sperren
             case 5: ret = 3; break; // Ins Netz Entladen
         }
         printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
@@ -4038,6 +4044,27 @@ bDischarge = false;
     f[3] = 0;
     f[4] = 0;
 //    t = 7*3600; // Zum testen Uhrzeit vorgeben
+    if (e3dc_config.DV) // Direktvermarktung
+    {
+        int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
+        float fsoue = 0; // solarer überschuss
+        for (int x2=1;x2<e.size();x2++)
+        {
+            if (e[x2].pp<e.begin()->pp)
+            {
+                x1++;
+                fsoue = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+            }
+            if (wetter[x2].solar == 0)
+                break;
+        }
+        if (100-fBatt_SOC > fsoue)
+        {
+            iFc = e3dc_config.maximumLadeleistung-500;
+            iBattLoad = iFc;
+        }
+
+    }
     if (e3dc_config.unload<0)
     {
         // sonnenuntergang - unload also vor sonnenunergang
@@ -6178,6 +6205,16 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             iHeatStat[1]=0;
                         if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.2)
                             iHeatStat[1]=waermebedarf*-20*36000;  // wärmebedarf korrektur auf 20%
+                        if   //Soll wärmekapazität Pufferspeicher erreicht
+                        (
+                            temp[14]>temp[4]+60
+                         &&
+                            temp[14]>400     // Pufferspeicher unter 40°
+                         &&
+                            temp[14]>temp[10]+30
+                         )
+                            iHeatStat[1]=0;
+
                     }
                 }
                 printf("%c[K\n", 27 );

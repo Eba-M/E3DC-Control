@@ -28,7 +28,7 @@
 #include <thread>
 
 //typedef struct {int hh; float pp;}watt_s;
-
+float strombedarf[24];
 static time_t tm_Wallbox_dt = 0;
 static watt_s ww,ww1,ww2;
 static ch_s cc;
@@ -1210,6 +1210,7 @@ void forecast(std::vector<watt_s> &w, e3dc_config_t e3dc_config,int anlage)
         }
     };
 };
+
 float suchenstrompreis(int x2)
 {
     if (strompreis.size() == 1)
@@ -1242,6 +1243,131 @@ float suchenstrompreis(int x2)
     }
     return(-1);
 };
+void epex(std::vector<watt_s> &w,e3dc_config_t &e3dc,int mday)
+{
+    FILE * fp;
+    char line[1024];
+    char path [65000];
+    time_t  t;
+    time(&t);
+    struct tm * ptm;
+    struct tm * pta;
+//    t=t+dayoffset*24*3600;
+    ptm = localtime (&t);
+    time(&t);
+
+//    if (w.size()==0)
+    {
+        // Abfragen EPEXSPOT aktueller Tag
+        {
+            char land [6];
+            if (e3dc.AWLand == 1)
+                strcpy(land,"DE-LU");
+            if (e3dc.AWLand == 2)
+                strcpy(land,"AT");
+            // Inhalt prophylaktisch löschen
+            fp = fopen("epexspot.txt","w");
+            if (fp!=NULL)
+                fclose(fp);
+            
+            sprintf(line,"python3 E3DC-V1/epexspot.py %i %s >epexspot.log",mday,land);
+            int res = system(line);
+            if (res!=0)
+            {
+                sprintf(line,"python3 ../E3DC-V1/epexspot.py %i %s >epexspot.log",mday,land);
+                res = system(line);
+            }
+            {
+                fp = fopen("epexspot.txt","r");
+                //                        else
+                //            fp = fopen("awattar.out.txt","r");
+                //                            fp = fopen("awattar.out","r");
+                
+                if(fp)
+                {
+                    //                    w.clear();
+                    ptm = localtime(&t);
+                    int x3 = 0;
+                    ptm->tm_hour = 0;
+                    time_t a_time = mktime(ptm);
+                    ptm->tm_min = 0;
+                    ptm->tm_sec = 0;
+                    ww.hh = mktime(ptm);
+                    ww.hh = ww.hh+24*3600*mday;
+                    if (ptm->tm_hour == 1)
+                        ww.hh = ww.hh-3600;
+                    int status;
+                    int y1=0;
+                    char var [2] [20];
+                    if (fgets(line, sizeof(line), fp))
+                    {
+                        while (fgets(line, sizeof(line), fp))
+                            y1++;;
+                        
+                        if (fp!=NULL)
+                            fclose(fp);
+                        fp = fopen("epexspot.txt","r");
+                    }
+                    if (fgets(line, sizeof(line), fp))
+                        
+                    {
+                        while (fgets(line, sizeof(line), fp))
+                        {
+                            status = sscanf(line, "%s %s ", var[0], var[1]);
+                            
+                            //                                    ptm->tm_hour = atol(var[0]);
+                            //                                    ww.hh = mktime(ptm);
+                            ww.pp = atof(var[1]);
+                            {
+                                int x2 =ww.hh%(24*3600);
+                                x2 = x2/3600;
+                                if (strompreis.size()>0&&not e3dc.DV)
+                                    ww.pp = ww.pp + suchenstrompreis(x2);
+                                
+                                if (e3dc.openmeteo)
+                                    ww.hourly = strombedarf[x2]/4;
+                                else
+                                    ww.hourly = strombedarf[x2];
+                                //                            ww.solar = 0;
+                                {
+                                    if (e3dc.openmeteo)
+                                    {
+                                        if (y1==24)
+                                            for (int x1=0;x1<=3;x1++)
+                                            {
+                                                if (ww.hh+900>t)
+                                                    w.push_back(ww);
+                                                ww.hh = ww.hh + 900;
+                                            } else
+                                            {
+                                                if (ww.hh+900>t)
+                                                    w.push_back(ww);
+                                                ww.hh = ww.hh + 900;
+                                            }
+                                    }
+                                    else
+                                    {
+                                        w.push_back(ww);
+                                        ww.hh = ww.hh + 3600;
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                    
+                    if (fp!=NULL)
+                        fclose(fp);
+                    
+                    //                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
+                    //                                return a.hh < b.hh;});
+                    printf("GET EPEXSPOT done\n");
+                }
+            }
+        }
+        
+    }
+}
 void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
 {
     FILE * fp;
@@ -1355,7 +1481,6 @@ void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<watt_s> &e
 bool simu = false;
 //    simu = true;
 int ladedauer = 0;
-    float strombedarf[24];
     time_t rawtime,a_time;
     
     struct tm * ptm;
@@ -1501,6 +1626,14 @@ int ladedauer = 0;
 
         if (e3dc.DV)
         {
+            if (e.size() == 0)
+            {
+                epex(e,e3dc,0);
+                if(e.size()<=4*12
+                   &&
+                   ptm->tm_hour*60+ptm->tm_min>12*60+50)
+                    epex(e,e3dc,1);
+            }
             if (e.size()==0)
                 energycharts(e,e3dc,0);
 
@@ -1514,122 +1647,15 @@ int ladedauer = 0;
         {
             if (w.size()==0)
             {
-                energycharts(w,e3dc,0);
-                energycharts(w,e3dc,1);
+                epex(w,e3dc,0);
+                if(w.size()<=4*12
+                   &&ptm->tm_hour*60+ptm->tm_min>12*60+50)
+                epex(w,e3dc,1);
             }
-
             if (w.size()==0)
             {
-                // Abfragen EPEXSPOT aktueller Tag
-                if (e3dc.aWATTar>0)
-                {
-                    char land [6];
-                    if (e3dc.AWLand == 1)
-                        strcpy(land,"DE-LU");
-                    if (e3dc.AWLand == 2)
-                        strcpy(land,"AT");
-                    // Inhalt prophylaktisch löschen
-                    fp = fopen("epexspot.txt","w");
-                    if (fp!=NULL)
-                        fclose(fp);
-                    
-                    sprintf(line,"python3 E3DC-V1/epexspot.py 0 %s >epexspot.log",land);
-                    int res = system(line);
-                    if (res!=0)
-                    {
-                        sprintf(line,"python3 ../E3DC-V1/epexspot.py 0 %s >epexspot.log",land);
-                        res = system(line);
-                    }
-                    if (not simu&& not res)
-                    {
-                        fp = fopen("epexspot.txt","r");
-                        //                        else
-                        //            fp = fopen("awattar.out.txt","r");
-                        //                            fp = fopen("awattar.out","r");
-                        
-                        if(fp)
-                        {
-                            //                    w.clear();
-                            time(&rawtime);
-                            ptm = localtime(&rawtime);
-                            x3 = 0;
-                            ptm->tm_hour = 0;
-                            a_time = mktime(ptm);
-                            ptm->tm_min = 0;
-                            ptm->tm_sec = 0;
-                            ww.hh = mktime(ptm);
-                            if (ptm->tm_hour == 1)
-                                ww.hh = ww.hh-3600;
-                            int status;
-                            int y1=0;
-                            char var [2] [20];
-                            if (fgets(line, sizeof(line), fp))
-                            {
-                                while (fgets(line, sizeof(line), fp))
-                                    y1++;;
-                                
-                                if (fp!=NULL)
-                                    fclose(fp);
-                                fp = fopen("epexspot.txt","r");
-                            }
-                            if (fgets(line, sizeof(line), fp))
-                                
-                            {
-                                while (fgets(line, sizeof(line), fp))
-                                {
-                                    status = sscanf(line, "%s %s ", var[0], var[1]);
-                                    
-                                    //                                    ptm->tm_hour = atol(var[0]);
-                                    //                                    ww.hh = mktime(ptm);
-                                    ww.pp = atof(var[1]);
-                                    {
-                                        x2 =ww.hh%(24*3600);
-                                        x2 = x2/3600;
-                                        if (strompreis.size()>0)
-                                            ww.pp = ww.pp + suchenstrompreis(x2);
-                                        
-                                        if (e3dc.openmeteo)
-                                            ww.hourly = strombedarf[x2]/4;
-                                        else
-                                            ww.hourly = strombedarf[x2];
-                                        //                            ww.solar = 0;
-                                        {
-                                            if (e3dc.openmeteo)
-                                            {
-                                                if (y1==24)
-                                                    for (int x1=0;x1<=3;x1++)
-                                                    {
-                                                        if (ww.hh+900>rawtime)
-                                                        w.push_back(ww);
-                                                        ww.hh = ww.hh + 900;
-                                                    } else
-                                                    {
-                                                        if (ww.hh+900>rawtime)
-                                                        w.push_back(ww);
-                                                        ww.hh = ww.hh + 900;
-                                                    }
-                                            }
-                                            else
-                                            {
-                                                w.push_back(ww);
-                                                ww.hh = ww.hh + 3600;
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                            }
-                            
-                            if (fp!=NULL)
-                                fclose(fp);
-                            
-                            //                            std::stable_sort(w.begin(), w.end(), [](const watt_s& a, const watt_s& b) {
-                            //                                return a.hh < b.hh;});
-                            printf("GET EPEXSPOT done\n");
-                        }
-                    }
-                }
-                
+                energycharts(w,e3dc,0);
+                energycharts(w,e3dc,1);
             }
             if (w.size()==0)
             {
@@ -2158,6 +2184,17 @@ else
             ch1.push_back(cc);
         }
     }
+if (e.size()>0)
+    for (int l = 0;(l< e.size()); l++)
+    {
+        if (e[l].hh>=von&&e[l].hh<bis)
+        {
+            cc.hh = e[l].hh;
+            cc.ch = chch;
+            cc.pp = e[l].pp*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten*10;
+            ch1.push_back(cc);
+        }
+    }
     std::stable_sort(ch1.begin(), ch1.end(), [](const ch_s& a, const ch_s& b) {
         return a.pp < b.pp;});
     if (e3dc.debug) printf("LZ3\n");
@@ -2235,7 +2272,10 @@ else
                 if (j%2==1) fprintf(fp,"\n");
                 fprintf(fp,"am %i.%i.\n",ptm->tm_mday,ptm->tm_mon+1);
             }
-            fprintf(fp,"um %i:%2i zu %.3fct/kWh  ",ptm->tm_hour,ptm->tm_min,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+            if (not e3dc.DV&&e3dc.aWATTar>0)
+                fprintf(fp,"um %i:%2i zu %.3fct/kWh  ",ptm->tm_hour,ptm->tm_min,ch[j].pp*(100+e3dc.AWMWSt)/1000+e3dc.AWNebenkosten);
+            else
+                fprintf(fp,"um %i:%2i zu %.3fct/kWh  ",ptm->tm_hour,ptm->tm_min,ch[j].pp/10);
             if (ch.size() < 40||(j/4)%2==1)
                 fprintf(fp,"\n");
             ptm_alt = ptm->tm_mday;
