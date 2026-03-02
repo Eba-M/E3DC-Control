@@ -4794,7 +4794,11 @@ bDischarge = false;
                                     if (iE3DC_Req_Load == e3dc_config.maximumLadeleistung)
                                     {
                                         //                                        if (bDischarge)  // Entladen ist zugelassen?
-                                        if (e3dc_config.debug) printf("RQ6 %i",iPower);
+                                        if (e3dc_config.debug)
+                                        {
+                                            printf("RQ6 %i",iPower);
+                                            sleep(5);
+                                        }
                                         
                                         iLMStatus = 3;
                                         iE3DC_Req_Load_alt = iE3DC_Req_Load;
