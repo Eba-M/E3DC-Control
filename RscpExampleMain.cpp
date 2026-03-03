@@ -4047,21 +4047,66 @@ bDischarge = false;
     if (e3dc_config.DV) // Direktvermarktung
     {
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
-        float fsoue = 0; // solarer überschuss
-        for (int x2=1;x2<e.size();x2++)
-        {
-            if (e[x2].pp<e.begin()->pp)
+        {   float fsoue = 0; // solarer überschuss
+            for (int x2=1;x2<e.size();x2++)
             {
-                x1++;
-                fsoue = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                if (wetter[x2].solar == 0)
+                    break;
+                if (e[x2].pp<e.begin()->pp)
+                {
+                    x1++;
+                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                }
             }
-            if (wetter[x2].solar == 0)
-                break;
+            if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
+            {
+                iFc = e3dc_config.maximumLadeleistung-500;
+                iBattLoad = iFc;
+            }
         }
-        if (100-fBatt_SOC > fsoue)
-        {
-            iFc = e3dc_config.maximumLadeleistung-500;
-            iBattLoad = iFc;
+        {   float fsoue = fBatt_SOC; // SoC
+            float fsoue_alt=fsoue;
+            int x3,x4=0;
+            x1=0;
+            for (int x2=1;x2<e.size();x2++)
+            {
+                if (fsoue <=0||fsoue>fsoue_alt)
+                {
+                    x3 = x2;
+                    break;
+                }
+                fsoue_alt=fsoue;
+//                if (e[x2].pp>e.begin()->pp)
+                {
+                    x1++;
+                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                }
+                if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
+            }
+            if (fsoue>0&&x4==1) // Beginn neuer Tag Hochpreise suchen
+            {
+                fsoue_alt=fsoue;
+                for (int x2=1;x2<e.size();x2++)
+                {
+                    if (fsoue <=0||fsoue>100)
+                    {
+                        x3 = x2;
+                        break;
+                    }
+                    if (e[x2].pp>e.begin()->pp)
+                    {
+                        x1++;
+                    }
+                        fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    
+                    if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
+                }
+            }
+            if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4) // Entladen
+            {
+                iFc = -e3dc_config.maximumLadeleistung+500;
+                iBattLoad = iFc;
+            }
         }
 
     }
@@ -4757,7 +4802,7 @@ bDischarge = false;
                             {
                                 if (e3dc_config.debug)
                                 {
-                                    printf("RQ4 %i2",iPower);
+                                    printf("RQ4 %i",iPower);
                                     sleep(5);
                                 }
 
@@ -4787,7 +4832,7 @@ bDischarge = false;
                                     //                                    if (bDischarge)  // Entladen ist zugelassen?
                                     if (e3dc_config.debug)
                                     {
-                                        printf("RQ5 %i2",iPower);
+                                        printf("RQ5 %i",iPower);
                                         sleep(5);
                                     }
                                     iLMStatus = 3;
