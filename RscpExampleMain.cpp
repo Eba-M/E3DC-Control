@@ -4060,9 +4060,10 @@ bDischarge = false;
             }
             if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
             {
-                iFc = e3dc_config.maximumLadeleistung-500;
-                iBattLoad = iFc;
+                iBattLoad = e3dc_config.maximumLadeleistung-500;
             }
+            else
+                iBattLoad = 0;
         }
         {   float fsoue = fBatt_SOC; // SoC
             float fsoue_alt=fsoue;
@@ -4083,7 +4084,7 @@ bDischarge = false;
                 }
                 if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
             }
-            if (fsoue>0&&x4==1) // Beginn neuer Tag Hochpreise suchen
+            if (fsoue>0&&ptm->tm_hour<12&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
             {
                 fsoue_alt=fsoue;
                 for (int x2=1;x2<e.size();x2++)
@@ -4097,15 +4098,16 @@ bDischarge = false;
                     {
                         x1++;
                     }
-                        fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                     
                     if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
                 }
-            }
-            if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4) // Entladen
-            {
-                iFc = -e3dc_config.maximumLadeleistung+500;
-                iBattLoad = iFc;
+                
+                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5) // Entladen
+                {
+                    iFc = -e3dc_config.maximumLadeleistung+500;
+                    iBattLoad = iFc;
+                }
             }
         }
 
