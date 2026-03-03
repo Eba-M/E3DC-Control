@@ -4060,7 +4060,7 @@ bDischarge = false;
             }
             if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
             {
-                iBattLoad = e3dc_config.maximumLadeleistung-500;
+                iBattLoad = e3dc_config.maximumLadeleistung;
             }
             else
                 iBattLoad = 0;
