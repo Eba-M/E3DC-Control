@@ -4048,7 +4048,25 @@ bDischarge = false;
     {
         idauer = 1; // direkte Steuerung
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
+        float fmaxpp = 0; // Höchstpreis
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
+        struct tm * ptm;
+        ptm = localtime(&t);
+        for (int x2=1;x2<e.size();x2++)
+        {
+            if (wetter[x2].solar>5)
+                break;
+            if (e[x2].pp>fmaxpp)
+                fmaxpp = e[x2].pp;
+        }
+        if (ptm->tm_hour>=2&&ptm->tm_hour<6)
+        {
+            if (fmaxpp > 300 && fBatt_SOC < 95) // Speicher laden wegen hohen Börsenpreis
+                e3dc_config.AWtest = 3;
+            else
+                e3dc_config.AWtest = 0;
+
+                    }
         {   float fsoue = 0; // solarer überschuss
             for (int x2=1;x2<e.size();x2++)
             {
@@ -4067,20 +4085,21 @@ bDischarge = false;
             else
                 iBattLoad = 0;
         }
-// Entladen des Speichers ins Netz zur morgentlichen Spitze
         {   float fsoue = fBatt_SOC; // SoC
             float fsoue_alt=fsoue;
             int x3,x4=0;
             x1=0;
             for (int x2=1;x2<e.size();x2++)
             {
+                if (e[x2].pp>fmaxpp)
+                    fmaxpp = e[x2].pp;
                 if (fsoue <=0||fsoue>fsoue_alt)
                 {
                     x3 = x2;
                     break;
                 }
                 fsoue_alt=fsoue;
-//                if (e[x2].pp>e.begin()->pp)
+                if (e[x2].pp>e.begin()->pp)
                 {
                     x1++;
                     fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
@@ -4092,6 +4111,8 @@ bDischarge = false;
                 fsoue_alt=fsoue;
                 for (int x2=1;x2<e.size();x2++)
                 {
+                    if (e[x2].pp>fmaxpp)
+                        fmaxpp = e[x2].pp;
                     if (fsoue <=0||fsoue>100)
                     {
                         x3 = x2;
