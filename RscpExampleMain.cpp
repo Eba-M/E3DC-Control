@@ -4046,6 +4046,8 @@ bDischarge = false;
 //    t = 7*3600; // Zum testen Uhrzeit vorgeben
     if (e3dc_config.DV) // Direktvermarktung
     {
+        idauer = 1; // direkte Steuerung
+// Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
         {   float fsoue = 0; // solarer überschuss
             for (int x2=1;x2<e.size();x2++)
@@ -4065,6 +4067,7 @@ bDischarge = false;
             else
                 iBattLoad = 0;
         }
+// Entladen des Speichers ins Netz zur morgentlichen Spitze
         {   float fsoue = fBatt_SOC; // SoC
             float fsoue_alt=fsoue;
             int x3,x4=0;
@@ -4668,7 +4671,7 @@ bDischarge = false;
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
 // wenn unload < 0 Power setzen
-    if (iPower > iFc&&idauer > 0&&e3dc_config.unload<0) iPower = iFc;
+    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||e3dc_config.DV) iPower = iFc;
         
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&
@@ -4805,7 +4808,6 @@ bDischarge = false;
                                 if (e3dc_config.debug)
                                 {
                                     printf("RQ4 %i",iPower);
-                                    sleep(5);
                                 }
 
                                 static int iLastReq;
@@ -4835,7 +4837,6 @@ bDischarge = false;
                                     if (e3dc_config.debug)
                                     {
                                         printf("RQ5 %i",iPower);
-                                        sleep(5);
                                     }
                                     iLMStatus = 3;
                                     if (iLastReq>0)
@@ -4852,7 +4853,6 @@ bDischarge = false;
                                         if (e3dc_config.debug)
                                         {
                                             printf("RQ6 %i",iPower);
-                                            sleep(5);
                                         }
                                         
                                         iLMStatus = 3;
@@ -4867,6 +4867,8 @@ bDischarge = false;
                                 if (iLMStatus > 0)
                                 iLMStatus = 11;
                             }
+                            if (e3dc_config.debug)
+                            sleep(5);
                         }
                     }
                 }
