@@ -4046,7 +4046,7 @@ bDischarge = false;
 //    t = 7*3600; // Zum testen Uhrzeit vorgeben
     if (e3dc_config.DV) // Direktvermarktung
     {
-        idauer = 1; // direkte Steuerung
+        idauer = 0; // direkte Steuerung
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = 0; // Höchstpreis
         float fppborder = 300;
@@ -4084,12 +4084,10 @@ bDischarge = false;
             }
             if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
             {
-                idauer = 0;
                 iBattLoad = e3dc_config.maximumLadeleistung;
             }
             else
             {
-                idauer = 0;
                 iBattLoad = 0;
                 iFc = 0;
             }
@@ -4115,7 +4113,7 @@ bDischarge = false;
                 }
                 if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
             }
-            if (fsoue>0&&ptm->tm_hour<12&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
+            if (fsoue>0&&ptm->tm_hour<10&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
             {
                 fsoue_alt=fsoue;
                 for (int x2=1;x2<e.size();x2++)
@@ -4138,6 +4136,7 @@ bDischarge = false;
                 
                 if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5) // Entladen
                 {
+                    idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
                     iBattLoad = iFc;
                 }
