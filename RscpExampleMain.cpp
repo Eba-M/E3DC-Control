@@ -4049,6 +4049,8 @@ bDischarge = false;
         idauer = 1; // direkte Steuerung
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = 0; // Höchstpreis
+        float fppborder = 300;
+        int icount = 0;
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
         struct tm * ptm;
         ptm = localtime(&t);
@@ -4058,10 +4060,12 @@ bDischarge = false;
                 break;
             if (e[x2].pp>fmaxpp)
                 fmaxpp = e[x2].pp;
+            if (e[x2].pp>fppborder)
+                icount++;
         }
         if (ptm->tm_hour>=2&&ptm->tm_hour<6)
         {
-            if (fmaxpp > 300 && fBatt_SOC < 95) // Speicher laden wegen hohen Börsenpreis
+            if (fmaxpp > 300 && fBatt_SOC < 20+icount*10) // Speicher laden wegen hohen Börsenpreis
                 e3dc_config.AWtest = 3;
             else
                 e3dc_config.AWtest = 0;
@@ -4080,10 +4084,15 @@ bDischarge = false;
             }
             if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
             {
+                idauer = 0;
                 iBattLoad = e3dc_config.maximumLadeleistung;
             }
             else
+            {
+                idauer = 0;
                 iBattLoad = 0;
+                iFc = 0;
+            }
         }
         {   float fsoue = fBatt_SOC; // SoC
             float fsoue_alt=fsoue;
