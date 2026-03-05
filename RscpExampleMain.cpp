@@ -513,6 +513,7 @@ bool GetConfig()
         e3dc_config.debug = false;
         e3dc_config.wurzelzaehler = 0;
         e3dc_config.DV = 0;
+        e3dc_config.DVWBkWh = 0;
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
         e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
@@ -693,6 +694,8 @@ bool GetConfig()
                         e3dc_config.stop = atoi(value);
                     else if(strcmp(var, "dv") == 0) // Direktvermakrtung
                         e3dc_config.DV = atoi(value);
+                    else if(strcmp(var, "dvwbkwh") == 0) // Direktvermakrtung
+                        e3dc_config.DVWBkWh = atoi(value);
                     else if(strcmp(var, "test") == 0)
                         e3dc_config.test = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -4046,7 +4049,10 @@ bDischarge = false;
 //    t = 7*3600; // Zum testen Uhrzeit vorgeben
     if (e3dc_config.DV) // Direktvermarktung
     {
-        idauer = 0; // direkte Steuerung
+        idauer = 0; // direkte Steuerung aus
+        if (e3dc_config.wbmode == 0)
+            e3dc_config.wbmode = 4;
+
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = 0; // Höchstpreis
         float fppborder = 300;
@@ -4063,32 +4069,49 @@ bDischarge = false;
             if (e[x2].pp>fppborder)
                 icount++;
         }
-        if (ptm->tm_hour>=2&&ptm->tm_hour<6)
-        {
-            if (fmaxpp > 300 && fBatt_SOC < 20+icount*10) // Speicher laden wegen hohen Börsenpreis
-                e3dc_config.AWtest = 3;
-            else
-                e3dc_config.AWtest = 0;
 
-                    }
-        {   float fsoue = 0; // solarer überschuss
+        {
+            float fsoue = 0; // solarer überschuss
+            float fsoue1 = 0; // solare Unterdeckung?
             for (int x2=1;x2<e.size();x2++)
             {
                 if (wetter[x2].solar == 0)
                     break;
-                if (e[x2].pp<e.begin()->pp)
+                if (wetter[x2].hourly>100)
+                    wetter[x2].hourly=wetter[x2].hourly/100;
+
+                if (e[x2].pp<e.begin()->pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
                 {
                     x1++;
-                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    if (wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf < 0)
+                        
+                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    else
+                    {
+                        if (fsoue1<0)
+                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                        else
+                            fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    }
                 }
             }
-            if (100-fBatt_SOC > fsoue&&fBatt_SOC>0)
+            if (fsoue1>0) fsoue = fsoue+fsoue1;
+            if (bWBConnect) // Auto angesteckt
+                fsoue1 = (e3dc_config.DVWBkWh/e3dc_config.speichergroesse)*100;
+            else
+                fsoue1 = 0;
+            fsoue1 = fsoue1 + (100-fBatt_SOC);
+            if (fsoue < fsoue1)  // angeforderte Kapazität zu niedrig
             {
+                // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                iFc = e3dc_config.maximumLadeleistung;
+                if (not bWBConnect)
+                    iFc = e3dc_config.maximumLadeleistung;
             }
             else
             {
+                // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
+                e3dc_config.wbmode = 0;
                 iBattLoad = 0;
                 iFc = 0;
             }
@@ -6296,7 +6319,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             iHeatStat[1]=0;
                         if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.2)
                             iHeatStat[1]=waermebedarf*-20*36000;  // wärmebedarf korrektur auf 20%
-                        if   //Soll wärmekapazität Pufferspeicher erreicht
+/*                        if   //Soll wärmekapazität Pufferspeicher erreicht
                         (
                             temp[14]>temp[4]+60
                          &&
@@ -6305,7 +6328,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             temp[14]>temp[10]+30
                          )
                             iHeatStat[1]=0;
-
+*/
                     }
                 }
                 printf("%c[K\n", 27 );
