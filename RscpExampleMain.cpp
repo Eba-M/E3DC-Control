@@ -4111,7 +4111,8 @@ bDischarge = false;
             else
             {
                 // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
-                e3dc_config.wbmode = 0;
+                if (e3dc_config.wbmode == 4&&bWBStopped)
+                    e3dc_config.wbmode = 0;
                 iBattLoad = 0;
                 iFc = 0;
             }
