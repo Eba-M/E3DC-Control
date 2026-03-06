@@ -2481,7 +2481,7 @@ int LoadDataProcess() {
                 iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
             if (iWeekhour[dayhour] + j1>0)
                 iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
-            iWeekhour[dayhour] = iWeekhour[dayhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
+            iWeekhour[wbhour] = iWeekhour[wbhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
         } else
         if (not e3dc_config.WP)
         {

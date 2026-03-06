@@ -586,9 +586,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 fsoc = flowsoc[0];
                                 if (e3dc.DVWBkWh>0)
                                 {
-                                    fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
-                                    fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
-                                    fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                    fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
+                                    fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
+                                    fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
                                 }
                                 
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
