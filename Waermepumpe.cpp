@@ -225,6 +225,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
         (rawtime-oldhour)>60
         )
     {
+        if (w.size()>0&&wetter.begin()->hourly==0)
+                return;
         if (w.size()>0)
         {
             oldhour = rawtime;
@@ -586,9 +588,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 fsoc = flowsoc[0];
                                 if (e3dc.DVWBkWh>0)
                                 {
-                                    fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
-                                    fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
-                                    fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse)-100;
+                                    fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                    fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                    fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                 }
                                 
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
@@ -608,17 +610,24 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     //                                wet.waermepreis = (w[x1].pp*.1*1.19+e3dc.AWNebenkosten)/wet.cop;
                                     //                                if (wetter[x1].hourly+wetter[x1].wpbedarf<wetter[x1].solar)
                                     //                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
+//                                    if (wetter[x1].solar==0)
+//                                        fsoc = fsoc - wetter[x1].hourly;
+                                    float highpp;
                                     if (wetter[x1].solar==0)
-                                        fsoc = fsoc - wetter[x1].hourly;
+                                        highpp = w[x1].pp;
+                                    else
+                                        if (x1<e.size())
+                                            highpp = e[highprice(e,wetter,x1)].pp;
+                                    
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis
                                         if (e3dc.DV)
                                         {
                                             if (x1<e.size())
-                                                wet.waermepreis = e[x1].pp/wet.cop; // solarpreis = 10ct
+                                                wet.waermepreis = e[x1].pp*.1/wet.cop; // solarpreis = 10ct
                                             else
-                                                wet.waermepreis = w[x1].pp/wet.cop; // solarpreis = 10ct
+                                                wet.waermepreis = w[x1].pp*.1/wet.cop; // solarpreis = 10ct
                                         }
                                         else
                                             wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
@@ -631,10 +640,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         {
                                             if (e3dc.DV)
                                             {
-                                                if (x1<e.size())
-                                                    wet.waermepreis = e[highprice(e,wetter,x1)].pp/wet.cop; // solarpreis = 10ct
-                                                else
-                                                    wet.waermepreis = w[x1].pp/wet.cop; // solarpreis = 10ct
+                                                    wet.waermepreis = highpp*.1/wet.cop; // solarpreis = 10ct
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
@@ -642,7 +648,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         }
                                         else
                                         {
-                                            wet.waermepreis = (w[x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
+                                            wet.waermepreis = (highpp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
                                             wet.status = 0;
                                         }
                                     }
@@ -808,8 +814,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                 {
                                                     if (wet.status==2)
                                                     {
+                                                        if (wetter[wetter1[0].x1].heizstabbedarf>0)
                                                         if (fhighsoc[j1]>3/e3dc.speichergroesse*25)
-                                                            fhighsoc[j1]=fhighsoc[j1]-1/e3dc.speichergroesse*25;
+                                                            fhighsoc[j1]=fhighsoc[j1]-3/e3dc.speichergroesse*25;
                                                         else
                                                             wetter1[0].status=1;
                                                     }

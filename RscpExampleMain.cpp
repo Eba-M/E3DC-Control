@@ -4054,7 +4054,7 @@ bDischarge = false;
     f[3] = 0;
     f[4] = 0;
 //    t = 7*3600; // Zum testen Uhrzeit vorgeben
-    if (e3dc_config.DV) // Direktvermarktung
+    if (e3dc_config.DV&&fBatt_SOC>=0) // Direktvermarktung
     {
         idauer = 0; // direkte Steuerung aus
         if (e3dc_config.wbmode == 0)
@@ -4067,6 +4067,8 @@ bDischarge = false;
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
         struct tm * ptm;
         ptm = localtime(&t);
+        while (e.begin()->hh<t-900)
+            e.erase(e.begin());
         for (int x2=1;x2<e.size();x2++)
         {
             if (wetter[x2].solar>5)
@@ -4104,7 +4106,7 @@ bDischarge = false;
             }
             if (fsoue1>0) fsoue = fsoue+fsoue1;
             if (bWBConnect) // Auto angesteckt
-                fsoue1 = (e3dc_config.DVWBkWh/e3dc_config.speichergroesse)*100;
+                fsoue1 = ((e3dc_config.DVWBkWh-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
             else
                 fsoue1 = 0;
             fsoue1 = fsoue1 + (100-fBatt_SOC);
