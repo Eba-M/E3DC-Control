@@ -2124,7 +2124,11 @@ int Ermitteln_Statistik()
                             if (x3 > 24*4*7) x3 = x3 -24*4*7;
                             if (iWeekhour[x3] > 0)
                                 x4++;
+                            if (iWeekhour[x3]>3000*900)
+                                iWeekhour[x3]=3000*900;
+
                             float f8 = iWeekhour[x3]/36000.0/e3dc_config.speichergroesse;
+    
                             f4 = f4 + f8;
                             if (iWeekhourWP[x3] > 0)
                                 x6++;
@@ -4077,8 +4081,8 @@ bDischarge = false;
             {
                 if (wetter[x2].solar == 0)
                     break;
-                if (wetter[x2].hourly>100)
-                    wetter[x2].hourly=wetter[x2].hourly/100;
+                if (wetter[x2].hourly>10)
+                    wetter[x2].hourly=wetter[x2].hourly/10;
 
                 if (e[x2].pp<e.begin()->pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
                 {
