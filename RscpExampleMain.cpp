@@ -4051,7 +4051,7 @@ bDischarge = false;
     {
         idauer = 0; // direkte Steuerung aus
         if (e3dc_config.wbmode == 0)
-            e3dc_config.wbmode = 4;
+            e3dc_config.wbmode = 3;
 
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = 0; // Höchstpreis
@@ -4105,13 +4105,27 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (fPower_WB==0)
+                if (fsoue<100-fBatt_SOC)
+                {
                     iFc = e3dc_config.maximumLadeleistung;
+                }
+                else
+                {
+                    if (fPower_Grid <-200)
+                        iFc = iFc- fPower_Grid - 100;
+                    else
+                    {
+                        if (iFc > 100)
+                            iFc = iFc - 10;
+                        else
+                            iFc = 0;
+                    }
+                }
             }
             else
             {
                 // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
-                if (e3dc_config.wbmode == 4)
+                if (e3dc_config.wbmode == 3)
                 {
                     if (fPower_WB==0)
                         e3dc_config.wbmode = 0;
@@ -4119,8 +4133,11 @@ bDischarge = false;
                         iAvalPower = -20000;
                         
                 }
-                iBattLoad = 0;
-                iFc = 0;
+                if (fBatt_SOC>5)  // mind. 5% Ladung erhalten
+                {
+                    iBattLoad = 0;
+                    iFc = 0;
+                }
             }
         }
         {   float fsoue = fBatt_SOC; // SoC
@@ -7266,7 +7283,7 @@ static void mainLoop(void)
                     }
 
                 }
-                mewp(w,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
+                mewp(w,e,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             }
             
             if (e3dc_config.debug) printf("M3\n");
@@ -7497,7 +7514,7 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 (Ermitteln_Statistik());
 
                 aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
@@ -7510,9 +7527,9 @@ static int iEC = 0;
                 while (wetter.size()==0)
                 sleep(1);
 
-                mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
-                    mewp(w,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                    mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }
             while (e3dc_config.test)
                 LoadDataProcess();
