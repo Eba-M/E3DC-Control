@@ -124,6 +124,7 @@ static u_int8_t btasmota_ch2 = 0; // Anforderung LWWP/PV-Anhebung 1=ww, 2=preis,
 #define sizeweekhour 24*7*4
 int weekhour    =  sizeweekhour+1;
 int dayhour     =   weekhour+1;
+int wbhour = dayhour+1; // täglicher Verbrauch Wallbox
 static float ftemp[1+96]; // Temperaturdiff Ist/Soll für die vergangenen 24h in 15min Intervall + Summe
 static u_int32_t iWeekhour[sizeweekhour+10]; // Wochenstatistik
 static u_int32_t iWeekhourWP[sizeweekhour+10]; // Wochenstatistik Wärmepumpe
@@ -2349,6 +2350,7 @@ int LoadDataProcess() {
                 if ((myt_alt%(24*3600))>(t%(24*3600)))
                 {
                     iWeekhour[dayhour] = 0;
+                    iWeekhour[wbhour] = 0;
                     iWeekhourWP[dayhour] = 0;
 
                 }
@@ -2479,6 +2481,7 @@ int LoadDataProcess() {
                 iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
             if (iWeekhour[dayhour] + j1>0)
                 iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
+            iWeekhour[dayhour] = iWeekhour[dayhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
         } else
         if (not e3dc_config.WP)
         {
@@ -6323,7 +6326,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     if (fsollGrid > e3dc_config.peakshave) fsollGrid = e3dc_config.peakshave;
                     if (x1 == 0) x1 = weekhour; else x1--;
                     if (x3 == dayhour) x3 = 0; else x3++;
-                    printf(" %0.3f/%0.3f/%0.3f %0.3f  %0.3fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0); // Tages Hausverbrauch
+                    printf(" %0.3f/%0.3f/%0.3f %0.3f  %0.3f %0.3fkWh",iWeekhour[x1]/900000.0,iWeekhour[x2]/900000.0,iWeekhour[x3]/900000.0,iWeekhour[weekhour]/f4/1000.0,iWeekhour[dayhour]/3600000.0,iWeekhour[wbhour]/3600000.0); // Tages Hausverbrauch
                     if (e3dc_config.peakshave>0)
                     {
                         printf("%c[K\n", 27 );

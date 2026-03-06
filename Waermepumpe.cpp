@@ -183,12 +183,14 @@ static int oldwsize = -1;
 
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
-int highprice(std::vector<watt_s> &w,int beginn)
+int highprice(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,int beginn)
 {
     float high = w[beginn].pp;
     int x2=beginn;
     for (int x1=beginn;x1<e.size();x1++)
     {
+        if (wetter[x1].solar>0)
+            break;
         if (e[x1].pp>high)
         {
             high = e[x1].pp;
@@ -582,6 +584,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     
                                 }
                                 fsoc = flowsoc[0];
+                                if (e3dc.DVWBkWh>0)
+                                {
+                                    fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                    fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                    fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
+                                }
+                                
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
                                     wet.x1 = x1;
@@ -623,7 +632,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             if (e3dc.DV)
                                             {
                                                 if (x1<e.size())
-                                                    wet.waermepreis = e[highprice(e,x1)].pp/wet.cop; // solarpreis = 10ct
+                                                    wet.waermepreis = e[highprice(e,wetter,x1)].pp/wet.cop; // solarpreis = 10ct
                                                 else
                                                     wet.waermepreis = w[x1].pp/wet.cop; // solarpreis = 10ct
                                             }
