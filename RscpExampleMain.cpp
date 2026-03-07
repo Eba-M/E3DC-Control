@@ -4114,12 +4114,17 @@ bDischarge = false;
             fsoue1 = fsoue1 + (100-fBatt_SOC);
             if (e3dc_config.DV)
                 printf("\nfsoue1 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue,iFc);
+            if (iFc > e3dc_config.maximumLadeleistung)
+            {
+                iFc = e3dc_config.maximumLadeleistung;
+                if (e3dc_config.DV)
+                    printf(" iFc %i",iFc);
+
+            }
             if (fsoue < fsoue1)  // angeforderte Kapazität zu niedrig
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (iFc > e3dc_config.maximumLadeleistung)
-                    iFc = e3dc_config.maximumLadeleistung;
                 if (fsoue>100-fBatt_SOC)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
