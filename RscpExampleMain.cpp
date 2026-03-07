@@ -515,6 +515,7 @@ bool GetConfig()
         e3dc_config.wurzelzaehler = 0;
         e3dc_config.DV = 0;
         e3dc_config.DVWBkWh = 0;
+        e3dc_config.DVmp = 0;  //Marktprämie
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
         e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
@@ -697,6 +698,8 @@ bool GetConfig()
                         e3dc_config.DV = atoi(value);
                     else if(strcmp(var, "dvwbkwh") == 0) // Direktvermakrtung
                         e3dc_config.DVWBkWh = atoi(value);
+                    else if(strcmp(var, "dvmp") == 0) // Direktvermakrtung Marktprämie
+                        e3dc_config.DVmp = atof(value);
                     else if(strcmp(var, "test") == 0)
                         e3dc_config.test = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
