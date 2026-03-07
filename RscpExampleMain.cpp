@@ -4112,6 +4112,8 @@ bDischarge = false;
             else
                 fsoue1 = 0;
             fsoue1 = fsoue1 + (100-fBatt_SOC);
+            if (e3dc_config.DV)
+                printf("fsoue1 %5.2f fsoue %5.2f ",fsoue1,fsoue);
             if (fsoue < fsoue1)  // angeforderte Kapazität zu niedrig
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
