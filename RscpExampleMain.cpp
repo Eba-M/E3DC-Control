@@ -4142,6 +4142,8 @@ bDischarge = false;
                         else
                             iFc = 0;
                     }
+                    if (iFc > e3dc_config.maximumLadeleistung)
+                        iFc = e3dc_config.maximumLadeleistung;
                 }
             }
             else
