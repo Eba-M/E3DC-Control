@@ -835,7 +835,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                         waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*e3dc.speichergroesse*.04;
                                                         bwwp = bwwp + wetter[wetter1[0].x1].wwwpbedarf*e3dc.speichergroesse*.04;
                                                         // Einsatz Heizstab Wärmepreis sind die Bezugskosten
-                                                        wetter1[0].waermepreis = wetter1[0].waermepreis/3*4;
+                                                        wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                        wetter1[0].cop = 3;
+                                                        wetter1[0].waermepreis = wetter1[0].waermepreis/wetter1[0].cop;
 
                                                         /*
                                                         if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+1/e3dc.speichergroesse*25
@@ -859,6 +861,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                                 wetter[wetter1[0].x1].heizstabbedarf =
                                                                 0.4/e3dc.speichergroesse*25;
                                                                 waermebedarf = (waermebedarf - 0.25); // 0.25 = 1kW
+                                                                wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
+                                                                wetter1[0].cop = 1;
+
                                                             }
                                                             else
                                                             {
@@ -873,7 +878,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                                 wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                             else
                                                                 wetter1[0].waermepreis = wetter1[0].waermepreis +
-                                                                wetter[wetter1[0].x1].heizstabbedarf*.0000000000001;
+                                                                wetter[wetter1[0].x1].heizstabbedarf*.001;
 
 
                                                             if (wetter[wetter1[0].x1].heizstabbedarf>9/e3dc.speichergroesse*25)
