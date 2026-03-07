@@ -4066,8 +4066,10 @@ bDischarge = false;
         int icount = 0;
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
         struct tm * ptm;
-        ptm = localtime(&t);
-        while (e.begin()->hh<t-900)
+        time_t rawtime;
+        time(&rawtime);
+        ptm = localtime(&rawtime);
+        while (e.begin()->hh<rawtime-900)
             e.erase(e.begin());
         for (int x2=1;x2<e.size();x2++)
         {
