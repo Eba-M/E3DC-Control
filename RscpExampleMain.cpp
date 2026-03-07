@@ -4118,7 +4118,7 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (fsoue<100-fBatt_SOC)
+                if (fsoue>100-fBatt_SOC)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
                 }
