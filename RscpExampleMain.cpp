@@ -3840,6 +3840,9 @@ bDischarge = false;
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
+    if (e3dc_config.DV)
+        printf("%.2f ",e.begin()->pp/10);
+
     if (e3dc_config.aWATTar>=0) printf("%.2f",fspreis);
     
 // PVon dynamischer Berechnung unter Ausnutzung des Rest SoC am Morgen
@@ -3852,7 +3855,6 @@ bDischarge = false;
         }
         else
             PVon = PVon*.9 + ((-iMinlade +  iPower_PV - iPowerHome- fPower_Grid+fPower_WB))/10;
-
 
     if (e3dc_config.WP&&fcop>0)
     {
