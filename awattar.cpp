@@ -1894,14 +1894,18 @@ int ladedauer = 0;
             return;
         }
 */
+
+//    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
+/*
+    std::vector<watt_s> * wattref;
+    wattref = &w;
+    std::vector<wetter_s> * wetterref;
+    wetterref = &wetter;
+*/
 if (e3dc.openmeteo)
 {
-//    openmeteo(w, e3dc, -1);  // allgemeine Wetterdaten einlesen wie Temperatur
-    for (int j=0;j<4;j++){
-        std::vector<watt_s> * wattref;
-        wattref = &w;
-        std::vector<wetter_s> * wetterref;
-        wetterref = &wetter;
+    for (int j=0;j<4;j++)
+    {
 
 //        std::thread  t1(openmeteo,&w,&wetter, &e3dc, j, &iDayStat[0]);
         int len = strlen(e3dc.Forecast[j]);
