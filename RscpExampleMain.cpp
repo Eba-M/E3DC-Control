@@ -4095,31 +4095,34 @@ bDischarge = false;
                     break;
                 if (wetter[x2].hourly>10)
                     wetter[x2].hourly=wetter[x2].hourly/10;
-
+                
                 if (e[x2].pp<e.begin()->pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
                 {
                     x1++;
                     if (wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf < 0)
                         
-// Heistabeinsatz nicht berücksichtigen
-//                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                    fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
+                        // Heistabeinsatz nicht berücksichtigen
+                        //                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
                     else
                     {
                         if (fsoue1<0)
-/*                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                        else
-                            fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-*/
+                        /*                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                         else
+                         fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                         */
                             fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
                         else
                             fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
-}
+                    }
                 }
             }
             if (fsoue1>0) fsoue = fsoue+fsoue1;
             if (bWBConnect) // Auto angesteckt
+            {
                 fsoue1 = ((e3dc_config.DVWBkWh-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
+                if (fsoue1<0) fsoue1=0;
+            }
             else
                 fsoue1 = 0;
             fsoue1 = fsoue1 + (100-fBatt_SOC);
@@ -7558,8 +7561,18 @@ static int iEC = 0;
                 std::thread t1(aWATT,&ch,1,&e3dc_config);
                 t1.join();
 */
+                int x1=0;
                 while (wetter.size()==0)
-                sleep(1);
+                {
+                    if (e3dc_config.debug)
+                        printf("Warten auf Wetterdaten\n");
+                        x1++;
+                    if (x1>10)
+                        break;
+                    sleep(1);
+                }
+                if (e3dc_config.debug)
+                    printf("Wetterdaten = %i \n",wetter.size());
 
                 mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
