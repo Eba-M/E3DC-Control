@@ -4120,8 +4120,14 @@ bDischarge = false;
             if (fsoue1>0) fsoue = fsoue+fsoue1;
             if (bWBConnect) // Auto angesteckt
             {
-                fsoue1 = ((e3dc_config.DVWBkWh-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
-                if (fsoue1<0) fsoue1=0;
+                fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
+                if (fsoue1<0)
+                {
+                    if (fPower_WB>0&&e3dc_config.DVWBkWh>0)
+                        fsoue1=1;  //Nachladen zulassen?
+                    else
+                        fsoue1=0;
+                }
             }
             else
                 fsoue1 = 0;
@@ -4139,7 +4145,7 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (fsoue>100-fBatt_SOC)
+                if (fsoue<100-fBatt_SOC)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
                 }

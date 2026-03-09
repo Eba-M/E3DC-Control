@@ -787,6 +787,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                             && wetter[wetter1[0].x1].hourly+f1>wetter[wetter1[0].x1].solar
                                                             && wetter1[0].status == 2 )
                                                         {
+                                                            if (not e3dc.DV)
                                                             wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
                                                             wetter1[0].status = 1;
                                                         }

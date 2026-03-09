@@ -1923,6 +1923,7 @@ if (e3dc.openmeteo)
                 t1.detach();
             }
         }
+        sleep(1);
 //        std::thread  t1(openmeteo);
 //        t1.detach();
 //        if (e3dc.debug) printf("openmeteo%i\n",j);
