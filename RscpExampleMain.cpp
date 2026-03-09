@@ -474,6 +474,7 @@ bool GetConfig()
         tm_CONF_dt = *(&stats.st_mtime);
         char var[128], value[128], line[256];
         strcpy(e3dc_config.server_ip, "0.0.0.0");
+        e3dc_config.server_port = 5033;
         strcpy(e3dc_config.heizstab_ip, "0.0.0.0");
         e3dc_config.heizstab_port = 502;
         strcpy(e3dc_config.heizung_ip, "0.0.0.0");
