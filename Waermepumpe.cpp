@@ -536,7 +536,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                         float flowsoc[3]= {0,0,0};
                         float fhighsoc[3] = {0,0,0};
                         int iindxsoc[3]= {0,0,0};
-                        time_t itime[2]= {0,0};
+                        time_t itime[3]= {0,0,0};
                         float fsoc = soc;
 /*
                         int z1 = 5;
@@ -569,7 +569,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         fsoc = 100;
                                     }
                                     if (fsoc<0) fsoc = 0;
-                                    if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
+                                    if (wetter[x1].solar<=1&&wetter[x1+1].solar>1||x1==w.size()-1)
                                     {
                                         flowsoc[x3] = fsoc;
                                         itime[x3] = wetter[x1].hh+3*3600;
@@ -725,7 +725,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                           wet.status == 1
                                                           &&
                                                           wetter[wetter1[0].x1].hh < itime[j1]
-                                                          
+                                                          &&
+                                                          wetter1[0].x1>iindxsoc[j1]-90
                                                           )
                                                          )
                                                         )
@@ -805,7 +806,6 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                         else
                                                             if (wet.status==1)
                                                             {
-                                                                
                                                                 wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
                                                                 wetter1[0].status = 0;
                                                             }
