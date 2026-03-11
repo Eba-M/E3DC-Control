@@ -694,7 +694,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         });
                                         {
                                             wet = wetter1[0];
-                                            
+                                            ptm = localtime(&wetter[wetter1[0].x1].hh);
                                             float av = e3dc.WPLeistung/(wetter[wetter1[0].x1].cop);  // Power bei WP NennLeistung
                                             float leistung = e3dc.WPmin;
                                             float diffleistung = av - leistung;
@@ -1104,7 +1104,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
              if (e3dc.openmeteo)
              {
                  if (e3dc.AWSimulation == 1)
-                     sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                 {
+                     if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
+                         sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                     else
+                         sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                 }
                  else
                      sprintf(line,"%0.2f %0.3f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt));
              }
@@ -1126,7 +1131,11 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             for (int j = 0;j<w.size();j++)
                 if (e3dc.openmeteo)
                 {
-                    fprintf(fp,"%5.2f %0.3f %0.2f %0.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                    ptm=localtime(&w[j].hh);
+                    if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
+                        fprintf(fp,"%5.2f %0.3f %0.2f %0.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                    else
+                        fprintf(fp,"%5.2f %0.3f %0.2f %0.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
                         fprintf(fp," %0.1f",wetter[j].wwwpbedarf*e3dc.speichergroesse*.04);
                     if (e3dc.WPWolf&&wetter[j].heizstabbedarf>0)
