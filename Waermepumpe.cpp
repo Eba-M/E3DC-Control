@@ -1146,8 +1146,47 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 else
                     fprintf(fp,"%i %0.3f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
 
-         fclose(fp);
-         fclose(fp1);
+            if (e3dc.DV)
+            {
+                fclose(fp);
+                fp = fopen("dv.txt","w");
+                for (int j = 0;j<e.size();j++)
+                {
+                    float fsoue = 0; // solarer überschuss
+                    float fsoue1 = 0; // solare Unterdeckung?
+
+                    for (int x2=j+1;x2<e.size();x2++)
+                {
+                    if (wetter[x2].solar == 0)
+                        break;
+                    if (wetter[x2].hourly>10)
+                        wetter[x2].hourly=wetter[x2].hourly/10;
+                    
+                    if (e[x2].pp<e[j].pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
+                    {
+                        if (wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf < 0)
+                            
+                            // Heistabeinsatz nicht berücksichtigen
+                            //                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
+                        else
+                        {
+                            if (fsoue1<0)
+                            /*                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                             else
+                             fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                             */
+                                fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
+                            else
+                                fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf;
+                        }
+                    }
+                }
+                    fprintf(fp,"%0.3f %0.3f %0.2f \n",((e[j].hh%(24*3600))/3600.0),e[j].pp/10,fsoue);
+                }
+            }
+            fclose(fp);
+            fclose(fp1);
 if (e3dc.debug) printf("NWS2\n");
             if (strlen(e3dc.analyse)>0)
                 e3dc.stop = 99;
