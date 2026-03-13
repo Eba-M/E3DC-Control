@@ -4064,7 +4064,7 @@ bDischarge = false;
     {
         idauer = 0; // direkte Steuerung aus
         if (e3dc_config.wbmode == 0)
-            e3dc_config.wbmode = 3;
+            e3dc_config.wbmode = 5;
 
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = 0; // Höchstpreis
@@ -4170,7 +4170,7 @@ bDischarge = false;
             else
             {
                 // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
-                if (e3dc_config.wbmode == 3)
+                if (e3dc_config.wbmode == 5)
                 {
                     if (fPower_WB>0)
                         iAvalPower = -20000;
