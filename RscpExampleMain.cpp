@@ -3657,7 +3657,10 @@ int LoadDataProcess() {
                 break; // Speicher sperren
             case 5: ret = 3; break; // Ins Netz Entladen
         }
-        printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
+        if (wetter[0].heizstabbedarf>0)
+            printf("ret = %i %0.2f %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,wetter[0].heizstabbedarf,27);
+        else
+            printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
 
         if  ((ret == 2)&&
