@@ -2479,13 +2479,13 @@ int LoadDataProcess() {
             j1 = (iPowerHome-fPower_openWB)*(t-myt_alt);
         if (j1 > 100000||j1<0)
             j1 = 0;
+        iWeekhour[wbhour] = iWeekhour[wbhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
         if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             if (iWeekhour[weekhour] + j1>0)
                 iWeekhour[weekhour] = iWeekhour[weekhour] + j1;
             if (iWeekhour[dayhour] + j1>0)
                 iWeekhour[dayhour] = iWeekhour[dayhour] + j1;
-            iWeekhour[wbhour] = iWeekhour[wbhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
         } else
         if (not e3dc_config.WP)
         {
