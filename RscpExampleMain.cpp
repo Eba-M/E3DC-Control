@@ -7320,7 +7320,7 @@ static void mainLoop(void)
             {
                 if ((ptm->tm_min%15==3&&ptm->tm_sec==0)||(w.begin()->hh!=wetter.begin()->hh))
                     DateienSichern();
-                if (w.begin()->hh!=wetter.begin()->hh)
+                if (w.size()>0&&wetter.size()>0&&w.begin()->hh!=wetter.begin()->hh)
                 {
                     if (w.begin()->hh>wetter.begin()->hh)
                     {
