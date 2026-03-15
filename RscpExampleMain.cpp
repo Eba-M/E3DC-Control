@@ -3658,7 +3658,7 @@ int LoadDataProcess() {
             case 5: ret = 3; break; // Ins Netz Entladen
         }
         if (wetter[0].heizstabbedarf>0)
-            printf("ret = %i %0.2f %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,wetter[0].heizstabbedarf,27);
+            printf("ret = %i %0.2f %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,wetter[0].heizstabbedarf*.8,27);
         else
             printf("ret = %i %0.2f %0.2f %c[K",ret,wetter[0].waerme,wetter[0].wpbedarf*.8,27);
         if (e3dc_config.debug) printf("\nD7 %i ",ret);
@@ -3844,7 +3844,7 @@ bDischarge = false;
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
-    if (e3dc_config.DV)
+    if (e3dc_config.DV&&e.size()>0)
         printf("%.2f ",e.begin()->pp/10);
 
     if (e3dc_config.aWATTar>=0) printf("%.2f",fspreis);
