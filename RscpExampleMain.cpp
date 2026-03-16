@@ -22,6 +22,7 @@
 #include <iostream>
 #include <thread>
 #include <fcntl.h>
+#include <csignal>
 
 
 // for convenience test4
@@ -109,12 +110,13 @@ static int32_t iE3DC_Req_Load,iE3DC_Req_Load_alt,iE3DC_Req_LoadMode=0; // Leistu
 float_t WWTemp; // Warmwassertemperatur
 static float fht; // Reserve aus ht berechnet
 // in der Simulation wird der höchste Peakwert hochgerechnet
-// 
+//
 int forecastpeaktime;  //
 float forecastpeak;    //
 float fpeakshaveminsoc; // Wenn peakshave dann wird hier der MindestSoc im Tagesverlauf berechnet
 // am Morgen, d.h. sonnenaufgang + zeitversatz aus unload mit ziel 50% bei Sonnenuntergang - Zeitversatz unload. Wird der wert unterschritten, wird das entladen gestoppt, ist er um 10% unterschritten wird aus dem Netz geladen, soweit der Netzbezug unter peakshave liegt.
 float fpeakshaveendsoc;
+
 // Ziel-Soc bis zu dieser Grenze darf entladen werden
 // Bei gerigem Ertrag wird dieser verdoppelt  = n x Peakshavesoc
 // hohen Ertrag wird dieser bis auf 5% herabgesetzt d.h. halbiert
@@ -152,6 +154,18 @@ avl_array<uint16_t, uint16_t, std::uint16_t, 10, true> oek; // array mit 10 Eint
 
 e3dc_config_t e3dc_config;
 
+// Globale Variablen für erweiterten JSON-Export
+static float fDC_Power[3] = {0, 0, 0};
+static float fDC_Voltage[3] = {0, 0, 0};
+static float fDC_Current[3] = {0, 0, 0};
+static float fAC_Power[3] = {0, 0, 0};
+static float fAC_Voltage[3] = {0, 0, 0};
+static float fAC_Current[3] = {0, 0, 0};
+static float fGrid_Power_L1 = 0, fGrid_Power_L2 = 0, fGrid_Power_L3 = 0;
+static float fWB_Power_L1 = 0, fWB_Power_L2 = 0, fWB_Power_L3 = 0;
+static float fBat_Voltage = 0, fBat_Current = 0;
+static float fBat_Voltage_1 = 0, fBat_Current_1 = 0;
+
 float fLadeende = e3dc_config.ladeende;
 float fLadeende2 = e3dc_config.ladeende2;
 float fLadeende3 = e3dc_config.unload;
@@ -187,6 +201,71 @@ static time_t t,t_alt;
 static time_t tm_CONF_dt;
 static bool bCheckConfig;
 struct tm * ptm;
+
+// Signal Handler für Systemd (Graceful Shutdown)
+void handle_sigterm(int signum) {
+    printf("\n[SIGTERM/SIGINT] Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n");
+    e3dc_config.stop = 1;
+}
+
+// Generiert ein sauberes JSON für externe Smart-Home / Web-Anwendungen
+void WriteLiveJSON() {
+    cJSON *root = cJSON_CreateObject();
+    if (root == NULL) return;
+    
+    cJSON_AddNumberToObject(root, "PV_Power", iPower_PV);
+    cJSON_AddNumberToObject(root, "Grid_Power", fPower_Grid);
+    cJSON_AddNumberToObject(root, "Battery_Power", iPower_Bat);
+    cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
+    cJSON_AddNumberToObject(root, "SOC", fBatt_SOC);
+    cJSON_AddNumberToObject(root, "Wallbox_Power", fPower_WB);
+    
+    // --- Erweiterte Details (Strings, Phasen, Spannungen) ---
+    cJSON_AddNumberToObject(root, "bat_v", fBat_Voltage);
+    cJSON_AddNumberToObject(root, "bat_a", fBat_Current);
+    cJSON_AddNumberToObject(root, "bat1_v", fBat_Voltage_1);
+    cJSON_AddNumberToObject(root, "bat1_a", fBat_Current_1);
+    
+    cJSON_AddNumberToObject(root, "dc0_w", fDC_Power[0]);
+    cJSON_AddNumberToObject(root, "dc0_v", fDC_Voltage[0]);
+    cJSON_AddNumberToObject(root, "dc0_a", fDC_Current[0]);
+    cJSON_AddNumberToObject(root, "dc1_w", fDC_Power[1]);
+    cJSON_AddNumberToObject(root, "dc1_v", fDC_Voltage[1]);
+    cJSON_AddNumberToObject(root, "dc1_a", fDC_Current[1]);
+    
+    cJSON_AddNumberToObject(root, "ac0_w", fAC_Power[0]);
+    cJSON_AddNumberToObject(root, "ac0_v", fAC_Voltage[0]);
+    cJSON_AddNumberToObject(root, "ac0_a", fAC_Current[0]);
+    cJSON_AddNumberToObject(root, "ac1_w", fAC_Power[1]);
+    cJSON_AddNumberToObject(root, "ac1_v", fAC_Voltage[1]);
+    cJSON_AddNumberToObject(root, "ac1_a", fAC_Current[1]);
+    cJSON_AddNumberToObject(root, "ac2_w", fAC_Power[2]);
+    cJSON_AddNumberToObject(root, "ac2_v", fAC_Voltage[2]);
+    cJSON_AddNumberToObject(root, "ac2_a", fAC_Current[2]);
+    
+    cJSON_AddNumberToObject(root, "grid_p1", fGrid_Power_L1);
+    cJSON_AddNumberToObject(root, "grid_p2", fGrid_Power_L2);
+    cJSON_AddNumberToObject(root, "grid_p3", fGrid_Power_L3);
+    
+    cJSON_AddNumberToObject(root, "wb_p1", fWB_Power_L1);
+    cJSON_AddNumberToObject(root, "wb_p2", fWB_Power_L2);
+    cJSON_AddNumberToObject(root, "wb_p3", fWB_Power_L3);
+    cJSON_AddBoolToObject(root, "wb_locked", bWBConnect);
+    cJSON_AddNumberToObject(root, "wb_mode", e3dc_config.wbmode);
+
+    char *json_string = cJSON_PrintUnformatted(root);
+    if (json_string != NULL) {
+        // Atomares Schreiben: Verhindert Lese-Fehler externer Programme
+        FILE *fp = fopen("/var/www/html/ramdisk/live_data.tmp", "w");
+        if(fp) {
+            fputs(json_string, fp);
+            fclose(fp);
+            rename("/var/www/html/ramdisk/live_data.tmp", "/var/www/html/ramdisk/live_data.json");
+        }
+        cJSON_free(json_string);
+    }
+    cJSON_Delete(root);
+}
 
 void DateienSichern()
 {
@@ -1167,7 +1246,7 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
 
     }
 */
-    if (brequest) 
+    if (brequest)
     {
         printf(" len %i ",iLength);
         return iLength;
@@ -1936,7 +2015,7 @@ int shelly_get(){
     char path[1024];
     
     fp = NULL;
-    if (shellytimer < t) 
+    if (shellytimer < t)
     {
         sprintf(line,"curl -s -X GET 'http://%s/rpc/Light.GetStatus?id=0'",e3dc_config.shelly0V10V_ip);
         fp = popen(line, "r");
@@ -2546,7 +2625,7 @@ int LoadDataProcess() {
             w_alt = wetter[0];
     }
     
-    if (fDCDC > high.fah) 
+    if (fDCDC > high.fah)
     {
         high.fah = fDCDC;
         high.fsoc = fBatt_SOC;
@@ -2554,7 +2633,7 @@ int LoadDataProcess() {
         high.fcurrent = fCurrent;
         high.t = t;
     };
-    if (fDCDC < low.fah) 
+    if (fDCDC < low.fah)
     {
         low.fah = fDCDC;
         low.fsoc = fBatt_SOC;
@@ -2653,7 +2732,7 @@ int LoadDataProcess() {
                  (e3dc_config.BWWPon>e3dc_config.BWWPoff&&
                   (e3dc_config.BWWPon*3600<t%(24*3600)||e3dc_config.BWWPoff*3600>t%(24*3600)))
                 )
-               )                 
+               )
                 ||
 // BWWP bei PV Überschuss laufen lassen
                 (PVon>e3dc_config.WPPVon&&temp[13]<e3dc_config.BWWPmax*10-10)
@@ -2670,7 +2749,7 @@ int LoadDataProcess() {
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
         if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
         {
-            if 
+            if
                 (temp[17]==1&&
                     (temp[19]==4||
                         (temp[18]>400)
@@ -2751,7 +2830,7 @@ int LoadDataProcess() {
                 // FBH zwischen Sonnenaufgang+1h und nach 12h Laufzeit ausschalten
 //                    bHK1off = 0;
 
-                if 
+                if
                 (
                     (
                      (m1 > (sunriseAt+60)||PVon>e3dc_config.WPPVon)
@@ -2811,7 +2890,7 @@ int LoadDataProcess() {
                 if (e3dc_config.WPWolf&&(fPVtoday>fPVSoll||bHK2off==0)) // Steuerung, wenn ausreichend PV-Überschuss zu erwarten ist HK2 muss laufen
                 {
 // Nur hochsetzen, wenn die WP läuft
-                    if (not bHK1off 
+                    if (not bHK1off
                         && temp[1]>0
                         && temp[6]>0
                         && temp[4]<(iWPHK1max)
@@ -2834,7 +2913,7 @@ int LoadDataProcess() {
                         iLength  = iModbusTCP_Get(12,1,12); //FBH?
                         if (iLength>0 )
                             HK1_t = t;
-                        else 
+                        else
                             HK1_t++;
                         brequest = true;
 
@@ -2846,7 +2925,7 @@ int LoadDataProcess() {
                         (
                          // Wenn die Puffertemperatur > 5K als die FBH ist muss bei mangelnder Sonne die FBH nicht heruntergeschaltet werden.
                          
-                         ((bHK1off 
+                         ((bHK1off
                            ||m1 > (sunsetAt+60)
                            ||m1 < (sunriseAt)
                            ||
@@ -2933,7 +3012,7 @@ int LoadDataProcess() {
                     
                     
                 
-            } 
+            }
 /*            else
             {
 // Heizung bei niedrigen AT dauerhaft betreiben
@@ -3024,7 +3103,7 @@ int LoadDataProcess() {
                                         {
                                             ALV--;
                                             if (ALV < e3dc_config.shelly0V10Vmin)
-                                            { 
+                                            {
                                                 if(fkostensoll>e3dc_config.WPZWEPVon+.2)
                                                 {
                                                 btasmota_ch1 ^= 16;
@@ -3893,7 +3972,7 @@ bDischarge = false;
 // Überwachungszeitraum für das Überschussladen übschritten und Speicher > Ladeende
 // Dann wird langsam bis Abends der Speicher bis 93% geladen und spätestens dann zum Vollladen freigegeben.
     static float soc_alt = 100;
-    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3-1&&e3dc_config.unload >= 0) 
+    if (t < tLadezeitende3&&fBatt_SOC>fLadeende3-1&&e3dc_config.unload >= 0)
     {
         //            tLadezeitende = tLadezeitende3;
         // Vor Regelbeginn. Ist der SoC > fLadeende3 wird entladen
@@ -4573,7 +4652,7 @@ bDischarge = false;
                                             //                                if (fcurrentGrid>e3dc_config.peakshave&&fsollGrid<fPower_Grid)
                                             iFc = iBattLoad - fcurrentGrid + fsollGrid - fPower_Grid + fsollGrid;
                                     
-                                } else 
+                                } else
                                 {
                                     if (fpeakshaveminsoc-4 > fBatt_SOC&&f[2]>0)
 // Das Nachladen geschieht nur wenn Netzbezug besteht und auch der Master nachlädt
@@ -5031,7 +5110,7 @@ bDischarge = false;
         if (tasmota_status[3] == 0) printf("WW:OFF ");
         if (tasmota_status[3] == 1) printf("WW:ON ");
         if (tasmota_status[1] == 0) printf("PV:OFF ");
-        if (tasmota_status[1] == 1) 
+        if (tasmota_status[1] == 1)
             printf("PV:ON%i ",btasmota_ch2);
         printf("%i %i %i %2.2f°",PVon,t_alt-wpontime,t_alt-wpofftime,isttemp);
     }
@@ -5117,6 +5196,10 @@ bDischarge = false;
 //    system(buffer);
     }
     t_alt = t_sav;
+    
+    // JSON Status in die RAM-Disk für das Webportal / MQTT schreiben
+    WriteLiveJSON();
+    
     return 0;
 }
 int WBProcess(SRscpFrameBuffer * frameBuffer) {
@@ -5926,7 +6009,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
-            if (iE3DC_Req_Load==0) 
+            if (iE3DC_Req_Load==0)
                 Mode = 1;
             else
             if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
@@ -5935,7 +6018,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
                 Mode = 4;  // Steuerung Netzbezug Anforderung durch den Betrag > e3dc_config.maximumLadeleistung
             }
             else
-            if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0; 
+            if (iE3DC_Req_Load==e3dc_config.maximumLadeleistung) Mode = 0;
             else
             if (iE3DC_Req_Load>0) Mode = 3;
             else
@@ -5969,6 +6052,16 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         protocol.appendValue(&rootValue, batteryContainer);
         // free memory of sub-container as it is now copied to rootValue
         protocol.destroyValueData(batteryContainer);
+        
+        // request second battery information
+        SRscpValue batteryContainer2;
+        protocol.createContainerValue(&batteryContainer2, TAG_BAT_REQ_DATA);
+        protocol.appendValue(&batteryContainer2, TAG_BAT_INDEX, (uint8_t)1);
+        protocol.appendValue(&batteryContainer2, TAG_BAT_REQ_RSOC);
+        protocol.appendValue(&batteryContainer2, TAG_BAT_REQ_MODULE_VOLTAGE);
+        protocol.appendValue(&batteryContainer2, TAG_BAT_REQ_CURRENT);
+        protocol.appendValue(&rootValue, batteryContainer2);
+        protocol.destroyValueData(batteryContainer2);
         
         // request Power Meter information
         uint8_t uindex = e3dc_config.wurzelzaehler;
@@ -6353,20 +6446,25 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 break;
             }
             case TAG_BAT_RSOC: {              // response for TAG_BAT_REQ_RSOC
-                if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
-                fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
-//                printf("Battery SOC %0.02f%% ", fBatt_SOC);
-                printf("SOC %0.02f%% ", fBatt_SOC);
+                if (ucBatteryIndex == 0) {
+                    if (abs(fBatt_SOC - protocol->getValueAsFloat32(&batteryData[i]))<1)
+                        fBatt_SOC = protocol->getValueAsFloat32(&batteryData[i]);
+                    printf("SOC %0.02f%% ", fBatt_SOC);
+                }
                 break;
             }
             case TAG_BAT_MODULE_VOLTAGE: {    // response for TAG_BAT_REQ_MODULE_VOLTAGE
                 fVoltage = protocol->getValueAsFloat32(&batteryData[i]);
+                if (ucBatteryIndex == 0) fBat_Voltage = fVoltage;
+                else if (ucBatteryIndex == 1) fBat_Voltage_1 = fVoltage;
                 printf(" %0.1fV ", fVoltage);
                 break;
             }
             case TAG_BAT_CURRENT: {    // response for TAG_BAT_REQ_CURRENT
                 float fCurrent = protocol->getValueAsFloat32(&batteryData[i]);
                 fPower_Bat = fVoltage*fCurrent;
+                if (ucBatteryIndex == 0) fBat_Current = fCurrent;
+                else if (ucBatteryIndex == 1) fBat_Current_1 = fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
                 if (e3dc_config.statistik)
                 {
@@ -6462,15 +6560,18 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         fPower1 = protocol->getValueAsDouble64(&PMData[i]);
+                        if (ucPMIndex == e3dc_config.wurzelzaehler) fGrid_Power_L1 = fPower1;
                         printf("#%u %0.1fW ", ucPMIndex,fPower1);
                         break;
                     }
                     case TAG_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
                         fPower2 = protocol->getValueAsDouble64(&PMData[i]);
+                        if (ucPMIndex == e3dc_config.wurzelzaehler) fGrid_Power_L2 = fPower2;
                         break;
                     }
                     case TAG_PM_POWER_L3: {              // response for TAG_PM_REQ_L3
                         fPower3 = protocol->getValueAsDouble64(&PMData[i]);
+                        if (ucPMIndex == e3dc_config.wurzelzaehler) fGrid_Power_L3 = fPower3;
                         if ((fPower2+fPower3)||0){
                         printf("%0.1fW %0.1fW ", fPower2, fPower3);
                         printf("#%0.1fW ", fPower1+fPower2+fPower3);
@@ -6572,6 +6673,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
+                                if (index >= 0 && index < 3) fAC_Power[index] = fPower;
+                                if (index >= 0 && index < 3) fDC_Power[index] = fPower;
                                 printf("DC%u %0.0f W ", index, fPower);
 
                             }
@@ -6592,6 +6695,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
+                                if (index >= 0 && index < 3) fDC_Voltage[index] = fPower;
                                 printf(" %0.0f V", fPower);
                                 
                             }
@@ -6612,6 +6716,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             else if (container[n].tag == TAG_PVI_VALUE)
                             {
                                 float fPower = protocol->getValueAsFloat32(&container[n]);
+                                if (index >= 0 && index < 3) fDC_Current[index] = fPower;
 //                                printf(" %0.2f A \n", fPower);
                                 printf(" %0.2f A ", fPower);
 
@@ -6655,6 +6760,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                 else if (container[n].tag == TAG_PVI_VALUE)
                                                 {
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
+                                                    if (index >= 0 && index < 3) fAC_Voltage[index] = fPower;
                                                     printf(" %0.0fV", fPower);
                                                     
                                                 }
@@ -6675,6 +6781,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                                                 else if (container[n].tag == TAG_PVI_VALUE)
                                                 {
                                                     float fPower = protocol->getValueAsFloat32(&container[n]);
+                                                    if (index >= 0 && index < 3) fAC_Current[index] = fPower;
                     //                                printf(" %0.2f A \n", fPower);
                                                     printf(" %0.2fA ", fPower);
                                                     if (index == 2) printf("# %0.0fW",fGesPower);
@@ -6746,18 +6853,21 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                     }
                     case TAG_WB_PM_POWER_L1: {              // response for TAG_PM_REQ_L1
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
+                        fWB_Power_L1 = fPower;
                         printf("\nWB is %0.1f W", fPower);
                         fPower_WB = fPower;
                         break;
                     }
                     case TAG_WB_PM_POWER_L2: {              // response for TAG_PM_REQ_L2
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
+                        fWB_Power_L2 = fPower;
                         printf(" %0.1f W", fPower);
                         fPower_WB = fPower_WB + fPower;
                         break;
                     }
                     case TAG_WB_PM_POWER_L3: {              // response for TAG_PM_REQ_L3
                         float fPower = protocol->getValueAsDouble64(&PMData[i]);
+                        fWB_Power_L3 = fPower;
                         printf(" %0.1f W", fPower);
                         fPower_WB = fPower_WB + fPower;
                         printf(" Total %0.1f W", fPower_WB);
@@ -7476,10 +7586,14 @@ int main(int argc, char *argv[])
 printf("Program Start Version:",VERSION);
 printf("%s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/60,tm_CONF_dt%60);
 
+// Systemd Signals registrieren für sauberes Beenden
+signal(SIGTERM, handle_sigterm);
+signal(SIGINT, handle_sigterm);
 
  for (int i=1; i < argc; i++)
  {
      // Ausgabe aller Parameter
+
      printf(" %i %s",i,argv[i]);
      // Auf speziellen Parameter prüfen
      if((strcmp(argv[i], "-config") == 0)||(strcmp(argv[i], "-conf") == 0)||(strcmp(argv[i], "-c") == 0))
@@ -7613,7 +7727,7 @@ static int iEC = 0;
 
         printf("Connecting to server %s:%i\n", e3dc_config.server_ip, e3dc_config.server_port);
         iSocket = SocketConnect(e3dc_config.server_ip, e3dc_config.server_port);
-        if(iSocket < 0) 
+        if(iSocket < 0)
         {
             printf("Connection failed\n");
             sleep(1);
