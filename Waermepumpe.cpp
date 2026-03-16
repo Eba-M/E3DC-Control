@@ -1106,7 +1106,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                  if (e3dc.AWSimulation == 1)
                  {
                      if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
-                         sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                         sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                      else
                          sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                  }
@@ -1133,9 +1133,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 {
                     ptm=localtime(&w[j].hh);
                     if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
-                        fprintf(fp,"%5.2f %0.3f %0.2f %0.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                        fprintf(fp,"%5.2f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     else
-                        fprintf(fp,"%5.2f %0.3f %0.2f %0.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                        fprintf(fp,"%5.2f %6.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
                         fprintf(fp," %0.1f",wetter[j].wwwpbedarf*e3dc.speichergroesse*.04);
                     if (e3dc.WPWolf&&wetter[j].heizstabbedarf>0)
@@ -1146,7 +1146,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 else
                     fprintf(fp,"%i %0.3f %0.2f %0.2f %0.2f  \n",((w[j].hh%(24*3600))/3600),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar);
 
-            if (e3dc.DV)
+            if (e3dc.DV&&e.size()>0)
             {
                 fclose(fp);
                 fp = fopen("dv.txt","w");
@@ -1197,7 +1197,7 @@ if (e3dc.debug) printf("NWS2\n");
             {
                 sprintf(line,"cp awattardebug.txt awattardebug.%i.txt",ptm->tm_hour);
                 system(line);
-                if (ptm->tm_hour==0)
+                if (e3dc.DV&&ptm->tm_hour==0)
                 {
                     sprintf(line,"cp dv.txt dv.%i.txt",ptm->tm_mday);
                     system(line);

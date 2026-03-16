@@ -4127,10 +4127,22 @@ bDischarge = false;
                 fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
                 if (fsoue1<0)
                 {
-                    if (fPower_WB>0&&e3dc_config.DVWBkWh>0)
-                        fsoue1=1;  //Nachladen zulassen?
+                    if (fPower_WB>0)
+                    {
+                        if (e3dc_config.DVWBkWh>0)
+                            fsoue1=1;  //Nachladen zulassen?
+                        else
+                        {
+                            fsoue1=0;
+                            iAvalPower = -20000;
+                            
+                        }
+                    }
                     else
-                        fsoue1=0;
+                    {
+                        if (e3dc_config.DVWBkWh<0)
+                            e3dc_config.wbmode = 0;
+                    }
                 }
             }
             else
@@ -6385,8 +6397,10 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                         int x4 = (t+900)%(24*3600)/900+2;
                         printf(" WB %0.02f %0.02f %0.02f %0.02f %0.02f",waermebedarf,waermebedarf-float(iHeatStat[1]/3600000.0),float(iHeatStat[x4]/900000.0),float(iHeatStat[x2]/900000.0),float(iHeatStat[0])/(t%900+1)/1000);
 // Bei negativen Wärmebilanz oder wenn Pellets an, wird die Bilanz zurückgesetzt
-                        if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0||temp[17]==1)
-//                            iHeatStat[1]=waermebedarf/96*w.size()*3600000*-1;
+                        if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0
+                            ||
+                            (temp[17]==1&&temp[19]==4)
+                            )
                             iHeatStat[1]=0;
                         if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.2)
                             iHeatStat[1]=waermebedarf*-20*36000;  // wärmebedarf korrektur auf 20%
