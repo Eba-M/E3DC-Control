@@ -4205,17 +4205,19 @@ bDischarge = false;
                 }
             }
             if (fsoue1>0) fsoue = fsoue+fsoue1;
+// Wenn das Auto angesteckt ist, wird anteilig der Speicher und das Auto geladen
+// Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
             if (bWBConnect) // Auto angesteckt
             {
                 fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
-                if (fsoue1<0)
+                if (fsoue1<0) // Mehr geladen als geplant
                 {
                     if (fPower_WB>0)
                     {
                         if (e3dc_config.DVWBkWh>0)
                             fsoue1=1;  //Nachladen zulassen?
                         else
-                        {
+                        {  // Autoladen abschalten
                             fsoue1=0;
                             if  (e3dc_config.DVWBkWh<0&&e3dc_config.wbmode==5)
                                 iAvalPower = -20000;
@@ -4223,7 +4225,7 @@ bDischarge = false;
                         }
                     }
                     else
-                    {
+                    { // Scharf abschalten
                         if (e3dc_config.DVWBkWh<0&&e3dc_config.wbmode==5)
                             e3dc_config.wbmode = 0;
                     }
@@ -4231,7 +4233,8 @@ bDischarge = false;
             }
             else
                 fsoue1 = 0;
-            fsoue1 = fsoue1 + (100-fBatt_SOC);
+            if (fsoue1>0)  fsoue1 = fsoue1+ (100-fBatt_SOC);
+            else fsoue1 = (100-fBatt_SOC);
             if (e3dc_config.DV)
                 printf("\nfsoue1 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue,iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
@@ -4241,10 +4244,22 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
-            if (fsoue < fsoue1)  // angeforderte Kapazität zu niedrig
+            if (fsoue1 > fsoue) 
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
+                float fsoue2 = 0;
+                int x2;
+                for (x2=0;x2<e.size()&&fsoue2<fsoue1;x2++)
+                {
+                    if (wetter[x2].solar>0&&e[x2].pp<e.begin()->pp)
+                    fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                }
+                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.ladeende2=100;
+                e3dc_config.ladeende=100;
+
                 if (fsoue<100-fBatt_SOC)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
