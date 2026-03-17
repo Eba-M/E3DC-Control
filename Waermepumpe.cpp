@@ -1183,7 +1183,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     }
                 }
 //                    fprintf(fp,"%5.2f %7.3f %6.3f \n",((e[j].hh%(24*3600))/3600.0),e[j].pp/10,fsoue);
-                    fprintf(fp,"%5.2f %7.3f %6.3f \n",((e[j].hh%(24*3600))/3600.0),e[j].pp/10,fsoue*e3dc.speichergroesse/100.);
+                    fprintf(fp,"%5.2f %7.3f %7.3f %7.3f \n",((e[j].hh%(24*3600))/3600.0),e[j].pp/10,fsoue,fsoue*e3dc.speichergroesse/100.);
                 }
             }
             fclose(fp);

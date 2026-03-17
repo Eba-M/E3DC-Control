@@ -3941,7 +3941,7 @@ bDischarge = false;
 
     if (e3dc_config.WP&&fcop>0)
     {
-        printf(" %.2f %.2f",fspreis/fcop,fcop);
+        printf(" %.2f %.2f ",fspreis/fcop,fcop);
         // LWWP  auf PV Anhebung schalten
         
         
