@@ -6470,7 +6470,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                 if (ucBatteryIndex == 0) fBat_Current = fCurrent;
                 else if (ucBatteryIndex == 1) fBat_Current_1 = fCurrent;
                 printf(" %0.02fA %0.02fW", fCurrent,fPower_Bat);
-                if (e3dc_config.statistik)
+                if (e3dc_config.statistik&&ucBatteryIndex == 0)
                 {
                     int x1 = (t_alt%(24*7*4*900))/900;
                     int x2 = (t_alt%(24*7*4*900))/900;
