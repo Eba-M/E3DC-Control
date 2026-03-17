@@ -202,11 +202,6 @@ static time_t tm_CONF_dt;
 static bool bCheckConfig;
 struct tm * ptm;
 
-// Signal Handler für Systemd (Graceful Shutdown)
-void handle_sigterm(int signum) {
-    printf("\n[SIGTERM/SIGINT] Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n");
-    e3dc_config.stop = 1;
-}
 
 // Generiert ein sauberes JSON für externe Smart-Home / Web-Anwendungen
 void WriteLiveJSON() {
@@ -320,6 +315,15 @@ void DateienSichern()
     PutWallbox(ch);
 
 }
+
+// Signal Handler für Systemd (Graceful Shutdown)
+void handle_sigterm(int signum) {
+    printf("\n[SIGTERM/SIGINT/SIGHUP] Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n");
+    DateienSichern();
+//    e3dc_config.stop = 1;
+}
+
+
 int MQTTsend(char host[20],char buffer[127])
 
 {
@@ -7589,6 +7593,7 @@ printf("%s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/6
 // Systemd Signals registrieren für sauberes Beenden
 signal(SIGTERM, handle_sigterm);
 signal(SIGINT, handle_sigterm);
+signal(SIGHUP, handle_sigterm);
 
  for (int i=1; i < argc; i++)
  {
