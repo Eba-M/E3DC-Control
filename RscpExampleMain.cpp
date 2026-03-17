@@ -319,8 +319,8 @@ void DateienSichern()
 // Signal Handler für Systemd (Graceful Shutdown)
 void handle_sigterm(int signum) {
     printf("\n[SIGTERM/SIGINT/SIGHUP] Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n");
-    DateienSichern();
-//    e3dc_config.stop = 1;
+//    DateienSichern();
+    e3dc_config.stop = 1;
 }
 
 
