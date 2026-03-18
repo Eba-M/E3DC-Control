@@ -1148,8 +1148,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 
             if (e3dc.DV&&e.size()>0)
             {
-                fclose(fp);
-                fp = fopen("dv.txt","w");
+//                fclose(fp);
+//                fp = fopen("dv.txt","w");
+                fprintf(fp,"\n\n DV \n\n");
                 float fsoue2 = 0; // Summe solarer überschuss
                 for (int j = 0;j<e.size();j++)
                 {
@@ -1197,12 +1198,12 @@ if (e3dc.debug) printf("NWS2\n");
             {
                 sprintf(line,"cp awattardebug.txt awattardebug.%i.txt",ptm->tm_hour);
                 system(line);
-                if (e3dc.DV&&ptm->tm_hour==0)
+/*                if (e3dc.DV&&ptm->tm_hour==0)
                 {
                     sprintf(line,"cp dv.txt dv.%i.txt",ptm->tm_mday);
                     system(line);
                 }
-            }
+*/            }
 
             if (e3dc.debug) printf("NWS3\n");
 

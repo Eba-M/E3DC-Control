@@ -4208,7 +4208,7 @@ bDischarge = false;
                 {
                     if (fPower_WB>0)
                     {
-                        if (e3dc_config.DVWBkWh>0)
+                        if (e3dc_config.DVWBkWh<0)
                             fsoue1=1;  //Nachladen zulassen?
                         else
                         {  // Autoladen abschalten
@@ -4220,7 +4220,7 @@ bDischarge = false;
                     }
                     else
                     { // Scharf abschalten
-                        if (e3dc_config.DVWBkWh<0&&e3dc_config.wbmode==5)
+                        if (e3dc_config.wbmode==5)
                             e3dc_config.wbmode = 0;
                     }
                 }
@@ -4249,6 +4249,7 @@ bDischarge = false;
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
+                x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
