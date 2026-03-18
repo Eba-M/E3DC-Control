@@ -4259,7 +4259,7 @@ bDischarge = false;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
-                printf(" LE %0.2f",e3dc_config.RE);
+                printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
 
                 if (fsoue<100-fBatt_SOC)
                 {
