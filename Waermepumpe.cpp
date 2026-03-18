@@ -1157,6 +1157,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     float fsoue1 = 0; // solare Unterdeckung?
                     if (wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf -wetter[j].wwwpbedarf - wetter[j].heizstabbedarf>0)
                         fsoue2 = fsoue2 + wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf -wetter[j].wwwpbedarf - wetter[j].heizstabbedarf;
+                    if (wetter[j].solar==0)
+                        fsoue2=0;
 
                     for (int x2=j+1;x2<e.size();x2++)
                 {
