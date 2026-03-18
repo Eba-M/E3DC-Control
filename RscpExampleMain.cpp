@@ -4252,11 +4252,13 @@ bDischarge = false;
                 int x2;
                 for (x2=0;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
                 {
-                    if (wetter[x2].solar>0)
+//                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
