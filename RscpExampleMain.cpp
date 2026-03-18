@@ -4235,12 +4235,12 @@ bDischarge = false;
                 fsoue1 = 0;
             if (fsoue1>0)  fsoue1 = fsoue1+ (100-fBatt_SOC);
             else fsoue1 = (100-fBatt_SOC);
-            if (e3dc_config.DV)
+//            if (e3dc_config.DV)
                 printf("\nfsoue1 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue,iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
             {
                 iFc = e3dc_config.maximumLadeleistung;
-                if (e3dc_config.DV)
+//                if (e3dc_config.DV)
                     printf(" iFc %i",iFc);
 
             }
@@ -4259,6 +4259,7 @@ bDischarge = false;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
+                printf(" LE %0.2f",e3dc_config.RE);
 
                 if (fsoue<100-fBatt_SOC)
                 {
