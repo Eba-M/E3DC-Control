@@ -1198,12 +1198,12 @@ if (e3dc.debug) printf("NWS2\n");
             {
                 sprintf(line,"cp awattardebug.txt awattardebug.%i.txt",ptm->tm_hour);
                 system(line);
-/*                if (e3dc.DV&&ptm->tm_hour==0)
+                if (e3dc.DV&&ptm->tm_hour==0)
                 {
-                    sprintf(line,"cp dv.txt dv.%i.txt",ptm->tm_mday);
+                    sprintf(line,"cp awattardebug.txt dv.%i2.%i2.%i2.txt",(ptm->tm_year+1900)%100,ptm->tm_mon+1,ptm->tm_mday);
                     system(line);
                 }
-*/            }
+            }
 
             if (e3dc.debug) printf("NWS3\n");
 

@@ -4213,14 +4213,14 @@ bDischarge = false;
                         else
                         {  // Autoladen abschalten
                             fsoue1=0;
-                            if  (e3dc_config.DVWBkWh<0&&e3dc_config.wbmode==5)
+                            if  (e3dc_config.wbmode==5)
                                 iAvalPower = -20000;
                             
                         }
                     }
                     else
                     { // Scharf abschalten
-                        if (e3dc_config.wbmode==5)
+                        if (e3dc_config.DVWBkWh>0&&e3dc_config.wbmode==5)
                             e3dc_config.wbmode = 0;
                     }
                 }
