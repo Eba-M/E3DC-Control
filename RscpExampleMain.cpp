@@ -4174,8 +4174,10 @@ bDischarge = false;
         }
 
         {
+            float fsou = 0; // solarer überschuss
             float fsoue = 0; // solarer überschuss
             float fsoue1 = 0; // solare Unterdeckung?
+            float fsoue2 = 0; // Speicherabdeckung
             for (int x2=1;x2<e.size();x2++)
             {
                 if (wetter[x2].solar == 0)
@@ -4186,15 +4188,23 @@ bDischarge = false;
                 if (e[x2].pp<e.begin()->pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
                 {
                     x1++;
-                    if (wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf < 0)
+// E3DC Speicher Ladeangebot
+                    fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    if (fsou > e3dc_config.maximumLadeleistung/10/e3dc_config.speichergroesse/4)
+                        fsoue2 = fsoue2 + e3dc_config.maximumLadeleistung/10/e3dc_config.speichergroesse/4;
+                    else
+                        if (fsou>0)
+                            fsoue2 = fsoue2 + fsou;
+
+                    if (fsou < 0)
                         
-                        fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf- wetter[x2].heizstabbedarf;
+                        fsoue1 = fsoue1 + fsou;
                     else
                     {
                         if (fsoue1<0)
-                            fsoue1 = fsoue1 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                            fsoue1 = fsoue1 + fsou;
                         else
-                            fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                            fsoue = fsoue + fsou;
                     }
                 }
             }
@@ -4230,7 +4240,7 @@ bDischarge = false;
             if (fsoue1>0)  fsoue1 = fsoue1+ (100-fBatt_SOC);
             else fsoue1 = (100-fBatt_SOC);
 //            if (e3dc_config.DV)
-                printf("\nfsoue1 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue,iFc);
+                printf("\nfsoue1 %5.2f fsoue2 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue2,fsoue,iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
             {
                 iFc = e3dc_config.maximumLadeleistung;
@@ -4238,7 +4248,7 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
-            if (fsoue1 > fsoue) 
+            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2)
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
