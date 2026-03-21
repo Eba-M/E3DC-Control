@@ -4252,6 +4252,8 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
+                if (e3dc_config.wbmode == 5)
+                    e3dc_config.wbminlade = iMinlade;
                 float fsoue2 = 0;
                 int x2;
                 for (x2=0;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
