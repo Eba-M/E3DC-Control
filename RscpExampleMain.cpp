@@ -5238,7 +5238,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
     const int cMinimumladestand = 15;
     static uint8_t WBChar_alt = 0;
     static int32_t iWBMinimumPower,idynPower; // MinimumPower bei 6A
-    static bool bWBOn, bWBOff = false; // Wallbox eingeschaltet
+    static bool bWBOn = true, bWBOff = false; // Wallbox eingeschaltet
     static bool bWBLademodusSave,bWBZeitsteuerung;
     if (bWBConnect&&fPower_WB>fMaxPower_WB)
         fMaxPower_WB = fPower_WB;
@@ -5483,7 +5483,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iRefload = iMaxBattLade;
                     // iMaxBattLade ist die maximale tatsächliche mögliche Batterieladeleistung
                     
-                    iPower = iPower_Bat-fPower_Grid*2-iRefload;
+                    iPower = iPower_Bat-iRefload;
+                    if (fAvPower_Grid60 < -100)
+                        iPower = iPower - fAvPower_Grid60*2;
                     
                     x1 = iPower_Bat - iRefload;
                     x2 = fAvBatterie900- iRefload;
