@@ -5491,7 +5491,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     
                     idynPower = (iRefload*2 - e3dc_config.wbminlade - (fAvBatterie900+fAvBatterie)/2)*-2;
                     iPower = iPower + idynPower;
-                    //              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
+/*                    //              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
                     //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
                     //              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
                     //              entladen
@@ -5537,7 +5537,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = iPower +(iPower_Bat-fPower_Grid*2);
                         
                     }
-                    if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
+*/                    if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                         iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
                     break;
                 case 11:
