@@ -4181,7 +4181,7 @@ bDischarge = false;
                 printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
                 e3dc_config.LE++;
                 e3dc_config.RE++;
-                if (fsoue<100-fBatt_SOC)
+                if (fsoue<100-fBatt_SOC||e.begin()->pp<320)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
                 }
