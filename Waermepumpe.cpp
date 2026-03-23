@@ -1105,10 +1105,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
              {
                  if (e3dc.AWSimulation == 1)
                  {
-                     if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
+                     if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
                          sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                      else
-                         sprintf(line,"%0.2f %0.3f %0.2f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                         sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                  }
                  else
                      sprintf(line,"%0.2f %0.3f %0.2f %0.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt));
@@ -1132,7 +1132,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 if (e3dc.openmeteo)
                 {
                     ptm=localtime(&w[j].hh);
-                    if (e3dc.DV&&wetter[j].solar>0&&e.size()>j)
+                    if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
                         fprintf(fp,"%5.2f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     else
                         fprintf(fp,"%5.2f %6.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);

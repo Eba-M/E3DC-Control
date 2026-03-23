@@ -214,7 +214,9 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
     cJSON_AddNumberToObject(root, "SOC", fBatt_SOC);
     cJSON_AddNumberToObject(root, "Wallbox_Power", fPower_WB);
-    
+    cJSON_AddNumberToObject(root, "WP_Power_W", iPower_WP);
+    cJSON_AddNumberToObject(root, "WP_Energy_kWh", iWeekhourWP[dayhour]/3600000.0);
+
     // --- Erweiterte Details (Strings, Phasen, Spannungen) ---
     cJSON_AddNumberToObject(root, "bat_v", fBat_Voltage);
     cJSON_AddNumberToObject(root, "bat_a", fBat_Current);
@@ -336,98 +338,6 @@ int MQTTsend(char host[20],char buffer[127])
     } else
     return(-1);
 }
-/*
-int ControlLoadData(SRscpFrameBuffer * frameBuffer,int32_t Power,int32_t Mode ) {
-    RscpProtocol protocol;
-    SRscpValue rootValue;
-    // The root container is create with the TAG ID 0 which is not used by any device.
-    protocol.createContainerValue(&rootValue, 0);
-    
-    // request Power Meter information
-    SRscpValue PMContainer;
-//    Power = Power*-1;
-    protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER);
-    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_MODE,Mode);
-    if (Mode > 0)
-    protocol.appendValue(&PMContainer, TAG_EMS_REQ_SET_POWER_VALUE,Power);
-    // append sub-container to root container
-    protocol.appendValue(&rootValue, PMContainer);
-    // free memory of sub-container as it is now copied to rootValue
-    protocol.destroyValueData(PMContainer);
-    // create buffer frame to send data to the S10
-    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
-    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
-    protocol.destroyValueData(rootValue);
-    
-    return 0;
-}
-*/
-/*int ControlLoadData2(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
-    RscpProtocol protocol;
-    SRscpValue rootValue;
-    uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
-    // The root container is create with the TAG ID 0 which is not used by any device.
-    protocol.createContainerValue(&rootValue, 0);
-    
-    // request Power Meter information
-    SRscpValue PMContainer;
-    protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER_SETTINGS);
-    protocol.appendValue(&PMContainer, TAG_EMS_POWER_LIMITS_USED,true);
-   protocol.appendValue(&PMContainer, TAG_EMS_MAX_CHARGE_POWER,uPower);
-//    protocol.appendValue(&PMContainer, TAG_EMS_MAX_DISCHARGE_POWER,300);
-//    protocol.appendValue(&PMContainer, TAG_EMS_DISCHARGE_START_POWER,70);
-    // append sub-container to root container
-    protocol.appendValue(&rootValue, PMContainer);
-    // free memory of sub-container as it is now copied to rootValue
-    protocol.destroyValueData(PMContainer);
-    
-    
-    
-    
-    // create buffer frame to send data to the S10
-    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
-    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
-    protocol.destroyValueData(rootValue);
-    
-    return 0;
-}
-*/
-/*
-int Control_MAX_DISCHARGE(SRscpFrameBuffer * frameBuffer,int32_t iPower) {
-    RscpProtocol protocol;
-    SRscpValue rootValue;
-    uint32_t uPower;
-    if (iPower < 0) uPower = 0; else if (iPower>e3dc_config.maximumLadeleistung) uPower = e3dc_config.maximumLadeleistung; else uPower = iPower;
-    // The root container is create with the TAG ID 0 which is not used by any device.
-    protocol.createContainerValue(&rootValue, 0);
-    
-    // request Power Meter information
-    SRscpValue PMContainer;
-    protocol.createContainerValue(&PMContainer, TAG_EMS_REQ_SET_POWER_SETTINGS);
-    protocol.appendValue(&PMContainer, TAG_EMS_POWER_LIMITS_USED,true);
-    if (uPower < 65)
-    protocol.appendValue(&PMContainer, TAG_EMS_DISCHARGE_START_POWER,uPower);
-    else
-    protocol.appendValue(&PMContainer, TAG_EMS_DISCHARGE_START_POWER,uint32_t(65));
-    protocol.appendValue(&PMContainer, TAG_EMS_MAX_DISCHARGE_POWER,uPower);
-    // append sub-container to root container
-    protocol.appendValue(&rootValue, PMContainer);
-    // free memory of sub-container as it is now copied to rootValue
-    protocol.destroyValueData(PMContainer);
-    
-    
-    
-    
-    // create buffer frame to send data to the S10
-    protocol.createFrameAsBuffer(frameBuffer, rootValue.data, rootValue.length, true); // true to calculate CRC on for transfer
-    // the root value object should be destroyed after the data is copied into the frameBuffer and is not needed anymore
-    protocol.destroyValueData(rootValue);
-    
-    return 0;
-}
-
-*/
 int createRequestWBData(SRscpFrameBuffer * frameBuffer) {
     RscpProtocol protocol;
     SRscpValue rootValue;
@@ -5677,7 +5587,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         bWBmaxLadestrom = false;
                         // fest auf Automatik einstellen}
                         bWBOn = false;  //Wallbox ist aus
-                        if (bWBCharge&&iPower_WP>100)
+                        if (bWBCharge&&fPower_WB>100)
                             WBchar6[4] = 1;
                     }
                     else
