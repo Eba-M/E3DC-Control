@@ -4177,8 +4177,8 @@ bDischarge = false;
                 x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0-1;
-                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0-1;
+                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
+                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=80;
                 printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
@@ -4817,8 +4817,8 @@ bDischarge = false;
         if (((fBatt_SOC > e3dc_config.ladeschwelle)&&(t<tLadezeitende))||(fBatt_SOC > e3dc_config.ladeende))
         {
             // Überprüfen ob vor RE der SoC > tLadeende2 ist, dann entladen was möglich
-
-            if ((t>tLadezeitende3)&&(t<tLadezeitende1)&&(fBatt_SOC>fLadeende2))
+            // Aber nicht bei  DV
+            if ((t>tLadezeitende3)&&(t<tLadezeitende1)&&(fBatt_SOC>fLadeende2)&& not e3dc_config.DV)
                 iFc = e3dc_config.maximumLadeleistung*-1;
           
             if (iPower<iFc)
@@ -4907,7 +4907,8 @@ bDischarge = false;
                     tE3DC_alt = t;
                     
                     {
-                        if (iLMStatus == 1){
+                        if (iLMStatus == 1)
+                        {
                             if
                                 (
                                  (iPower<e3dc_config.maximumLadeleistung)
