@@ -4184,6 +4184,7 @@ bDischarge = false;
                 if (fsoue<100-fBatt_SOC||e.begin()->pp<320)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
+                    iBattLoad =e3dc_config.maximumLadeleistung;;
                 }
                 else
                 {
