@@ -214,7 +214,7 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
     cJSON_AddNumberToObject(root, "SOC", fBatt_SOC);
     cJSON_AddNumberToObject(root, "Wallbox_Power", fPower_WB);
-    cJSON_AddNumberToObject(root, "WP_Power", iPower_WP);
+    cJSON_AddNumberToObject(root, "wp", iPower_WP);
     cJSON_AddNumberToObject(root, "WP_Energy_kWh", iWeekhourWP[dayhour]/3600000.0);
 
     // --- Erweiterte Details (Strings, Phasen, Spannungen) ---
@@ -4174,8 +4174,8 @@ bDischarge = false;
                 x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
-                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
+                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0-1;
+                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0-1;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=80;
                 printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
