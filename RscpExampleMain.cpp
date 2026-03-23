@@ -510,6 +510,7 @@ bool GetConfig()
         e3dc_config.DV = 0;
         e3dc_config.DVWBkWh = 0;
         e3dc_config.DVmp = 0;  //Marktprämie
+        e3dc_config.DVEinspeise = 0;  // Einspeiseschwell bei höheren Börsenpreisen wird eingespeist
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
         e3dc_config.minimumLadeleistung = MINIMUMLADELEISTUNG;
@@ -694,6 +695,8 @@ bool GetConfig()
                         e3dc_config.DVWBkWh = atoi(value);
                     else if(strcmp(var, "dvmp") == 0) // Direktvermakrtung Marktprämie
                         e3dc_config.DVmp = atof(value);
+                    else if(strcmp(var, "dveinspeiseschwelle") == 0) // Preisschwelle für Einspeisung
+                        e3dc_config.DVEinspeise = atof(value);
                     else if(strcmp(var, "test") == 0)
                         e3dc_config.test = atoi(value);
                     else if((strcmp(var, "wallbox") == 0)){
@@ -4225,7 +4228,7 @@ bDischarge = false;
             float fsoue_alt=fsoue;
             int x3,x4=0;
             x1=0;
-            for (int x2=1;x2<e.size();x2++)
+            for (int x2=1;x2<e.size();x2++) // Suchen Höchstpreis
             {
                 if (e[x2].pp>fmaxpp)
                     fmaxpp = e[x2].pp;
@@ -4242,7 +4245,7 @@ bDischarge = false;
                 }
                 if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
             }
-            if (fsoue>0&&ptm->tm_hour<10&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
+//            if (fsoue>0&&ptm->tm_hour<10&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
             {
                 fsoue_alt=fsoue;
                 for (int x2=1;x2<e.size();x2++)
@@ -4263,7 +4266,7 @@ bDischarge = false;
                     if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
                 }
                 
-                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>300) // Entladen
+                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
@@ -4961,7 +4964,7 @@ bDischarge = false;
                             //                            iLeistungHeizstab = iModbusTCP_Heizstab(ireq_Heistab);
                             
                             
-                            if (iPower_PV>0||e3dc_config.unload<0)  // Nur wenn die Sonne scheint
+                            if (iPower_PV>0||e3dc_config.unload<0||e3dc_config.DV)  // Nur wenn die Sonne scheint
                             {
                                 if (e3dc_config.debug)
                                 {
