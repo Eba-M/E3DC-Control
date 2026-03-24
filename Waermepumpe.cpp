@@ -569,7 +569,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         fsoc = 100;
                                     }
                                     if (fsoc<0) fsoc = 0;
-                                    if (wetter[x1].solar<=1&&wetter[x1+1].solar>1||x1==w.size()-1)
+                                    if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
                                     {
                                         flowsoc[x3] = fsoc;
                                         itime[x3] = wetter[x1].hh+3*3600;
@@ -591,7 +591,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     }
                                     
                                 }
-                                fsoc = flowsoc[0];
+                                x3=0;
+                                fsoc = flowsoc[x3];
+                                if (fsoc>100) fsoc = 100; // max 100% SoC
                                 if (e3dc.DVWBkWh>0)
                                 {
                                     fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
@@ -644,10 +646,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         {
                                             if (e3dc.DV)
                                             {
-                                                    wet.waermepreis = minimum_pp*.1/wet.cop; // speicherpreis
+                                                wet.waermepreis = minimum_pp*.1/wet.cop; // speicherpreis
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
+                                            
+                                            float verbrauch = e3dc.WPLeistung/(wet.cop-.7)/e3dc.speichergroesse*25;
+                                            fsoc = fsoc - verbrauch;
                                             wet.status = 1;
                                         }
                                         else
@@ -666,6 +671,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         wetter1.push_back(wet);
                                     else
                                         wetter2.push_back(wet);
+                                    if (iindxsoc[x3]<x1&&x3<2)
+                                    {
+                                        x3++;
+                                        fsoc = fsoc = flowsoc[x3];
+                                    }
+                                    
                                 }
                                 
                                 //                            waermebedarf= 109;
