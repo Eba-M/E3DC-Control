@@ -1541,13 +1541,13 @@ int ladedauer = 0;
             strombedarf[j1] = e3dc.Avhourly;
         }
         // strompreistarife einlesen
-        
+
+        strompreis_s strom;
         printf("\ne3ec.strompreise\n");
         fp = fopen("e3dc.strompreise.txt","r");
         if (fp)
         {
             strompreis.clear();
-            strompreis_s strom;
             while (fgets(line, sizeof(line), fp))
             {
                 memset(var, 0x00, sizeof(var));
@@ -1570,13 +1570,23 @@ int ladedauer = 0;
             
             printf("e3ec.strompreise done\n");
         }
+        else
+        {
+            if (e3dc.aWATTar == 0)
+            {
+                strom.stunde = 0;
+                strom.strompreis = 26.0;
+                strompreis.push_back(strom);
+            }
+        }
         
         // Tagesverbrauchsprofil einlesen. Nur wenn keine Statistik
         if (not e3dc.statistik)
         {
             printf("\ne3ec.hourly\n");
             fp = fopen("e3dc.hourly.txt","r");
-            if (fp){
+            if (fp)
+            {
                 while (fgets(line, sizeof(line), fp))
                 {
                     memset(var, 0x00, sizeof(var));
