@@ -4177,6 +4177,7 @@ bDischarge = false;
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
+                if (x2>0)
                 x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
