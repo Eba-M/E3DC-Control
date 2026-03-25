@@ -165,6 +165,10 @@ static float fGrid_Power_L1 = 0, fGrid_Power_L2 = 0, fGrid_Power_L3 = 0;
 static float fWB_Power_L1 = 0, fWB_Power_L2 = 0, fWB_Power_L3 = 0;
 static float fBat_Voltage = 0, fBat_Current = 0;
 static float fBat_Voltage_1 = 0, fBat_Current_1 = 0;
+static float Grid_In_Energy_kWh = 0;
+static float Grid_Out_Energy_kWh = 0;
+static float Bat_In_Energy_kWh = 0;
+static float Bat_Out_Energy_kWh = 0;
 
 float fLadeende = e3dc_config.ladeende;
 float fLadeende2 = e3dc_config.ladeende2;
@@ -211,6 +215,10 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "PV_Power", iPower_PV);
     cJSON_AddNumberToObject(root, "PV_Energy_kWh", iDayStat[DayStat-2]/3600.0/1000.0);
     cJSON_AddNumberToObject(root, "Grid_Power", fPower_Grid);
+    cJSON_AddNumberToObject(root, "Grid_In_Energy_kWh", Grid_In_Energy_kWh);
+    cJSON_AddNumberToObject(root, "Grid_Out_Energy_kWh", Grid_Out_Energy_kWh);
+    cJSON_AddNumberToObject(root, "Bat_In_Energy_kWh", Bat_In_Energy_kWh);
+    cJSON_AddNumberToObject(root, "Bat_Out_Energy_kWh", Bat_Out_Energy_kWh);
     cJSON_AddNumberToObject(root, "Battery_Power", iPower_Bat);
     cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
     cJSON_AddNumberToObject(root, "Home_Energy_kWh", iWeekhour[dayhour]/3600000.0);
@@ -219,7 +227,7 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "Wallbox_Energy_kWh", iWeekhour[wbhour]/3600000.0);
     cJSON_AddNumberToObject(root, "WP_Power", iPower_WP);
     cJSON_AddNumberToObject(root, "WP_Energy_kWh", iWeekhourWP[dayhour]/3600000.0);
-
+    
     // --- Erweiterte Details (Strings, Phasen, Spannungen) ---
     cJSON_AddNumberToObject(root, "bat_v", fBat_Voltage);
     cJSON_AddNumberToObject(root, "bat_a", fBat_Current);
@@ -2350,11 +2358,15 @@ int LoadDataProcess() {
                 }
 
 
-                if ((myt_alt%(24*3600))>(t%(24*3600)))
+                if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
                 {
                     iWeekhour[dayhour] = 0;
                     iWeekhour[wbhour] = 0;
                     iWeekhourWP[dayhour] = 0;
+                    Grid_In_Energy_kWh = 0;
+                    Grid_Out_Energy_kWh = 0;
+                    Bat_In_Energy_kWh = 0;
+                    Bat_Out_Energy_kWh = 0;
 
                 }
                 pFile = fopen ("Weekhour.dat","wb");
@@ -2479,6 +2491,15 @@ int LoadDataProcess() {
         if (j1 > 100000||j1<0)
             j1 = 0;
         iWeekhour[wbhour] = iWeekhour[wbhour] + (fPower_openWB + fPower_WB)*(t-myt_alt);
+        if (fPower_Grid>0)
+            Grid_In_Energy_kWh = Grid_In_Energy_kWh+fPower_Grid*(t-myt_alt);
+        if (fPower_Grid<0)
+            Grid_Out_Energy_kWh = Grid_Out_Energy_kWh-fPower_Grid*(t-myt_alt);
+        if (fPower_Bat>0)
+            Bat_In_Energy_kWh = Bat_In_Energy_kWh+fPower_Bat*(t-myt_alt);
+        if (fPower_Bat<0)
+            Bat_Out_Energy_kWh = Bat_Out_Energy_kWh-fPower_Bat*(t-myt_alt);;
+
         if (iPower_WP <= iPowerHome&&e3dc_config.WP==true) // nur wenn WP kleiner als hausverbrauch sonst O Verbrauch
         {
             if (iWeekhour[weekhour] + j1>0)
@@ -3577,6 +3598,11 @@ int LoadDataProcess() {
     {    cLadezeitende2 = (e3dc_config.LE*60+60+(sunsetAt+sunriseAt)/2)/2*60; //Korrektur + 60min
         tLadezeitende2 = cLadezeitende2+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.LE*60-60-(sunsetAt+sunriseAt)/2)/2)*60; //korrektur berücksichtigen
     }
+    if (e3dc_config.DV) // Bei Direktvermarktung RE und LE direkt setzen
+    {
+        tLadezeitende1 = e3dc_config.RE*3600;
+        tLadezeitende2 = e3dc_config.LE*3600;
+    }
 // Regelbeginn
     int cLadezeitende3 = (e3dc_config.winterminimum-(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600; //Unload
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -4180,9 +4206,9 @@ bDischarge = false;
                 if (x2>0)
                 x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
-                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
+                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0-1;
+//                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
+//                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=80;
                 printf(" LE %0.2f %0.2f",e3dc_config.RE,fsoue2);
