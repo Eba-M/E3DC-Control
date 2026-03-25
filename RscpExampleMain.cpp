@@ -215,10 +215,10 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "PV_Power", iPower_PV);
     cJSON_AddNumberToObject(root, "PV_Energy_kWh", iDayStat[DayStat-2]/3600.0/1000.0);
     cJSON_AddNumberToObject(root, "Grid_Power", fPower_Grid);
-    cJSON_AddNumberToObject(root, "Grid_In_Energy_kWh", Grid_In_Energy_kWh);
-    cJSON_AddNumberToObject(root, "Grid_Out_Energy_kWh", Grid_Out_Energy_kWh);
-    cJSON_AddNumberToObject(root, "Bat_In_Energy_kWh", Bat_In_Energy_kWh);
-    cJSON_AddNumberToObject(root, "Bat_Out_Energy_kWh", Bat_Out_Energy_kWh);
+    cJSON_AddNumberToObject(root, "Grid_In_Energy_kWh", Grid_In_Energy_kWh/3600000.0);
+    cJSON_AddNumberToObject(root, "Grid_Out_Energy_kWh", Grid_Out_Energy_kWh/3600000.0);
+    cJSON_AddNumberToObject(root, "Bat_In_Energy_kWh", Bat_In_Energy_kWh/3600000.0);
+    cJSON_AddNumberToObject(root, "Bat_Out_Energy_kWh", Bat_Out_Energy_kWh/3600000.0);
     cJSON_AddNumberToObject(root, "Battery_Power", iPower_Bat);
     cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
     cJSON_AddNumberToObject(root, "Home_Energy_kWh", iWeekhour[dayhour]/3600000.0);
