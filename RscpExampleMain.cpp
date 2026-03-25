@@ -2357,18 +2357,6 @@ int LoadDataProcess() {
                     strcpy(fnameGrid,fname);
                 }
 
-
-                if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
-                {
-                    iWeekhour[dayhour] = 0;
-                    iWeekhour[wbhour] = 0;
-                    iWeekhourWP[dayhour] = 0;
-                    Grid_In_Energy_kWh = 0;
-                    Grid_Out_Energy_kWh = 0;
-                    Bat_In_Energy_kWh = 0;
-                    Bat_Out_Energy_kWh = 0;
-
-                }
                 pFile = fopen ("Weekhour.dat","wb");
                 if (pFile!=NULL)
                 {
@@ -2381,6 +2369,18 @@ int LoadDataProcess() {
                     fwrite (iWeekhourWP , sizeof(uint32_t), sizeof(iWeekhourWP)/sizeof(uint32_t), pFile);
                     fclose (pFile);
                 }
+            }
+            //                if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
+            if (((myt_alt)%(24*3600))>((t)%(24*3600)))
+            {
+                iWeekhour[dayhour] = 0;
+                iWeekhour[wbhour] = 0;
+                iWeekhourWP[dayhour] = 0;
+                Grid_In_Energy_kWh = 0;
+                Grid_Out_Energy_kWh = 0;
+                Bat_In_Energy_kWh = 0;
+                Bat_Out_Energy_kWh = 0;
+
             }
 
 //            if (w.size()>0)
