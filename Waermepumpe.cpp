@@ -557,9 +557,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 for (int x1=0;x1<w.size()-1&&x1<wetter.size()-1;x1++)
                                 {
                                     if (wetter[x1].solar>0)
-                                        fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar;
-                                    else
-                                        fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
+                                        fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar-wetter[x1].wpbedarf-wetter[x1].wwwpbedarf-wetter[x1].heizstabbedarf;
+//                                    else
+//                                        fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
                                     if (w[x1].pp < minimum_pp)
                                         minimum_pp = w[x1].pp;
                                     //                                    fsoc = fsoc * adj;
@@ -651,7 +651,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
                                             
-                                            float verbrauch = e3dc.WPLeistung/(wet.cop-.7)/e3dc.speichergroesse*25;
+                                            float verbrauch = e3dc.WPLeistung/(wet.cop-.0)/e3dc.speichergroesse*25;
+                                            if (wetter[x1].wpbedarf>verbrauch)
+                                                verbrauch = wetter[x1].wpbedarf;
                                             fsoc = fsoc - verbrauch;
                                             wet.status = 1;
                                         }
