@@ -223,9 +223,9 @@ void WriteLiveJSON() {
     cJSON_AddNumberToObject(root, "Home_Power", iPowerHome);
     cJSON_AddNumberToObject(root, "Home_Energy_kWh", iWeekhour[dayhour]/3600000.0);
     cJSON_AddNumberToObject(root, "SOC", fBatt_SOC);
-    cJSON_AddNumberToObject(root, "Wallbox_Power", fPower_WB);
+    cJSON_AddNumberToObject(root, "Wallbox_Power", fPower_WB+fPower_openWB);
     cJSON_AddNumberToObject(root, "Wallbox_Energy_kWh", iWeekhour[wbhour]/3600000.0);
-    cJSON_AddNumberToObject(root, "WP_Power", iPower_WP+fPower_openWB);
+    cJSON_AddNumberToObject(root, "WP_Power", iPower_WP);
     cJSON_AddNumberToObject(root, "WP_Energy_kWh", iWeekhourWP[dayhour]/3600000.0);
     
     // --- Erweiterte Details (Strings, Phasen, Spannungen) ---
