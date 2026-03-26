@@ -4197,14 +4197,14 @@ bDischarge = false;
                 if (e3dc_config.wbmode == 5)
                     e3dc_config.wbminlade = iMinlade;
                 float fsoue2 = 0;
-                int x2;
-                for (x2=0;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
+                int x2=0;
+                fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                fsoue2 = (fsoue2/900)*(900-t%900); // aktuelles Intervall anteilsmäßig berechnen
+                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
                 {
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
-                if (x2>0)
-                x2--;
                 e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0-1;
 //                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
