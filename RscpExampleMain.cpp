@@ -570,7 +570,7 @@ bool GetConfig()
         e3dc_config.aWATTar = 0;
         e3dc_config.AWLand = 1;   // 1 = DE 2 = AT
         e3dc_config.AWMWSt = -1;   // 19 = DE 20 = AT
-        e3dc_config.AWNebenkosten = -1;
+        e3dc_config.AWNebenkosten = 0;
         e3dc_config.Avhourly = 10;   // geschätzter stündlicher Verbrauch in %
         e3dc_config.AWDiff = -1;   // Differenzsockel in €/MWh
         e3dc_config.AWAufschlag = 1.2;
@@ -2370,8 +2370,8 @@ int LoadDataProcess() {
                     fclose (pFile);
                 }
             }
-            //                if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
-            if (((myt_alt)%(24*3600))>((t)%(24*3600)))
+            if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
+//            if (((myt_alt)%(24*3600))>((t)%(24*3600)))
             {
                 iWeekhour[dayhour] = 0;
                 iWeekhour[wbhour] = 0;

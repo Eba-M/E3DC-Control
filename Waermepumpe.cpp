@@ -580,7 +580,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (w[x1].pp < minimum_pp&&x3==0) // minimum bis nächsten morgen
                                         minimum_pp = w[x1].pp;
 
-                                    if (itime[0]>0&&wetter[x1].hh<itime[0]
+/*                                    if (itime[0]>0&&wetter[x1].hh<itime[0]
                                         &&wetter[x1].hourly + wetter[x1].solar - wetter[x1].wpbedarf<0)
                                     {
                                         flowsoc[0] = flowsoc[0] - (wetter[x1].wpbedarf-wetter[x1].solar)/e3dc.speichereta
@@ -589,10 +589,11 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         if (flowsoc[0] < 0)
                                             flowsoc[0] = 0;
                                     }
-
+*/
                                 }
                                 x3=0;
-                                fsoc = flowsoc[x3];
+                                fsoc = flowsoc[x3]-e3dc.AWReserve-notstromreserve;
+                                if (fsoc<0) fsoc = 0;
                                 if (fsoc>100) fsoc = 100; // max 100% SoC
                                 if (e3dc.DVWBkWh>0)
                                 {
