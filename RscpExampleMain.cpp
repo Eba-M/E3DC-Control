@@ -4205,8 +4205,8 @@ bDischarge = false;
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
-                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0+.5;
+                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0+.5;
 //                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
 //                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
                 e3dc_config.ladeende2=100;
