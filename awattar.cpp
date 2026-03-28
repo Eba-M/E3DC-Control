@@ -1306,7 +1306,7 @@ void epex(std::vector<watt_s> &w,e3dc_config_t &e3dc,int mday)
                         
                         if (fp!=NULL)
                             fclose(fp);
-                        if (y1<96)
+                        if (y1<90)
                             return;
                         fp = fopen("epexspot.txt","r");
                     }
