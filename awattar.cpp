@@ -1556,6 +1556,7 @@ int ladedauer = 0;
                 //            sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value);
                 if (ret==2)
                 {
+                    ptm = localtime(&rawtime); // nächster Tag
                     ptm->tm_hour = atoi(var);
                     mytime = mktime(ptm);
                     strom.stunde = (mytime%(24*3600))/3600;
