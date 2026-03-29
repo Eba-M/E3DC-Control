@@ -521,6 +521,7 @@ bool GetConfig()
         e3dc_config.DV = 0;
         e3dc_config.DVWBkWh = 0;
         e3dc_config.DVmp = 0;  //Marktprämie
+        e3dc_config.DVcarlimit = 0;  //Auto ladepreislimit bis zu dem Preis zu der das eAuto geladen wird.
         e3dc_config.DVEinspeise = -1;  // Einspeiseschwell bei höheren Börsenpreisen wird eingespeist
         e3dc_config.untererLadekorridor = UNTERERLADEKORRIDOR;
         e3dc_config.obererLadekorridor = OBERERLADEKORRIDOR;
@@ -706,6 +707,8 @@ bool GetConfig()
                         e3dc_config.DVWBkWh = atoi(value);
                     else if(strcmp(var, "dvmp") == 0) // Direktvermakrtung Marktprämie
                         e3dc_config.DVmp = atof(value);
+                    else if(strcmp(var, "dvcarlimit") == 0) // Direktvermakrtung Marktprämie
+                        e3dc_config.DVcarlimit = atof(value);
                     else if(strcmp(var, "dveinspeiseschwelle") == 0) // Preisschwelle für Einspeisung
                         e3dc_config.DVEinspeise = atof(value);
                     else if(strcmp(var, "test") == 0)
@@ -2370,7 +2373,9 @@ int LoadDataProcess() {
                     fclose (pFile);
                 }
             }
-            if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
+//            if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
+            ptm = localtime(&t);
+            if (myt_alt%3600>t%3600&&ptm->tm_hour==0) // Stundenwechsel && Mitternacht
 //            if (((myt_alt)%(24*3600))>((t)%(24*3600)))
             {
                 iWeekhour[dayhour] = 0;
@@ -4194,27 +4199,28 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (e3dc_config.wbmode == 5)
-                    e3dc_config.wbminlade = iMinlade;
+                if (e3dc_config.wbmode == 5&&e3dc_config.DVcarlimit>e.begin()->pp)
+                {
+                    if (fBatt_SOC<97.0)
+                        e3dc_config.wbminlade = iMinlade;
+                    else
+                        e3dc_config.wbminlade = (fBatt_SOC-97)*-1000;
+                }
                 float fsoue2 = 0;
                 int x2=0;
                 fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 fsoue2 = (fsoue2/900)*(900-t%900); // aktuelles Intervall anteilsmäßig berechnen
-                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
+                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0&&e3dc_config.DVcarlimit>e[x2].pp;x2++)
                 {
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 }
-                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0+.5;
-                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0+.5;
-//                e3dc_config.winterminimum = wetter[x2].hh%(24*3600)/3600.0+1;
-//                e3dc_config.sommermaximum = wetter[x2].hh%(24*3600)/3600.0+1;
+                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
-//                e3dc_config.LE++;
-//                e3dc_config.RE++;
-                if (fsoue<100-fBatt_SOC||e.begin()->pp<320)
+                if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
                 {
                     iFc = e3dc_config.maximumLadeleistung;
                     iBattLoad =e3dc_config.maximumLadeleistung;
@@ -4296,7 +4302,7 @@ bDischarge = false;
                     if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
                 }
                 
-                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise&&e3dc_config.DVEinspeise>0) // Entladen
+                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0&&e3dc_config.DVEinspeise>0) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
