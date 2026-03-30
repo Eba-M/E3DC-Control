@@ -4199,18 +4199,18 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (e3dc_config.wbmode == 5&&e3dc_config.DVcarlimit>e.begin()->pp)
+                if (e3dc_config.wbmode == 5&&e3dc_config.DVcarlimit*10>e.begin()->pp)
                 {
                     if (fBatt_SOC<97.0)
                         e3dc_config.wbminlade = iMinlade;
                     else
-                        e3dc_config.wbminlade = (fBatt_SOC-97)*-1000;
+                        e3dc_config.wbminlade = (fBatt_SOC-97.0)*-1000.0;
                 }
                 float fsoue2 = 0;
                 int x2=0;
                 fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 fsoue2 = (fsoue2/900)*(900-t%900); // aktuelles Intervall anteilsmäßig berechnen
-                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0&&e3dc_config.DVcarlimit>e[x2].pp;x2++)
+                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0&&e3dc_config.DVcarlimit*10>e[x2].pp;x2++)
                 {
 //                    if (wetter[x2].solar>0)
                     fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
@@ -5445,6 +5445,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     
                     idynPower = (iRefload*2 - e3dc_config.wbminlade - (fAvBatterie900+fAvBatterie)/2)*-2;
                     iPower = iPower + idynPower;
+                    if (e3dc_config.DV&&e3dc_config.wbminlade<0)
+                        iPower = e3dc_config.wbminlade*-1;
+                        
 /*                    //              Wenn iRefload < e3dc_config.wbminlade darf weiter entladen werden
                     //              bis iRefload 90% von e3dc_config.wbminlade erreicht sind
                     //              es wird mit 0/30/60/90% von e3dc_config.maximumLadeleistung
@@ -5473,7 +5476,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     // Nur bei PV-Ertrag
                     if  ((iPower > 0)&&(iPower_PV<100)) iPower = -20000;
                     // Bei wbmode 10 wird zusätzlich bis zum minimum SoC entladen, auch wenn keine PV verfügbar
-                    
+ */
                     if (
                         (
                          (e3dc_config.wbmode ==  8 && (iPower_PV>100))
@@ -5491,7 +5494,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = iPower +(iPower_Bat-fPower_Grid*2);
                         
                     }
-*/                    if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
+                    if (iPower > (e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2))
                         iPower = e3dc_config.maximumLadeleistung*.9+iPower_Bat-fPower_Grid*2;
                     break;
                 case 11:
