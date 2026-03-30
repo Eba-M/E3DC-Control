@@ -4201,10 +4201,15 @@ bDischarge = false;
                 iBattLoad = e3dc_config.maximumLadeleistung;
                 if (e3dc_config.wbmode == 5&&e3dc_config.DVcarlimit*10>e.begin()->pp)
                 {
-                    if (fBatt_SOC<97.0)
+                    if (fBatt_SOC<96.0)
                         e3dc_config.wbminlade = iMinlade;
                     else
-                        e3dc_config.wbminlade = (fBatt_SOC-97.0)*-1000.0;
+                    {
+                        if (fBatt_SOC<97.0)
+                            e3dc_config.wbminlade = -1;
+                        else
+                            e3dc_config.wbminlade = (fBatt_SOC-97.0)*-1000.0;
+                    }
                 }
                 float fsoue2 = 0;
                 int x2=0;

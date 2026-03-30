@@ -625,14 +625,14 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (x1>=e.size()||wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25>wetter[x1].solar||not e3dc.DV)
                                         highpp = w[x1].pp;
                                     else
-                                        highpp = e[highprice(e,wetter,x1)].pp+e3dc.DVmp;
+                                        highpp = e[highprice(e,wetter,x1)].pp+e3dc.DVmp*10;
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis + Marktprämie
                                         if (e3dc.DV)
                                         {
                                             if (x1<e.size())
-                                                wet.waermepreis = (e[x1].pp+e3dc.DVmp)*.1/wet.cop; // solarpreis = 10ct
+                                                wet.waermepreis = (e[x1].pp+e3dc.DVmp*10)*.1/wet.cop; // solarpreis = 10ct
                                             else
                                                 wet.waermepreis = w[x1].pp*.1/wet.cop; // solarpreis = 10ct
                                         }
@@ -1154,7 +1154,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                  if (e3dc.AWSimulation == 1)
                  {
                      if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
-                         sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
+                         sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp*10)/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                      else
                          sprintf(line,"%5.2f %6.3f %6.2f %5.2f %5.2f \n",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,soc_alt,(soc-soc_alt),wetter[j].solar);
                  }
@@ -1181,7 +1181,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 {
                     ptm=localtime(&w[j].hh);
                     if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
-                        fprintf(fp,"%5.2f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+                        fprintf(fp,"%5.2f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp*10)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     else
                         fprintf(fp,"%5.2f %6.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
