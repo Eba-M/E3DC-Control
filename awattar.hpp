@@ -89,7 +89,7 @@ typedef struct {uint32_t verbrauch; uint32_t wp;}stat_s;
 typedef struct {float fgrid; float fsoc; float fbat;}farm_s;
 typedef struct {int stunde; float strompreis;}strompreis_s;  //variable strompreistarife
 
-static float fatemp,fcop;
+static float fatemp,fatemp24,fcop;
 static int heizbegin;
 static int heizende;
 static int sunriseAt,sunriseWSW;  // Sonnenaufgang, Wintersonnenwende
@@ -105,7 +105,7 @@ static std::vector<strompreis_s>strompreis; // Werte der variable Strompreistari
 static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
 
 int WriteLog(e3dc_config_t &e3dc,char log[300],int level);
-void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter, float ftemp[],const size_t &len, float &fatemp,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft, float notromreserve,int32_t HeatStat);
+void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter, float ftemp[],const size_t &len, float &fatemp,float &fatemp24,float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft, float notromreserve,int32_t HeatStat);
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc,float soc,float notstromreserve, int sunriseAt,u_int32_t iDayStat[25*4*2+1]);
 void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc);
 

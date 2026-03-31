@@ -199,7 +199,7 @@ int highprice(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,int beginn)
     }
     return x2;
 }
-void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
+void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp,float &fatemp24,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -245,9 +245,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
         {
             if (wetter.size()==0) return;
             fatemp = 0;
-            for (int j=0;j<wetter.size();j++)
+            int j=0;
+            for (;j<wetter.size()&&j<24;j++)
                 fatemp = fatemp + wetter[j].temp;
-                
+            fatemp24 = fatemp/24;
+            for (;j<wetter.size();j++)
+                fatemp = fatemp + wetter[j].temp;
+
             fatemp = fatemp / wetter.size();
 //            fatemp = -0.43;
             waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade

@@ -4796,7 +4796,7 @@ bDischarge = false;
 
     printf(" %i:%i:%i ",hh,mm,ss);
     if (wetter.size()>0)
-    printf("%.2f° %.2f° %.2f°",wetter[0].temp,fatemp,ftemp[0]);
+    printf("%.2f° %.2f° %.2f° %.2f°",wetter[0].temp,fatemp24,fatemp,ftemp[0]);
     printf("%c[K\n", 27 );
     
     int iPower = 0;
@@ -7450,7 +7450,7 @@ static void mainLoop(void)
 
                 }
                 if (e3dc_config.debug) printf("M2a\n");
-                mewp(w,e,wetter,ftemp,len,fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
+                mewp(w,e,wetter,ftemp,len,fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,fBatt_SOC,ireq_Heistab,zulufttemp,fNotstromreserve,iHeatStat[1]);       // Ermitteln Wetterdaten
             }
             
             if (e3dc_config.debug) printf("M3\n");
@@ -7686,7 +7686,7 @@ static int iEC = 0;
 //            printf("GetConfig done");
             if ((e3dc_config.aWATTar||e3dc_config.openmeteo))
             {
-                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 (Ermitteln_Statistik());
 
                 aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
@@ -7709,9 +7709,9 @@ static int iEC = 0;
                 if (e3dc_config.debug)
                     printf("Wetterdaten = %i \n",wetter.size());
 
-                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
+                mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
-                    mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                    mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
             }
             while (e3dc_config.test)
                 LoadDataProcess();
