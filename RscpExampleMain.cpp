@@ -4160,7 +4160,8 @@ bDischarge = false;
 // Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
             if (bWBConnect) // Auto angesteckt
             {
-                fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
+                if (e.begin()->pp>e3dc_config.DVcarlimit*10)
+                    fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
                 if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10) // Mehr geladen als geplant
                 {
                     if (fPower_WB>0)
