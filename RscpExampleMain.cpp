@@ -4217,7 +4217,7 @@ bDischarge = false;
                     if (e3dc_config.DVcarlimit*10>e[x2].pp)
                     {
                         fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                        x3=x2;
+                        x3=x2+1;
                     }
                 }
                 e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
