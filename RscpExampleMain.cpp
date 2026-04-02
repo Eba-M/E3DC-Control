@@ -4162,7 +4162,7 @@ bDischarge = false;
             {
                 if (e.begin()->pp<e3dc_config.DVcarlimit*10) // Börsenpresi unter limit füs autoladen?
                     fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
-                if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10) // Mehr geladen als geplant
+                if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10) // Mehr geladen als geplant oder Börsenpreis > carlimit
                 {
                     if (fPower_WB>0)
                     {

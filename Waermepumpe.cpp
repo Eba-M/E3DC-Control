@@ -246,9 +246,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             if (wetter.size()==0) return;
             fatemp = 0;
             int j=0;
-            for (;j<wetter.size()&&j<24;j++)
+            for (;j<wetter.size()&&j<96;j++)
                 fatemp = fatemp + wetter[j].temp;
-            fatemp24 = fatemp/24;
+            fatemp24 = fatemp/96;
             for (;j<wetter.size();j++)
                 fatemp = fatemp + wetter[j].temp;
 
