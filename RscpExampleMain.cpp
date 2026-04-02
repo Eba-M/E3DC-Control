@@ -4172,7 +4172,7 @@ bDischarge = false;
                         {  // Autoladen abschalten
                             fsoue1=0;
                             if  (e3dc_config.wbmode==5)
-                                iAvalPower = -20000;
+                                iAvalPower = -50000;
                             
                         }
                     }
@@ -4209,15 +4209,19 @@ bDischarge = false;
                 }
                 float fsoue2 = 0;
                 int x2=0;
-                fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                int x3=0;
+                fsoue2 =  wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
                 fsoue2 = (fsoue2/900)*(900-t%900); // aktuelles Intervall anteilsmäßig berechnen
-                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0&&e3dc_config.DVcarlimit*10>e[x2].pp;x2++)
+                for (x2=1;x2<e.size()&&fsoue2<fsoue1&&wetter[x2].solar>0;x2++)
                 {
-//                    if (wetter[x2].solar>0)
-                    fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    if (e3dc_config.DVcarlimit*10>e[x2].pp)
+                    {
+                        fsoue2 = fsoue2 + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                        x3=x2;
+                    }
                 }
-                e3dc_config.LE = wetter[x2].hh%(24*3600)/3600.0;
-                e3dc_config.RE = wetter[x2].hh%(24*3600)/3600.0;
+                e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
+                e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
