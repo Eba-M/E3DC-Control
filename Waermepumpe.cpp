@@ -890,10 +890,17 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                             }
                                                             else
                                                             {
-                                                                wetter[wetter1[0].x1].heizstabbedarf =
-                                                                wetter[wetter1[0].x1].heizstabbedarf + 3/e3dc.speichergroesse*25;
-                                                                waermebedarf = (waermebedarf - 0.75); // 0.75 = 3kW
-                                                                wetter1[0].waermepreis = wetter1[0].waermepreis*1.05;
+                                                                float wpbedarf = (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+wetter[wetter1[0].x1].wwwpbedarf+wetter[wetter1[0].x1].heizstabbedarf + 3/e3dc.speichergroesse*25);
+                                                                if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+wetter[wetter1[0].x1].wwwpbedarf+wetter[wetter1[0].x1].heizstabbedarf + 3/e3dc.speichergroesse*25
+                                                                    <wetter[wetter1[0].x1].solar)
+                                                                {
+                                                                    wetter[wetter1[0].x1].heizstabbedarf =
+                                                                    wetter[wetter1[0].x1].heizstabbedarf + 3/e3dc.speichergroesse*25;
+                                                                    waermebedarf = (waermebedarf - 0.75); // 0.75 = 3kW
+                                                                    wetter1[0].waermepreis = wetter1[0].waermepreis +
+                                                                    abs(wetter1[0].waermepreis *.05);
+
+                                                                }
                                                                 
                                                             }
                                                             if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+wetter[wetter1[0].x1].wwwpbedarf+wetter[wetter1[0].x1].heizstabbedarf
@@ -902,8 +909,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                                 fhighsoc[j1]<wetter[wetter1[0].x1].heizstabbedarf)
                                                                 wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten);
                                                             else
+                                                            {
                                                                 wetter1[0].waermepreis = wetter1[0].waermepreis +
-                                                                wetter[wetter1[0].x1].heizstabbedarf*.001;
+                                                                abs(wetter1[0].waermepreis *.05);
+                                                            }
 
 
                                                             if (wetter[wetter1[0].x1].heizstabbedarf>9/e3dc.speichergroesse*25)
