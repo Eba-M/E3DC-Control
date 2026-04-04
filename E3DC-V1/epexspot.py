@@ -40,6 +40,11 @@ else:
         line = title.contents
 #        print(len(line))
 
+        attrs = title.attrs
+        epexdate:str = attrs.get("data-head")
+        if epexdate != mydate.strftime("%d.%m.%y"):
+                exit(0)
+
         td = title.find_all("tr", class_="child")
 # für jedes Element
         y = 0;
