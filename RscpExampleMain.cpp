@@ -6498,9 +6498,9 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             (temp[17]==1&&temp[19]==4)
                             )
                             iHeatStat[1]=0;
-                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.15)
+/*                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.15)
                             iHeatStat[1]=waermebedarf*-15*36000;  // wärmebedarf korrektur auf 15%
-/*                        if   //Soll wärmekapazität Pufferspeicher erreicht
+                        if   //Soll wärmekapazität Pufferspeicher erreicht
                         (
                             temp[14]>temp[4]+60
                          &&
