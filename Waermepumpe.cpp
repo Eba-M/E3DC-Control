@@ -599,13 +599,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 fsoc = flowsoc[x3]-e3dc.AWReserve-notstromreserve;
                                 if (fsoc<0) fsoc = 0;
                                 if (fsoc>100) fsoc = 100; // max 100% SoC
-                                if (e3dc.DVWBkWh>0)
+/*                                if (e3dc.DVWBkWh>0)
                                 {
                                     fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                     fhighsoc[1]=fhighsoc[1]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                     fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                 }
-                                
+*/
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
                                     wet.x1 = x1;
@@ -931,8 +931,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             
                                         }
                                     }
-                                    wetter1.clear();
                                 }
+                                wetter1.clear();
                             }
                         }
                     }
