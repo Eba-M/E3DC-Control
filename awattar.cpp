@@ -1645,10 +1645,14 @@ int ladedauer = 0;
             if (e.size()==0)
                 energycharts(e,e3dc,0);
 
+            ptm = localtime(&rawtime);
+
             if(e.size()<=4*12
                &&
                ptm->tm_hour*60+ptm->tm_min>12*60+50)
                 epex(e,e3dc,1);
+
+            ptm = localtime(&rawtime);
 
             if(e.size()<=4*12
                &&ptm->tm_hour*60+ptm->tm_min>12*60+50)
