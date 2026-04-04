@@ -633,15 +633,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis + Marktprämie
+                                        wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                         if (e3dc.DV)
                                         {
                                             if (x1<e.size())
                                                 wet.waermepreis = (e[x1].pp+e3dc.DVmp*10)*.1/wet.cop; // solarpreis = 10ct
-                                            else
-                                                wet.waermepreis = w[x1].pp*.1/wet.cop; // solarpreis = 10ct
                                         }
-                                        else
-                                            wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
                                         x2++;
                                         wet.status = 2;   // 2 = PV, 1 = Speicher, 0 = Netz
                                     }
@@ -1256,7 +1253,7 @@ if (e3dc.debug) printf("NWS2\n");
             if (strlen(e3dc.analyse)>0)
                 e3dc.stop = 99;
 
-
+            ptm = localtime(&rawtime);
             if (ptm->tm_min<2)
             {
                 sprintf(line,"cp awattardebug.txt awattardebug.%i.txt",ptm->tm_hour);
