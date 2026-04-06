@@ -1030,7 +1030,7 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg;  //heizleistung und stromaufnahme wärmepumpe
+int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg,wpuv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket;
 long iLength,myiLength;
@@ -1664,6 +1664,11 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "Verdichterstatus";
                 wo.AK = "VS";
+                vdstatus = wolf.size();
+                wolf.push_back(wo);
+                wo.feld = "3-Wege-Umschaltventil HZ/K";
+                wo.AK = "UV";
+                wo.wert = -1;
                 vdstatus = wolf.size();
                 wolf.push_back(wo);
             }
@@ -2989,7 +2994,10 @@ int LoadDataProcess() {
                 &&wetter[1].wpbedarf==0
                 &&wetter[2].wpbedarf==0
                 &&wetter[3].wpbedarf==0)
+            {
                 wetter[0].wpbedarf=0;
+                btasmota_ch1 = 0;
+            }
             if (ALV > 0)
             {
                 if (wetter.size()==0
@@ -3290,6 +3298,8 @@ int LoadDataProcess() {
                         {
 //                                ALV = 0;
                                 ALV = shelly(0);
+                            if (ALV==0&&wolf[wpuv].wert==1)
+                            btasmota_ch1 = 0;
                         }
                         else
                         {
@@ -3448,9 +3458,10 @@ int LoadDataProcess() {
                 }
 
             }
-
+// wenn ALV == 0 und UV auf Kühlen dann wird die Sperre eingeschaltet
             
-            
+     if (ALV==0&&wolf[wpuv].wert==1)
+         btasmota_ch1=0;
             
 // LWWP wieder bei zu geringer Temperatur einschalten bWP wird nur hier geschaltet
 
@@ -4196,7 +4207,7 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
-            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2)
+            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
@@ -6006,7 +6017,7 @@ int createRequestExample(SRscpFrameBuffer * frameBuffer) {
         if (iLMStatus < 0&&e3dc_config.wrsteuerung==0) iLMStatus=iLMStatus*-1;
         if (iLMStatus < 0&&e3dc_config.wrsteuerung>0)
         {
-            if (iE3DC_Req_Load==0)
+            if (iE3DC_Req_Load==0) // Speicher wird nicht geladen
                 Mode = 1;
             else
             if (iE3DC_Req_Load>e3dc_config.maximumLadeleistung)
