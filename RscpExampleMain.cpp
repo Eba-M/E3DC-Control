@@ -3166,7 +3166,9 @@ int LoadDataProcess() {
                         )
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04)+1;
-                        printf("\ncase %i",x1);
+                        sprintf(Log1,"case %i",x1);
+                        WriteLog(e3dc_config,Log1,2);
+
 //                        if (temp[14]>=e3dc_config.BWWPmax*10-10||(temp[14]>=temp[4]+50&&temp[14]>=temp[10]+20))
                         if ((temp[15]>=temp[4]+30&&temp[15]>=temp[10]))
                         {
@@ -3177,10 +3179,10 @@ int LoadDataProcess() {
                         switch (x1)
                         {
                             case 0:
-                            case 1: printf("case %i ",x1);
-                            case 2: printf("case %i ",x1);
-                            case 3: printf("case %i ",x1);
-                                shelly(e3dc_config.shelly0V10VEZH1);
+                            case 1:
+                            case 2:
+                            case 3:
+                                    shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
                             case 4:
                                     shelly(e3dc_config.shelly0V10VEZH2);
