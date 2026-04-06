@@ -3176,9 +3176,9 @@ int LoadDataProcess() {
                         switch (x1)
                         {
                             case 0:
-                            case 1: printf("case 1");
-                            case 2: printf("case 2");
-                            case 3: printf("case 3");
+                            case 1: printf("case %i",x1);
+                            case 2: printf("case %i",x1);
+                            case 3: printf("case %i",x1);
                                 shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
                             case 4:
