@@ -4207,7 +4207,7 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
-            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
+            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2)
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
@@ -4238,9 +4238,12 @@ bDischarge = false;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
                 if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
                 {
-                    iFc = e3dc_config.maximumLadeleistung;
-                    iBattLoad =e3dc_config.maximumLadeleistung;
-                    iMinlade = e3dc_config.maximumLadeleistung;
+                    if (fBatt_SOC>5)
+                    {
+                        iFc = e3dc_config.maximumLadeleistung;
+                        iBattLoad =e3dc_config.maximumLadeleistung;
+                        iMinlade = e3dc_config.maximumLadeleistung;
+                    }
                 }
                 else
                 {
