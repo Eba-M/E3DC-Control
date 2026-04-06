@@ -4321,7 +4321,7 @@ bDischarge = false;
                     if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
                 }
                 
-                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0&&e3dc_config.DVEinspeise>0) // Entladen
+                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
