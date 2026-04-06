@@ -3027,7 +3027,8 @@ int LoadDataProcess() {
                                 {
                                     ALV = shelly_get();
                                     if (ALV>0&&ALV<e3dc_config.shelly0V10Vmin) ALV = e3dc_config.shelly0V10Vmin;
-                                    if (ALV>e3dc_config.shelly0V10Vmax) ALV = e3dc_config.shelly0V10Vmax;
+                                    if (ALV>e3dc_config.shelly0V10Vmax)
+                                        ALV = e3dc_config.shelly0V10Vmax;
                                     float fkosten = fspreis/(wolf[wphl].wert/wolf[wppw].wert);
                                     float fkostensoll = fspreis/(fcop);
 
@@ -3156,17 +3157,17 @@ int LoadDataProcess() {
                          )
                         &&
                         (
-                         (temp[14]<temp[4]+60
+                         (temp[15]<temp[4]+60
                           ||
-                          temp[14]<500     // Pufferspeicher unter 50°
+                          temp[15]<400     // Pufferspeicher unter 50°
                           ||
-                          temp[14]<temp[10]+30)
+                          temp[15]<temp[10]+30)
                          )
                         )
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04)+1;
 //                        if (temp[14]>=e3dc_config.BWWPmax*10-10||(temp[14]>=temp[4]+50&&temp[14]>=temp[10]+20))
-                        if ((temp[14]>=temp[4]+50&&temp[14]>=temp[10]+20))
+                        if ((temp[15]>=temp[4]+30&&temp[15]>=temp[10]))
                         {
                             shelly(e3dc_config.shelly0V10VEZH1);
                         }
@@ -3175,7 +3176,9 @@ int LoadDataProcess() {
                         switch (x1)
                         {
                             case 0:
-                            case 1:
+                            case 1: printf("case 1");
+                            case 2: printf("case 2");
+                            case 3: printf("case 3");
                                 shelly(e3dc_config.shelly0V10VEZH1);
                                 break;
                             case 4:

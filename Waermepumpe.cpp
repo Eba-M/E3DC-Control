@@ -684,9 +684,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 }
                                 
                                 //                            waermebedarf= 109;
-                                int schleife = 0;
+                                
                                 for (int y2=0;y2<2;y2++)
                                 {
+                                    int schleife = 0;
                                     if (y2==1)
                                     {
                                         waermebedarf=waermebedarf1;
