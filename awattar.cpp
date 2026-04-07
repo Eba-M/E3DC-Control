@@ -875,8 +875,8 @@ void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_conf
         int timeout = 0;
           if (e3dc->debug)
               printf("om.2\n");
-          sprintf(Log,"openmeteo vor Daten");
-          WriteLog(*e3dc,Log,2);
+//          sprintf(Log,"openmeteo vor Daten");
+//          WriteLog(*e3dc,Log,2);
           if (fp != NULL)
           if (fgets(path, sizeof(path), fp) == NULL)
 /*              while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)

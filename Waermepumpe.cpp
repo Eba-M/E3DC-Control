@@ -225,7 +225,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
         (rawtime-oldhour)>60
         )
     {
-        if (w.size()>0&&wetter.begin()->hourly==0)
+        if (w.size()>0&&wetter.size()>0&&wetter.begin()->hourly==0)
                 return;
         if (w.size()>0)
         {

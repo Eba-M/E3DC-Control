@@ -1658,17 +1658,17 @@ int wolfstatus()
                 wo.wert = -5;
                 wpswk = wolf.size();
                 wolf.push_back(wo);
+                wo.feld = "3-Wege-Umschaltventil HZ/K";
+                wo.AK = "UV";
+                wo.wert = -1;
+                wpuv = wolf.size();
+                wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
                 wo.AK = "BHG";
                 wpbhg = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Verdichterstatus";
                 wo.AK = "VS";
-                vdstatus = wolf.size();
-                wolf.push_back(wo);
-                wo.feld = "3-Wege-Umschaltventil HZ/K";
-                wo.AK = "UV";
-                wo.wert = -1;
                 vdstatus = wolf.size();
                 wolf.push_back(wo);
             }
@@ -2664,6 +2664,7 @@ int LoadDataProcess() {
 
             )
             &&(PVon<e3dc_config.WPPVoff)
+            &&wetter.size()>0
             &&(wetter[0].wwwpbedarf==0)    //keine Anforderung der WWWP zur Heizungsunterstützung
              )
             ||temp[13]>e3dc_config.BWWPmax*10
@@ -3148,6 +3149,8 @@ int LoadDataProcess() {
  Die Pufferspeichertemperaturen dürfen die Soll Temperaturen der FBH max. um 3°, der HZK um 6° nicht übersteigen.
  Die Ist-Temp der FBH darf die Soll Temp nicht über 1,5° überschreiten.
  */
+                    if (wetter[0].wpbedarf==0&&ALV>0)
+                        ALV = shelly(e3dc_config.shelly0V10Vmin);
                     if (wetter[0].heizstabbedarf>0
                         &&
                         (
@@ -4117,7 +4120,8 @@ bDischarge = false;
             e3dc_config.wbmode = 5;
 
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
-        float fmaxpp = 0; // Höchstpreis
+        float fmaxpp = -999; // Höchstpreis
+        float fminpp = 999; // Höchstpreis
         float fppborder = 300;
         int icount = 0;
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
@@ -4129,10 +4133,15 @@ bDischarge = false;
             e.erase(e.begin());
         for (int x2=1;x2<e.size();x2++)
         {
-            if (wetter[x2].solar>5)
-                break;
-            if (e[x2].pp>fmaxpp)
-                fmaxpp = e[x2].pp;
+//            if (wetter[x2].solar>5)
+//                break;
+            if (wetter[x2].solar>0)
+            {
+                if (e[x2].pp>fmaxpp)
+                    fmaxpp = e[x2].pp;
+                if (e[x2].pp<fminpp)
+                    fminpp = e[x2].pp;
+            }
             if (e[x2].pp>fppborder)
                 icount++;
         }
@@ -4244,12 +4253,9 @@ bDischarge = false;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
                 if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
                 {
-                    if (fBatt_SOC>5)
-                    {
                         iFc = e3dc_config.maximumLadeleistung;
                         iBattLoad =e3dc_config.maximumLadeleistung;
                         iMinlade = e3dc_config.maximumLadeleistung;
-                    }
                 }
                 else
                 {
@@ -4285,49 +4291,20 @@ bDischarge = false;
                 }
             }
         }
-        {   float fsoue = fBatt_SOC; // SoC
-            float fsoue_alt=fsoue;
-            int x3,x4=0;
-            x1=0;
-            for (int x2=1;x2<e.size();x2++) // Suchen Höchstpreis
+// Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
+        {
+            if (e.begin()->hh%(24*3600)>sunriseAt*60&&e.begin()->hh%(24*3600)<(sunriseAt+180)*60)
             {
-                if (e[x2].pp>fmaxpp)
-                    fmaxpp = e[x2].pp;
-                if (fsoue <=0||fsoue>fsoue_alt)
+                x1=0;
+                for (int x2=1;x2<e.size()&x2<12;x2++)
                 {
-                    x3 = x2;
-                    break;
-                }
-                fsoue_alt=fsoue;
-                if (e[x2].pp>e.begin()->pp)
-                {
-                    x1++;
-                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                }
-                if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
-            }
-//            if (fsoue>0&&ptm->tm_hour<10&&sunriseAt+60>ptm->tm_hour*60+ptm->tm_min) // Beginn neuer Tag Hochpreise suchen
-            {
-                fsoue_alt=fsoue;
-                for (int x2=1;x2<e.size();x2++)
-                {
-                    if (e[x2].pp>fmaxpp)
-                        fmaxpp = e[x2].pp;
-                    if (fsoue <=0||fsoue>100)
-                    {
-                        x3 = x2;
-                        break;
-                    }
                     if (e[x2].pp>e.begin()->pp)
                     {
                         x1++;
                     }
-                    fsoue = fsoue + wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                    
-                    if (wetter[x2].solar==0) x4=1; // Nachtbetrieb
                 }
                 
-                if (fsoue_alt>0&&fsoue_alt*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0) // Entladen
+                if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*3600/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
@@ -7460,7 +7437,7 @@ static void mainLoop(void)
             int len = sizeof(ftemp)/sizeof(float);
             if (fBatt_SOC >= 0)
             {
-                if ((ptm->tm_min%15==3&&ptm->tm_sec==0)||(w.begin()->hh!=wetter.begin()->hh))
+                if ((ptm->tm_min%15==3&&ptm->tm_sec==0)||(wetter.size()>0&&w.begin()->hh!=wetter.begin()->hh))
                     DateienSichern();
                 if (w.size()>0&&wetter.size()>0&&w.begin()->hh!=wetter.begin()->hh)
                 {
