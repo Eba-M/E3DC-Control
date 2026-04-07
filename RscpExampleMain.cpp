@@ -726,9 +726,13 @@ bool GetConfig()
                   else if((strcmp(var, "openwb") == 0)&&
                             (strcmp(value, "true") == 0))
                         e3dc_config.openWB = true;
-                  else if((strcmp(var, "openmeteo") == 0)&&
-                            (strcmp(value, "true") == 0))
-                        e3dc_config.openmeteo = true;
+                  else if(strcmp(var, "openmeteo") == 0)
+                          {
+                              if (strcmp(value, "true") == 0)
+                              e3dc_config.openmeteo = true;
+                              if (strcmp(value, "false") == 0)
+                              e3dc_config.openmeteo = false;
+                  }
                   else if((strcmp(var, "dcdc") == 0)&&
                           (strcmp(value, "false") == 0))
                       e3dc_config.DCDC = false;
@@ -4304,7 +4308,7 @@ bDischarge = false;
                     }
                 }
                 
-                if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*3600/4&&fBatt_SOC>5&&e.begin()->pp>e3dc_config.DVEinspeise*10.0&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
+                if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*3600/4&&fBatt_SOC>5&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
