@@ -1289,7 +1289,7 @@ int iModbusTCP()
                             isttemp = wetter[0].temp;
                     }
                     // Wenn die Wolf läuft, dann die Berechnung isttemp mit zulufttemperatur bei Abtaubetrieb aussetzen
-                    if (
+                    if ((wetter.size()>0)&&
                         (((now - wolf[wppw].t < 600)&&wolf[wppw].wert>0)
                          ||
                          ((now - wolf[wpalv].t < 600)&&wolf[wpalv].wert>0))
@@ -1750,7 +1750,7 @@ int wolfstatus()
                     iHeat_WP = wolf[wphl].wert*1000;
                 else
                     iHeat_WP = 0;
-                if (iPower_WP==0&&ALV>0&&wetter[0].wpbedarf>0&&tasmota_status[0]==0) // keine EVU sperre und WP Anforderung
+                if (iPower_WP==0&&ALV>0&&(wetter.size()>0)&&wetter[0].wpbedarf>0&&tasmota_status[0]==0) // keine EVU sperre und WP Anforderung
                     iPower_WP = 700;
                 else
                     if (iPower_WP>0&&ALV==0)
@@ -2703,7 +2703,7 @@ int LoadDataProcess() {
             }
 
         // Steuerung LWWP über Tasmota Kanal2 Unterstützung WW Bereitung
-        if (temp[2]>0)  // als indekation genutzt ob werte oekofen da
+        if (temp[2]>0&&(wetter.size()>0))  // als indekation genutzt ob werte oekofen da
         {
             if
                 (temp[17]==1&&
@@ -3104,7 +3104,7 @@ int LoadDataProcess() {
                                 }
                             } else
 
-                                if (t%60<5&&t - wp_t > 115&&wolf[wpbhg].wert!=6&&ALV>=0&&(tasmota_status[0]==0||wetter[0].wpbedarf>0))
+                                if (t%60<5&&t - wp_t > 115&&wolf[wpbhg].wert!=6&&ALV>=0&&(tasmota_status[0]==0||(wetter.size()>0&&wetter[0].wpbedarf>0)))
             {
                 if (ALV!=0)
                     if (ALV > e3dc_config.shelly0V10Vmax
@@ -3153,9 +3153,9 @@ int LoadDataProcess() {
  Die Pufferspeichertemperaturen dürfen die Soll Temperaturen der FBH max. um 3°, der HZK um 6° nicht übersteigen.
  Die Ist-Temp der FBH darf die Soll Temp nicht über 1,5° überschreiten.
  */
-                    if (wetter[0].wpbedarf==0&&ALV>0)
+                    if ((wetter.size()>0)&&wetter[0].wpbedarf==0&&ALV>0)
                         ALV = shelly(e3dc_config.shelly0V10Vmin);
-                    if (wetter[0].heizstabbedarf>0
+                    if ((wetter.size()>0)&&wetter[0].heizstabbedarf>0
                         &&
                         (
                          temp[1]>0
@@ -4309,7 +4309,7 @@ bDischarge = false;
                     }
                 }
                 
-                if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*360.0/4.0&&fBatt_SOC>5&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
+                if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*360.0/4.0&&fBatt_SOC>5.5&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
                     iFc = -e3dc_config.maximumLadeleistung+500;
