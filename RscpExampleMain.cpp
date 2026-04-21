@@ -1664,7 +1664,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "3-Wege-Umschaltventil HZ/K";
                 wo.AK = "UV";
-                wo.wert = -1;
+                wo.wert = 99;
                 wpuv = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -4298,7 +4298,7 @@ bDischarge = false;
                 }
             }
         }
-        printf("\n");
+        printf("%c[K\n", 27 );
 
         ret =  CheckDV(w,e,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta);
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
