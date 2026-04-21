@@ -4298,8 +4298,11 @@ bDischarge = false;
                 }
             }
         }
-            ret =  CheckDV(w,e,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta); 
+        printf("\n");
+
+        ret =  CheckDV(w,e,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta);
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
+        printf("ret= %i",ret);
         {
             if (e.begin()->hh%(24*3600)>sunriseAt*60&&
                 e.begin()->hh%(24*3600)<(sunriseAt+180)*60)
