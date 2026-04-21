@@ -262,6 +262,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             else
                 waermebedarf1 = 0;
             float diff = float(HeatStat)/3600000.0;
+            if (diff>30) diff = 30;
+            if (diff<-30) diff = -30;
                 waermebedarf = waermebedarf-diff;
 
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
@@ -529,6 +531,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     else
                         waermebedarf1 = 0;
                     float diff = float(HeatStat)/3600000.0;
+
+                    if (diff>30) diff = 30;
+                    if (diff<-30) diff = -30;
+
                         waermebedarf = waermebedarf-diff;
 
                     if (e3dc.WPWolf)
@@ -974,7 +980,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             {
                 w.clear();
                 wetter.clear();
-                e3dc.speichergroesse = 29.5;
+//                e3dc.speichergroesse = 29.5;
                 if (fp != NULL)
                 fclose(fp);
                 fp = NULL;
@@ -1261,7 +1267,7 @@ if (e3dc.debug) printf("NWS2\n");
                 system(line);
                 if (e3dc.DV&&ptm->tm_hour==0)
                 {
-                    sprintf(line,"cp awattardebug.txt dv.%i2.%i2.%i2.txt",(ptm->tm_year+1900)%100,ptm->tm_mon+1,ptm->tm_mday);
+                    sprintf(line,"cp awattardebug.txt dv.%2i.%2i.%2i.txt",(ptm->tm_year+1900)%100,ptm->tm_mon+1,ptm->tm_mday);
                     system(line);
                 }
             }

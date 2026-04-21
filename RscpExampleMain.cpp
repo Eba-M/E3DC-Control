@@ -3643,7 +3643,7 @@ int LoadDataProcess() {
 
    
 //    fht = cos((ts->tm_yday+9)*2*3.14/365);
-    fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
+//    fht = e3dc_config.htsockel + (e3dc_config.ht-e3dc_config.htsockel) * cos((ts->tm_yday+9)*2*3.14/365);
 
     // HT Endeladeleistung freigeben
     // Mo-Fr wird während der Hochtarif der Speicher zwischen hton und htoff endladen
@@ -3666,7 +3666,7 @@ int LoadDataProcess() {
         if (e3dc_config.debug) printf("D5\n");
         static time_t rettime = 0;
     int ret = 0; // Steuerung Netzladen = 2, Entladen zulassen = 1; Neu: 3 = Speicher ins netz entladen
-        if (w.size()>0)
+        if (w.size()>0&&wetter.size()>0)
         {
             if (e3dc_config.openmeteo)
                 ret =  CheckaWATTar(w,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta); // Ladeleistung in %
@@ -4284,7 +4284,10 @@ bDischarge = false;
                 if (e3dc_config.wbmode == 5)
                 {
                     if (fPower_WB>0)
-                        iAvalPower = -20000;
+                    {
+                        iAvalPower = -50000;
+                        printf(" AVL %i ",iAvalPower);
+                    }
                     else
                         e3dc_config.wbmode = 0;
                 }
@@ -4295,6 +4298,7 @@ bDischarge = false;
                 }
             }
         }
+            ret =  CheckDV(w,e,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta); 
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
         {
             if (e.begin()->hh%(24*3600)>sunriseAt*60&&
