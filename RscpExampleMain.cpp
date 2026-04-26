@@ -1235,7 +1235,7 @@ int solaredge()
     time(&now);
     static int dimm = -1; // Dimmen auf %
     static int power = -1; // Power
-    printf("\n SE %i %i %i ",power,dimm,solaredge_isocket);
+    printf(" SE %i %i %i ",power,dimm,solaredge_isocket);
     if (now-tlast<5) // jede Minute
         return (solaredge_isocket);
     tlast = now;
@@ -1511,7 +1511,9 @@ int iModbusTCP()
                 if (e3dc_config.debug)
                     printf("AGE");
                 myiLength = iLength;
+                brequest=true;
             }
+            if (brequest)
             {
                 if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
                 if (isocket > 0)
