@@ -1272,7 +1272,7 @@ int solaredge()
                 AdvancedPwrControlEn = true;
             }
 // Active Power Limit    61441
-            if (e.size()>=0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>=0)
+            if (e.size()>0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>0)
             {
                 dimm = dimm + fPower_Grid/300;
                 if (dimm<0)
