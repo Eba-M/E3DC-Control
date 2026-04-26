@@ -1282,6 +1282,8 @@ int solaredge()
             }
             if (e.size()>0&&dimm<100&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
             {
+                if (fPower_Grid>300)
+                    dimm = dimm + fPower_Grid/300;
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+1,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
