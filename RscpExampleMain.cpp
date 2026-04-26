@@ -87,6 +87,7 @@ static uint8_t iCyc_WB;
 static int32_t iBattLoad;
 static int iPowerBalance = 0;
 static int iPowerHome = 0;
+static int dimm = -1; // Dimmen auf %
 static uint8_t iNotstrom = 0;
 static float fNotstromreserve = 0; // aus dem System übernommene Notstromreserve für AWReserve berücksichtigen
 static time_t tE3DC, tWBtime;
@@ -1233,7 +1234,6 @@ int solaredge()
     static time_t tlast = 0;
     time_t now;
     time(&now);
-    static int dimm = -1; // Dimmen auf %
     static int power = -1; // Power
     printf(" SE %i %i %i ",power,dimm,solaredge_isocket);
     if (now-tlast<5) // jede Minute
@@ -1272,14 +1272,17 @@ int solaredge()
                 AdvancedPwrControlEn = true;
             }
 // Active Power Limit    61441
-            if (e.size()>0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>=0)
+            if (e.size()>=0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>=0)
             {
-                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm-1,1);
+                dimm = dimm + fPower_Grid/300;
+                if (dimm<0)
+                    dimm = 0;
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
-            if (e.size()>0&&dimm<100&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
+            if (e.size()>0&&dimm<95&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
             {
-                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+1,1);
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+5,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
 // Auslesen Register
@@ -3266,11 +3269,11 @@ int LoadDataProcess() {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04)+1;
                         if (temp[0]>50&&x1>=4)
                         {
-                            if (iPower_PV<20000&&x1>=4)
+                            if (iPower_PV+(100-dimm)*30000<20000&&x1>=4)
                                 x1=3;
-                            if (iPower_PV<25000&&x1>=7)
+                            if (iPower_PV+(100-dimm)*30000<25000&&x1>=7)
                                 x1=4;
-                            if (iPower_PV<30000&&x1>=9)
+                            if (iPower_PV+(100-dimm)*30000<30000&&x1>=10)
                                 x1=7;
 
                         }
@@ -4353,6 +4356,7 @@ bDischarge = false;
                 }
                 e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
                 e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
+// RE und LE werden gleichgeschaltet
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
