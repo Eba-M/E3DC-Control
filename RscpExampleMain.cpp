@@ -7570,6 +7570,9 @@ static void mainLoop(void)
 
             if (strcmp(e3dc_config.heizung_ip,"0.0.0.0") >  0)
               iModbusTCP();
+            if (strcmp(e3dc_config.solaredge_ip,"0.0.0.0") >  0)
+              solaredge();
+
             if (e3dc_config.debug) printf("M3a\n");
 
             if((frameBuffer.dataLength == 0)&&(e3dc_config.wallbox>=0)&&(bWBRequest))
@@ -7624,7 +7627,6 @@ if (e3dc_config.debug) printf("M6");
                 bStopExecution = true;
             }
             else {
-                int ret = solaredge();
 //                printf("%i ",ret);
                 // go into receive loop and wait for response
                 using namespace std::chrono;
