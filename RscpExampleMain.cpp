@@ -1280,9 +1280,9 @@ int solaredge()
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
-            if (e.size()>0&&dimm<95&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
+            if (e.size()>0&&dimm<100&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
             {
-                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+5,1);
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+1,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
 // Auslesen Register
