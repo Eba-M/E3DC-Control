@@ -1240,7 +1240,7 @@ int solaredge()
         return (solaredge_isocket);
     tlast = now;
     if (solaredge_isocket>0)
-    do
+    
     {
 //        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         iLength = SocketRecvData(solaredge_isocket,&receive[0],receive.size());
@@ -1259,7 +1259,7 @@ int solaredge()
                 }
         
             }
-        } while (iLength>0);
+        }
 
 //    if (e.begin()->pp<e3dc_config.DVmp*-10)
     {
