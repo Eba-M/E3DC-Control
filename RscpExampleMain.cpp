@@ -488,6 +488,8 @@ bool GetConfig()
         strcpy(e3dc_config.mqtt4_ip, "0.0.0.0");
         strcpy(e3dc_config.WB_ip, "0.0.0.0");
         strcpy(e3dc_config.openWB_ip, "0.0.0.0");
+        strcpy(e3dc_config.solaredge_ip, "0.0.0.0");
+        e3dc_config.solaredge_port = 1501;
         strcpy(e3dc_config.shelly0V10V_ip, "0.0.0.0");
         strcpy(e3dc_config.shellyEM_ip, "0.0.0.0");
         memset(e3dc_config.openweathermap,0,sizeof(e3dc_config.openweathermap));
@@ -657,6 +659,10 @@ bool GetConfig()
                     }
                     else if(strcmp(var, "openwb_ip") == 0)
                         strcpy(e3dc_config.openWB_ip, value);
+                    else if(strcmp(var, "solaredge_ip") == 0)
+                        strcpy(e3dc_config.solaredge_ip, value);
+                    else if(strcmp(var, "solaredge_port") == 0)
+                        e3dc_config.solaredge_port = atoi(value);
                     else if(strcmp(var, "mqtt_ip") == 0)
                         strcpy(e3dc_config.mqtt_ip, value);
                     else if(strcmp(var, "mqtt2_ip") == 0)
@@ -1036,7 +1042,8 @@ bool GetConfig()
 
 int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg,wpuv;  //heizleistung und stromaufnahme wärmepumpe
 time_t tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
-static int isocket;
+static int isocket = -1;
+static int solaredge_isocket = -1;
 long iLength,myiLength;
 int iRegister;
 const char * relay_ip;
@@ -1071,9 +1078,10 @@ static int x1 = 0;
 static int16_t temp[oekofen.size()];
 static uint8_t tn = 1;
 char server_ip[200];
+int server_port = 502;
 static bool brequest = false;
 
-long iModbusTCP_Set(int reg,int val,int tac)
+long iModbusTCP_Set(char server_ip[20], int server_port, int &isocket, int reg,int val,int tac)
 {
     send.resize(12);
     receive.resize(125);
@@ -1086,13 +1094,14 @@ long iModbusTCP_Set(int reg,int val,int tac)
     Msend.Dev = 1;  // Devadr. 1 oder 255
     Msend.Fcd = 6; // Funktioncode
     //            Msend.Fcd = 6; // Funktioncode
-    Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
+    Msend.Reg = (reg%256)*256+reg/256;  // Adresse Register // Aussentemperatur
     Msend.Count = (val%256)*256; // Inhalt    int size = send.size();
     Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BSE%i",isocket);
-    printf("Modbus Set %i %i ",reg, val);
+    if (reg < 256)
+        printf("Modbus Set %i %i ",reg, val);
 
 /*
     if (isocket > 0)
@@ -1103,18 +1112,20 @@ long iModbusTCP_Set(int reg,int val,int tac)
         isocket = -1;
     }
 */
-    if (brequest)
+    if (brequest&&reg < 256)
     {
         printf(" len %li ",iLength);
         return iLength;
     }
     if (isocket <= 0)
         {
-            sprintf(server_ip,e3dc_config.heizung_ip);
+//            sprintf(server_ip,e3dc_config.heizung_ip);
             if (e3dc_config.debug)
                 printf("BSC");
 
-            isocket = SocketConnect(server_ip, 502);
+            isocket = SocketConnect(server_ip, server_port);
+            if (isocket<0)
+                isocket = SocketConnect(server_ip, server_port);
             if (e3dc_config.debug)
                 printf("ASC");
 
@@ -1125,16 +1136,18 @@ long iModbusTCP_Set(int reg,int val,int tac)
         iLength = SocketSendData(isocket,&send[0],send.size());
         if (e3dc_config.debug)
             printf("BRC");
-        
-        iLength = SocketRecvData(isocket,&receive[0],receive.size());
+        if (tac != 2)
+          iLength = SocketRecvData(isocket,&receive[0],receive.size());
+        else iLength = 0;
         if (e3dc_config.debug)
             printf("ARC");
     }
-    printf(" len %i ",iLength);
+    if (reg < 256)
+        printf(" len %i ",iLength);
     return iLength;
 }
 
-long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
+long iModbusTCP_Get(char server_ip[20],int server_port, int &isocket,int reg,int val,int tac) //val anzahl register lesen
 {
     send.resize(12);
     receive.resize(2048);
@@ -1149,13 +1162,14 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
     Msend.Dev = 1;  // Devadr. 1 oder 255
     Msend.Fcd = 3; // Funktioncode
     //            Msend.Fcd = 6; // Funktioncode
-    Msend.Reg = reg*256;  // Adresse Register // Aussentemperatur
+    Msend.Reg = (reg%256)*256+reg/256;  // Adresse Register // Aussentemperatur
     Msend.Count = (val%256)*256; // Inhalt    int size = send.size();
     Msend.Count = Msend.Count + val/256; // Inhalt    int size = send.size();
 
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
+if (reg < 256)
     printf(" Get %i %i ",reg, val);
 
 /*
@@ -1168,19 +1182,28 @@ long iModbusTCP_Get(int reg,int val,int tac) //val anzahl register lesen
             isocket = -1;
         }
     }
-
+*/
     if (isocket<0)
     {
-        sprintf(server_ip,e3dc_config.heizung_ip);
         if (e3dc_config.debug)
             printf("BSC");
 
-        isocket = SocketConnect(server_ip, 502);
+        isocket = SocketConnect(server_ip, server_port);
         if (e3dc_config.debug)
             printf("ASC");
 
     }
-*/
+    if (isocket<0)
+    {
+        if (e3dc_config.debug)
+            printf("BSC");
+
+        isocket = SocketConnect(server_ip, server_port);
+        if (e3dc_config.debug)
+            printf("ASC");
+
+    }
+
     if (brequest)
     {
         printf(" len %i ",iLength);
@@ -1191,15 +1214,86 @@ if (isocket > 0)
      iLength = SocketSendData(isocket,&send[0],send.size());
      if (e3dc_config.debug)
          printf("BRCV");
-     iLength = SocketRecvData(isocket,&receive[0],receive.size());
-         brequest = true;
+     if (iLength<=0)
+     {
+         SocketClose(isocket);
+        isocket = -1;
+     }
+         
  }
         if (e3dc_config.debug)
         printf("ARCV");
-    printf(" len %i ",iLength);
+    if (reg < 256)
+        printf(" len %i ",iLength);
     return iLength;
 }
+int solaredge()
 
+{
+    static time_t tlast = 0;
+    time_t now;
+    time(&now);
+    static int dimm = -1; // Dimmen auf %
+    static int power = -1; // Power
+    printf("\n SE %i %i %i ",power,dimm,solaredge_isocket);
+    if (now-tlast<5) // jede Minute
+        return (solaredge_isocket);
+    tlast = now;
+    if (solaredge_isocket>0)
+    do
+    {
+//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        iLength = SocketRecvData(solaredge_isocket,&receive[0],receive.size());
+//                sleep(0.1);
+// Auslesen der maximalen Leistung
+        for (x1=0;x1<iLength;x1=x1+6+receive[5])
+            if (iLength > 0)
+            {
+                if (receive[x1+7]==3)
+                {
+                    int value = receive[x1+9]*256+receive[x1+10];
+                    if (receive[x1]==3)
+                        power = value;
+                    if (receive[x1]==4)
+                        dimm = value;
+                }
+        
+            }
+        } while (iLength>0);
+
+//    if (e.begin()->pp<e3dc_config.DVmp*-10)
+    {
+        {
+// AdvancedPwrControlEn    61762
+            static int AdvancedPwrControlEn = false;
+            if (not AdvancedPwrControlEn)
+            {
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61762,1,2);
+                AdvancedPwrControlEn = true;
+            }
+// Active Power Limit    61441
+            if (e.size()>0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>=0)
+            {
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm-1,1);
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
+            }
+            if (e.size()>0&&dimm<100&&(e.begin()->pp>e3dc_config.DVmp*-10 || fPower_Grid >-200))
+            {
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+1,1);
+                iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
+            }
+// Auslesen Register
+            iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,40083,1,3); //val anzahl register lesen 40083 61441
+            iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,1,4); //val anzahl register lesen 40083 61441
+
+        }
+    }
+    /*    if (isocket>0)
+        SocketClose(isocket);
+    isocket = -1;
+*/
+    return (solaredge_isocket);
+};
 static int dummy[100];
 static int bWP = 0;
 static int bHK2off = 0; // wenn > 0 wird der HK ausgeschaltet
@@ -1237,11 +1331,11 @@ int iModbusTCP()
             if (e3dc_config.debug)
                 printf("BSC");
             
-            isocket = SocketConnect(server_ip, 502);
+            isocket = SocketConnect(server_ip, server_port);
             if (e3dc_config.debug)
                 printf("ASC");
             iLength = 0;
-
+            
         }
         if (e3dc_config.debug) printf("ÖKc%i",now-t_OeK);
         if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
@@ -1254,18 +1348,18 @@ int iModbusTCP()
             receive.resize(1024);
             if (e3dc_config.debug)
                 printf("ARV");
-
-// Heizkreise schalten in Abhängigkeit vom EVU und Status des jeweiligen heizkreis
-// Wenn WP und oekofen aus sind, dann heizkreise ausschalten
-// Wenn WP oder oekofen laufen Heizkreise einschalten
+            
+            // Heizkreise schalten in Abhängigkeit vom EVU und Status des jeweiligen heizkreis
+            // Wenn WP und oekofen aus sind, dann heizkreise ausschalten
+            // Wenn WP oder oekofen laufen Heizkreise einschalten
             
             if (temp[13] > 0 && not brequest && (now-t_OeK<20))
-// Temperatur Puffer gesetzt?
+                // Temperatur Puffer gesetzt?
             {
-//  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
-//  Regelgröße ist die Zulufttemperatur der LWWP
-//  daneben die aktuelle Temperatur vom Wetterportal
-// und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
+                //  Kessel in Abhängigleit zu Aussentemperatur zu- und abschalten
+                //  Regelgröße ist die Zulufttemperatur der LWWP
+                //  daneben die aktuelle Temperatur vom Wetterportal
+                // und anstatt die Mitteltemperatur die aktuelle Temperatur zur Verifizierung
                 if (wolf.size()>0)
                 {
                     if (
@@ -1299,51 +1393,51 @@ int iModbusTCP()
                         ((now - wolf[wpzl].t < 600)&&wolf[wpzl].wert>-90)
                         &&
                         ((now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6))
-
+                        
                         )
                         isttemp = (wolf[wpzl].wert + wetter[0].temp)/2;
                     if (isttemp>-99)
                     {
                         if ((isttemp<=(e3dc_config.WPZWE))&&temp[17]==0)
                         {
-                            iLength  = iModbusTCP_Set(101,1,101); //Heizkessel register 101
-                            iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                            iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,101,1,101); //Heizkessel register 101
+                            iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,101,0,101); //Heizkessel
                             //                    brequest = true;
                         }
                         // Pellets wird nur ausgeschaltet, wenn die WP-Anforderung für die WP da ist
                         if (isttemp>=(e3dc_config.WPZWE+2)&&temp[17]==1)
                         {
-                            iLength  = iModbusTCP_Set(101,0,101); //Heizkessel
-                            iLength  = iModbusTCP_Get(101,0,101); //Heizkessel
+                            iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,101,0,101); //Heizkessel
+                            iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,101,0,101); //Heizkessel
                             //                    brequest = true;
                         }
                     }
                 }
-// Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
+                // Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
                 if (temp[1]==0&&wolf[wphl].wert>0&&
                     (
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6)
+                     (now - wolf[wpbhg].t > 600||wolf[wpbhg].wert!=6)
                      )
                     &&
-
+                    
                     (
-                        ((tasmota_status[0]==0||temp[14]>300)&&bHK1off==0)
+                     ((tasmota_status[0]==0||temp[14]>300)&&bHK1off==0)
                      ||
-                        temp[17]>0)
+                     temp[17]>0)
                     )
-// EVU Aus und Heizkreis Aus und fbh Anforderung ein -> einschalten
+                    // EVU Aus und Heizkreis Aus und fbh Anforderung ein -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(11,1,11); //FBH? register 11
-                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
-  //                  brequest = true;
+                    iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,11,1,11); //FBH? register 11
+                    iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,11,1,11); //FBH?
+                    //                  brequest = true;
                 }
                 if (temp[7]==0&&wolf[wphl].wert>0&&
                     (
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
-                      (now - wolf[wpbhg].t > 300||wolf[wpbhg].wert!=6)
+                     (now - wolf[wpbhg].t > 300||wolf[wpbhg].wert!=6)
                      )
                     &&
                     (
@@ -1352,80 +1446,75 @@ int iModbusTCP()
                       )
                      ||temp[17]>0)
                     )
-//                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
+                    //                if ((tasmota_status[0]==0||temp[17]>0)&&temp[7]==0&&bHK2off==0)
                     // EVU Aus und Heizkreis Aus und WW Anforderung aus -> einschalten
                 {
-                    iLength  = iModbusTCP_Set(31,1,31); //HZK? register 31
-                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
-//                    brequest = true;
+                    iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,31,1,31); //HZK? register 31
+                    iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,31,1,31); //HZK?
+                    //                    brequest = true;
                 } // HK werden nur beim Abtauen abgeschaltet, wenn der pellets nicht läuft
                 if (temp[1]==1&&temp[17]==0&&
                     (
                      (tasmota_status[0]==1&&temp[14]<300)
-// wenn der Puffer > 30° läuft die FBH nach
-                    ||
+                     // wenn der Puffer > 30° läuft die FBH nach
+                     ||
                      (bHK1off>0)
-                    ||
+                     ||
                      ((now - wolf[wphl].t < 300)&&wolf[wphl].wert<0
-//                      &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
+                      //                      &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
                       )
-                    ||
+                     ||
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
-                    ||
+                     ||
                      (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert==6)
-
+                     
+                     )
                     )
-                    )
-// EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
-// Abschalten der heizkreise aussetzen
+                    // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
+                    // Abschalten der heizkreise aussetzen
                 {
-//                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
-//                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
-//                    brequest = true;
+                    //                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
+                    //                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
+                    //                    brequest = true;
                 }
                 if (temp[7]==1&&temp[17]==0&&
                     (
                      (tasmota_status[0]==1&&temp[14]<300)
-                    ||
+                     ||
                      (bHK2off>0)
                      ||
-                      (
-                       (now - wolf[wphl].t < 300)&&wolf[wphl].wert<0
-//                       &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
-                       )
+                     (
+                      (now - wolf[wphl].t < 300)&&wolf[wphl].wert<0
+                      //                       &&(now - wolf[wppw].t < 300)&&wolf[wppw].wert>0&&temp[17]==0
+                      )
                      ||
-                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
+                     (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert>0)
                      ||
-                      (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert==6)
+                     (now - wolf[wpbhg].t < 300&&wolf[wpbhg].wert==6)
                      )
                     )
-// wenn Puffer > 30° läuft die HKZ nach
-// EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
+                    // wenn Puffer > 30° läuft die HKZ nach
+                    // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-//                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
-//                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
-//                    brequest = true;
-
+                    //                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
+                    //                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
+                    //                    brequest = true;
                 }
             }
+            if (now-t_OeK>30&&not brequest)
             {
-                if (not brequest||t-t_OeK>30)
-                {
-                    brequest = false;
-                    if (e3dc_config.debug)
-                        printf("BGE");
-                    iLength = iModbusTCP_Get(2,105,2); // Alle Register auf einmal abfragen
-                    if (e3dc_config.debug)
-                        printf("AGE");
-                    myiLength = iLength;
-                }
+                if (e3dc_config.debug)
+                    printf("BGE");
+                SocketClose(isocket);
+                isocket = -1;
+                iLength = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,2,105,2); // Alle Register auf einmal abfragen
+                if (e3dc_config.debug)
+                    printf("AGE");
+                myiLength = iLength;
             }
-        }
-        else
-            if (brequest)
             {
                 if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
-                if (isocket > 0&&iLength < 0)
+                if (isocket > 0)
                     iLength = SocketRecvData(isocket,&receive[0],receive.size());
                 if (e3dc_config.debug) printf("ÖKe%i",receive.size());
                 if (iLength > 0)
@@ -1436,14 +1525,14 @@ int iModbusTCP()
                     int x3 = 0;
                     x1 = receive[0]; // Startregister tan
                     iRegister = receive[0]; // Startregister tan
-//                    x3 = x1;
+                    //                    x3 = x1;
                     for (x3=0;x3<oekofen.size()&&oekofen[x3] != x1;x3++);
                     
                     if (receive[7]==3)
                         while (x2 < iLength&&x3<oekofen.size())
                         {
-//                            if (e3dc_config.debug) printf("ÖKe%i",x3);
-
+                            //                            if (e3dc_config.debug) printf("ÖKe%i",x3);
+                            
                             if (oekofen[x3] == x1) // suchen der gewünschten register
                             {
                                 temp[x3] = (receive[x2]*256+receive[x2+1]);
@@ -1461,14 +1550,14 @@ int iModbusTCP()
                     isocket = -1;
                     brequest = false;
                 } else
-//                    if (iLength <= 0)
-                    {
-                        SocketClose(isocket);
-                        isocket = -1;
-                        brequest = false;
-                    }
-
-            }}
+                    //                    if (iLength <= 0)
+                {
+                    SocketClose(isocket);
+                    isocket = -1;
+                    brequest = false;
+                }
+                
+            }}}
     return iLength;
 }
 int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
@@ -1664,7 +1753,7 @@ int wolfstatus()
                 wolf.push_back(wo);
                 wo.feld = "3-Wege-Umschaltventil HZ/K";
                 wo.AK = "UV";
-                wo.wert = 99;
+                wo.wert = -1;
                 wpuv = wolf.size();
                 wolf.push_back(wo);
                 wo.feld = "Betriebsart Heizgerät";
@@ -2803,8 +2892,8 @@ int LoadDataProcess() {
                     if (temp[2]>e3dc_config.WPHK1*10&&bHK1off)
                     {
                         // HK1 wird eingeschaltet, zuvor wird die Solltemperatur zurückgesetzt
-                        iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
-                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
+                        iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,12,1,12); //FBH?
                     }
                     bHK1off = 0;
                 }
@@ -2861,12 +2950,12 @@ int LoadDataProcess() {
                         )
                     {
                         if (temp[4]<(iWPHK1max-5))
-                            iLength  = iModbusTCP_Set(12,temp[2]+5,12); //FBH? Solltemperatur
+                            iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,temp[2]+5,12); //FBH? Solltemperatur
                         else
                             if (temp[4]<(iWPHK1max))
-                                iLength  = iModbusTCP_Set(12,temp[2]+1,12); //FBH? Solltemperatur
+                                iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,temp[2]+1,12); //FBH? Solltemperatur
                         if (iLength>0 )
-                        iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                        iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,12,1,12); //FBH?
                         if (iLength>0 )
                             HK1_t = t;
                         else
@@ -2906,14 +2995,14 @@ int LoadDataProcess() {
                         if ((temp[2]-1)> e3dc_config.WPHK1*10)
                         {
                             if (-iWPHK1max+temp[4]>5&&((temp[2]-5)>= e3dc_config.WPHK1*10))
-                                iLength  = iModbusTCP_Set(12,temp[2]-5,12); //FBH? Solltemperatur
+                                iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,temp[2]-5,12); //FBH? Solltemperatur
                             else
-                                iLength  = iModbusTCP_Set(12,temp[2]-1,12);
+                                iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,temp[2]-1,12);
                         } //FBH? Solltemperatur
                         else
-                            iLength  = iModbusTCP_Set(12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
+                            iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,12,e3dc_config.WPHK1*10,12); //FBH? Solltemperatur
                         if (iLength>0)
-                            iLength  = iModbusTCP_Get(12,1,12); //FBH?
+                            iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,12,1,12); //FBH?
                         if (iLength>0 ) HK1_t = t;
                         else HK1_t++;
                         brequest = true;
@@ -3173,6 +3262,16 @@ int LoadDataProcess() {
                         )
                     {
                         int x1 = (wetter[0].heizstabbedarf*e3dc_config.speichergroesse*.04)+1;
+                        if (temp[0]>50&&x1>=4)
+                        {
+                            if (iPower_PV<20000&&x1>=4)
+                                x1=3;
+                            if (iPower_PV<25000&&x1>=7)
+                                x1=4;
+                            if (iPower_PV<30000&&x1>=9)
+                                x1=7;
+
+                        }
                         sprintf(Log1,"case %i",x1);
                         WriteLog(e3dc_config,Log1,2);
 
@@ -7525,6 +7624,8 @@ if (e3dc_config.debug) printf("M6");
                 bStopExecution = true;
             }
             else {
+                int ret = solaredge();
+//                printf("%i ",ret);
                 // go into receive loop and wait for response
                 using namespace std::chrono;
                 milliseconds ms = duration_cast< milliseconds >(
@@ -7617,6 +7718,9 @@ static int iEC = 0;
     // endless application which re-connections to server on connection lost
     int res = system("pwd");
     GetConfig();
+
+    int ret = solaredge();
+
     e3dc_config.stop = 0; // Stop ausschalten
     
     if (e3dc_config.statistik)

@@ -1636,7 +1636,7 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
     if (e3dc.debug)
         printf("ec.2\n");
     if (fp != NULL)
-        while (fgets(path, sizeof(path), fp) == NULL&&timeout < 30)
+        while (fgets(path, sizeof(path), fp) == NULL&&timeout < 10)
         {
             sleep(1);
             timeout++;
@@ -1644,9 +1644,10 @@ void energycharts(std::vector<watt_s> &w, e3dc_config_t &e3dc,int dayoffset)
     if (e3dc.debug)
         printf("om%i.3\n",timeout);
     
-    if (timeout >= 30)
+    if (timeout >= 10)
     {
-        if (fp!=NULL) pclose(fp);
+//        if (fp!=NULL)
+//            pclose(fp);
         return;
     }
     {

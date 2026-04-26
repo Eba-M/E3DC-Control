@@ -47,6 +47,8 @@ typedef struct {
     char logfile[128],conffile[128];
     char openWB_ip[20];
     char openWB_topic[20];
+    char solaredge_ip[20];
+    uint32_t solaredge_port;
     char openweathermap[50];
     char BWWPTasmota[50];
     char e3dcwallboxtxt[128];
