@@ -3708,6 +3708,7 @@ int LoadDataProcess() {
         fLadeende3 = 100;      // wenn über Nacht entladen wird, dann nicht am Tag
     else
         fLadeende3 = e3dc_config.unload;
+    printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
 
     float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
     if (fcos > 0.0) // im WinterHalbjahr bis auf 100% am 21.12.
@@ -3717,7 +3718,9 @@ int LoadDataProcess() {
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)*e3dc_config.ladeende2rampe+fLadeende2;
         if (fLadeende2>=100) fLadeende2 = 99;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
+        printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
+        printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
     }
 // Regelende
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -4408,7 +4411,9 @@ bDischarge = false;
         }
         printf("%c[K\n", 27 );
 
-        ret =  CheckDV(w,e,wetter,fBatt_SOC,fht,e3dc_config.Avhourly,e3dc_config.AWDiff,e3dc_config.AWAufschlag,e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,0,fstrompreis,e3dc_config.AWReserve,fNotstromreserve,e3dc_config.speicherev/1000/e3dc_config.speichergroesse/4, e3dc_config.speichereta);
+        ret =
+            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
+
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
         printf("ret= %i",ret);
         {

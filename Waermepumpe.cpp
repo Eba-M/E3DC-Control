@@ -1111,37 +1111,45 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 //                 sleep(1);}
              if (ret == 1)
              { 
-                 if (e3dc.DV&&fsolar>0&&j<e.size())
+                 if (e3dc.DV&&j<e.size())
                  {
-// Der Speicher wird nur bei den niedrigsten Börsenpreisen gefüllt
-                     float fsoue2 = 0;
-                     float fsou;
-                     int x2;
-                     for (x2=j+1;x2<e.size()&&fsoue2<100-soc_alt&&wetter[x2].solar>0;x2++)
-                     {
-                         if (e[x2].pp<e[j].pp)
-                         {
-                             fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                             if (fsou > e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4)
-                                 fsoue2 = fsoue2 + e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4;
-                             else
-                                 if (fsou>0)
-                                     fsoue2 = fsoue2 + fsou;
-                         }
-                     }
-                     if (fsoue2<100-soc_alt)
-                     {
-                         fsou = wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf -wetter[j].wwwpbedarf - wetter[j].heizstabbedarf;
-                         if (fsou > e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4)
-                             soc = soc_alt  + e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4;
-                         else
-                             soc = soc_alt + fsou;
-                     }
-                     else
-                         soc = soc_alt;
-                         
+                     if (fsolar>0)
+                         soc=soc_alt;
 
-                 }
+                     ret = CheckDV(e ,wetter,j ,soc, e3dc.AWDiff, e3dc.AWAufschlag,                     e3dc.maximumLadeleistung/e3dc.speichergroesse/10/4,notstromreserve,e3dc.AWReserve,e3dc.speicherev/1000/e3dc.speichergroesse/4,e3dc.speichereta);
+
+                     
+                     if (fsolar>0)
+                     {
+                         // Der Speicher wird nur bei den niedrigsten Börsenpreisen gefüllt
+                         float fsoue2 = 0;
+                         float fsou;
+                         int x2;
+                         for (x2=j+1;x2<e.size()&&fsoue2<100-soc_alt&&wetter[x2].solar>0;x2++)
+                         {
+                             if (e[x2].pp<e[j].pp)
+                             {
+                                 fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                                 if (fsou > e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4)
+                                     fsoue2 = fsoue2 + e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4;
+                                 else
+                                     if (fsou>0)
+                                         fsoue2 = fsoue2 + fsou;
+                             }
+                         }
+                         if (fsoue2<100-soc_alt)
+                         {
+                             fsou = wetter[j].solar - wetter[j].hourly - wetter[j].wpbedarf -wetter[j].wwwpbedarf - wetter[j].heizstabbedarf;
+                             if (fsou > e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4)
+                                 soc = soc_alt  + e3dc.maximumLadeleistung/10/e3dc.speichergroesse/4;
+                             else
+                                 soc = soc_alt + fsou;
+                         }
+//                         else
+//                             soc = soc_alt;
+                         
+                         
+                     }}
                  else
                  {
                      if (anforderung > ladeleistung)

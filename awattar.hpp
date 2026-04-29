@@ -113,6 +113,6 @@ void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc);
 
 int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter,int h, float &fSoC,float &anforderung, float Diff,float aufschlag, float reserve, float notstromreserve, float ladeleistung, float speicherev, float speichereta);
 int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve, float speicherev, float speichereta);
-int CheckDV(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve, float speicherev, float speichereta);
+int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fSoC,float Diff,float aufschlag, float ladeleistung,float reserve, float notstromreserve, float speicherev, float speichereta);
 bool GetWallbox(std::vector<ch_s> &ch);
 bool PutWallbox(std::vector<ch_s> &ch);
