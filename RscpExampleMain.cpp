@@ -3708,7 +3708,7 @@ int LoadDataProcess() {
         fLadeende3 = 100;      // wenn über Nacht entladen wird, dann nicht am Tag
     else
         fLadeende3 = e3dc_config.unload;
-    printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
+    printf("\n1 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
 
     float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
     if (fcos > 0.0) // im WinterHalbjahr bis auf 100% am 21.12.
@@ -3718,9 +3718,9 @@ int LoadDataProcess() {
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)*e3dc_config.ladeende2rampe+fLadeende2;
         if (fLadeende2>=100) fLadeende2 = 99;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
-        printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
+        printf("\n2 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
-        printf("\nLadeende3 %f2.2 %i  ",fLadeende3,e3dc_config.unload);
+        printf("\n3 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     }
 // Regelende
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -3997,7 +3997,7 @@ bDischarge = false;
 
     
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
-    
+    printf("\n4 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende1 = tLadezeitende1 - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
