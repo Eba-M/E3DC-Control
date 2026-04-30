@@ -3708,7 +3708,6 @@ int LoadDataProcess() {
         fLadeende3 = 100;      // wenn über Nacht entladen wird, dann nicht am Tag
     else
         fLadeende3 = e3dc_config.unload;
-    printf("\n1 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
 
     float fcos = (cos((ts->tm_yday+9)*2*3.14/365));
     if (fcos > 0.0) // im WinterHalbjahr bis auf 100% am 21.12.
@@ -3718,9 +3717,7 @@ int LoadDataProcess() {
     fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(98-fLadeende2)*e3dc_config.ladeende2rampe+fLadeende2;
         if (fLadeende2>=100) fLadeende2 = 99;
 //        fLadeende2 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende2)+fLadeende2;
-        printf("\n2 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     fLadeende3 = (cos((ts->tm_yday+9)*2*3.14/365))*(100-fLadeende3)+fLadeende3;
-        printf("\n3 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     }
 // Regelende
     int cLadezeitende1 = (e3dc_config.winterminimum+(e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
@@ -3997,7 +3994,6 @@ bDischarge = false;
 
     
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
-    printf("\n4 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
     tLadezeitende1 = tLadezeitende1 - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
@@ -4005,7 +4001,8 @@ bDischarge = false;
     tLadezeitende = tLadezeitende1;
     printf("\n5 Ladeende3 %0.1f %i  ",fLadeende3,e3dc_config.unload);
     printf("\n");
-    printf("RB %2i:%2i %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
+    printf("RB %2i:%2i ",(tLadezeitende3%(24*3600))/3600,(tLadezeitende3%3600)/60);
+    printf("%0.1f%% ",fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
