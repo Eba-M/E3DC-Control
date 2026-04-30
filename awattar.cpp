@@ -436,7 +436,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc
         float minsoc = 0;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,ladeleistung,minsoc,maxpos,maxsoc);
 if (e3dc.debug)
-    printf("%f2.2 ",fConsumption);
+    printf("%f2.2 %i %i %3.2f  %3.2f %i %3.2f ",fConsumption,h,w.size()-1,w[h].pp,minsoc,maxpos,maxsoc);
 //        if (maxpos < w.size()-1)
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
