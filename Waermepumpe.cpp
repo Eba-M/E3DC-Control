@@ -705,7 +705,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     while (waermebedarf>1)
                                     {
                                         schleife++;
-                                        if (schleife>100000)
+                                        if (schleife>10000)
                                             break;
                                         std::stable_sort(wetter1.begin(), wetter1.end(), [](const wetter1_s& a, const wetter1_s& b)
                                         {
@@ -1106,7 +1106,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                      fsolar = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
                  ladeleistung = e3dc.maximumLadeleistung*.9/e3dc.speichergroesse/10;
              }
-             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, notstromreserve, ladeleistung,e3dc.speicherev, e3dc.speichereta);
+//             int ret = SimuWATTar(w ,wetter,j ,soc , anforderung, e3dc.AWDiff, e3dc.AWAufschlag, e3dc.AWReserve, notstromreserve, ladeleistung,e3dc.speicherev, e3dc.speichereta);
+             int ret = SimuWATTar(w ,wetter,j ,e3dc,soc , anforderung, notstromreserve, ladeleistung);
              if (e3dc.debug) printf("NWj%i %i %i %f %f \n",j,ret,e3dc.maximumLadeleistung,e3dc.speichergroesse,ladeleistung);
 //                 sleep(1);}
              if (ret == 1)

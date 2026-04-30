@@ -389,7 +389,7 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     }
     return posmax;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, float &fSoC,float &anforderung,float Diff,float aufschlag, float reserve, float notstromreserve,float ladeleistung, float speicherev, float speichereta) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc_config_t &e3dc, float fSoC,float &anforderung, float notstromreserve,float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -428,13 +428,15 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         // Überprüfen ob entladen werden kann
         fSoC = fSoC - notstromreserve;
     // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-        if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
-            reserve = Verbrauch*0.8;
+        if (Verbrauch*0.8<e3dc.AWReserve&&ret<10&&ret>=0)
+            e3dc.AWReserve = Verbrauch*0.8;
 //        if (ret == 0) reserve = 0;
-        if (reserve < 0) reserve = 0;
-        fSoC = fSoC - reserve;
+        if (e3dc.AWReserve < 0) e3dc.AWReserve = 0;
+        fSoC = fSoC - e3dc.AWReserve;
         float minsoc = 0;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,ladeleistung,minsoc,maxpos,maxsoc);
+if (e3dc.debug)
+    printf("%f2.2 ",fConsumption);
 //        if (maxpos < w.size()-1)
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
@@ -452,9 +454,9 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         if (faval >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
                 if (anforderung>ladeleistung)
-                    fSoC = fSoC + ladeleistung + reserve + notstromreserve;
+                    fSoC = fSoC + ladeleistung + e3dc.AWReserve + notstromreserve;
                 else
-                    fSoC = fSoC + anforderung + reserve + notstromreserve;
+                    fSoC = fSoC + anforderung + e3dc.AWReserve + notstromreserve;
                 return 1;
         } 
 
@@ -465,46 +467,46 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
         }
 */
         // suche über den gesamten Bereich
-        if  (SucheDiff(w,h, aufschlag,Diff)) // es wird gandenlos bis zum nächsten low entladen
+        if  (SucheDiff(w,h, e3dc.AWAufschlag,e3dc.AWDiff)) // es wird gandenlos bis zum nächsten low entladen
         do
         {
             fConsumption = fHighprice(w,wetter,h,l1,w[h].pp,ladeleistung,minsoc,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (fConsumption==0||fConsumption-anforderung<fSoC) // x1 Anzahl der Einträge mit höheren Preisen
 //                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
-                if ((w[h].pp>(w[l1].pp)*aufschlag+Diff))
+                if ((w[h].pp>(w[l1].pp)*e3dc.AWAufschlag+e3dc.AWDiff))
                     // Es könnte nachgeladen werden
                 {
-                    fSoC = fSoC + anforderung + reserve + notstromreserve;
+                    fSoC = fSoC + anforderung + e3dc.AWReserve + notstromreserve;
                     if (fSoC < 0)
                         fSoC = 0;
                     return 1;
                 }
             if (h1>l1)
-            {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
+            {if (not (SucheDiff(w,h1, e3dc.AWAufschlag,e3dc.AWDiff))) break;} // suche low nach einem high
             else
-            {if (not (SucheDiff(w,l1, aufschlag,Diff))) break;} // suche low nach einem high
+            {if (not (SucheDiff(w,l1, e3dc.AWAufschlag,e3dc.AWDiff))) break;} // suche low nach einem high
         }
         while (l1 < w.size());
         
-        if (SucheDiff(w,h, aufschlag,Diff))
+        if (SucheDiff(w,h, e3dc.AWAufschlag,e3dc.AWDiff))
         {
             if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
             {
                 int lw = l1;
                 do
-                    if (not (SucheDiff(w,h1, aufschlag,Diff))) break; // suche low nach einem high
+                    if (not (SucheDiff(w,h1, e3dc.AWAufschlag,e3dc.AWDiff))) break; // suche low nach einem high
                 while (h1 > l1);
                 // suche das nächste low
                 // suchen nach dem low before next high das low muss niedriger als das akutelle sein
                 int hi = h1;
                 while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
                     if (h1>l1)
-                    {if (not (SucheDiff(w,h1, aufschlag,Diff))) {
+                    {if (not (SucheDiff(w,h1, e3dc.AWAufschlag,e3dc.AWDiff))) {
                         l1 = w.size()-1;
                         break;}} // suche low nach einem high
                     else
-                    {if (not (SucheDiff(w,l1, aufschlag,Diff))) {
+                    {if (not (SucheDiff(w,l1, e3dc.AWAufschlag,e3dc.AWDiff))) {
                         l1 = w.size()-1;
                         break;}} // suche low nach einem high
                 }
@@ -513,10 +515,10 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 x1 = Lowprice(w,h, hi, w[h].pp);   // bis zum high suchen
                 x2 = Lowprice(w,h, w.size()-1, w[h].pp);   // bis zum high suchen
                 
-                SollSoc = fHighprice(w,wetter,h,l1,(w[h].pp)*aufschlag+Diff,ladeleistung,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
+                SollSoc = fHighprice(w,wetter,h,l1,(w[h].pp)*e3dc.AWAufschlag+e3dc.AWDiff,ladeleistung,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
                 float SollSoc2 = 0;
-                SollSoc2 = fHighprice(w,wetter,h,x3,(w[h].pp)*aufschlag+Diff,ladeleistung,minsoc,maxpos,maxsoc);
-                SollSoc2 = fHighprice(w,wetter,h,maxpos,(w[h].pp)*aufschlag+Diff,ladeleistung,minsoc,maxpos,maxsoc);
+                SollSoc2 = fHighprice(w,wetter,h,x3,(w[h].pp)*e3dc.AWAufschlag+e3dc.AWDiff,ladeleistung,minsoc,maxpos,maxsoc);
+                SollSoc2 = fHighprice(w,wetter,h,maxpos,(w[h].pp)*e3dc.AWAufschlag+e3dc.AWDiff,ladeleistung,minsoc,maxpos,maxsoc);
                 if (SollSoc>SollSoc2)
                 {
                     if (SollSoc > ZielSoC) SollSoc = ZielSoC;
@@ -528,7 +530,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                 }
                 if (SollSoc2 < fSoC)
                 {
-                    fSoC = fSoC + reserve + notstromreserve;
+                    fSoC = fSoC + e3dc.AWReserve + notstromreserve;
                     if (anforderung>0)
                         fSoC = fSoC + anforderung;
 
@@ -540,7 +542,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                     //                    SollSoc = SollSoc2 +fSoC;
                     if (SollSoc2>SollSoc)
                         SollSoc = SollSoc2;
-                if (SollSoc > ZielSoC-reserve) SollSoc = ZielSoC-reserve;
+                if (SollSoc > ZielSoC-e3dc.AWReserve) SollSoc = ZielSoC-e3dc.AWReserve;
                 if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 1% weniger als das Soll geladen
                     ((x1==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
                 {
@@ -551,13 +553,13 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
                         fSoC = SollSoc;
                     //                    if (fSoC > SollSoc-0.5)
                     //                        (fSoC = SollSoc-0.5);
-                    fSoC = fSoC + reserve + notstromreserve;
+                    fSoC = fSoC + e3dc.AWReserve + notstromreserve;
                     return 2;
                 }
                 else
                     //                if ((SollSoc)>fSoC-1)
                 {
-                    fSoC = fSoC + reserve + notstromreserve;
+                    fSoC = fSoC + e3dc.AWReserve + notstromreserve;
                     if (anforderung>0)
                         fSoC = fSoC + anforderung;
                     return 0;
@@ -572,11 +574,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h, flo
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption+anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
-                fSoC = fSoC + reserve + notstromreserve + anforderung;
+                fSoC = fSoC + e3dc.AWReserve + notstromreserve + anforderung;
                 return 1;
             }
         }
-        fSoC = fSoC + reserve + notstromreserve;
+        fSoC = fSoC + e3dc.AWReserve + notstromreserve;
         if (anforderung>0)
             fSoC = fSoC + anforderung;
         
