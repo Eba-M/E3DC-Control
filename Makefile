@@ -4,7 +4,7 @@ ROOT_VALUE=E3DC-Control
 all: $(ROOT_VALUE)
 
 $(ROOT_VALUE): clean
-	$(CXX) -O3 -Wno-psabi RscpExampleMain.cpp RscpProtocol.cpp AES.cpp SocketConnection.cpp Waermepumpe.cpp awattar.cpp cJSON.c SunriseCalc.cpp -o $@
+	$(CXX) -O0 -Wno-psabi RscpExampleMain.cpp RscpProtocol.cpp AES.cpp SocketConnection.cpp Waermepumpe.cpp awattar.cpp cJSON.c SunriseCalc.cpp -o $@
 
 
 clean:
