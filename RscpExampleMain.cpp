@@ -3744,9 +3744,7 @@ int LoadDataProcess() {
     tLadezeitende3 = cLadezeitende3-cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.sommermaximum-e3dc_config.winterminimum)/2)*3600;
     if (e3dc_config.RB > 0)
     {    cLadezeitende3 = (e3dc_config.RB*60+(sunsetAt+sunriseAt)/2)/2*60;
-        printf("\n 1 Ladezeitende3 %i  ",cLadezeitende3),
         tLadezeitende3 = cLadezeitende3+cos((ts->tm_yday+9)*2*3.14/365)*-((e3dc_config.RB*60-(sunsetAt+sunriseAt)/2)/2)*60;
-        printf("\n 2 Ladezeitende3 %i  ",cLadezeitende3);
     }
     int32_t tZeitgleichung;
 
@@ -3994,21 +3992,17 @@ bDischarge = false;
     
     if (e3dc_config.debug) printf("D8 %i ",iLMStatus);
 
-    printf("\n4 Ladeende3 %i %0.1f %i  ",tLadezeitende3,fLadeende3,e3dc_config.unload);
 
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
-    printf("ZG %i ",tZeitgleichung);
     tLadezeitende1 = tLadezeitende1 - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
     tLadezeitende = tLadezeitende1;
-    printf("\n5 Ladeende3 %i              ",tLadezeitende3);
-    printf("\n");
     printf("RB %2i:%2i ",(tLadezeitende3%(24*3600))/3600,(tLadezeitende3%3600)/60);
     printf("%0.1f%% ",fLadeende3);
-    printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
-    printf("LE %2ld:%2ld %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
+    printf("RE %2i:%2i %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
+    printf("LE %2i:%2i %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
     fspreis = float((fstrompreis/10)+(fstrompreis*e3dc_config.AWMWSt/1000)+e3dc_config.AWNebenkosten);
     if (e3dc_config.DV&&e.size()>0)
         printf("%.2f ",e.begin()->pp/10);
