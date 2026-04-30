@@ -4003,7 +4003,7 @@ bDischarge = false;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
     tLadezeitende = tLadezeitende1;
-    printf("\n5 Ladeende3 %2.2f %i  ",fLadeende3,e3dc_config.unload);
+    printf("\n5 Ladeende3 %0.1f %i  ",fLadeende3,e3dc_config.unload);
     printf("\n");
     printf("RB %2i:%2i %0.1f%% ",tLadezeitende3/3600,tLadezeitende3%3600/60,fLadeende3);
     printf("RE %2ld:%2ld %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
