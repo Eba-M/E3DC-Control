@@ -3992,14 +3992,16 @@ bDischarge = false;
     
     if (e3dc_config.debug) printf("D8 %i ",iLMStatus);
 
-    
+    printf("\n4 Ladeende3 %ld %0.1f %i  ",tLadezeitende3,fLadeende3,e3dc_config.unload);
+
     // Berechnung freie Ladekapazität bis 90% bzw. Ladeende
     tZeitgleichung = (-0.171*sin(0.0337 * ts->tm_yday + 0.465) - 0.1299*sin(0.01787 * ts->tm_yday - 0.168))*3600;
+    printf("ZG %ld ",tZeitgleichung);
     tLadezeitende1 = tLadezeitende1 - tZeitgleichung;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
     tLadezeitende = tLadezeitende1;
-    printf("\n5 Ladeende3 %i %0.1f %i  ",tLadezeitende3,fLadeende3,e3dc_config.unload);
+    printf("\n5 Ladeende3 %ld ",tLadezeitende3);
     printf("\n");
     printf("RB %2i:%2i ",(tLadezeitende3%(24*3600))/3600,(tLadezeitende3%3600)/60);
     printf("%0.1f%% ",fLadeende3);
