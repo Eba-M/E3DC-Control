@@ -4004,7 +4004,7 @@ bDischarge = false;
     tLadezeitende2 = tLadezeitende2 - tZeitgleichung;
     tLadezeitende3 = tLadezeitende3 - tZeitgleichung;
     tLadezeitende = tLadezeitende1;
-    printf("RB %2i:%2i ",(tLadezeitende3%(24*3600))/3600,(tLadezeitende3%3600)/60);
+    printf("\nRB %2i:%2i ",(tLadezeitende3%(24*3600))/3600,(tLadezeitende3%3600)/60);
     printf("%0.1f%% ",fLadeende3);
     printf("RE %2i:%2i %0.1f%% ",tLadezeitende1/3600,tLadezeitende1%3600/60,fLadeende);
     printf("LE %2i:%2i %0.1f%% ",tLadezeitende2/3600,tLadezeitende2%3600/60,fLadeende2);
@@ -4410,13 +4410,14 @@ bDischarge = false;
                 }
             }
         }
-        printf("%c[K\n", 27 );
 
         ret =
             CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
 
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
         printf("ret= %i",ret);
+        printf("%c[K\n", 27 );
+
         {
             if (e.begin()->hh%(24*3600)>sunriseAt*60&&
                 e.begin()->hh%(24*3600)<(sunriseAt+180)*60)
