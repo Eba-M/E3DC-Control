@@ -2590,9 +2590,12 @@ int LoadDataProcess() {
 
         }
 // Ende 15min Behandlung
-        if (e3dc_config.WP&&not e3dc_config.WPWolf&&wetter.size()>0&&itotal_WP<0)
-//            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
+        if (e3dc_config.WP&&(wolf.size()==0)&&wetter.size()>0&&itotal_WP<0)
+        {
+            //            if (e3dc_config.WP&&wetter.size()>0) // zum Testen
             iPower_WP = wetter[0].kosten*1000;   // in Watt
+            iHeat_WP = wetter[0].waerme;
+        }
         if (iPower_WP<0) iPower_WP = 0;
 // wenn zähler vorhanden nutzen
         shellyem_get(iPower_WP, itotal_WP);
