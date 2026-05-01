@@ -844,10 +844,11 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
         // Überprüfen ob entladen werden kann
         if (fSoC > 100) fSoC = 100;
         if (
-        fSoC - notstromreserve-Verbrauch-x1*ladeleistung>5
+        fSoC - notstromreserve-Verbrauch-x1*ladeleistung>0
             )
         {
             fSoC = fSoC-ladeleistung;
+            if (fSoC<5) fSoC=5;
             return 2;
         }
         // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
