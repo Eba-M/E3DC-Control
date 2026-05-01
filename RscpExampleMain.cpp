@@ -1270,7 +1270,7 @@ int solaredge()
             if (not AdvancedPwrControlEn)
             {
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61762,1,2);
-                AdvancedPwrControlEn = true;
+                if (solaredge_isocket>0) AdvancedPwrControlEn = true;
             }
 // Active Power Limit    61441
             if (e.size()>0&&e.begin()->pp<e3dc_config.DVmp*-10 && fPower_Grid <-500&&dimm>0)
@@ -1291,13 +1291,14 @@ int solaredge()
             }
 // Auslesen Register
             len = iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,40083,1,3); //val anzahl register lesen 40083 61441
-            if (len>0 )iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,1,4); //val anzahl register lesen 40083 61441
+            if (len>0 )
+                len = iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,1,4); //val anzahl register lesen 40083 61441
 
         }
     }
-        if (isocket>0||len==0)
-        {        SocketClose(isocket);
-            isocket = -1;
+        if (solaredge_isocket>0&&len==0)
+        {        SocketClose(solaredge_isocket);
+            solaredge_isocket = -1;
         }
     return (solaredge_isocket);
 };
