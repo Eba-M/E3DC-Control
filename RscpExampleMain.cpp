@@ -5188,8 +5188,8 @@ bDischarge = false;
                                 if (iLMStatus > 0)
                                 iLMStatus = 11;
                             }
-                            if (e3dc_config.debug)
-                            sleep(5);
+//                            if (e3dc_config.debug)
+//                            sleep(5);
                         }
                     }
                 }

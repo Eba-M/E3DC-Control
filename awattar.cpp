@@ -174,6 +174,7 @@ int Highprice(std::vector<watt_s> &w,int ab,int bis,float preis)    // Anzahle E
     }
     return x1;
 }
+static int debug = 0;
 float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int bis,float preis,float ladeleistung, float &minsoc,int &maxpos,float &maxsoc)    // Anzahle Einträge mit > preis
 {                                            // l1 = erste position h1 = letzte Position
     float x1 = 0;   // x1 = Bedarf
@@ -183,10 +184,15 @@ float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int
     minsoc = 0; // min erreicher Soc
     maxsoc = 0; // maximal erreicher Soc
     maxpos = 0;
-    if (wetter.size() == 0)
+    if (wetter.size() == 0||ab>bis)
         return 0;
-    for (int j = ab; (j <= bis)&&(j<w.size()); j++ )
+    if (debug)
+        printf("\nHP %i %i %i %i \n ",ab,bis,w.size(),wetter.size());
+
+    for (int j = ab; (j <= bis)&&(j<w.size())&&(j<wetter.size()); j++ )
     {
+if (debug)
+    printf("%i ",j);
         x3 = wetter[j].hourly + wetter[j].wpbedarf + wetter[j].wwwpbedarf + wetter[j].heizstabbedarf - wetter[j].solar;;
 // Wenn die Ladeleistung kleiner als Solarertrag wird mit der ladeleistung weiter gerechnet
         if (x3<ladeleistung*-1)
@@ -434,9 +440,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc
         if (e3dc.AWReserve < 0) e3dc.AWReserve = 0;
         fSoC = fSoC - e3dc.AWReserve;
         float minsoc = 0;
+//        if (e3dc.debug) debug = true; else debug = false;
+        if (h>=w.size()) return 99;
         fConsumption = fHighprice(w,wetter,h,w.size()-1,w[h].pp,ladeleistung,minsoc,maxpos,maxsoc);
 if (e3dc.debug)
-    printf("%f2.2 %i %i %3.2f  %3.2f %i %3.2f ",fConsumption,h,w.size()-1,w[h].pp,minsoc,maxpos,maxsoc);
+    printf("%2.2f %i %i %3.2f  %3.2f %i %3.2f ",fConsumption,h,w.size()-1,w[h].pp,minsoc,maxpos,maxsoc);
 //        if (maxpos < w.size()-1)
 //            fConsumption = fHighprice(w,wetter,h,maxpos,w[h].pp,fSoC+reserve,maxpos,maxsoc);
 // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
