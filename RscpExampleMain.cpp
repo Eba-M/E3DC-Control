@@ -1234,6 +1234,7 @@ int solaredge()
     static time_t tlast = 0;
     time_t now;
     time(&now);
+    int len=0;
     static int power = -1; // Power
     printf(" SE %i %i %i ",power,dimm,solaredge_isocket);
     if (now-tlast<5) // jede Minute
@@ -1284,20 +1285,20 @@ int solaredge()
             {
                 if (fPower_Grid>300)
                     dimm = dimm + fPower_Grid/300;
-                if (dimm>100) dimm=100;
+                if (dimm>100||e.begin()->pp>e3dc_config.DVmp*-10 ) dimm=100;
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,dimm+1,1);
                 iModbusTCP_Set(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61696,1,1);
             }
 // Auslesen Register
-            iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,40083,1,3); //val anzahl register lesen 40083 61441
-            iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,1,4); //val anzahl register lesen 40083 61441
+            len = iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,40083,1,3); //val anzahl register lesen 40083 61441
+            if (len>0 )iModbusTCP_Get(e3dc_config.solaredge_ip,e3dc_config.solaredge_port,solaredge_isocket,61441,1,4); //val anzahl register lesen 40083 61441
 
         }
     }
-    /*    if (isocket>0)
-        SocketClose(isocket);
-    isocket = -1;
-*/
+        if (isocket>0||len==0)
+        {        SocketClose(isocket);
+            isocket = -1;
+        }
     return (solaredge_isocket);
 };
 static int dummy[100];
