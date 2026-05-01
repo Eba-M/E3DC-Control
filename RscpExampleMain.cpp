@@ -4416,7 +4416,7 @@ bDischarge = false;
 
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
         printf("ret= %i",ret);
-        printf("%c[K\n", 27 );
+        printf("%c[K", 27 );
 
         {
             if (e.begin()->hh%(24*3600)>sunriseAt*60&&
