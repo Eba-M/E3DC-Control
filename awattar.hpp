@@ -53,7 +53,7 @@ typedef struct {
     char BWWPTasmota[50];
     char e3dcwallboxtxt[128];
     char analyse[128];
-    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPSperre,DCDC,openmeteo,statistik,prognosetest;
+    bool ext1,ext2,ext3,ext4,ext7,debug,htsat,htsun,openWB,shelly0V10V,tasmota,WP,WPWolf,WPIDM,WPSperre,DCDC,openmeteo,statistik,prognosetest;
     uint8_t wurzelzaehler,ladeschwelle, ladeende,ladeende2,  AWtest,aWATTar,wbmaxladestrom,wbminladestrom,wrsteuerung,stop,test,DV;
     int32_t ht, unload,untererLadekorridor, obererLadekorridor, minimumLadeleistung, maximumLadeleistung, wrleistung,peakshave,peakshaveuppersoc,peakshavepvcharge,wbtest,wbmode,wbminlade,wbhour,wbvon,wbbis,DVWBkWh,DVEinspeise;
     int32_t wallbox,BWWP_Power,AWLand,AWSimulation,soc,MQTTavl,shelly0V10Vmin,shelly0V10Vmax,shelly0V10VEZH1,shelly0V10VEZH2,shelly0V10VEZH3,shelly0V10VEZH4;
@@ -111,7 +111,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 void aWATTar(std::vector<ch_s> &ch,std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s> &wetter, e3dc_config_t &e3dc,float soc,float notstromreserve, int sunriseAt,u_int32_t iDayStat[25*4*2+1]);
 void aWATT(std::vector<ch_s> * chref,int j,e3dc_config_t * e3dc);
 
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter,int h, e3dc_config_t &e3dc,float fSoC,float &anforderung, float notstromreserve, float ladeleistung);
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter,int h, e3dc_config_t &e3dc,float &fSoC,float &anforderung, float notstromreserve, float ladeleistung);
 int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSoC,float fmaxSoC,float fConsumption,float Diff,float aufschlag, float ladeleistung,int mode,float &fstrompreis, float reserve, float notstromreserve, float speicherev, float speichereta);
 int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fSoC,float Diff,float aufschlag, float ladeleistung,float reserve, float notstromreserve, float speicherev, float speichereta);
 bool GetWallbox(std::vector<ch_s> &ch);

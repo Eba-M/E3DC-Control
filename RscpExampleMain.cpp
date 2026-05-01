@@ -512,6 +512,7 @@ bool GetConfig()
         e3dc_config.statistik = true;
         e3dc_config.WP = false;
         e3dc_config.WPWolf = false;
+        e3dc_config.WPIDM = false;
         e3dc_config.WPSperre = false;
         e3dc_config.ext1 = false;
         e3dc_config.ext2 = false;
@@ -777,6 +778,9 @@ bool GetConfig()
                   else if((strcmp(var, "wpwolf") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPWolf = true;
+                  else if((strcmp(var, "wpidm") == 0)&&
+                          (strcmp(value, "true") == 0))
+                      e3dc_config.WPIDM = true;
                   else if((strcmp(var, "wpsperre") == 0)&&
                           (strcmp(value, "true") == 0))
                       e3dc_config.WPSperre = true;
@@ -4278,8 +4282,8 @@ bDischarge = false;
                     x1++;
 // E3DC Speicher Ladeangebot
                     fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
-                    if (fsou > e3dc_config.maximumLadeleistung/10/e3dc_config.speichergroesse/4)
-                        fsoue2 = fsoue2 + e3dc_config.maximumLadeleistung/10/e3dc_config.speichergroesse/4;
+                    if (fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
+                        fsoue2 = fsoue2 + (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
                     else
                         if (fsou>0)
                             fsoue2 = fsoue2 + fsou;
@@ -4412,10 +4416,17 @@ bDischarge = false;
         }
 
         ret =
-            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, e3dc_config.maximumLadeleistung/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
+            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, (e3dc_config.maximumLadeleistung+1000)/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
+        if (ret == 2)
+        {
+            idauer = 1;
+            iFc = -e3dc_config.maximumLadeleistung+500;
+            iBattLoad = iFc;
+        }
+
 
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
-        printf("ret= %i",ret);
+        printf(" ret= %i",ret);
         printf("%c[K", 27 );
 
         {

@@ -395,7 +395,7 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     }
     return posmax;
 }
-int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc_config_t &e3dc, float fSoC,float &anforderung, float notstromreserve,float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc_config_t &e3dc, float &fSoC,float &anforderung, float notstromreserve,float ladeleistung) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 
 // Returncode 0 = keine Aktion, 1 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 {
@@ -806,16 +806,11 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
 // 3 = Batterieladen stoppen 4 = Batterie ins Netz entladen
 {
 // Ermitteln Stundenanzahl
-    static float lowpp;
     time_t  rawtime;
     time(&rawtime);
     struct tm * ptm;
     ptm = gmtime (&rawtime);
     float maxsoc;
-    float minsoc;
-    int x1,x2,x3,x4;
-    int Minuten = rawtime%(24*3600)/60;
-    static int minuten_alt;
 
 
 //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
@@ -830,153 +825,35 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
     if (w.size() < h) return 0; // Preisvector ist leer
     float fstrompreis = w[h].pp;
     ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
-//    int taglaenge = sunset-sunrise;
-//    int tagoffset = 12*60-taglaenge;
-//    tagoffset = tagoffset/2;
-//    if (tagoffset < 0) tagoffset = 0;
 
-//if (mode == 0) // Standardmodus
-    {
-        float offset;
-        float SollSoc = 0;
-        float Verbrauch;
+        float Verbrauch=0;
         // Verbrauch bis solarenÜberschuss??
-        int ret = 0;
-        if (wetter.size()>1)
-            ret = suchenSolar(wetter,h+1, Verbrauch);
+        int x1 = 0;
+        int x2 = 0;
+        if (wetter.size()-h>48)
+            for(x1=0;Verbrauch==0&&w.size()-h-48>x1;x1++)
+            x2 = suchenSolar(wetter,x1, Verbrauch);
+        else
+            return 0;
+        
+        if (w.size()-h>48)
+            x1 = Highprice(w,h,w.size()-48,fstrompreis);
+        else
+            return 0;
         //    if (ret > 0) ret--;
         // Überprüfen ob entladen werden kann
         if (fSoC > 100) fSoC = 100;
-        fSoC = fSoC - notstromreserve;
-        // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-        if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
-            reserve = Verbrauch*0.8;
-        if (ret==0) reserve = 0;
-//        reserve = reserve + fSoC*(1-speichereta);
-//        reserve = reserve + speicherev/4; // speichereta 15minverbrauch in % Speicher
-        
-        fSoC = fSoC - reserve+notstromreserve;
-        // DV Optimierung für Direktvermarktung
-        
-        // Überprüfen ob entladen werden kann
-        float fConsumption = fHighprice(w,wetter,h,w.size()-1,w[0].pp,ladeleistung,minsoc,maxpos,maxsoc);  // wieviel Einträge sind höher mit dem SoC in Consumption abgleichen
-        int x1 = Highprice(w,h,maxpos,w[h].pp);  // wieviel Einträge sind höher
-        int x2 = Highprice(w,h,w.size()-1,w[h].pp);  // wieviel Einträge sind höher
-        //    float faval = fSoC-minsoc;
-        //    float faval = fSoC-minsoc - 100 + maxsoc + reserve;
-        float faval;
-        
         if (
-            (x1*ladeleistung<fSoC&&h+60<w.size())
-//            ||
-//            (x2*ladeleistung<fSoC&&h+30>w.size()&&h<w.size())
+        fSoC - notstromreserve-Verbrauch-x1*ladeleistung>5
             )
-    {
-        fSoC = fSoC - ladeleistung;
-        if (fSoC < 5) fSoC = 5;
-    }
         {
-            return 1;
+            fSoC = fSoC-ladeleistung;
+            return 2;
         }
+        // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
 
-    // geändert am 30.9.
-// suche über den gesamten Bereich
-        if (SucheDiff(w,h, aufschlag,Diff)) // es wird gandenlos bis zum nächsten low entladen
-        do
-        {
-            fConsumption = fHighprice(w,wetter,h,l1,w[0].pp,ladeleistung,minsoc,maxpos,maxsoc);  // nächster Nachladepunkt überprüfen
-            if (fConsumption==0||fConsumption<fSoC) // x1 Anzahl der Einträge mit höheren Preisen
-//                if ((w[h].pp>w[l1].pp*aufschlag+Diff)&&fConsumption<fSoC)
-            if ((w[h].pp>(w[l1].pp)*aufschlag+ Diff)&&(fConsumption==0||fConsumption<fSoC))
-            {
-                faval = fConsumption;
-                fSoC = fSoC + reserve;
-                return 1;
-            }
-            if (h1>l1)
-                {if (not (SucheDiff(w,h1, aufschlag,Diff))) break;} // suche low nach einem high
-            else
-                {if (not (SucheDiff(w,l1, aufschlag,Diff))) break;} // suche low nach einem high
-        }
-        while (l1 < w.size());
-    
-    if (SucheDiff(w,h, aufschlag,Diff))
-    {
-        if (h1>l1)       // erst kommt ein low dann ein high, überprüfen ob zum low geladen werden soll
-        {
-            int lw = l1;
-            do
-            if (not (SucheDiff(w,h1, aufschlag,Diff))) break; // suche low nach einem high
-            while (h1 > l1);
-// suche das nächste low
-            // suchen nach dem low before next high das low muss niedriger als das akutelle sein
-            int hi = h1;
-            while ((l1 > h1)||(w[0].pp<w[l1].pp)) {
-                if (h1>l1)
-                {if (not (SucheDiff(w,h1, aufschlag,Diff))) {
-                    l1 = w.size()-1;
-                    break;}} // suche low nach einem high
-                else
-                {if (not (SucheDiff(w,l1, aufschlag,Diff))) {
-                    l1 = w.size()-1;
-                    break;}} // suche low nach einem high
-            }
-            if (faval >=-1.01||(maxsoc+fSoC+reserve+notstromreserve>=100&&minsoc==0))
-            {
-                return 0;
-            }
-
-            // Überprüfen ob aus dem Netz Geladen werden kann
-            x1 = Lowprice(w,0, hi, w[0].pp);   // bis zum high suchen
-            x3 = Lowprice(w,0, w.size()-1, w[0].pp);   // bis zum high suchen
-            SollSoc = fHighprice(w,wetter,0,l1,(w[0].pp)*aufschlag+ Diff,ladeleistung,minsoc,maxpos,maxsoc);  // Preisspitzen, es muss mindestens eine vorliegen
-            float SollSoc2 = 0;
-            SollSoc2 = fHighprice(w,wetter,0,x3,(w[0].pp)*aufschlag+ Diff,ladeleistung,minsoc,maxpos,maxsoc);
-            SollSoc2 = fHighprice(w,wetter,0,maxpos,(w[0].pp)*aufschlag+ Diff,ladeleistung,minsoc,maxpos,maxsoc);
-            if (SollSoc>SollSoc2)
-            {
-                if (SollSoc > 95) SollSoc = 95;
-                if (SollSoc > maxsoc)
-                    SollSoc2 = SollSoc2 + SollSoc - maxsoc;
-            }
-
-            if (x1==x3) {
-                if (SollSoc2>SollSoc)
-//                    SollSoc = SollSoc2 + fSoC;
-                SollSoc = SollSoc2;
-
-            }
-            if (SollSoc > 95-reserve) SollSoc = 95-reserve;
-            // Der Speicher soll nicht leer herumstehen, zum Tiefstkurs laden.
-            if ((SollSoc < 0.5)&&(fSoC < 0.5)&&(lw==0)) SollSoc = 1;
-            if ((SollSoc>fSoC+0.5)&&        // Damit es kein Überschwingen gibt, wird 2% weniger als das Soll geladen
-                ((lw==0)||((SollSoc-fSoC)>x1*ladeleistung)))      // Stunden mit hohen Börsenpreisen, Nachladen wenn SoC zu niedrig
-            {
-                fSoC = fSoC + reserve;
-                return 2;
-            }
-            else
-//                if ((SollSoc)>fSoC-1)
-            {
-                fSoC = fSoC + reserve;
-                return 0;
-            }
-        }
-    }
-//        if (taglaenge > Wintertag) // tagsüber noch hochpreise es werden mind. die 2h nach sonnaufgang geprüft
-    {
-        fConsumption = fHighprice(w,wetter,0,w.size()-1,w[0].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher, dann anteilig berücksichtigen
-
-        
-        if (float(fSoC-fConsumption) >=reserve) // x1 Anzahl der Einträge mit höheren Preisen
-    return 1;
-    }
-
-    return 0;  // kein Ergebniss gefunden
-
-}
-
-    return 0;
+        else
+            return 0;
 }
 int fp_status = -1;  //
 void openmeteo(std::vector<watt_s> * w,std::vector<wetter_s> * wetter, e3dc_config_t * e3dc,int anlage,u_int32_t *iDayStat)
