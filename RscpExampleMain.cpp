@@ -4417,7 +4417,7 @@ bDischarge = false;
 
         ret =
             CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, (e3dc_config.maximumLadeleistung+1000)/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
-        if (ret == 2)
+        if (ret == 2&&fBatt_SOC>5.5)
         {
             idauer = 1;
             iFc = -e3dc_config.maximumLadeleistung+500;
