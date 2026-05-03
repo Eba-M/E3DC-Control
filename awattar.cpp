@@ -832,7 +832,7 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
         int x1 = 0;
         int x2 = 0;
         if (w.size()-h>60)
-            for(x1=0;Verbrauch==0&&w.size()-h-48>x1;x1++)
+            for(x1=h;Verbrauch==0&&w.size()-h-48>x1;x1++)
             x2 = suchenSolar(wetter,x1, Verbrauch);
         else
             return 0;
@@ -845,7 +845,7 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
         reserve = Verbrauch*0.8;
     if (x2==0) reserve = 0;
     reserve = reserve + fSoC*(1-speichereta);
-    reserve = reserve + x2*speicherev*100; // speichereta 15minverbrauch in % Speicher
+    reserve = reserve + x2*speicherev; // speichereta 15minverbrauch in % Speicher
 
         //    if (ret > 0) ret--;
         // Überprüfen ob entladen werden kann
