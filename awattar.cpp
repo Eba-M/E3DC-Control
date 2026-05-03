@@ -426,6 +426,7 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc
         float SollSoc = 0;
         float ZielSoC = 95;
         float Verbrauch = 0;
+        float reserve = e3dc.AWReserve;
 // Verbrauch bis solarenÜberschuss??
         int ret = 0;
         if (wetter.size() > h+1)
@@ -434,11 +435,11 @@ int SimuWATTar(std::vector<watt_s> &w, std::vector<wetter_s> &wetter, int h,e3dc
         // Überprüfen ob entladen werden kann
         fSoC = fSoC - notstromreserve;
     // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-        if (Verbrauch*0.8<e3dc.AWReserve&&ret<10&&ret>=0)
-            e3dc.AWReserve = Verbrauch*0.8;
+        if (Verbrauch*0.8<reserve&&ret<10&&ret>=0)
+            reserve = Verbrauch*0.8;
 //        if (ret == 0) reserve = 0;
-        if (e3dc.AWReserve < 0) e3dc.AWReserve = 0;
-        fSoC = fSoC - e3dc.AWReserve;
+        if (reserve < 0) reserve = 0;
+        fSoC = fSoC - reserve;
         float minsoc = 0;
 //        if (e3dc.debug) debug = true; else debug = false;
         if (h>=w.size()) return 99;
@@ -462,9 +463,9 @@ if (e3dc.debug)
         if (faval >=0) // x1 Anzahl der Einträge mit höheren Preisen
         {
                 if (anforderung>ladeleistung)
-                    fSoC = fSoC + ladeleistung + e3dc.AWReserve + notstromreserve;
+                    fSoC = fSoC + ladeleistung + reserve + notstromreserve;
                 else
-                    fSoC = fSoC + anforderung + e3dc.AWReserve + notstromreserve;
+                    fSoC = fSoC + anforderung + reserve + notstromreserve;
                 return 1;
         } 
 
@@ -561,13 +562,13 @@ if (e3dc.debug)
                         fSoC = SollSoc;
                     //                    if (fSoC > SollSoc-0.5)
                     //                        (fSoC = SollSoc-0.5);
-                    fSoC = fSoC + e3dc.AWReserve + notstromreserve;
+                    fSoC = fSoC + reserve + notstromreserve;
                     return 2;
                 }
                 else
                     //                if ((SollSoc)>fSoC-1)
                 {
-                    fSoC = fSoC + e3dc.AWReserve + notstromreserve;
+                    fSoC = fSoC + reserve + notstromreserve;
                     if (anforderung>0)
                         fSoC = fSoC + anforderung;
                     return 0;
@@ -582,7 +583,7 @@ if (e3dc.debug)
 //            if (float(fSoC-fConsumption+reserve) > 0) // x1 Anzahl der Einträge mit höheren Preisen
             if (float(fSoC-fConsumption+anforderung) >=0) // x1 Anzahl der Einträge mit höheren Preisen
             {
-                fSoC = fSoC + e3dc.AWReserve + notstromreserve + anforderung;
+                fSoC = fSoC + reserve + notstromreserve + anforderung;
                 return 1;
             }
         }
@@ -825,30 +826,39 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
     if (w.size() < h) return 0; // Preisvector ist leer
     float fstrompreis = w[h].pp;
     ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
-
+    
         float Verbrauch=0;
         // Verbrauch bis solarenÜberschuss??
         int x1 = 0;
         int x2 = 0;
-        if (wetter.size()-h>48)
+        if (w.size()-h>60)
             for(x1=0;Verbrauch==0&&w.size()-h-48>x1;x1++)
             x2 = suchenSolar(wetter,x1, Verbrauch);
         else
             return 0;
         
-        if (w.size()-h>48)
             x1 = Highprice(w,h,w.size()-48,fstrompreis);
-        else
-            return 0;
+
+    // Überprüfen ob entladen werden kann
+// Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
+    if (Verbrauch*0.8<reserve&&x2<10&&x2>=0)
+        reserve = Verbrauch*0.8;
+    if (x2==0) reserve = 0;
+    reserve = reserve + fSoC*(1-speichereta);
+    reserve = reserve + x2*speicherev*100; // speichereta 15minverbrauch in % Speicher
+
         //    if (ret > 0) ret--;
         // Überprüfen ob entladen werden kann
         if (fSoC > 100) fSoC = 100;
         if (
-        fSoC - notstromreserve-Verbrauch-x1*ladeleistung>0
+        fSoC - reserve - notstromreserve-Verbrauch-x1*ladeleistung>0
             )
         {
-            fSoC = fSoC-ladeleistung;
-            if (fSoC<5) fSoC=5;
+            if (h>0)  // Simulation
+            {
+                fSoC = fSoC-ladeleistung;
+                if (fSoC<5) fSoC=5;
+            }
             return 2;
         }
         // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
