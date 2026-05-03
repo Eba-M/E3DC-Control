@@ -1049,7 +1049,6 @@ int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg,wpuv
 int tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
 static int solaredge_isocket = -1;
-long iLength,myiLength;
 int iRegister;
 const char * relay_ip;
 //const char * cmd;
@@ -1088,6 +1087,7 @@ static bool brequest = false;
 
 long iModbusTCP_Set(char server_ip[20], int server_port, int &isocket, int reg,int val,int tac)
 {
+    long iLength,myiLength;
     send.resize(12);
     receive.resize(125);
 
@@ -1147,13 +1147,14 @@ long iModbusTCP_Set(char server_ip[20], int server_port, int &isocket, int reg,i
         if (e3dc_config.debug)
             printf("ARC");
     }
-    if (reg < 256)
-        printf(" len %i ",iLength);
+//    if (reg < 256)
+//        printf(" len %i ",iLength);
     return iLength;
 }
 
 long iModbusTCP_Get(char server_ip[20],int server_port, int &isocket,int reg,int val,int tac) //val anzahl register lesen
 {
+    long iLength,myiLength;
     send.resize(12);
     receive.resize(2048);
 
@@ -1174,8 +1175,8 @@ long iModbusTCP_Get(char server_ip[20],int server_port, int &isocket,int reg,int
     memcpy(&send[0],&Msend,send.size());
     if (e3dc_config.debug)
         printf("BRQ");
-if (reg < 256)
-    printf(" Get %i %i ",reg, val);
+//if (reg < 256)
+//    printf(" Get %i %i ",reg, val);
 
 /*
     if (isocket > 0)
@@ -1235,6 +1236,7 @@ if (isocket > 0)
 int solaredge()
 
 {
+    long iLength,myiLength;
     static time_t tlast = 0;
     time_t now;
     time(&now);
@@ -1315,42 +1317,81 @@ static float isttemp = -99;
 int iModbusTCP()
 {
 // jede Minute wird die Temperatur abgefragt, innerhalb 10sec muss die Antwort da sein, ansonsten wird die Verbindug geschlossen.
+    long iLength,myiLength;
     static time_t tlast = 0;
     time_t now;
     time(&now);
     static time_t t_OeK;
 
     Modbus_send Msend;
-    printf("ÖK%i",now-t_OeK);
+    printf("ÖK%i %i ",now-t_OeK,isocket);
     if ((now-t_OeK)>40)
     {
         if (t_OeK>0&&(now-t_OeK)>300)
             e3dc_config.stop = 100;
-        t_OeK = now;
-        if (isocket>0)
+        if (now-t_OeK>200) t_OeK = now;
+/*        if (isocket>0)
         {
             SocketClose(isocket);
             isocket = -1;
         }
-    }
+*/    }
     if (e3dc_config.debug) printf("ÖKa%i",now-tlast);
-    if (brequest||(not brequest&&(now-tlast)>10)) // 10 Sekunden auf die Antwoert warten
+    if (brequest)
     {
-        if (isocket <= 0)
+        if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
+        memset(&receive[0],0,receive.size());
+        if (isocket > 0)
+            iLength = SocketRecvData(isocket,&receive[0],receive.size());
+        if (e3dc_config.debug) printf("ÖKe%i",receive.size());
+        if (iLength > 0)
         {
-            if (e3dc_config.debug) printf("ÖKb%i",now-t_OeK);
-            sprintf(server_ip,e3dc_config.heizung_ip);
-            if (e3dc_config.debug)
-                printf("BSC");
+            if (iLength > 100)
+                t_OeK = now;
+            int x2 = 9;
+            int x3 = 0;
+            x1 = receive[0]; // Startregister tan
+            iRegister = receive[0]; // Startregister tan
+            //                    x3 = x1;
+            for (x3=0;x3<oekofen.size()&&oekofen[x3] != x1;x3++);
             
-            isocket = SocketConnect(server_ip, server_port);
-            if (e3dc_config.debug)
-                printf("ASC");
-            iLength = 0;
+            if (receive[7]==3)
+                while (x2 < iLength&&x3<oekofen.size())
+                {
+                    //                            if (e3dc_config.debug) printf("ÖKe%i",x3);
+                    
+                    if (oekofen[x3] == x1) // suchen der gewünschten register
+                    {
+                        temp[x3] = (receive[x2]*256+receive[x2+1]);
+                        x3++;
+                    }
+                    WWTemp = float(receive[x2]*256+receive[x2+1])/10;
+                    x1++;x2++;x2++;
+                }
+            else
+                WWTemp = float(receive[10]*256+receive[11])/10;
             
+            //                SocketClose(isocket);
+            if (e3dc_config.debug) printf("ÖKf%i",x1);
+            SocketClose(isocket);
+            isocket = -1;
+            brequest = false;
+
         }
+        else
+            //                    if (iLength <= 0)
+            if (iLength==0)
+        {
+            SocketClose(isocket);
+            isocket = -1;
+            brequest = false;
+        }
+
+    }
+
+    {
         if (e3dc_config.debug) printf("ÖKc%i",now-t_OeK);
-        if (isocket > 0&&not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
+        if (not brequest&&(now-tlast)>10) // Nur alle 10sec Anfrage starten
         {
             tlast = now;
             if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
@@ -1426,7 +1467,7 @@ int iModbusTCP()
                     }
                 }
                 // Heizkreise schalten nur beim Abtauen nicht oder wenn WP aus
-                if (temp[1]==0&&wolf[wphl].wert>0&&
+                if (wolf.size()>0&&temp[1]==0&&wolf[wphl].wert>0&&
                     (
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
@@ -1445,7 +1486,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,11,1,11); //FBH?
                     //                  brequest = true;
                 }
-                if (temp[7]==0&&wolf[wphl].wert>0&&
+                if (wolf.size()>0&&temp[7]==0&&wolf[wphl].wert>0&&
                     (
                      (now - wolf[wpeevk].t < 300&&wolf[wpeevk].wert==0)
                      ||
@@ -1465,7 +1506,7 @@ int iModbusTCP()
                     iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,31,1,31); //HZK?
                     //                    brequest = true;
                 } // HK werden nur beim Abtauen abgeschaltet, wenn der pellets nicht läuft
-                if (temp[1]==1&&temp[17]==0&&
+                if (wolf.size()>0&&temp[1]==1&&temp[17]==0&&
                     (
                      (tasmota_status[0]==1&&temp[14]<300)
                      // wenn der Puffer > 30° läuft die FBH nach
@@ -1489,7 +1530,7 @@ int iModbusTCP()
                     //                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
                     //                    brequest = true;
                 }
-                if (temp[7]==1&&temp[17]==0&&
+                if (wolf.size()>0&&now-temp[7]==1&&temp[17]==0&&
                     (
                      (tasmota_status[0]==1&&temp[14]<300)
                      ||
@@ -1513,70 +1554,35 @@ int iModbusTCP()
                     //                    brequest = true;
                 }
             }
-            if (now-t_OeK>30&&not brequest)
+        }
+            if (now-t_OeK>10&&not brequest)
             {
                 if (e3dc_config.debug)
                     printf("BGE");
-                SocketClose(isocket);
-                isocket = -1;
+                //                SocketClose(isocket);
+                //                isocket = -1;
                 iLength = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,2,105,2); // Alle Register auf einmal abfragen
                 if (e3dc_config.debug)
                     printf("AGE");
-                myiLength = iLength;
-                brequest=true;
-            }
-            if (brequest)
-            {
-                if (e3dc_config.debug) printf("ÖKd%i",now-t_OeK);
-                if (isocket > 0)
-                    iLength = SocketRecvData(isocket,&receive[0],receive.size());
-                if (e3dc_config.debug) printf("ÖKe%i",receive.size());
-                if (iLength > 0)
+                if (iLength <=0)
                 {
-                    if (iLength > 100)
-                        t_OeK = now;
-                    int x2 = 9;
-                    int x3 = 0;
-                    x1 = receive[0]; // Startregister tan
-                    iRegister = receive[0]; // Startregister tan
-                    //                    x3 = x1;
-                    for (x3=0;x3<oekofen.size()&&oekofen[x3] != x1;x3++);
-                    
-                    if (receive[7]==3)
-                        while (x2 < iLength&&x3<oekofen.size())
-                        {
-                            //                            if (e3dc_config.debug) printf("ÖKe%i",x3);
-                            
-                            if (oekofen[x3] == x1) // suchen der gewünschten register
-                            {
-                                temp[x3] = (receive[x2]*256+receive[x2+1]);
-                                x3++;
-                            }
-                            WWTemp = float(receive[x2]*256+receive[x2+1])/10;
-                            x1++;x2++;x2++;
-                        }
-                    else
-                        WWTemp = float(receive[10]*256+receive[11])/10;
-                    
-                    //                SocketClose(isocket);
-                    if (e3dc_config.debug) printf("ÖKf%i",x1);
                     SocketClose(isocket);
                     isocket = -1;
-                    brequest = false;
+                    
                 } else
-                    //                    if (iLength <= 0)
                 {
-                    SocketClose(isocket);
-                    isocket = -1;
-                    brequest = false;
+                    myiLength = iLength;
+                    brequest=true;
+                    t_OeK=now;
                 }
-                
-            }}}
+            }
+    }
     return iLength;
 }
 int iModbusTCP_Heizstab(int ireq_power) // angeforderte Leistung
 {
 // Alle 10 sec wird der neue wert an den heizstab geschickt
+    long iLength,myiLength;
     static int isocket = -1;
     static bool brequest = false;
     static time_t tlast = 0;
@@ -1664,6 +1670,7 @@ int iRelayEin(const char * cmd)
 {
 //    if (isocket >= 0&&int32_t(e3dc_config.BWWP_ip)>0);
   {
+      long iLength,myiLength;
     relay_ip = e3dc_config.BWWP_ip;
     int iPort = e3dc_config.BWWP_port;
     send.resize(2);
@@ -2349,6 +2356,7 @@ int Ermitteln_Statistik()
 }
 int LoadDataProcess() {
     //    const int cLadezeitende1 = 12.5*3600;  // Sommerzeit -2h da GMT = MEZ - 2
+    long iLength,myiLength;
     static int iLeistungHeizstab = 0;
     static int ich_Tasmota = 0;
     static time_t tasmotatime = 0;
@@ -4421,7 +4429,7 @@ bDischarge = false;
         if (ret == 2&&fBatt_SOC>5.5)
         {
             idauer = 1;
-            iFc = -e3dc_config.maximumLadeleistung+500;
+            iFc = -e3dc_config.maximumLadeleistung+1000;
             iBattLoad = iFc;
         }
 
@@ -4446,7 +4454,7 @@ bDischarge = false;
                 if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*360.0/4.0&&fBatt_SOC>5.5&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
-                    iFc = -e3dc_config.maximumLadeleistung+500;
+                    iFc = -e3dc_config.maximumLadeleistung+1000;
                     iBattLoad = iFc;
                 }
             }
