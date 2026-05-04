@@ -4429,7 +4429,7 @@ bDischarge = false;
         if (ret == 2&&fBatt_SOC>5.5)
         {
             idauer = 1;
-            iFc = -e3dc_config.maximumLadeleistung+1000;
+            iFc = -e3dc_config.maximumLadeleistung-1000;
             iBattLoad = iFc;
         }
 
@@ -4454,7 +4454,7 @@ bDischarge = false;
                 if (fBatt_SOC*e3dc_config.speichergroesse*3600>x1*e3dc_config.maximumLadeleistung*360.0/4.0&&fBatt_SOC>5.5&&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0) // Entladen
                 {
                     idauer = 1;
-                    iFc = -e3dc_config.maximumLadeleistung+1000;
+                    iFc = -e3dc_config.maximumLadeleistung-1000;
                     iBattLoad = iFc;
                 }
             }
