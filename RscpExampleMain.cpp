@@ -1555,7 +1555,7 @@ int iModbusTCP()
                 }
             }
         }
-            if (now-t_OeK>10&&not brequest)
+            if (now-t_OeK>30&&not brequest)
             {
                 if (e3dc_config.debug)
                     printf("BGE");
@@ -4424,7 +4424,7 @@ bDischarge = false;
         }
 
         ret =
-            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, (e3dc_config.maximumLadeleistung+1000)/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev, e3dc_config.speichereta);
+            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, (e3dc_config.maximumLadeleistung+1000)/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev/e3dc_config.speichergroesse/40, e3dc_config.speichereta);
 
         if (ret == 2&&fBatt_SOC>5.5)
         {
