@@ -644,6 +644,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         {
                                             if (x1<e.size())
                                                 wet.waermepreis = (e[x1].pp+e3dc.DVmp*10)*.1/wet.cop; // solarpreis = 10ct
+                                            else
+                                                wet.waermepreis = (w[x1].pp*.1)/wet.cop;
                                         }
                                         x2++;
                                         wet.status = 2;   // 2 = PV, 1 = Speicher, 0 = Netz
