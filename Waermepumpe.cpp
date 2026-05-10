@@ -1061,7 +1061,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 
             memset(&line, 0, sizeof(line));
             fp = fopen("awattardebug.txt","w");
-            sprintf(line,"awattarlog%i.out",ptm->tm_wday);
+            sprintf(line,"awattarlog%i.txt",ptm->tm_wday);
             struct stat stats;
              stat(line,&stats);
             time_t t = *(&stats.st_mtime);
@@ -1112,16 +1112,20 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
              if (e3dc.debug) printf("NWj%i %3.2f %i %f %f \n",j,w[j].pp,e3dc.maximumLadeleistung,e3dc.speichergroesse,ladeleistung);
              int ret = SimuWATTar(w ,wetter,j ,e3dc,soc , anforderung, notstromreserve, ladeleistung);
 //                 sleep(1);}
+             if (soc > 100)
+                 soc = 100;
+             if (soc < 0) soc = 0;
              if (ret == 1)
-             { 
+             {
                  if (e3dc.DV&&j<e.size())
                  {
-//                     if (fsolar>0)
-//                         soc=soc_alt;
+                     if (anforderung>0)
+                         soc=soc_alt;
 
-                     ret = CheckDV(e ,wetter,j ,soc, e3dc.AWDiff, e3dc.AWAufschlag,                     e3dc.maximumLadeleistung/e3dc.speichergroesse/10/4,e3dc.AWReserve,notstromreserve,e3dc.speicherev/e3dc.speichergroesse/40,e3dc.speichereta);
+                     ret = CheckDV(e,w ,wetter,j ,soc, e3dc, notstromreserve);
 
-                     
+//                     if (ret==2)
+//                         soc_alt = soc;
                      if (fsolar>0&&ret==0)
                      {
                          // Der Speicher wird nur bei den niedrigsten Börsenpreisen gefüllt
@@ -1154,7 +1158,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                          
                          
                      }}
-                 else
+/*                 else
                  {
                      if (anforderung > ladeleistung)
                          soc = soc + ladeleistung;
@@ -1166,7 +1170,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                              soc = soc + anforderung/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse;
                      }
                  }
-                if (soc > 100) soc = 100;
+*/
+                 if (soc > 100) soc = 100;
                 if (soc < notstromreserve) soc = notstromreserve;
              }
              else

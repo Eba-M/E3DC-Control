@@ -3099,7 +3099,7 @@ int LoadDataProcess() {
                 float f3 = iDayStat[DayStat-2]/3600.0/1000.0;
 
                 printf("%c[K\n", 27 );
-                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i i%3li %2li %i %0.2f %0.2f %0.2f",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket,myiLength,iLength,iRegister,f2,f3,f3/f2);
+                printf("T%0.4f %0.2f %0.2f h%1i f%1i %1i %1i %1i %1i",t%(24*3600)/3600.0,e3dc_config.WPHK2on,e3dc_config.WPHK2off, bHK2off,bHK1off, btasmota_ch1, bWP,tasmota_status[0],isocket);
             }
 
 // Steuerung LWWP über shelly 0-10V
@@ -3297,8 +3297,8 @@ int LoadDataProcess() {
                                 x1=7;
 
                         }
-                        sprintf(Log1,"case %i",x1);
-                        WriteLog(e3dc_config,Log1,2);
+//                        sprintf(Log1,"case %i",x1);
+//                        WriteLog(e3dc_config,Log1,2);
 
 //                        if (temp[14]>=e3dc_config.BWWPmax*10-10||(temp[14]>=temp[4]+50&&temp[14]>=temp[10]+20))
                         if ((temp[15]>=temp[4]+30&&temp[15]>=temp[10]))
@@ -4422,9 +4422,8 @@ bDischarge = false;
                 }
             }
         }
-
-        ret =
-            CheckDV(e ,wetter,0 ,fBatt_SOC ,  e3dc_config.AWDiff, e3dc_config.AWAufschlag, (e3dc_config.maximumLadeleistung+1000)/e3dc_config.speichergroesse/10/4,e3dc_config.AWReserve, fNotstromreserve,e3dc_config.speicherev/e3dc_config.speichergroesse/40, e3dc_config.speichereta);
+        float soc = fBatt_SOC;
+        ret = CheckDV(e ,w,wetter,0 ,soc ,  e3dc_config, fNotstromreserve);
 
         if (ret == 2&&fBatt_SOC>5.5)
         {
@@ -4435,7 +4434,7 @@ bDischarge = false;
 
 
 // Am Morgen Speicher bis auf 5% entleeren wenn Preisspann mind. 20ct/kWh
-        printf(" ret= %i",ret);
+        printf(" ret= %i %3.2f",ret,soc);
         printf("%c[K", 27 );
 
         {
@@ -7561,10 +7560,15 @@ static void mainLoop(void)
         SRscpFrameBuffer frameBuffer;
         memset(&frameBuffer, 0, sizeof(frameBuffer));
 
+        int sunrise = sunriseAt;
+        if (e3dc_config.debug) printf("Ma1");
+        LoadDataProcess();
+
         // create an RSCP frame with requests to some example data
-        if(iAuthenticated == 1) {
-            int sunrise = sunriseAt;
-            if (e3dc_config.debug) printf("M1\n");
+//        if(iAuthenticated == 1)
+        {
+            
+            if (e3dc_config.debug) printf("M1b\n");
             if (e3dc_config.aWATTar>=0||e3dc_config.openmeteo)
             aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunrise,iDayStat);
             
@@ -7622,15 +7626,12 @@ static void mainLoop(void)
                  bWBRequest = true;
             else
                  bWBRequest = false;
-if (e3dc_config.debug) printf("M5\n");
-
-        if(frameBuffer.dataLength == 0)
-            LoadDataProcess();
+            if (e3dc_config.debug) printf("M5\n");
             
 //            sleep(1);
-if (e3dc_config.debug) printf("M6");
 
         }
+
         // check that frame data was created
         
         if(frameBuffer.dataLength == 0)
@@ -7757,7 +7758,7 @@ static int iEC = 0;
     int res = system("pwd");
     GetConfig();
 
-    int ret = solaredge();
+//    int ret = solaredge();
 
     e3dc_config.stop = 0; // Stop ausschalten
     
@@ -7844,30 +7845,33 @@ static int iEC = 0;
             {
                 mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 (Ermitteln_Statistik());
-
+                
                 aWATTar(ch,w,e,wetter,e3dc_config,fBatt_SOC, fNotstromreserve, sunriseAt, iDayStat);
-//                aWATTar.join();
-/*                std::vector<ch_s> * chref;
-                chref = &ch;
-                std::thread t1(aWATT,&ch,1,&e3dc_config);
-                t1.join();
-*/
+                //                aWATTar.join();
+                /*                std::vector<ch_s> * chref;
+                 chref = &ch;
+                 std::thread t1(aWATT,&ch,1,&e3dc_config);
+                 t1.join();
+                 */
                 int x1=0;
                 while (wetter.size()==0)
                 {
                     if (e3dc_config.debug)
                         printf("Warten auf Wetterdaten\n");
-                        x1++;
+                    x1++;
                     if (x1>10)
                         break;
                     sleep(1);
                 }
                 if (e3dc_config.debug)
                     printf("Wetterdaten = %i \n",wetter.size());
-
+                
                 mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(float),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,-99,fNotstromreserve,iHeatStat[1]);
                 if (e3dc_config.test)
-                    mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,11.1,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                {
+                    LoadDataProcess();
+                    mewp(w,e,wetter,ftemp,sizeof(ftemp)/sizeof(ftemp[0]),fatemp,fatemp24,fcop,sunriseAt,sunsetAt,e3dc_config,5.2,ireq_Heistab,5,fNotstromreserve,iHeatStat[1]);
+                }
             }
             while (e3dc_config.test)
                 LoadDataProcess();

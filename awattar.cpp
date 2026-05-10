@@ -800,8 +800,9 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
 }
 // Speicheroptimierung mit Laden-/Einspeisen in/aus dem Netz für die Direktvermarktung
 // w = 
-int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fSoC,float Diff,float aufschlag, float ladeleistung, float reserve, float notstromreserve, float speicherev, float speichereta) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
+int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fSoC,e3dc_config_t e3dc, float notstromreserve) // fConsumption Verbrauch in % SoC Differenz Laden/Endladen
 //int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float fSoC,float Diff,float aufschlag, float ladeleistung,float reserve, float notstromreserve, float speicherev, float speichereta);
+
 
 // Returncode 1 = keine Aktion (Batterie aus PV laden), 0 Batterieentladen stoppen 2 Batterie mit Netzstrom laden
 // 3 = Batterieladen stoppen 4 = Batterie ins Netz entladen
@@ -811,7 +812,7 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
     time(&rawtime);
     struct tm * ptm;
     ptm = gmtime (&rawtime);
-    float maxsoc;
+    float minsoc,maxsoc;
 
 
 //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
@@ -823,35 +824,43 @@ int CheckDV(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fS
             return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
     }
  */
-    if (w.size() < h) return 0; // Preisvector ist leer
-    float fstrompreis = w[h].pp;
-    ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
+    if (e.size() < h) return 0; // Preisvector ist leer
+    float fstrompreis = e[h].pp+e3dc.DVmp*10;
+    float ladeleistung = e3dc.maximumLadeleistung/e3dc.speichergroesse/10/4*.9; // Anpassung Wirkungsgrad
     
         float Verbrauch=0;
         // Verbrauch bis solarenÜberschuss??
-        int x1 = 0;
+        int x1 = h;
         int x2 = 0;
-        if (w.size()-h>60)
-            for(x1=h;Verbrauch==0&&w.size()-h-48>x1;x1++)
-            x2 = suchenSolar(wetter,x1, Verbrauch);
-        else
-            return 0;
-        
-            x1 = Highprice(w,h,w.size()-48,fstrompreis);
+    if (e.size()-h>48)
+        for(x1=h;Verbrauch<20&&w.size()-h-48>x1;x1++)
+        x2 = suchenSolar(wetter,x1, Verbrauch);
+    else
+        return 0;
+// Untersuchen mit Bezugspreisen
+    Verbrauch = fHighprice(w,wetter,x1,x2,fstrompreis,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+// Untersuchen mit DV preisen
+    float fConsumption = fHighprice(e,wetter,h,e.size()-48,e[h].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+
+// Wenn der Speicher nicht mehr auf 100% geladen werden kann Abruch
+    if (fSoC+maxsoc<95)
+        return 0;
+    x1 = Highprice(e,h,e.size()-48,e[h].pp);
 
     // Überprüfen ob entladen werden kann
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-    if (Verbrauch*0.8<reserve&&x2<10&&x2>=0)
+    float reserve = e3dc.AWReserve;
+    if (Verbrauch*0.8<e3dc.AWReserve&&x2<10&&x2>=0)
         reserve = Verbrauch*0.8;
     if (x2==0) reserve = 0;
-    reserve = reserve + fSoC*(1-speichereta);
-    reserve = reserve + x2*speicherev; // speichereta 15minverbrauch in % Speicher
+    reserve = reserve + fSoC*(1-e3dc.speichereta);
+    reserve = reserve + x2*e3dc.speicherev/e3dc.speichergroesse/40; // speichereta 15minverbrauch in % Speicher
 
         //    if (ret > 0) ret--;
         // Überprüfen ob entladen werden kann
         if (fSoC > 100) fSoC = 100;
         if (
-        fSoC - reserve - notstromreserve-Verbrauch-x1*ladeleistung>0
+        fSoC - reserve - notstromreserve-Verbrauch-x1*ladeleistung>5
             )
         {
             if (h>0)  // Simulation
