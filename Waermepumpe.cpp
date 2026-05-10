@@ -563,6 +563,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                             wetter1_s wet;
                             float adj = (1-(1-e3dc.speichereta)/96);
                             float minimum_pp = 9999; // ermitteln niedrigsten Strompreis
+                            float max_pp = -999; // ermitteln höchster Börsen-Strompreis
                             {
                                 for (int x1=0;x1<w.size()-1&&x1<wetter.size()-1;x1++)
                                 {
@@ -572,6 +573,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 //                                        fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
                                     if (w[x1].pp < minimum_pp)
                                         minimum_pp = w[x1].pp;
+                                    if (e3dc.DV&&x1<e.size()&&e[x1].pp > max_pp)
+                                        max_pp = e[x1].pp;
                                     //                                    fsoc = fsoc * adj;
                                     if (fsoc>100)
                                     {
@@ -657,6 +660,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             if (e3dc.DV)
                                             {
                                                 wet.waermepreis = minimum_pp*.1/wet.cop; // speicherpreis
+                                                wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
