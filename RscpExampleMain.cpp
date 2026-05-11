@@ -7561,8 +7561,6 @@ static void mainLoop(void)
         memset(&frameBuffer, 0, sizeof(frameBuffer));
 
         int sunrise = sunriseAt;
-        if (e3dc_config.debug) printf("Ma1");
-        LoadDataProcess();
 
         // create an RSCP frame with requests to some example data
 //        if(iAuthenticated == 1)
@@ -7631,6 +7629,8 @@ static void mainLoop(void)
 //            sleep(1);
 
         }
+        if (e3dc_config.debug) printf("M6");
+        LoadDataProcess();
 
         // check that frame data was created
         
