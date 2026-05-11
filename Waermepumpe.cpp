@@ -661,6 +661,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             {
                                                 wet.waermepreis = minimum_pp*.1/wet.cop; // speicherpreis
                                                 wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
+                                                wet.waermepreis = (w[x1].pp*.1)/wet.cop;
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
