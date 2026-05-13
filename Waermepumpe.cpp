@@ -640,10 +640,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     float highpp;
 
                                     if (x1>=e.size()||wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25>wetter[x1].solar||not e3dc.DV)
-                                        highpp = w[x1].pp;
-                                    else
                                     {
                                         if (e3dc.debug) printf("NW6a %i %i\n",e.size(),x1);
+                                        highpp = w[x1].pp;
+                                    }
+                                    else
+                                    {
                                         int pos = highprice(e,wetter,x1);
                                         if (e3dc.debug) printf("NW6b %i %i\n",pos,x1);
                                         if (pos < e.size())
@@ -672,10 +674,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             if (e3dc.DV)
                                             {
                                                 int h1,l1;
+                                                if (e3dc.debug) printf("NW6c %i\n",x1);
                                                 if (x1<e.size()-48&&SucheDiff1(e, w, e[x1].pp,x1, e.size()-48,e3dc, h1, l1))
                                                     wet.waermepreis = w[x1].pp*.1/wet.cop; // speicherpreis
                                                 else
 //                                                wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
+
+                                                if (e3dc.debug) printf("NW6d %i\n",l1);
 //
                                                 wet.waermepreis = (w[l1].pp*.1)/wet.cop;
                                             }
