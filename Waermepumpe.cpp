@@ -371,6 +371,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
  }
         if (e3dc.debug) printf("NW3\n");
         if (w.size()==0) return;
+        if (wetter.size()==0) return;
 //        if (e3dc.unload < 0) return;
         if (e3dc.debug) printf("NW4\n");
         
@@ -511,6 +512,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             WPZWE = 0;
                                     }
                             }
+                    if (e3dc.debug) printf("NW5\n");
 
                     // Aus der ermittelte Durchnittstemperatur geht der Wärmebedarf und damit
                     // die Laufdauer der Wärmepumpe vor
@@ -615,6 +617,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                 }
 */
+                                if (e3dc.debug) printf("NW6\n");
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
                                     wet.x1 = x1;
@@ -713,7 +716,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         wetter1 = wetter2;
                                         wetter2.clear();
                                     }
-                                
+                                    if (e3dc.debug) printf("NW7\n");
+
                                     while (waermebedarf>1)
                                     {
                                         schleife++;
