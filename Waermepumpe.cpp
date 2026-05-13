@@ -645,6 +645,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     else
                                     {
                                         int pos = highprice(e,wetter,x1);
+                                        if (e3dc.debug) printf("NW6b %i %i\n",pos,x1);
                                         if (pos < e.size())
                                             highpp = e[pos].pp+e3dc.DVmp*10;
                                         else
