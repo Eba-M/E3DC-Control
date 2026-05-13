@@ -682,7 +682,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 
                                                 if (e3dc.debug) printf("NW6d %i\n",l1);
 //
-                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
+//                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
