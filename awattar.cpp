@@ -193,7 +193,7 @@ float fHighprice(std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int ab,int
     {
 if (debug)
     printf("%i ",j);
-        x3 = wetter[j].hourly + wetter[j].wpbedarf + wetter[j].wwwpbedarf + wetter[j].heizstabbedarf - wetter[j].solar;;
+        x3 = wetter[j].hourly + wetter[j].einspeisen + wetter[j].wpbedarf + wetter[j].wwwpbedarf + wetter[j].heizstabbedarf - wetter[j].solar;;
 // Wenn die Ladeleistung kleiner als Solarertrag wird mit der ladeleistung weiter gerechnet
         if (x3<ladeleistung*-1)
             x3=ladeleistung*-1;
@@ -305,6 +305,32 @@ void SucheHT(std::vector<watt_s> &w,int ab,long bis)  // ab = Index bis zeitanga
 
     return;
 }
+bool SucheDiff1(std::vector<watt_s> &e,std::vector<watt_s> &w,float price, int ab, int bis, e3dc_config_t e3dc, int &h1, int &l1)  // ab = Index bis Diff zwischen high und low erreicht
+{
+    high.pp = price;
+    low = w[ab];
+    h1 = ab;
+    l1 = ab;
+ 
+    for (int j = ab; j < e.size()&& j < w.size()&&j<bis; j++ )
+    {
+// Suchen nach Hoch und Tiefs
+        if (e[j].pp > high.pp) {
+            high = e[j];
+            h1 = j;
+        }
+          if  (w[j].pp < low.pp) {
+              low = w[j];
+              l1 = j;
+          }
+        float erg = (low.pp )*(e3dc.AWAufschlag)+ e3dc.AWDiff;
+        if ((high.pp + e3dc.DVmp*10) > (low.pp)*(e3dc.AWAufschlag)+ e3dc.AWDiff)
+        return true;
+    }
+
+    return false;
+}
+
 bool SucheDiff(std::vector<watt_s> &w,int ab, float aufschlag,float Diff)  // ab = Index bis Diff zwischen high und low erreicht
 {
     high = w[ab];
@@ -366,9 +392,9 @@ int suchenSolar(std::vector<wetter_s> &w,int x1,float &Verbrauch)
 {
     
     Verbrauch = 0;
-    for (;x1<w.size()&&w[x1].hourly+w[x1].wpbedarf+ w[x1].wwwpbedarf + w[x1].heizstabbedarf>w[x1].solar;x1++)
+    for (;x1<w.size()&&w[x1].hourly+w[x1].einspeisen + w[x1].wpbedarf+ w[x1].wwwpbedarf + w[x1].heizstabbedarf>w[x1].solar;x1++)
     {
-        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf- w[x1].solar;
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].einspeisen+w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf- w[x1].solar;
     }
     return x1;
 }
@@ -382,10 +408,10 @@ int suchenMaxSoc(std::vector<wetter_s> &w,int x1,float &Verbrauch)
     float maxsoc = -1;
     float soc = 0;
     int posmax = 0;
-    for (;x1<w.size()&&w[x1].hourly>w[x1].solar;x1++)
+    for (;x1<w.size()&&w[x1].hourly+w[x1].einspeisen>w[x1].solar;x1++)
     {
-        Verbrauch = Verbrauch + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
-        soc = soc + w[x1].hourly + w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
+        Verbrauch = Verbrauch + w[x1].hourly + w[x1].einspeisen+ w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
+        soc = soc + w[x1].hourly + w[x1].einspeisen+w[x1].wpbedarf + w[x1].wwwpbedarf + w[x1].heizstabbedarf + w[x1].solar;
         if (soc <= 0) soc = 0; else
             if (soc > maxsoc)
             {
@@ -813,6 +839,12 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     struct tm * ptm;
     ptm = gmtime (&rawtime);
     float minsoc,maxsoc;
+    float Verbrauch=0;
+    float reserve = e3dc.AWReserve;
+
+    // Verbrauch bis solarenÜberschuss??
+    int x1 = h;
+    int x2 = 0;
 
 
 //    return 2;  // Zu testzwecken  dann 9 Minuten Netzladebetrieb
@@ -826,14 +858,58 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
  */
     if (e.size() < h) return 0; // Preisvector ist leer
     float fstrompreis = e[h].pp+e3dc.DVmp*10;
-    float ladeleistung = e3dc.maximumLadeleistung/e3dc.speichergroesse/10/4*.9; // Anpassung Wirkungsgrad
+    float ladeleistung = e3dc.maximumLadeleistung/e3dc.speichergroesse/10/4; // Anpassung Wirkungsgrad
+
+    // Kann der Speicher entladen werden
+    if (e.size()>48){
+        
+        if (SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)
+        {
+            x1 = Highprice(e,h,l1,e[h].pp);
+// Ermitteln den Verbrauch bis nachgeladen werden kann l1
+            Verbrauch = fHighprice(w,wetter,h,l1,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+            float uberschuss = fSoC -Verbrauch-x1*ladeleistung-5;
+            if (uberschuss>5)
+            {
+                if (uberschuss>ladeleistung)
+                    fSoC = fSoC-ladeleistung;
+                else
+                fSoC = fSoC-uberschuss;
+                if (fSoC < 5) fSoC = 5;
+                return 2;
+            }
+        }
+        if (SucheDiff1(e, w, e[l1].pp,l1, e.size()-48,e3dc, h1, l1))
+        {
+            x1 = Highprice(e,h1,e.size()-48,e[h1].pp);
+            Verbrauch = fHighprice(w,wetter,h,l1,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+
+            // Nachladen bei l1
+//            float uberschuss = fSoC -Verbrauch-ladeleistung-x1*ladeleistung;
+            float uberschuss = fSoC -Verbrauch-x1*ladeleistung;
+            if (fSoC<100&&uberschuss<0&&h==l1)
+            {
+                fSoC = fSoC+ladeleistung;
+                if (fSoC>100) fSoC=100;
+                return 3;
+            }
+            if (uberschuss>5&&h1>l1)
+            {
+                uberschuss=uberschuss-5;
+                if (uberschuss>ladeleistung)
+                    fSoC = fSoC-ladeleistung;
+                else
+                    fSoC = fSoC-uberschuss;
+                if (fSoC < 5) fSoC = 5;
+                return 2;
+            }
+
+        }
+    }
+
     
-        float Verbrauch=0;
-        // Verbrauch bis solarenÜberschuss??
-        int x1 = h;
-        int x2 = 0;
     if (e.size()-h>48)
-        for(x1=h;Verbrauch<20&&w.size()-h-48>x1;x1++)
+        for(x1=h;Verbrauch<20&&e.size()-h-48>x1;x1++)
         x2 = suchenSolar(wetter,x1, Verbrauch);
     else
         return 0;
@@ -849,7 +925,6 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
 
     // Überprüfen ob entladen werden kann
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
-    float reserve = e3dc.AWReserve;
     if (Verbrauch*0.8<e3dc.AWReserve&&x2<10&&x2>=0)
         reserve = Verbrauch*0.8;
     if (x2==0) reserve = 0;
@@ -858,14 +933,18 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
 
         //    if (ret > 0) ret--;
         // Überprüfen ob entladen werden kann
-        if (fSoC > 100) fSoC = 100;
+    float uberschuss = fSoC -reserve-Verbrauch-x1*ladeleistung-5;
+    if (fSoC > 100) fSoC = 100;
         if (
-        fSoC - reserve - notstromreserve-Verbrauch-x1*ladeleistung>5
+        uberschuss>5
             )
         {
             if (h>0)  // Simulation
             {
-                fSoC = fSoC-ladeleistung;
+                if (uberschuss>ladeleistung)
+                    fSoC = fSoC-ladeleistung;
+                else
+                    fSoC = fSoC-uberschuss;
                 if (fSoC<5) fSoC=5;
             }
             return 2;

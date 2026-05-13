@@ -199,7 +199,7 @@ int highprice(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,int beginn)
     }
     return x2;
 }
-void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp,float &fatemp24,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
+void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp48,float &fatemp24,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -244,16 +244,16 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
         if (e3dc.openmeteo)
         {
             if (wetter.size()==0) return;
-            fatemp = 0;
+            fatemp48 = 0;
             int j=0;
             for (;j<wetter.size()&&j<96;j++)
-                fatemp = fatemp + wetter[j].temp;
-            fatemp24 = fatemp/96;
+                fatemp48 = fatemp48 + wetter[j].temp;
+            fatemp24 = fatemp48/96;
             for (;j<wetter.size();j++)
-                fatemp = fatemp + wetter[j].temp;
+                fatemp48 = fatemp48+ wetter[j].temp;
 
-            fatemp = fatemp / wetter.size();
-//            fatemp = -0.43;
+            fatemp48 = fatemp48 / wetter.size();
+            fatemp = fatemp24;
             waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
             waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
             // Heizlast bei -15°
@@ -659,9 +659,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         {
                                             if (e3dc.DV)
                                             {
-                                                wet.waermepreis = minimum_pp*.1/wet.cop; // speicherpreis
-                                                wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
-                                                wet.waermepreis = (w[x1].pp*.1)/wet.cop;
+                                                int h1,l1;
+                                                if (x1<e.size()-48&&SucheDiff1(e, w, e[x1].pp,x1, e.size()-48,e3dc, h1, l1))
+                                                    wet.waermepreis = w[x1].pp*.1/wet.cop; // speicherpreis
+                                                else
+//                                                wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
+//
+                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
@@ -678,6 +682,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             wet.status = 0;
                                         }
                                     }
+                                    wetter[x1].einspeisen=0;
                                     wetter[x1].wpbedarf=0;
                                     wetter[x1].wwwpbedarf=0;
                                     wetter[x1].heizstabbedarf=0;

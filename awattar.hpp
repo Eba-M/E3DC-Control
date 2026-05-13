@@ -77,7 +77,7 @@ typedef struct {time_t hh; float pp; float hourly; float pn;}watt_s;
 // wpbedarf: Wärmebedarf in % der Speichergröße
 // waerme: erforderliche Wärmeleistung in kW
 // cop: Effizienz WP
-typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float kosten;float solar;float progsolar;
+typedef struct {time_t hh; float temp; int sky; float uvi;float hourly;float einspeisen;float kosten;float solar;float progsolar;
     float wpbedarf;float wwwpbedarf;float heizstabbedarf;float waerme;float waermepreis;float cop;}wetter_s;
 // information for the wolf heatpump
 typedef struct {time_t t; std::string feld; std::string AK; std::string status; float wert;}wolf_s;
@@ -116,3 +116,4 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
 int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> &wetter,int h,float &fSoC,e3dc_config_t e3dc, float notstromreserve);
 bool GetWallbox(std::vector<ch_s> &ch);
 bool PutWallbox(std::vector<ch_s> &ch);
+bool SucheDiff1(std::vector<watt_s> &e,std::vector<watt_s> &w,float price, int ab, int bis, e3dc_config_t e3dc, int &h1, int &l1);  // ab = Index bis Diff zwischen high und low erreicht
