@@ -183,17 +183,17 @@ static int oldwsize = -1;
 
 // static float ftemp;
 //mewp(w,wetter,fatemp,sunriseAt,e3dc_config);       // Ermitteln Wetterdaten
-int highprice(std::vector<watt_s> &w,std::vector<wetter_s>&wetter,int beginn)
+int highprice(std::vector<watt_s> w,std::vector<wetter_s>wetter,int beginn)
 {
     float high = w[beginn].pp;
     int x2=beginn;
-    for (int x1=beginn;x1<e.size();x1++)
+    for (int x1=beginn;x1<w.size();x1++)
     {
         if (wetter[x1].solar>0)
             break;
-        if (e[x1].pp>high)
+        if (w[x1].pp>high)
         {
-            high = e[x1].pp;
+            high = w[x1].pp;
             x2=x1;
         }
     }
@@ -643,7 +643,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (x1>=e.size()||wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25>wetter[x1].solar||not e3dc.DV)
                                         highpp = w[x1].pp;
                                     else
-                                        highpp = e[highprice(e,wetter,x1)].pp+e3dc.DVmp*10;
+                                    {
+                                        int pos = highprice(e,wetter,x1);
+                                        if (pos < e.size())
+                                            highpp = e[pos].pp+e3dc.DVmp*10;
+                                        else
+                                            highpp = w[x1].pp;
+                                    }
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis + Marktprämie
