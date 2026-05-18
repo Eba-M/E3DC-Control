@@ -881,7 +881,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
         }
         if (SucheDiff1(e, w, e[l1].pp,l1, e.size()-48,e3dc, h1, l1))
         {
-            x1 = Highprice(e,h1,e.size()-48,e[h1].pp);
+            x1 = Highprice(e,h1,e.size()-48,e[h].pp);
             Verbrauch = fHighprice(w,wetter,h,l1,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 
             // Nachladen bei l1
