@@ -4244,7 +4244,7 @@ bDischarge = false;
     {
         idauer = 0; // direkte Steuerung aus
         if (e3dc_config.wbmode == 1)
-            e3dc_config.wbmode = 5;
+            e3dc_config.wbmode = 14;
 
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
         float fmaxpp = -999; // Höchstpreis
@@ -4324,14 +4324,14 @@ bDischarge = false;
                         else
                         {  // Autoladen abschalten
                             fsoue1=0;
-                            if  (e3dc_config.wbmode==5)
+                            if  (e3dc_config.wbmode==14)
                                 iAvalPower = -50000;
                             
                         }
                     }
                     else
                     { // Scharf abschalten
-                        if (e3dc_config.DVWBkWh>0&&e3dc_config.wbmode==5)
+                        if (e3dc_config.DVWBkWh>0&&e3dc_config.wbmode==14)
                             e3dc_config.wbmode = 1;
                     }
                 }
@@ -4353,7 +4353,7 @@ bDischarge = false;
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
                 iBattLoad = e3dc_config.maximumLadeleistung;
-                if (e3dc_config.wbmode == 5&&e3dc_config.DVcarlimit*10>e.begin()->pp)
+                if (e3dc_config.wbmode == 14&&e3dc_config.DVcarlimit*10>e.begin()->pp)
                 {
                     if (fBatt_SOC<97.0)
                         e3dc_config.wbminlade = iMinlade;
@@ -4405,7 +4405,7 @@ bDischarge = false;
             else
             {
                 // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
-                if (e3dc_config.wbmode == 5)
+                if (e3dc_config.wbmode == 14)
                 {
                     if (fPower_WB>0)
                     {
@@ -5017,7 +5017,7 @@ bDischarge = false;
               iPower = e3dc_config.maximumLadeleistung;
 // wenn unload < 0 Power setzen
 //    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||e3dc_config.DV) iPower = iFc;
-    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||(e3dc_config.DV&&iPower<iFc)) iPower = iFc;
+    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||(e3dc_config.DV&&iFc!=0)) iPower = iFc;
 
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&
@@ -5554,7 +5554,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = iPower_Bat-fPower_Grid;
                     break;
                 case 4:
-                case 5:
+                case 14:
 
                     // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
                     if (iRefload > iMinLade2)
@@ -5567,6 +5567,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower + idynPower;
                     
                     break;
+                case 5:
                 case 6:
                 case 7:
                 case 8:
