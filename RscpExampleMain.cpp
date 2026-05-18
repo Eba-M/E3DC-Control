@@ -4243,7 +4243,7 @@ bDischarge = false;
     if (e3dc_config.DV&&fBatt_SOC>=0) // Direktvermarktung
     {
         idauer = 0; // direkte Steuerung aus
-        if (e3dc_config.wbmode == 0)
+        if (e3dc_config.wbmode == 1)
             e3dc_config.wbmode = 5;
 
 // Laden des Speichers aus dem Netz nur zu den niedrigsten Börsenpreisen
@@ -4332,7 +4332,7 @@ bDischarge = false;
                     else
                     { // Scharf abschalten
                         if (e3dc_config.DVWBkWh>0&&e3dc_config.wbmode==5)
-                            e3dc_config.wbmode = 0;
+                            e3dc_config.wbmode = 1;
                     }
                 }
             }
@@ -4413,7 +4413,7 @@ bDischarge = false;
                         printf(" AVL %i ",iAvalPower);
                     }
                     else
-                        e3dc_config.wbmode = 0;
+                        e3dc_config.wbmode = 1;
                 }
                 if (fBatt_SOC>5)  // mind. 5% Ladung erhalten
                 {
@@ -5016,8 +5016,9 @@ bDischarge = false;
 //            else iPower = 0;
               iPower = e3dc_config.maximumLadeleistung;
 // wenn unload < 0 Power setzen
-    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||e3dc_config.DV) iPower = iFc;
-        
+//    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||e3dc_config.DV) iPower = iFc;
+    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||(e3dc_config.DV&&iPower<iFc)) iPower = iFc;
+
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&
         (
@@ -5553,7 +5554,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iPower = iPower_Bat-fPower_Grid;
                     break;
                 case 4:
-                    
+                case 5:
+
                     // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
                     if (iRefload > iMinLade2)
                         iRefload = iMinLade2;
@@ -5565,7 +5567,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     iPower = iPower + idynPower;
                     
                     break;
-                case 5:
                 case 6:
                 case 7:
                 case 8:
