@@ -199,7 +199,7 @@ int highprice(std::vector<watt_s> w,std::vector<wetter_s>wetter,int beginn)
     }
     return x2;
 }
-void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp48,float &fatemp24,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
+void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter,float ftemp[],const size_t &len,float &fatemp,float &fatemp24,float &fatemp48,float &cop, int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft,float notstromreserve,int32_t HeatStat) {
     time_t rawtime;
     struct tm * ptm;
     time(&rawtime);
@@ -254,6 +254,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 
             fatemp48 = fatemp48 / wetter.size();
             fatemp = fatemp24;
+            fatemp = fatemp - ftemp[0]/96;
+
             waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
             waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
             // Heizlast bei -15°
@@ -262,8 +264,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             else
                 waermebedarf1 = 0;
             float diff = float(HeatStat)/3600000.0;
-            if (diff>30) diff = 30;
-            if (diff<-30) diff = -30;
+//            if (diff>30) diff = 30;
+//            if (diff<-30) diff = -30;
                 waermebedarf = waermebedarf-diff;
 
             if (zuluft >-99&&wetter.size()>0) // Temperaturabgleich
@@ -299,7 +301,6 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 
             }
 
-            fatemp = fatemp - ftemp[0]/96;
 
             if (e3dc.WPWolf)
             {
@@ -529,7 +530,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                     // Heizlast bei -15°
                     if (w.size()>96)
-                        waermebedarf1 = waermebedarf = waermebedarf/96*(w.size()-96); // wärmbedarf nach 24h
+                        waermebedarf1 = waermebedarf/96*(w.size()-96); // wärmbedarf nach 24h
                     else
                         waermebedarf1 = 0;
                     float diff = float(HeatStat)/3600000.0;
