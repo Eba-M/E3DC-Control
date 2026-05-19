@@ -4948,6 +4948,7 @@ bDischarge = false;
     printf("%c[K\n", 27 );
     
     int iPower = 0;
+    int iEngpassPower = 0; // WR Leistung oder einspeiselimit überschritten
     if (iLMStatus == 0){
         iLMStatus = 5;
         tLadezeit_alt = 0;
@@ -4974,7 +4975,8 @@ bDischarge = false;
     
     if ((iPower_PV_E3DC - e3dc_config.wrleistung) > iPower)
         iPower = (iPower_PV_E3DC - e3dc_config.wrleistung);
-    
+    if (iPower > 0)
+        iEngpassPower = iPower;
 //    if (iPower < 50) iPower = 0;
 //    else
 //    if (iPower > e3dc_config.maximumLadeleistung) iPower = e3dc_config.maximumLadeleistung;
@@ -5017,8 +5019,9 @@ bDischarge = false;
               iPower = e3dc_config.maximumLadeleistung;
 // wenn unload < 0 Power setzen
 //    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||e3dc_config.DV) iPower = iFc;
-    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||(e3dc_config.DV&&iFc!=0)) iPower = iFc;
-
+    printf("EngpassPower %i %i ",iEngpassPower,iFc);
+    if ((iPower > iFc&&idauer > 0&&e3dc_config.unload<0)||(e3dc_config.DV)) iPower = iFc;
+    if (iEngpassPower>0&&iEngpassPower>iFc) iPower = iEngpassPower;
     if (e3dc_config.wallbox>=0&&(bWBStart||bWBConnect)&&bWBStopped&&(e3dc_config.wbmode>1)
         &&
         (

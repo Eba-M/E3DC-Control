@@ -913,10 +913,11 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
         x2 = suchenSolar(wetter,x1, Verbrauch);
     else
         return 0;
+    SucheHT(w,h,w[x2].hh);
 // Untersuchen mit Bezugspreisen
-    Verbrauch = fHighprice(w,wetter,x1,x2,fstrompreis,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+    Verbrauch = fHighprice(w,wetter,x1,SuchePos(w,low.hh),low.pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 // Untersuchen mit DV preisen
-    float fConsumption = fHighprice(e,wetter,h,e.size()-48,e[h].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+    float fConsumption = fHighprice(e,wetter,h,e.size()-48,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 
 // Wenn der Speicher nicht mehr auf 100% geladen werden kann Abruch
     if (fSoC+maxsoc<95)
@@ -939,7 +940,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
         uberschuss>5
             )
         {
-            if (h>0)  // Simulation
+//    if (h>0)  // Simulation
             {
                 if (uberschuss>ladeleistung)
                     fSoC = fSoC-ladeleistung;
