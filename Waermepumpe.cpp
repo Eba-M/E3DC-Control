@@ -272,7 +272,14 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             {
                 int j1 = (wetter[0].hh%(24*3600));
                 j1 = j1/900+1;
-                waermebedarf = (e3dc.WPHeizgrenze - fatemp + (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96)*24; // Heizgrade
+
+                ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
+                ftemp[j1] = wetter[0].temp - zuluft;
+
+                fatemp = fatemp24;
+                fatemp = fatemp - ftemp[0]/96;
+
+                waermebedarf = (e3dc.WPHeizgrenze - fatemp); // Heizgrade
                 waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                 waermebedarf1 = waermebedarf/96*(w.size()-96);
                 waermebedarf = waermebedarf-diff;
@@ -296,8 +303,6 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     fprintf(fp,"%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° %5.2f %5.2f %5.2f  \n",float((wetter[0].hh%(24*3600))/900)/4,wetter[0].temp,zuluft,ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96,waermebedarf1,waermebedarf,waermebedarf-waermebedarf1);
                     fclose(fp);
                 }
-                ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
-                ftemp[j1] = wetter[0].temp - zuluft;
 
             }
 
