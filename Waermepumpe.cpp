@@ -279,7 +279,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 fatemp = fatemp24;
                 fatemp = fatemp - ftemp[0]/96;
 
-                waermebedarf = (e3dc.WPHeizgrenze - fatemp); // Heizgrade
+                waermebedarf = (e3dc.WPHeizgrenze - fatemp)*24; // Heizgrade
                 waermebedarf = (e3dc.WPHeizlast / (e3dc.WPHeizgrenze - e3dc.WPNat)) * waermebedarf;
                 waermebedarf1 = waermebedarf/96*(w.size()-96);
                 waermebedarf = waermebedarf-diff;
