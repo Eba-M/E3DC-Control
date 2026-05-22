@@ -4324,7 +4324,8 @@ bDischarge = false;
                         else
                         {  // Autoladen abschalten
                             fsoue1=0;
-                            if  (e3dc_config.wbmode==14)
+                            float aktpower = -fPower_Grid+fPower_Bat+fPower_WB;
+                            if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit)
                                 iAvalPower = -50000;
                             
                         }
@@ -4430,6 +4431,11 @@ bDischarge = false;
             idauer = 1;
             iFc = -e3dc_config.maximumLadeleistung;
             iBattLoad = iFc;
+        }
+        if (ret == 3&&fBatt_SOC<95&&wetter.begin()->solar==0)
+        {
+            idauer = 1;
+            iFc = e3dc_config.maximumLadeleistung*.9;
         }
 
 

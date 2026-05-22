@@ -893,10 +893,10 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
                 if (fSoC>100) fSoC=100;
                 return 3;
             }
+            x1 = Highprice(e,h,e.size()-48,e[h].pp);
+            uberschuss=uberschuss-5-x1*ladeleistung;
             if (uberschuss>5&&h1>l1)
             {
-                x1 = Highprice(e,h,e.size()-48,e[h].pp);
-                uberschuss=uberschuss-5-x1*ladeleistung;
                 if (uberschuss>ladeleistung)
                     fSoC = fSoC-ladeleistung;
                 else
