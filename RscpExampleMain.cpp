@@ -4325,7 +4325,7 @@ bDischarge = false;
                         {  // Autoladen abschalten
                             fsoue1=0;
                             float aktpower = -fPower_Grid+fPower_Bat+fPower_WB;
-                            if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit)
+                            if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit*1000)
                                 iAvalPower = -50000;
                             
                         }
