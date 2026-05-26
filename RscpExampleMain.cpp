@@ -4276,7 +4276,7 @@ bDischarge = false;
         {
             float fsou = 0; // solarer überschuss
             float fsoue = 0; // solarer überschuss
-            float fsoue1 = 0; // solare Unterdeckung?
+            float fsoue1 = 0; // solare Unterdeckung? Wallbox
             float fsoue2 = 0; // Speicherabdeckung
             for (int x2=1;x2<e.size();x2++)
             {
@@ -4289,13 +4289,22 @@ bDischarge = false;
                 {
                     x1++;
 // E3DC Speicher Ladeangebot
-                    fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                    fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf; // Überschuss
                     if (fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
+                    {
                         fsoue2 = fsoue2 + (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
+                        fsou = fsou - (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
+                    }
                     else
+                    {
                         if (fsou>0)
                             fsoue2 = fsoue2 + fsou;
-
+                        fsou = 0;
+                    }
+                    
+                    if (fsou>11000/10/e3dc_config.speichergroesse/4)
+                        fsou = 11000/10/e3dc_config.speichergroesse/4;
+                    
                     if (fsou < 0)
                         
                         fsoue1 = fsoue1 + fsou;
@@ -4353,7 +4362,8 @@ bDischarge = false;
             if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2)
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
-                iBattLoad = e3dc_config.maximumLadeleistung;
+                if (100-fBatt_SOC>fsoue2||fBatt_SOC<10)
+                    iBattLoad = e3dc_config.maximumLadeleistung;
                 if (e3dc_config.wbmode == 14&&e3dc_config.DVcarlimit*10>e.begin()->pp)
                 {
                     if (fBatt_SOC<97.0)
