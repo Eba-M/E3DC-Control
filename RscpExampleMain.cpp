@@ -4352,7 +4352,12 @@ bDischarge = false;
                 }
             }
 //            if (e3dc_config.DV)
-                printf("\nfsoue1 %2i:%2i %5.2f fsoue2 %2i:%2i %5.2f iFc %i",l2.begin()->hh%(24*3600)/3600,l2.begin()->hh%(3600)/60,fsoue1,l1.begin()->hh%(24*3600)/3600,l1.begin()->hh%(3600)/60,fsoue2,iFc);
+            printf("\n");
+            if (l2.size()>0)
+            printf("fsoue1 %2i:%2i %5.2f  ",l2.begin()->hh%(24*3600)/3600,l2.begin()->hh%(3600)/60,fsoue1);
+            if (l1.size()>0)
+            printf("fsoue2 %2i:%2i %5.2f ",l1.begin()->hh%(24*3600)/3600,l1.begin()->hh%(3600)/60,fsoue2);
+            printf(" iFc %i",iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
             {
                 iFc = e3dc_config.maximumLadeleistung;
