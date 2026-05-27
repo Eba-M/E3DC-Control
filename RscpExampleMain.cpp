@@ -4256,74 +4256,73 @@ bDischarge = false;
         time_t rawtime;
         time(&rawtime);
         ptm = localtime(&rawtime);
+        watt_s ll;
+        static std::vector<watt_s> l1,l2; // Stundenwerte der Börsenstrompreise, l1 Speicher l2 = Wallbox
         while (e.begin()->hh<rawtime-900)
             e.erase(e.begin());
         for (int x2=1;x2<e.size();x2++)
         {
-//            if (wetter[x2].solar>5)
+//            if (wetter[x2].solar<1)
 //                break;
             if (wetter[x2].solar>0)
             {
-                if (e[x2].pp>fmaxpp)
-                    fmaxpp = e[x2].pp;
-                if (e[x2].pp<fminpp)
-                    fminpp = e[x2].pp;
+                ll=e[x2];
+                ll.hourly=wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf;
+                l.push_back(ll);
             }
-            if (e[x2].pp>fppborder)
-                icount++;
         }
 
         {
+                
+            std::stable_sort(l.begin(), l.end(), [](const watt_s& a, const watt_s& b) {
+                return a.pp < b.pp;});
+
             float fsou = 0; // solarer überschuss
             float fsoue = 0; // solarer überschuss
             float fsoue1 = 0; // solare Unterdeckung? Wallbox
             float fsoue2 = 0; // Speicherabdeckung
-            for (int x2=1;x2<e.size();x2++)
+            float WBSoll = (abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse*100;
+            while (l.size()>0)
             {
-                if (wetter[x2].solar == 0)
-                    break;
-                if (wetter[x2].hourly>10)
-                    wetter[x2].hourly=wetter[x2].hourly/10;
-                
-                if (e[x2].pp<e.begin()->pp)  // solarer Übeerschuss bei geringeren Börsenpreisen
+                fsou = l.begin()->hourly;
+                if (100-fBatt_SOC>fsoue2||fsoue1<WBSoll)
                 {
-                    x1++;
-// E3DC Speicher Ladeangebot
-                    fsou = wetter[x2].solar - wetter[x2].hourly - wetter[x2].wpbedarf -wetter[x2].wwwpbedarf - wetter[x2].heizstabbedarf; // Überschuss
                     if (fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
                     {
-                        fsoue2 = fsoue2 + (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
+                        fsoue = (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
                         fsou = fsou - (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
                     }
                     else
                     {
                         if (fsou>0)
-                            fsoue2 = fsoue2 + fsou;
+                            fsoue =  fsou;
                         fsou = 0;
                     }
-                    
-                    if (fsou>11000/10/e3dc_config.speichergroesse/4)
-                        fsou = 11000/10/e3dc_config.speichergroesse/4;
-                    
-                    if (fsou < 0)
-                        
-                        fsoue1 = fsoue1 + fsou;
-                    else
+                    if (100-fBatt_SOC>fsoue2)
                     {
-                        if (fsoue1<0)
-                            fsoue1 = fsoue1 + fsou;
-                        else
-                            fsoue = fsoue + fsou;
+                        l1.push_back(l[0]);
+                        fsoue2 = fsoue2 + fsoue;
                     }
+                    if (bWBConnect&&WBSoll>fsoue1)
+                        l2.push_back(l[0]);
+                    if (fsou>11000/e3dc_config.speichergroesse/40)
+                        fsoue1 = fsoue1+11000/e3dc_config.speichergroesse/40;
+                    else
+                        fsoue1 = fsoue1 + fsou;
                 }
+                l.erase(l.begin());
             }
-            if (fsoue1>0) fsoue = fsoue+fsoue1;
+            if (l1.size()>0)
+            std::stable_sort(l1.begin(), l1.end(), [](const watt_s& a, const watt_s& b) {
+                return a.hh < b.hh;});
+            if (l2.size()>0)
+            std::stable_sort(l2.begin(), l2.end(), [](const watt_s& a, const watt_s& b) {
+                return a.hh < b.hh;});
+
 // Wenn das Auto angesteckt ist, wird anteilig der Speicher und das Auto geladen
 // Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
-            if (bWBConnect) // Auto angesteckt
+            if ((l2.size()>0&&e.begin()->hh==l2.begin()->hh)||(fPower_WB>0)) // Auto angesteckt
             {
-                if (e.begin()->pp<e3dc_config.DVcarlimit*10) // Börsenpresi unter limit füs autoladen?
-                    fsoue1 = ((abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse)*100;
                 if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10) // Mehr geladen als geplant oder Börsenpreis > carlimit
                 {
                     if (fPower_WB>0)
@@ -4345,13 +4344,15 @@ bDischarge = false;
                             e3dc_config.wbmode = 1;
                     }
                 }
+                else
+                {
+                    if (fBatt_SOC<10)
+                        iBattLoad = e3dc_config.maximumLadeleistung;
+
+                }
             }
-            else
-                fsoue1 = 0;
-            if (fsoue1>0)  fsoue1 = fsoue1+ (100-fBatt_SOC);
-            else fsoue1 = (100-fBatt_SOC);
 //            if (e3dc_config.DV)
-                printf("\nfsoue1 %5.2f fsoue2 %5.2f fsoue %5.2f iFc %i",fsoue1,fsoue2,fsoue,iFc);
+                printf("\nfsoue1 %2i:%2i %5.2f fsoue2 %2i:%2i %5.2f iFc %i",l2.begin()->hh%(24*3600)/3600,l2.begin()->hh%(3600)/60,fsoue1,l1.begin()->hh%(24*3600)/3600,l1.begin()->hh%(3600)/60,fsoue2,iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
             {
                 iFc = e3dc_config.maximumLadeleistung;
@@ -4359,10 +4360,10 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
-            if (fsoue1 > fsoue||(100-fBatt_SOC)>fsoue2)
+            if (l1.size()>0&&e.begin()->hh==l1.begin()->hh)
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
-                if (100-fBatt_SOC>fsoue2||fBatt_SOC<10)
+                if (100-fBatt_SOC>fsoue2)
                     iBattLoad = e3dc_config.maximumLadeleistung;
                 if (e3dc_config.wbmode == 14&&e3dc_config.DVcarlimit*10>e.begin()->pp)
                 {
@@ -4390,7 +4391,8 @@ bDischarge = false;
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
-                if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
+//                if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
+                if (fsoue<100-fBatt_SOC)
                 {
                         iFc = e3dc_config.maximumLadeleistung;
                         iBattLoad =e3dc_config.maximumLadeleistung;
@@ -4434,6 +4436,9 @@ bDischarge = false;
             }
         }
         float soc = fBatt_SOC;
+        l.clear();
+        l1.clear();
+        l2.clear();
         ret = CheckDV(e ,w,wetter,0 ,soc ,  e3dc_config, fNotstromreserve);
 
         if (ret == 2&&fBatt_SOC>5.5)
