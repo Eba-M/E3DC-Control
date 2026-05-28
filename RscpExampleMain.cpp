@@ -4262,7 +4262,8 @@ bDischarge = false;
             e.erase(e.begin());
         for (int x2=1;x2<e.size();x2++)
         {
-//            if (wetter[x2].solar<1)
+            if (e[x2].pp<fminpp) fminpp = e[x2].pp;
+            //            if (wetter[x2].solar<1)
 //                break;
             if (wetter[x2].solar>0)
             {
