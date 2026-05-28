@@ -4252,15 +4252,23 @@ bDischarge = false;
         float fppborder = 300;
         int icount = 0;
         int x1=0; // Anzahl 15min mit kleinerem Börsenpreis
+        int x3=0;
         struct tm * ptm;
         time_t rawtime;
         time(&rawtime);
         ptm = localtime(&rawtime);
         watt_s ll;
         static std::vector<watt_s> l1,l2; // Stundenwerte der Börsenstrompreise, l1 Speicher l2 = Wallbox
+            
         while (e.begin()->hh<rawtime-900)
             e.erase(e.begin());
-        for (int x2=0;x2<e.size();x2++)
+
+        if (e.size()>96)
+            x3 = e.size()-96;
+        else
+            x3 = e.size();
+
+        for (int x2=0;x2<x3;x2++)
         {
             if (e[x2].pp<fminpp) fminpp = e[x2].pp;
             //            if (wetter[x2].solar<1)
