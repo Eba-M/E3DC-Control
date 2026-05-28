@@ -864,6 +864,8 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     if (e.size()>48){
         
         if (SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)
+//        if ((SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)||
+//            (SucheDiff(e,h,e3dc.AWAufschlag,e3dc.AWDiff)&&h1<l1))
         {
             x1 = Highprice(e,h,l1,e[h].pp);
 // Ermitteln den Verbrauch bis nachgeladen werden kann l1

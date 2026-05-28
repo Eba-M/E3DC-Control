@@ -117,3 +117,4 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
 bool GetWallbox(std::vector<ch_s> &ch);
 bool PutWallbox(std::vector<ch_s> &ch);
 bool SucheDiff1(std::vector<watt_s> &e,std::vector<watt_s> &w,float price, int ab, int bis, e3dc_config_t e3dc, int &h1, int &l1);  // ab = Index bis Diff zwischen high und low erreicht
+bool SucheDiff(std::vector<watt_s> &w,int ab, float aufschlag,float Diff);  // ab = Index bis Diff zwischen high und low erreicht

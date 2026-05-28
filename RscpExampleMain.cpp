@@ -4305,11 +4305,13 @@ bDischarge = false;
                         fsoue2 = fsoue2 + fsoue;
                     }
                     if (bWBConnect&&WBSoll>fsoue1)
+                    {
                         l2.push_back(l[0]);
-                    if (fsou>11000/e3dc_config.speichergroesse/40)
-                        fsoue1 = fsoue1+11000/e3dc_config.speichergroesse/40;
-                    else
-                        fsoue1 = fsoue1 + fsou;
+                        if (fsou>11000/e3dc_config.speichergroesse/40)
+                            fsoue1 = fsoue1+11000/e3dc_config.speichergroesse/40;
+                        else
+                            fsoue1 = fsoue1 + fsou;
+                    }
                 }
                 l.erase(l.begin());
             }
