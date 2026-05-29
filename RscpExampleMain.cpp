@@ -4362,6 +4362,8 @@ bDischarge = false;
 
                 }
             }
+            else
+                e3dc_config.wbmode = 1; // ohne anforderung auf mode 1 schalten
 //            if (e3dc_config.DV)
             printf("\n");
             if (l2.size()>0)
@@ -4434,16 +4436,6 @@ bDischarge = false;
             else
             {
                 // angeforderte Kapazität niedriger als Angebot -> Überschuss einspeisen / Autoladen sperren
-                if (e3dc_config.wbmode == 14)
-                {
-                    if (fPower_WB>0)
-                    {
-                        iAvalPower = -50000;
-                        printf(" AVL %i ",iAvalPower);
-                    }
-                    else
-                        e3dc_config.wbmode = 1;
-                }
                 if (fBatt_SOC>5)  // mind. 5% Ladung erhalten
                 {
                     iBattLoad = 0;

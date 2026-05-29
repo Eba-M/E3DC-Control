@@ -881,6 +881,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
                 return 2;
             }
         }
+
         if (SucheDiff1(e, w, e[l1].pp,l1, e.size()-48,e3dc, h1, l1))
         {
             x1 = Highprice(e,h1,e.size()-48,e[h].pp);
@@ -896,7 +897,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
                 return 3;
             }
             x1 = Highprice(e,h,e.size()-48,e[h].pp);
-            uberschuss=uberschuss-5-x1*ladeleistung;
+            uberschuss=fSoC-5-x1*ladeleistung;
             if (uberschuss>5&&h1>l1)
             {
                 if (uberschuss>ladeleistung)
@@ -910,15 +911,15 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
         }
     }
 
-    
+    Verbrauch = 0;
     if (e.size()-h>48)
-        for(x1=h;Verbrauch<20&&e.size()-h-48>x1;x1++)
+        for(x1=h;Verbrauch<1&&e.size()-h-48>x1;x1++)
         x2 = suchenSolar(wetter,x1, Verbrauch);
     else
         return 0;
     SucheHT(w,h,w[x2].hh);
 // Untersuchen mit Bezugspreisen
-    Verbrauch = fHighprice(w,wetter,x1,SuchePos(w,low.hh),low.pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
+    float Verbrauch1 = fHighprice(w,wetter,x1,SuchePos(w,low.hh),low.pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 // Untersuchen mit DV preisen
     float fConsumption = fHighprice(e,wetter,h,e.size()-48,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 
@@ -926,7 +927,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     if (fSoC+maxsoc<95)
         return 0;
     x1 = Highprice(e,h,e.size()-48,e[h].pp);
-
+        if (Verbrauch1 > 0) Verbrauch = Verbrauch1;
     // Überprüfen ob entladen werden kann
 // Wenn der verfügbare Speicher > dem Verbrauch bis Überschuss ist
     if (Verbrauch*0.8<e3dc.AWReserve&&x2<10&&x2>=0)
@@ -940,7 +941,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     float uberschuss = fSoC -reserve-Verbrauch-x1*ladeleistung-5;
     if (fSoC > 100) fSoC = 100;
         if (
-        uberschuss>5
+        uberschuss>0
             )
         {
 //    if (h>0)  // Simulation
