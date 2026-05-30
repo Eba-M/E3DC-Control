@@ -864,26 +864,30 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     if (e.size()>48){
         
         if (SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)
-//        if ((SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)||
-//            (SucheDiff(e,h,e3dc.AWAufschlag,e3dc.AWDiff)&&h1<l1))
+//  Wenn ein hoher Preis gefunden ist und der Nachladepreis niedrig ist, wird gnadenlos entladen
+//
         {
-            x1 = Highprice(e,h,l1,e[h].pp);
+            x1 = Highprice(e,h,e.size()-48,e[h].pp);
 // Ermitteln den Verbrauch bis nachgeladen werden kann l1
             Verbrauch = fHighprice(w,wetter,h,l1,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
             float uberschuss = fSoC -Verbrauch-x1*ladeleistung-5;
-            if (uberschuss>5)
+            if (uberschuss>0)
             {
                 if (uberschuss>ladeleistung)
                     fSoC = fSoC-ladeleistung;
                 else
-                fSoC = fSoC-uberschuss;
+                    fSoC = fSoC-uberschuss;
                 if (fSoC < 5) fSoC = 5;
                 return 2;
             }
+            else
+                return 0;
         }
 
-        if (SucheDiff1(e, w, e[l1].pp,l1, e.size()-48,e3dc, h1, l1))
+        if (SucheDiff1(e, w, e[h].pp,l1, e.size()-48,e3dc, h1, l1)&&h1>l1)
         {
+// Es wird nach hohen Börsenpreis gesucht, wo vorher auf Basis des festtarif w[l1] nachgeladen werden könnte
+//
             x1 = Highprice(e,h1,e.size()-48,e[h].pp);
             Verbrauch = fHighprice(w,wetter,h,l1,w[l1].pp,ladeleistung,minsoc,maxpos,maxsoc);  // folgender Preis höher,
 
@@ -896,7 +900,8 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
                 if (fSoC>100) fSoC=100;
                 return 3;
             }
-            x1 = Highprice(e,h,e.size()-48,e[h].pp);
+            return 0;
+/*            x1 = Highprice(e,h,e.size()-48,e[h].pp);
             uberschuss=fSoC-5-x1*ladeleistung;
             if (uberschuss>5&&h1>l1)
             {
@@ -907,7 +912,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
                 if (fSoC < 5) fSoC = 5;
                 return 2;
             }
-
+*/
         }
     }
 

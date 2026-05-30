@@ -4334,7 +4334,7 @@ bDischarge = false;
 // Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
             if ((l2.size()>0&&e.begin()->hh==l2.begin()->hh)||(fPower_WB>0)) // Auto angesteckt
             {
-                if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10) // Mehr geladen als geplant oder Börsenpreis > carlimit
+                if (fsoue1<0||e.begin()->pp>e3dc_config.DVcarlimit*10||WBSoll<0) // Mehr geladen als geplant oder Börsenpreis > carlimit
                 {
                     if (fPower_WB>0)
                     {
@@ -4448,7 +4448,11 @@ bDischarge = false;
         l1.clear();
         l2.clear();
         ret = CheckDV(e ,w,wetter,0 ,soc ,  e3dc_config, fNotstromreserve);
-
+        if (ret==1)
+        {
+            iBattLoad = 0;
+            iFc = 0;
+        }
         if (ret == 2&&fBatt_SOC>5.5)
         {
             idauer = 1;
