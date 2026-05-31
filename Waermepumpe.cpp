@@ -274,6 +274,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 j1 = j1/900+1;
 
                 ftemp[0] = ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft;
+                float ft1 = ftemp[j1];
                 ftemp[j1] = wetter[0].temp - zuluft;
 
                 fatemp = fatemp24;
@@ -300,7 +301,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     fp = fopen(fname,"a");
                     if (!fp)
                         fp = fopen(fname,"w");
-                    fprintf(fp,"%2i:%2i:%2i %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° %5.2f %5.2f %5.2f  \n",rawtime%(24*3600)/3600,rawtime%(3600)/60,rawtime%(60),wetter[0].temp,zuluft,ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ftemp[j1],wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96,waermebedarf1,waermebedarf,waermebedarf-waermebedarf1);
+                    fprintf(fp,"%2i:%2i:%2i %5.2f %5.2f %5.2f %5.2f %5.2f %7.4f° %5.2f %5.2f %5.2f  \n",rawtime%(24*3600)/3600,rawtime%(3600)/60,rawtime%(60),wetter[0].temp,zuluft,ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft,ft1,wetter[0].temp - zuluft,fatemp - (ftemp[0] - ftemp[j1] + wetter[0].temp - zuluft)/96,waermebedarf1,waermebedarf,waermebedarf-waermebedarf1);
                     fclose(fp);
                 }
 

@@ -4320,7 +4320,7 @@ bDischarge = false;
                             fsoue2 = 100-fBatt_SOC;
                         }
                     }
-                    if (l[0].pp<e3dc_config.DVcarlimit*10&&WBSoll>fsoue1)
+                    if (l[0].pp<=e3dc_config.DVcarlimit*10&&WBSoll>fsoue1)
                     {
                         l2.push_back(l[0]);
                         if (fsou>11000/e3dc_config.speichergroesse/40)
