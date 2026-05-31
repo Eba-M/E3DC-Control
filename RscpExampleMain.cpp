@@ -4296,23 +4296,31 @@ bDischarge = false;
                 fsou = l.begin()->hourly;
                 if (100-fBatt_SOC>fsoue2||fsoue1<WBSoll)
                 {
-                    if (fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
+                    if (100-fBatt_SOC>fsoue2&&fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
                     {
                         fsoue = (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
                         fsou = fsou - (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
                     }
                     else
                     {
-                        if (fsou>0)
-                            fsoue =  fsou;
-                        fsou = 0;
+                        if (100-fBatt_SOC>fsoue2)
+                        {
+                            if (fsou>0)
+                                fsoue =  fsou;
+                            fsou = 0;
+                        }
                     }
                     if (100-fBatt_SOC>fsoue2)
                     {
                         l1.push_back(l[0]);
                         fsoue2 = fsoue2 + fsoue;
+                        if (100-fBatt_SOC<=fsoue2)
+                        {
+                            fsou = fsou + fsoue2 - 100 + fBatt_SOC;
+                            fsoue2 = 100-fBatt_SOC;
+                        }
                     }
-                    if (bWBConnect&&WBSoll>fsoue1)
+                    if (l[0].pp<e3dc_config.DVcarlimit*10&&WBSoll>fsoue1)
                     {
                         l2.push_back(l[0]);
                         if (fsou>11000/e3dc_config.speichergroesse/40)

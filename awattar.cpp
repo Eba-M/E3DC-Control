@@ -863,7 +863,7 @@ int CheckDV(std::vector<watt_s> &e,std::vector<watt_s> &w,std::vector<wetter_s> 
     // Kann der Speicher entladen werden
     if (e.size()>48){
         
-        if (SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<l1)
+        if (SucheDiff1(e, w, e[h].pp,h, e.size()-48,e3dc, h1, l1)&&h1<=l1)
 //  Wenn ein hoher Preis gefunden ist und der Nachladepreis niedrig ist, wird gnadenlos entladen
 //
         {
