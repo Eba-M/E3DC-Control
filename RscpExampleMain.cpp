@@ -4354,6 +4354,9 @@ bDischarge = false;
                             float aktpower = -fPower_Grid+fPower_Bat+fPower_WB;
                             if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit*1000)
                                 iAvalPower = -50000;
+                            else
+                                if (aktpower>e3dc_config.einspeiselimit*1000)
+                                    e3dc_config.wbmode==1;
                             
                         }
                     }
