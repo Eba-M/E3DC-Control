@@ -4346,7 +4346,7 @@ bDischarge = false;
 // Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
             if ((l2.size()>0&&e.begin()->hh==l2.begin()->hh)||(fPower_WB>0)) // Auto angesteckt
             {
-                if (fsoue1<0||e.size()==0||e.begin()->pp>e3dc_config.DVcarlimit*10||WBSoll<0) // Mehr geladen als geplant oder Börsenpreis > carlimit
+                if (fsoue1<0||l2.size()==0||e.begin()->pp>e3dc_config.DVcarlimit*10||WBSoll<0) // Mehr geladen als geplant oder Börsenpreis > carlimit
                 {
                     if (fPower_WB>0)
                     {
