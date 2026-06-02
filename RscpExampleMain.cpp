@@ -1526,11 +1526,11 @@ int iModbusTCP()
                     // EVU aus und Kessel aus ODER fbh Anforderung aus aber  Heizkreis aktiv -> HK ausschalten
                     // Abschalten der heizkreise aussetzen
                 {
-                    //                    iLength  = iModbusTCP_Set(11,0,11); //FBH?
-                    //                    iLength  = iModbusTCP_Get(11,1,11); //FBH?
-                    //                    brequest = true;
+                                        iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,11,0,11); //FBH?
+                                        iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,11,1,11); //FBH?
+                                        brequest = true;
                 }
-                if (wolf.size()>0&&now-temp[7]==1&&temp[17]==0&&
+                if (wolf.size()>0&&temp[7]==1&&temp[17]==0&&
                     (
                      (tasmota_status[0]==1&&temp[14]<300)
                      ||
@@ -1549,9 +1549,9 @@ int iModbusTCP()
                     // wenn Puffer > 30° läuft die HKZ nach
                     // EVU aus und Kessel aus ODER WW Anforderung + Heizkreis aktiv -> HK ausschalten
                 {
-                    //                    iLength  = iModbusTCP_Set(31,0,31); //HZK?
-                    //                    iLength  = iModbusTCP_Get(31,1,31); //HZK?
-                    //                    brequest = true;
+                                        iLength  = iModbusTCP_Set(e3dc_config.heizung_ip,502,isocket,31,0,31); //HZK?
+                                        iLength  = iModbusTCP_Get(e3dc_config.heizung_ip,502,isocket,31,1,31); //HZK?
+                                        brequest = true;
                 }
             }
         }
@@ -3036,7 +3036,7 @@ int LoadDataProcess() {
 
                 
 // HK2 zwischen WPHK2off und WPHK2on ausschalten wenn die AT über fwintertemp liegt
-                if (e3dc_config.WPHK2off>=0&&e3dc_config.WPHK2on>=0&&fatemp>fwintertemp&&ALV==0)
+                if (fatemp>fwintertemp&&ALV==0)
                 {
                     bHK2off = 0;
                     
@@ -3051,6 +3051,10 @@ int LoadDataProcess() {
                         (e3dc_config.WPHK2off<e3dc_config.WPHK2on)
                         &&
                         (f1>e3dc_config.WPHK2off&&f1<e3dc_config.WPHK2on)
+                        )
+                        bHK2off |= 1;
+                    if (temp[17]==0&&           // Wenn Pelletskessel aus
+                        (e3dc_config.WPHK2off==e3dc_config.WPHK2on)
                         )
                         bHK2off |= 1;
                 }
