@@ -196,7 +196,7 @@ int WriteSoC()
     }
 return(0);
 }
-
+static int32_t iWBMinimumPower,idynPower; // MinimumPower bei 6A
 static float fBatt_SOC = -1;
 static float fBatt_SOC_alt;
 static float fSavedtoday, fSavedyesderday,fSavedtotal,fSavedWB; // Überschussleistung
@@ -332,8 +332,9 @@ void DateienSichern()
 
 // Signal Handler für Systemd (Graceful Shutdown)
 void handle_sigterm(int signum) {
-    printf("\n[SIGTERM/SIGINT/SIGHUP] Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n");
+    printf("\n[SIGTERM/SIGINT/SIGHUP] %i Beenden-Signal empfangen. Speichere Daten und fahre herunter...\n",signum);
 //    DateienSichern();
+    if (signum != 13)
     e3dc_config.stop = 1;
 }
 
@@ -4356,7 +4357,7 @@ bDischarge = false;
                         {  // Autoladen abschalten
                             fsoue1=0;
                             float aktpower = -fPower_Grid+fPower_Bat+fPower_WB;
-                            if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit*1000)
+                            if  (e3dc_config.wbmode==14&&aktpower<e3dc_config.einspeiselimit*1000-iWBMinimumPower)
                                 iAvalPower = -50000;
                             else
                                 if (aktpower>e3dc_config.einspeiselimit*1000)
@@ -5389,7 +5390,6 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
 */
     const int cMinimumladestand = 15;
     static uint8_t WBChar_alt = 0;
-    static int32_t iWBMinimumPower,idynPower; // MinimumPower bei 6A
     static bool bWBOn = true, bWBOff = false; // Wallbox eingeschaltet
     static bool bWBLademodusSave,bWBZeitsteuerung;
     if (bWBConnect&&fPower_WB>fMaxPower_WB)
@@ -7792,6 +7792,7 @@ printf("%s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/6
 signal(SIGTERM, handle_sigterm);
 signal(SIGINT, handle_sigterm);
 signal(SIGHUP, handle_sigterm);
+signal(SIGPIPE, SIG_IGN);
 
  for (int i=1; i < argc; i++)
  {
