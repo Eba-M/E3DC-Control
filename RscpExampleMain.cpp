@@ -4974,6 +4974,9 @@ bDischarge = false;
 
                 printf("%c[K\n", 27 );
                 printf("shavingB = %i %.2f %i %2.0f %2.0f",t-itime,fpeakshaveminsoc,iFc,fPower_Ext[2],fPower_Ext[3]);
+                if (e3dc_config.debug1)
+                    printf("#  4 %5.2f %2i\n",fpeakshaveminsoc,iFc);
+
             }
             iFc0 = iFc;
         }
