@@ -522,6 +522,7 @@ bool GetConfig()
         e3dc_config.ext7 = false;
         sprintf(e3dc_config.logfile,"logfile");
         e3dc_config.debug = false;
+        e3dc_config.debug1 = false;
         e3dc_config.wurzelzaehler = 0;
         e3dc_config.DV = 0;
         e3dc_config.DVWBkWh = 0;
@@ -807,10 +808,10 @@ bool GetConfig()
                         strcpy(e3dc_config.logfile, value);
                     else if((strcmp(var, "debug") == 0)&&
                             (strcmp(value, "true") == 0))
-                    {e3dc_config.debug = true;
-
-                        
-                    }
+                    e3dc_config.debug = true;
+                    else if((strcmp(var, "debug1") == 0)&&
+                            (strcmp(value, "true") == 0))
+                    e3dc_config.debug1 = true;
                     else if(strcmp(var, "shelly0v10vmin") == 0)
                         e3dc_config.shelly0V10Vmin = atoi(value);
                     else if(strcmp(var, "shelly0v10vmax") == 0)
@@ -4567,6 +4568,9 @@ bDischarge = false;
         // dann wird nur auf e3dc_config.peakshave geregelt (Master)
         if (f1 > 1) f1 = 1;
             fpeakshaveminsoc = fpeakshaveendsoc + (fpeakshaveminsoc-fpeakshaveendsoc)*f1;
+        if (e3dc_config.debug1)
+            printf("# 0 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
+
 
             if (fpeakshaveminsoc > 100)
                 fpeakshaveminsoc = 100;
@@ -4643,7 +4647,8 @@ bDischarge = false;
                 fpeakshaveminsoc = fpeakshaveendsoc;
             }
             int iFc3 = iFc;
-            
+            if (e3dc_config.debug1)
+                printf("#  1 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
                 // Master E3DC sendet die grid-werte
             {
@@ -7792,6 +7797,7 @@ printf("%s %2ld:%2ld:%2ld\n",VERSION,tm_CONF_dt%(24*3600)/3600,tm_CONF_dt%3600/6
 signal(SIGTERM, handle_sigterm);
 signal(SIGINT, handle_sigterm);
 signal(SIGHUP, handle_sigterm);
+signal(SIGKILL, handle_sigterm);
 signal(SIGPIPE, SIG_IGN);
 
  for (int i=1; i < argc; i++)
