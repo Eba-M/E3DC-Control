@@ -4543,6 +4543,9 @@ bDischarge = false;
         if (x1 <1)    x1 = 1;
 
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
+        if (e3dc_config.debug1)
+            printf("#  2 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
+
 
         float f1;
         if (t<itime2)
