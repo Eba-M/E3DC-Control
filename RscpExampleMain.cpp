@@ -4970,12 +4970,11 @@ bDischarge = false;
                     idauer = 0;
 
                 if (e3dc_config.debug1)
-                    printf("#  3 %5.2f %2i\n",fpeakshaveminsoc,iFc);
+                    printf("#  3 %5.2f %2i%c[K\n",fpeakshaveminsoc,iFc,27);
 
-                printf("%c[K\n", 27 );
-                printf("shavingB = %li %5.2f %5i %2.0f %2.0f\n",t-itime,fpeakshaveminsoc,iFc,fPower_Ext[2],fPower_Ext[3]);
+                printf("shavingB = %li %5.2f %5i %5.2f %5.2f%c[K\n",t-itime,fpeakshaveminsoc,iFc,fPower_Ext[2],fPower_Ext[3],27);
                 if (e3dc_config.debug1)
-                    printf("#  4 %5.2f %5i\n",fpeakshaveminsoc,iFc);
+                    printf("#  4 %5.2f %5i%c[K\n",fpeakshaveminsoc,iFc,27);
 
             }
             iFc0 = iFc;
