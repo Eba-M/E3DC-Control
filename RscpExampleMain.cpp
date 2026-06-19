@@ -4544,7 +4544,7 @@ bDischarge = false;
 
         fpeakshaveminsoc = (e3dc_config.peakshaveuppersoc+(100-e3dc_config.peakshaveuppersoc)*fcos/x1);
         if (e3dc_config.debug1)
-            printf("#  2 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
+            printf("#  2 %5.2f %2i\n",fpeakshaveminsoc,iFc);
 
 
         float f1;
@@ -4572,7 +4572,7 @@ bDischarge = false;
         if (f1 > 1) f1 = 1;
             fpeakshaveminsoc = fpeakshaveendsoc + (fpeakshaveminsoc-fpeakshaveendsoc)*f1;
         if (e3dc_config.debug1)
-            printf("# 0 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
+            printf("# 0 %5.2f %2i\n",fpeakshaveminsoc,iFc);
 
 
             if (fpeakshaveminsoc > 100)
@@ -4651,7 +4651,7 @@ bDischarge = false;
             }
             int iFc3 = iFc;
             if (e3dc_config.debug1)
-                printf("#  1 %f5.2 %i2\n",fpeakshaveminsoc,iFc);
+                printf("#  1 %5.2f %2i\n",fpeakshaveminsoc,iFc);
             if (e3dc_config.peakshave>0&&(strcmp(e3dc_config.mqtt2_ip,"0.0.0.0")!=0))
                 // Master E3DC sendet die grid-werte
             {
