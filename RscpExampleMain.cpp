@@ -4296,6 +4296,12 @@ bDischarge = false;
             float fsoue = 0; // solarer überschuss
             float fsoue1 = 0; // solare Unterdeckung? Wallbox
             float fsoue2 = 0; // Speicherabdeckung
+            static float wbpower = 3200;
+            if (not bWBConnect)
+                wbpower = 3200;
+            else
+                if (fPower_WB>wbpower)
+                    wbpower = fPower_WB;
             float WBSoll = (abs(e3dc_config.DVWBkWh)-iWeekhour[wbhour]/3600000.0)/e3dc_config.speichergroesse*100;
             while (l.size()>0)
             {
@@ -4329,8 +4335,8 @@ bDischarge = false;
                     if (l[0].pp<=e3dc_config.DVcarlimit*10&&WBSoll>fsoue1)
                     {
                         l2.push_back(l[0]);
-                        if (fsou>11000/e3dc_config.speichergroesse/40)
-                            fsoue1 = fsoue1+11000/e3dc_config.speichergroesse/40;
+                        if (fsou>wbpower/e3dc_config.speichergroesse/40)
+                            fsoue1 = fsoue1+wbpower/e3dc_config.speichergroesse/40;
                         else
                             fsoue1 = fsoue1 + fsou;
                     }
@@ -4348,7 +4354,7 @@ bDischarge = false;
 // Wobei die Ladeleistung gleichmäßig aufgeteilt wird, soweit die Ladeleistung des Speichers/Auto ausreicht.
             if ((l2.size()>0&&e.begin()->hh==l2.begin()->hh)||(fPower_WB>0)) // Auto angesteckt
             {
-                if (fsoue1<0||l2.size()==0||e.begin()->pp>e3dc_config.DVcarlimit*10||WBSoll<0) // Mehr geladen als geplant oder Börsenpreis > carlimit
+                if (fsoue1<0||l2.size()==0||e.begin()->hh<l2.begin()->hh||e.begin()->pp>e3dc_config.DVcarlimit*10||WBSoll<0) // Mehr geladen als geplant oder Börsenpreis > carlimit
                 {
                     if (fPower_WB>0)
                     {
