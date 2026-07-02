@@ -4403,8 +4403,8 @@ bDischarge = false;
             }
             if (
                 (l1.size()>0&&e.begin()->hh==l1.begin()->hh)
-                ||
-                (l2.size()>0&&e.begin()->hh==l2.begin()->hh)
+//                ||
+//                (l2.size()>0&&e.begin()->hh==l2.begin()->hh)
                 )
             {
                 // angeforderte Kapazität höher als Angebot -> Auto und Speicher laden
