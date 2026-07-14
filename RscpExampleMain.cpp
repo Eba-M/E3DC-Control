@@ -4390,9 +4390,9 @@ bDischarge = false;
 //            if (e3dc_config.DV)
             printf("\n");
             if (l2.size()>0)
-            printf("fsoue1 %2i:%2i %5.2f  ",l2.begin()->hh%(24*3600)/3600,l2.begin()->hh%(3600)/60,fsoue1);
+            printf("fsoue1 %2i:%2i %5.2f %2i ",l2.begin()->hh%(24*3600)/3600,l2.begin()->hh%(3600)/60,fsoue1,l2.size());
             if (l1.size()>0)
-            printf("fsoue2 %2i:%2i %5.2f ",l1.begin()->hh%(24*3600)/3600,l1.begin()->hh%(3600)/60,fsoue2);
+            printf("fsoue2 %2i:%2i %5.2f %2i ",l1.begin()->hh%(24*3600)/3600,l1.begin()->hh%(3600)/60,fsoue2,l1.size());
             printf(" iFc %i",iFc);
             if (iFc > e3dc_config.maximumLadeleistung)
             {
