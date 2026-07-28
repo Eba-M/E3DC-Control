@@ -4308,10 +4308,10 @@ bDischarge = false;
                 fsou = l.begin()->hourly;
                 if (100-fBatt_SOC>fsoue2||fsoue1<WBSoll)
                 {
-                    if (100-fBatt_SOC>fsoue2&&fsou > (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4)
+                    if (100-fBatt_SOC>fsoue2&&fsou > (e3dc_config.maximumLadeleistung+1)/10/e3dc_config.speichergroesse/4)
                     {
-                        fsoue = (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
-                        fsou = fsou - (e3dc_config.maximumLadeleistung+1000)/10/e3dc_config.speichergroesse/4;
+                        fsoue = (e3dc_config.maximumLadeleistung+1)/10/e3dc_config.speichergroesse/4;
+                        fsou = fsou - (e3dc_config.maximumLadeleistung+1)/10/e3dc_config.speichergroesse/4;
                     }
                     else
                     {
@@ -4401,6 +4401,7 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
+            iBattLoad = 0;
             if (
                 (l1.size()>0&&e.begin()->hh==l1.begin()->hh)
 //                ||
@@ -5564,9 +5565,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 1:
                     //              iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+WBMinimumPower;
                     if (fBatt_SOC<90)
-                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500-iBattLoad+iPower_Bat+iWBMinimumPower;
+                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500-iBattLoad+iPower_Bat;
                     else
-                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+iPower_Bat+iWBMinimumPower;
+                        iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000+500+iPower_Bat;
                     // Schon 500W früher einschalten
                     //                iPower = -fPower_Grid-e3dc_config.einspeiselimit*1000;
                     if (fPower_WB > 100)
