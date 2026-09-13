@@ -4472,9 +4472,6 @@ bDischarge = false;
             }
         }
         float soc = fBatt_SOC;
-        l.clear();
-        l1.clear();
-        l2.clear();
         ret = CheckDV(e ,w,wetter,0 ,soc ,  e3dc_config, fNotstromreserve);
         if (ret==1)
         {
@@ -4499,8 +4496,12 @@ bDischarge = false;
         printf("%c[K", 27 );
 
         {
-            if (e.begin()->hh%(24*3600)>sunriseAt*60&&
-                e.begin()->hh%(24*3600)<(sunriseAt+240)*60)
+            if (ret!=0&& // Bei 0 würde der Speicher nicht mehr voll werden
+                e.begin()->hh%(24*3600)>sunriseAt*60&&
+                e.begin()->hh%(24*3600)<(sunriseAt+240)*60&&
+                l2.size()>0&&
+                e.begin()->hh<l2.begin()->hh
+                )
             {
                 x1=0;
                 for (int x2=1;x2<e.size()&x2<12;x2++)
@@ -4519,6 +4520,10 @@ bDischarge = false;
                 }
             }
         }
+
+        l.clear();
+        l1.clear();
+        l2.clear();
 
     }
     if (e3dc_config.unload<0)
