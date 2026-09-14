@@ -4499,8 +4499,8 @@ bDischarge = false;
             if (ret!=0&& // Bei 0 würde der Speicher nicht mehr voll werden
                 e.begin()->hh%(24*3600)>sunriseAt*60&&
                 e.begin()->hh%(24*3600)<(sunriseAt+240)*60&&
-                l2.size()>0&&
-                e.begin()->hh<l2.begin()->hh
+                l1.size()>0&&
+                e.begin()->hh<l1.begin()->hh
                 )
             {
                 x1=0;
