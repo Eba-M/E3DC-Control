@@ -5652,17 +5652,14 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     //                idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
                     iPower = iPower + idynPower;
                     // wenn überschuss dann Ladeleistung erhöhen
-                    if (iPower < 0)
-                    {
-                        if (fPower_Grid<-500)
+                        if (iPower < fPower_Grid*-1 && fPower_Grid<-500)
                             iPower = -fPower_Grid;
                         else
                         {
-                            if (fPower_Grid<-200)
+                            if (iPower < 0&&fPower_Grid<-200)
                                 iPower = 0;
                         }
 
-                    }
                     
                     break;
                 case 5:
