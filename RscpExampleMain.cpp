@@ -4402,6 +4402,9 @@ bDischarge = false;
 
             }
             iBattLoad = 0;
+            if (l1.size()>0)
+                e3dc_config.LE = l1.end()->hh%(24*3600)/3600.0;
+
             if (
                 (l1.size()>0&&e.begin()->hh==l1.begin()->hh)
 //                ||
