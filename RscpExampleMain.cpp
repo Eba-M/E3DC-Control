@@ -4434,8 +4434,9 @@ bDischarge = false;
                         x3=x2+1;
                     }
                 }
-                e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
-                e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
+//                e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
+//                e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
+                e3dc_config.RE = e3dc_config.LE;
 // RE und LE werden gleichgeschaltet
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
