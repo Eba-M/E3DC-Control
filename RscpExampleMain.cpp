@@ -5643,7 +5643,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                 case 14:
 
                     // Der Leitwert ist iMinLade2 und sollte der gewichteten Speicherladeleistung entsprechen
-//                    if (iRefload > iMinLade)
+                    if (iRefload > iMinLade)
                         iRefload = iMinLade;
                     if (iRefload > iMinLade2)
                         iRefload = iMinLade2;
