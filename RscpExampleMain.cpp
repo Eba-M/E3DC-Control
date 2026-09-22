@@ -4269,8 +4269,8 @@ bDischarge = false;
         while (e.begin()->hh<rawtime-900)
             e.erase(e.begin());
 
-        if (e.size()>96)
-            x3 = e.size()-96;
+        if (e.size()>112)
+            x3 = e.size()-112;
         else
             x3 = e.size();
 
@@ -4402,11 +4402,11 @@ bDischarge = false;
 
             }
             iBattLoad = 0;
-            if (l1.size()>0)
+/*            if (l1.size()>0)
             {
                 e3dc_config.LE = l1[l1.size()-1].hh%(24*3600)/3600.0;;
             }
-
+*/
             if (
                 (l1.size()>0&&e.begin()->hh==l1.begin()->hh)
 //                ||
@@ -4436,15 +4436,15 @@ bDischarge = false;
                         x3=x2+1;
                     }
                 }
-//                e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
-//                e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
-                e3dc_config.RE = e3dc_config.LE;
+                e3dc_config.LE = wetter[x3].hh%(24*3600)/3600.0;
+                e3dc_config.RE = wetter[x3].hh%(24*3600)/3600.0;
+//                e3dc_config.RE = e3dc_config.LE;
 // RE und LE werden gleichgeschaltet
                 e3dc_config.ladeende2=100;
                 e3dc_config.ladeende=100;
                 printf(" LE %0.2f %0.2f",e3dc_config.LE,fsoue2);
 //                if (fsoue<100-fBatt_SOC||e.begin()->pp<e3dc_config.DVEinspeise*10.0)
-                if (fsoue<100-fBatt_SOC)
+                if (fsoue<(100-fBatt_SOC))
                 {
                         iFc = e3dc_config.maximumLadeleistung;
                         iBattLoad =e3dc_config.maximumLadeleistung;
@@ -5653,8 +5653,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         iRefload = iMinLade;
                     if (iRefload > iMinLade2)
                         iRefload = iMinLade2;
-//                    if (iRefload > iBattLoad)
-//                        iRefload = iBattLoad;
+                    if (iRefload > iBattLoad)
+                        iRefload = iBattLoad;
                     iPower = -fPower_Grid;
                     idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                     //                idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
