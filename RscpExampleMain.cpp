@@ -2497,11 +2497,14 @@ int LoadDataProcess() {
             }
 //            if (((myt_alt+3600)%(24*3600))>((t+3600)%(24*3600)))
             ptm = localtime(&t);
-            if (myt_alt%3600>t%3600&&ptm->tm_hour==0) // Stundenwechsel && Mitternacht
+// Die ins Auto geladene Strommenge wird schon um 22Uhr zurückgesetzt
+            if (myt_alt%3600>t%3600&&ptm->tm_hour==22) // Stundenwechsel && Mitternacht
+                iWeekhour[wbhour] = 0;
+                if (myt_alt%3600>t%3600&&ptm->tm_hour==0) // Stundenwechsel && Mitternacht
 //            if (((myt_alt)%(24*3600))>((t)%(24*3600)))
             {
                 iWeekhour[dayhour] = 0;
-                iWeekhour[wbhour] = 0;
+//                iWeekhour[wbhour] = 0;
                 iWeekhourWP[dayhour] = 0;
                 Grid_In_Energy_kWh = 0;
                 Grid_Out_Energy_kWh = 0;
