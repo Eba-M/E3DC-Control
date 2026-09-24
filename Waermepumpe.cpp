@@ -544,7 +544,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     if (diff>30) diff = 30;
                     if (diff<-30) diff = -30;
 */
-                        waermebedarf = waermebedarf-diff;
+                    if (diff>0&&diff>waermebedarf/2) diff = waermebedarf/2;
+
+                    waermebedarf = waermebedarf-diff;
 
                     if (e3dc.WPWolf)
                     {
