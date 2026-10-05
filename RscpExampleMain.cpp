@@ -1853,6 +1853,13 @@ int wolfstatus()
                             item = item->next;
                             wolf[x1].status = item->valuestring;
                         }
+                        if (wolf[x1].feld=="3-Wege-Umschaltventil HZ/K")
+                        {
+                            item = item->child;
+                            wolf[x1].wert = item->valueint;
+                            item = item->next;
+                            wolf[x1].status = item->valuestring;
+                        }
                     }
                 }
                 
@@ -4269,7 +4276,7 @@ bDischarge = false;
         watt_s ll;
         static std::vector<watt_s> l1,l2; // Stundenwerte der Börsenstrompreise, l1 Speicher l2 = Wallbox
             
-        while (e.begin()->hh<rawtime-900)
+        while (e.size()>0&&e.begin()->hh<rawtime-900)
             e.erase(e.begin());
 
         if (e.size()>112)
@@ -5367,7 +5374,7 @@ bDischarge = false;
                     )
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6&&wetter.size()>0)
-                printf("%i %0.0fW %0.1f %0.1f%c[K\n", ALV, wetter[0].wpbedarf*e3dc_config.speichergroesse*4,wetter[0].waerme,wetter[0].cop,27 );
+                printf("%i %0.0fW %0.1f %0.1f%c[K\n", ALV, wetter[0].wpbedarf*e3dc_config.speichergroesse*40,wetter[0].waerme,wetter[0].cop,27 );
 
         }
         static float hl_alt;
