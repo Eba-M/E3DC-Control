@@ -5367,7 +5367,7 @@ bDischarge = false;
                     )
                 printf("%s %0.1f ",wolf[j].AK.c_str(),wolf[j].wert);
             if (j==6&&wetter.size()>0)
-                printf("%i %0.1fW 0.1f 0.1f%c[K\n", ALV, wetter[0].wpbedarf*e3dc_config.speichergroesse*4,wetter[0].waerme,wetter[0].cop,27 );
+                printf("%i %0.0fW %0.1f %0.1f%c[K\n", ALV, wetter[0].wpbedarf*e3dc_config.speichergroesse*4,wetter[0].waerme,wetter[0].cop,27 );
 
         }
         static float hl_alt;
