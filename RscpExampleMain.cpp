@@ -1696,7 +1696,7 @@ int status,vdstatus;
 std::string sverdichterstatus;
 static char path[4096];
 wolf_s wo;
-static int ALV = -1;
+
 
 
 int wolfstatus()
