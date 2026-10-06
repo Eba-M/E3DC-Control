@@ -1047,7 +1047,6 @@ bool GetConfig()
     return fpread;
 }
 
-int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg,wpuv;  //heizleistung und stromaufnahme wärmepumpe
 int tLadezeitende,tLadezeitende1,tLadezeitende2,tLadezeitende3;  // dynamische Ladezeitberechnung aus dem Cosinus des lfd Tages. 23 Dez = Minimum, 23 Juni = Maximum
 static int isocket = -1;
 static int solaredge_isocket = -1;

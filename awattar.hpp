@@ -105,6 +105,7 @@ static std::vector<wolf_s>wolf; // Werte der Wolf WP
 static std::vector<strompreis_s>strompreis; // Werte der variable Strompreistarife
 
 static int32_t iHeatStat[24*4+1]; //15min WP Heizleistung der letzten 24h
+static int wpvl,wprl,wphl,wppw,wpswk,wpkst,wpkt,wpkt2,wpzl,wpalv,wpal,wpeevk,wpbhg,wpuv;  //heizleistung und stromaufnahme wärmepumpe
 
 int WriteLog(e3dc_config_t &e3dc,char log[300],int level);
 void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&wetter, float ftemp[],const size_t &len,float &fatemp,float &fatemp24,float &fatemp48, float &cop,int sunrise, int sunset,e3dc_config_t &e3dc, float soc, int ireq_Heistab, float zuluft, float notromreserve,int32_t HeatStat);
