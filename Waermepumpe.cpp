@@ -472,9 +472,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                             if (
                                                 (f1*60>(sunrise+60)&&(f1*60<sunset+60||f1*60<sunrise+120))
                                                 &&
+                                                ALV>0
+                                                &&
                                                 wolf.size()> wpuv
                                                 &&
-                                                wolf[wpuv].wert==0)
+                                                wolf[wpuv].wert<1
+                                                )
+                                                
                                                 bHK1on = 1;
 //                                            if (ALV>0)
 //                                                bHK1on = 1;
