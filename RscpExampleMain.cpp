@@ -4410,6 +4410,7 @@ bDischarge = false;
                     printf(" iFc %i",iFc);
 
             }
+            if (l1.size()==0)
             iBattLoad = 0;
 /*            if (l1.size()>0)
             {
@@ -4469,8 +4470,8 @@ bDischarge = false;
                     {
                         if (iFc > 100)
                             iFc = iFc - 10;
-                        else
-                            iFc = 0;
+//                        else
+//                            iFc = 0;
                     }
                     if (iFc > e3dc_config.maximumLadeleistung)
                         iFc = e3dc_config.maximumLadeleistung;
