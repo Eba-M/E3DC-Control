@@ -4411,7 +4411,7 @@ bDischarge = false;
 
             }
 //            if (l1.size()==0)
-//            iBattLoad = 0;
+            iBattLoad = 0;
 /*            if (l1.size()>0)
             {
                 e3dc_config.LE = l1[l1.size()-1].hh%(24*3600)/3600.0;;
