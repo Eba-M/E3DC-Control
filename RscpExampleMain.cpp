@@ -5666,6 +5666,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (iRefload > iBattLoad)
                         iRefload = iBattLoad;
                     iPower = -fPower_Grid;
+                    if (fPower_Grid-fPower_Bat<0&&iPower<-500)
+                        iPower=0;
                     idynPower = (iRefload - (fAvBatterie900+fAvBatterie)/2)*-1;
                     //                idynPower = idynPower + e3dc_config.maximumLadeleistung -iBattLoad;
 //                    iPower = iPower + idynPower;
