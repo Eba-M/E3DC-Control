@@ -5678,7 +5678,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             iPower = 0;
                     }
                     if (fPower_Bat<-200 )
-                        iPower = -fPower_Bat;
+                        iPower = fPower_Bat;
 
                     
                     break;
