@@ -4347,7 +4347,8 @@ bDischarge = false;
                         if (fsou>wbpower/e3dc_config.speichergroesse/40)
                             fsoue1 = fsoue1+wbpower/e3dc_config.speichergroesse/40;
                         else
-                            fsoue1 = fsoue1 + fsou;
+                            if (fsou>0)
+                                fsoue1 = fsoue1 + fsou;
                     }
                 }
                 l.erase(l.begin());
