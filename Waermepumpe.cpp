@@ -589,7 +589,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                 for (int x1=0;x1<w.size()-1&&x1<wetter.size()-1;x1++)
                                 {
                                     if (wetter[x1].solar>0)
-                                        fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar-wetter[x1].wpbedarf-wetter[x1].wwwpbedarf-wetter[x1].heizstabbedarf;
+                                        fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar;
+//                                    fsoc = fsoc - wetter[x1].hourly + wetter[x1].solar-wetter[x1].wpbedarf-wetter[x1].wwwpbedarf-wetter[x1].heizstabbedarf;
 //                                    else
 //                                        fsoc = fsoc - wetter[x1].hourly/e3dc.speichereta - e3dc.speicherev/1000/e3dc.speichergroesse/4;
                                     if (w[x1].pp < minimum_pp)
@@ -658,8 +659,14 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     //                                float ftest = e3dc.WPmin/e3dc.speichergroesse*25;
 //                                    if (wetter[x1].solar==0)
 //                                        fsoc = fsoc - wetter[x1].hourly;
-                                    static float highpp;
-                                    if (x1==0) highpp = -999;
+                                    static float highpp,flowpp;
+                                    if (x1==0) {
+                                        highpp = -999;
+                                        flowpp = 999;
+                                    }
+
+                                    if (w[x1].pp < flowpp)
+                                    flowpp = w[x1].pp;
 
                                     if (x1>=e.size()||wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25>wetter[x1].solar||not e3dc.DV)
                                     {
@@ -697,6 +704,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     {
                                         if (fsoc*e3dc.speichereta-e3dc.AWReserve-notstromreserve>0)
                                         {
+// aus dem Speicher laden
                                             if (e3dc.DV)
                                             {
                                                 int h1,l1;
@@ -715,14 +723,14 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                     
                                                     
                                                     if (x1<e.size()&&SucheDiff1(w, w, w[l1].pp,l1, w.size(),e3dc, h1, l1))
-                                                        wet.waermepreis = (e[x1].pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
+                                                        wet.waermepreis = (minimum_pp)*.1/wet.cop; // speicherpreis
                                                     else
                                                         wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
 
  }
                                                 if (e3dc.debug) printf("NW6d %i\n",l1);
 //
-                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
+//                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
                                             }
                                             else
                                                 wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
@@ -822,7 +830,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                           &&
                                                           wetter[wetter1[0].x1].hh < itime[j1]
                                                           &&
-                                                          wetter1[0].x1>iindxsoc[j1]-90
+                                                          wetter1[0].x1>=iindxsoc[j1]-90
                                                           )
                                                          )
                                                         )
