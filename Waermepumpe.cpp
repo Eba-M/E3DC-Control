@@ -603,10 +603,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         fsoc = 100;
                                     }
                                     if (fsoc<0) fsoc = 0;
+// Ermitteln Sonnenaufgang
                                     if (wetter[x1].solar==0&&wetter[x1+1].solar>0||x1==w.size()-1)
                                     {
                                         flowsoc[x3] = fsoc;
-                                        itime[x3] = wetter[x1].hh+3*3600;
+// um 3h verschieben
+                                        itime[x3] = wetter[x1].hh+1*3600;
                                         iindxsoc[x3] = x1;
                                         fsoc = 0;
                                         x3++;
@@ -807,7 +809,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                         // aus PV bedienen
                                                         (
                                                          (wetter[wetter1[0].x1].hourly+wpbedarf<wetter[wetter1[0].x1].solar
-                                                          && fhighsoc[j1]>0&&wet.status==2)
+//                                                          && fhighsoc[j1]>0
+                                                          &&wet.status==2)
                                                          ||
                                                          // aus dem Netz bedienen
                                                          wet.status == 0
