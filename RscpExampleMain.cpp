@@ -4490,12 +4490,14 @@ bDischarge = false;
         }
         float soc = fBatt_SOC;
         ret = CheckDV(e ,w,wetter,0 ,soc ,  e3dc_config, fNotstromreserve);
-        if (ret==1)
+        if (ret==1&&(iPower_Bat>100||fPower_Grid<-100))
+// Der Speicher wird nur gesperrt, wenn auch Überschuss ansteht.
         {
             iBattLoad = 0;
             iFc = 0;
         }
-        if (ret == 2&&fBatt_SOC>5.5)
+        if (ret == 2&&fBatt_SOC>5.5&&l1.size()>0&&l1.begin()->hh>t)
+// entladen
         {
             idauer = 1;
             iFc = -e3dc_config.maximumLadeleistung;
@@ -5690,8 +5692,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                     if (fPower_Bat<-200 )
                         iPower = fPower_Bat;
 
-                    if (fBatt_SOC<97&&fPower_Bat<1000&&fPower_Grid>-200)
-                        iPower = fPower_Bat-1000;
+                    if (fBatt_SOC<97&&fPower_Bat<100&&fPower_Grid>-200)
+                        iPower = fPower_Bat-100;
 
                     
                     break;
