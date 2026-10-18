@@ -324,7 +324,7 @@ bool SucheDiff1(std::vector<watt_s> &e,std::vector<watt_s> &w,float price, int a
               l1 = j;
           }
         float erg = (low.pp )*(e3dc.AWAufschlag)+ e3dc.AWDiff;
-        if ((high.pp + e3dc.DVmp*10) > (low.pp)*(e3dc.AWAufschlag)+ e3dc.AWDiff)
+        if ((high.pp + e3dc.DVmp*10) > (low.pp)+ e3dc.DVEinspeise*10)  // Einspeiseschwelle
         return true;
     }
 

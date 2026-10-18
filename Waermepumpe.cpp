@@ -1064,7 +1064,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 wetter.clear();
 //                e3dc.speichergroesse = 29.5;
                 if (fp != NULL)
-                fclose(fp);
+//                fclose(fp);
                 fp = NULL;
                 fp = fopen(e3dc.analyse,"r");
                 if (fp == NULL)
@@ -1075,6 +1075,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 float hh = 0;
                 char key[] = "Simulation";
                 char key2[] = " Data \n";
+                char key3[] = " DV \n";
                 memset(&line, 0, sizeof(line));
                 int ret = sizeof(line);
 //                fgets(line,sizeof(line)-1,fp);
@@ -1083,10 +1084,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                     memset(&line, 0, sizeof(line));
                     if (fgets(line,sizeof(line),fp)==NULL)
                         break;
-                    sscanf(line, " %[^ \t=]%*[ \t ] %*[\t ]%[^ \n]", var, value);
+                    ret = sscanf(line, " %[^ \t=]%*[ \t ] %*[\t ]%[^ \n]", var, value);
                     char s1[20],s2[20],s3[20],s4[20];
                     float f1,f2;
-                    sscanf(line, "%s %s %f %s %s %f", s1,s2,&f1,s3,s4,&f2);
+                    ret = sscanf(line, "%s %s %f %s %s %f", s1,s2,&f1,s3,s4,&f2);
                     soc = f1;
                     notstromreserve = f2;
                     ret = (strcmp(key,var));
@@ -1113,15 +1114,25 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                         break;
                 }
 
-
-                    while (fp != NULL&&ret>=0)
+                float f1,f2;
+                    while (fp != NULL)
                     {
+                        if (fgets(line,sizeof(line),fp)==NULL)
+                            break;
+                        ret = (strcmp(key3,line));
+                        if (ret == 0)
+                            break;
 
-                    ret =  fscanf(fp,"%f %f %f %f %f %f \n ",&hh,&ww.pp,&we.hourly,&we.wpbedarf,&we.solar, &we.temp);
-                    if (ret==6){
+                    ret =  sscanf(line,"%f %f %f %f %f %f %f %f [^\n] ",&hh,&ww.pp,&f1,&we.hourly,&we.wpbedarf,&we.solar, &we.temp,&f1,&f2);
+                    if (ret == 6)
+                        ret =  sscanf(line,"%f %f %f %f %f %f %f %f [^\n] ",&hh,&ww.pp,&we.hourly,&we.wpbedarf,&we.solar, &we.temp,&f1,&f2);
+                    if (ret>=6){
                         ww.hh = hh * 3600;
                         ww.pp=ww.pp*10;
                         we.hh = hh * 3600;
+                        we.heizstabbedarf=0;
+                        we.wwwpbedarf=0;
+                        we.einspeisen=0;
                         wetter.push_back(we);
                         w.push_back(ww);
                     }
@@ -1296,8 +1307,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                 if (e3dc.openmeteo)
                 {
                     ptm=localtime(&w[j].hh);
-                    if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
-                        fprintf(fp,"%5.2f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),(e[j].pp+e3dc.DVmp*10)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
+//                    if (e3dc.DV&&e.size()>j&&wetter[j].solar-wetter[j].hourly-e3dc.WPmin/e3dc.speichergroesse*25>0)
+                        if (e3dc.DV&&e.size()>j)
+                        fprintf(fp,"%5.2f %5.3f %5.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,(e[j].pp+e3dc.DVmp*10)/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     else
                         fprintf(fp,"%5.2f %6.3f %5.2f %5.2f %5.2f %5.2f",float((w[j].hh%(24*3600))/3600.0),w[j].pp/10,wetter[j].hourly,wetter[j].wpbedarf,wetter[j].solar,wetter[j].temp);
                     if (e3dc.WPWolf&&wetter[j].wwwpbedarf>0)
