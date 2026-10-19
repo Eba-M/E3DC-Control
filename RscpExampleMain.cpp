@@ -608,6 +608,8 @@ bool GetConfig()
         e3dc_config.WPNat = -15; // Normaussentemperatur
         e3dc_config.WPmin = -1;
         e3dc_config.WPmax = -1;
+        e3dc_config.WPPricePV = -1;
+        e3dc_config.WPPriceESS = -1;
         e3dc_config.WPPVon = -1;
         e3dc_config.WPPVoff = -100;
         e3dc_config.WPHK1 = 25;
@@ -856,6 +858,10 @@ bool GetConfig()
                         e3dc_config.WPmin = atof(value);
                     else if(strcmp(var, "wpmax") == 0)
                         e3dc_config.WPmax = atof(value);
+                    else if(strcmp(var, "wppricepv") == 0)
+                        e3dc_config.WPPricePV = atof(value);
+                    else if(strcmp(var, "wppriceess") == 0)
+                        e3dc_config.WPPriceESS = atof(value);
                     else if(strcmp(var, "wppvon") == 0)
                         e3dc_config.WPPVon = atof(value);
                     else if(strcmp(var, "wppvoff") == 0)
@@ -3862,7 +3868,7 @@ int LoadDataProcess() {
              &&
              (iPower_PV < e3dc_config.maximumLadeleistung||iPower_Bat<e3dc_config.maximumLadeleistung/2||fPower_Grid>e3dc_config.maximumLadeleistung/2))
         {
-              iE3DC_Req_Load = e3dc_config.maximumLadeleistung*1.9;
+              iE3DC_Req_Load = e3dc_config.maximumLadeleistung*2;
 //            printf("Netzladen an");
 //            iE3DC_Req_Load = e3dc_config.maximumLadeleistung*0.8;
             if (e3dc_config.debug) printf("RQ7 %i ",ret);
@@ -3880,7 +3886,7 @@ int LoadDataProcess() {
                   ((e3dc_config.aWATTar==0)&&w.size()>0))
                  )
             {
-                  iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-.9;
+                  iE3DC_Req_Load = e3dc_config.maximumLadeleistung*-1;
                 if (e3dc_config.debug) printf("RQ7b %i ",ret);
                 iLMStatus = -7;
                 bDischargeDone = false;

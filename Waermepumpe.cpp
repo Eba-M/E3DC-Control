@@ -686,7 +686,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis + Marktprämie
-                                        wet.waermepreis = 10/wet.cop; // solarpreis = 10ct
+                                        wet.waermepreis = e3dc.WPPricePV/wet.cop; // solarpreis = 10ct
                                         if (e3dc.DV)
                                         {
 //  Bei Solarüberschuss werden 10ct/kWh fest angenommen
@@ -705,35 +705,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         if (fsoc*e3dc.speichereta-e3dc.AWReserve-notstromreserve>0)
                                         {
 // aus dem Speicher laden
-                                            if (e3dc.DV)
-                                            {
-                                                int h1,l1;
-                                                if (e3dc.debug) printf("NW6c %i\n",x1);
-                                                if (x1<e.size()&&SucheDiff1(e, w, e[x1].pp,x1, e.size(),e3dc, h1, l1))
-                                                {
-/*                                                    if (h1<=l1)
-                                                        wet.waermepreis = e[h1].pp*.1/wet.cop;
-                                                    else
-// speicherpreis
-*/                                                        wet.waermepreis = w[l1].pp*.1/wet.cop;
-                                                }
-                                                else
-                                                {
-                                                    // in die Wärmeplanung die Bezugspreise des nächsten Tag einbinden
-                                                    
-                                                    
-                                                    if (x1<e.size()&&SucheDiff1(w, w, w[l1].pp,l1, w.size(),e3dc, h1, l1))
-                                                        wet.waermepreis = (minimum_pp)*.1/wet.cop; // speicherpreis
-                                                    else
-                                                        wet.waermepreis = (max_pp+e3dc.DVmp*10)*.1/wet.cop; // speicherpreis
-
- }
-                                                if (e3dc.debug) printf("NW6d %i\n",l1);
-//
-//                                                wet.waermepreis = (w[l1].pp*.1)/wet.cop;
-                                            }
-                                            else
-                                                wet.waermepreis = 12/wet.cop; // solarpreis = 12ct Wenn aus dem Speicher
+                                            wet.waermepreis = e3dc.WPPriceESS/wet.cop;
                                             
                                             float verbrauch = e3dc.WPLeistung/(wet.cop-.0)/e3dc.speichergroesse*25;
                                             if (wetter[x1].wpbedarf>verbrauch)
@@ -743,11 +715,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         }
                                         else
                                         {
-                                            if (w[x1].pp<highpp)
                                                 wet.waermepreis = w[x1].pp*.1/wet.cop;
-                                            else
-                                                wet.waermepreis = (highpp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
-                                            wet.status = 0;
+                                                wet.status = 0;
                                         }
                                     }
                                     wetter[x1].einspeisen=0;
