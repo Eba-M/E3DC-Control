@@ -704,7 +704,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     }
                                     else
                                     {
-                                        if (fsoc*e3dc.speichereta-e3dc.AWReserve-notstromreserve>0)
+                                        if (fsoc*e3dc.speichereta-e3dc.AWReserve-notstromreserve>0&&w[x1].pp*.1>e3dc.WPPriceESS)
                                         {
 // aus dem Speicher laden
                                             wet.waermepreis = e3dc.WPPriceESS/wet.cop;
