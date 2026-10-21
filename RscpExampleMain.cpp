@@ -5884,7 +5884,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
             
             
             //        if ((iWBStatus == 1)&&(bWBConnect)) // Dose verriegelt
-            if (iWBStatus == 1||(bWBConnect&&bWBStopped)) //
+            if (iWBStatus == 1) //
+//                if (iWBStatus == 1||(bWBConnect&&bWBStopped)) //
             {
                 // Wenn bWBZeitsteuerung erfolgt die Ladungsfreigabe nach ch = chargehours ermittelten Stunden
                 struct tm * ptm;
