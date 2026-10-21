@@ -629,9 +629,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 */
                                 }
                                 x3=0;
-                                fsoc = flowsoc[x3]-e3dc.AWReserve-notstromreserve;
+/*                                fsoc = flowsoc[x3]-e3dc.AWReserve-notstromreserve;
                                 if (fsoc<0) fsoc = 0;
                                 if (fsoc>100) fsoc = 100; // max 100% SoC
+*/
 /*                                if (e3dc.DVWBkWh>0)
                                 {
                                     fhighsoc[0]=fhighsoc[0]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
@@ -639,6 +640,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     fhighsoc[2]=fhighsoc[2]-(e3dc.DVWBkWh*100/e3dc.speichergroesse);
                                 }
 */
+                                fsoc = soc; //aktuellen soc übernehmen
                                 if (e3dc.debug) printf("NW6\n");
                                 for (int x1=0;x1<w.size()&&x1<wetter.size();x1++)
                                 {
@@ -689,7 +691,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         wet.waermepreis = e3dc.WPPricePV/wet.cop; // solarpreis = 10ct
                                         if (e3dc.DV)
                                         {
-//  Bei Solarüberschuss werden 10ct/kWh fest angenommen
+//  Bei Solarüberschuss werden e3dc.WPPricePV oder Börsenpreis wenn niedriger angenommen
 
                                             if (x1<e.size()&&wet.waermepreis>(e[x1].pp+e3dc.DVmp*10)*.1/wet.cop)
                                                 wet.waermepreis = (e[x1].pp+e3dc.DVmp*10)*.1/wet.cop; // solarpreis = 10ct
@@ -707,10 +709,6 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
 // aus dem Speicher laden
                                             wet.waermepreis = e3dc.WPPriceESS/wet.cop;
                                             
-                                            float verbrauch = e3dc.WPLeistung/(wet.cop-.0)/e3dc.speichergroesse*25;
-                                            if (wetter[x1].wpbedarf>verbrauch)
-                                                verbrauch = wetter[x1].wpbedarf;
-                                            fsoc = fsoc - verbrauch;
                                             wet.status = 1;
                                         }
                                         else
@@ -719,6 +717,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                 wet.status = 0;
                                         }
                                     }
+                                    float verbrauch = e3dc.WPmin/e3dc.speichergroesse*25;
+                                    fsoc = fsoc -wetter[x1].hourly- verbrauch + wetter[x1].solar;
+                                    if (fsoc > 100) fsoc = 100;
+                                    if (fsoc <0) fsoc = 0;
                                     wetter[x1].einspeisen=0;
                                     wetter[x1].wpbedarf=0;
                                     wetter[x1].wwwpbedarf=0;
@@ -730,12 +732,12 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                         wetter1.push_back(wet);
                                     else
                                         wetter2.push_back(wet);
-                                    if (iindxsoc[x3]<x1&&x3<2)
+/*                                    if (iindxsoc[x3]<x1&&x3<2)
                                     {
                                         x3++;
                                         fsoc = fsoc = flowsoc[x3];
                                     }
-                                    
+*/
                                 }
                                 
                                 //                            waermebedarf= 109;
