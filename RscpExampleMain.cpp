@@ -4502,7 +4502,12 @@ bDischarge = false;
             iBattLoad = 0;
             iFc = 0;
         }
-        if (ret == 2&&fBatt_SOC>5.5&&l1.size()>0&&l1.begin()->hh>t)
+        if (ret == 2
+            &&fBatt_SOC>5.5
+            &&l1.size()>0
+            &&l1.begin()->hh>t
+            &&e.size()>0
+            &&e.begin()->pp-fminpp>e3dc_config.DVEinspeise*10.0)
 // entladen
         {
             idauer = 1;

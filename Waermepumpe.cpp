@@ -728,6 +728,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     wetter[x1].waerme=0;
                                     wetter[x1].waermepreis=wet.waermepreis;
                                     wet.temp = wetter[x1].temp;
+                                    wet.soc = fsoc;
                                     if (x1<96)
                                         wetter1.push_back(wet);
                                     else
@@ -810,11 +811,16 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                         if (wet.status == 1
                                                             &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
                                                         {
-                                                            if (flowsoc[j1]>0){
+                                                            float vsoc;
+                                                            if (flowsoc[j1]>0&&wet.soc>0)
+                                                            {
+                                                                float vsoc;
                                                                 if (wpbedarf >0)
-                                                                    flowsoc[j1] = flowsoc[j1] - 0.1/e3dc.speichergroesse*25;
+                                                                    vsoc = 0.1/e3dc.speichergroesse*25;
                                                                 else
-                                                                    flowsoc[j1] = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                                    vsoc = flowsoc[j1] - e3dc.WPmin/e3dc.speichergroesse*25;
+                                                                flowsoc[j1] = flowsoc[j1]-vsoc;
+                                                                wetter1[0].soc = wetter1[0].soc-vsoc;
                                                             }
                                                             else
                                                             {
@@ -874,7 +880,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                     {
                                                         if (wet.status==2)
                                                         {
-                                                            if (not e3dc.DV)
+                                                            if (e3dc.DV)
+                                                                wetter1[0].waermepreis = (e3dc.WPPriceESS)/wet.cop;
+                                                            else
                                                             wetter1[0].waermepreis =                                           wetter1[0].waermepreis * 1.5;
                                                             wetter1[0].status = 1;
                                                         }
@@ -1337,8 +1345,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
             fclose(fp);
             fclose(fp1);
 if (e3dc.debug) printf("NWS2\n");
-            if (strlen(e3dc.analyse)>0)
-                e3dc.stop = 99;
+//            if (strlen(e3dc.analyse)>0)
+//                e3dc.stop = 99;
 
             ptm = localtime(&rawtime);
             if (ptm->tm_min<2)
