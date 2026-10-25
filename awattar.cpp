@@ -653,7 +653,7 @@ int CheckaWATTar(std::vector<watt_s> &w,std::vector<wetter_s> &wetter, float fSo
  */
     if (w.size() == 0) return 0; // Preisvector ist leer
     fstrompreis = w[0].pp;
-    ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
+//    ladeleistung = ladeleistung*.9; // Anpassung Wirkungsgrad
 //    int taglaenge = sunset-sunrise;
 //    int tagoffset = 12*60-taglaenge;
 //    tagoffset = tagoffset/2;
