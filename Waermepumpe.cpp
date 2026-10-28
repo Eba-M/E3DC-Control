@@ -741,7 +741,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     else
                                         wetter2.push_back(wet);
 
-                                    ssoc.push_back(asoc);
+                                    ssoc.push_back(fsoc);
 
 /*                                    if (iindxsoc[x3]<x1&&x3<2)
                                     {
