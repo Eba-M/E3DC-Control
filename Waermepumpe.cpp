@@ -940,7 +940,7 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                         wetter[wetter1[0].x1].wwwpbedarf=0.5/e3dc.speichergroesse*25;
                                                         waermebedarf = waermebedarf - wetter[wetter1[0].x1].wwwpbedarf*e3dc.speichergroesse*.04;
                                                         bwwp = bwwp + wetter[wetter1[0].x1].wwwpbedarf*e3dc.speichergroesse*.04;
-                                                        // Einsatz Heizstab Wärmepreis sind die Bezugskosten
+                                                        // Verdichter maximale Leistung
                                                         wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
                                                         wetter1[0].cop = 3;
                                                         wetter1[0].waermepreis = wetter1[0].waermepreis/wetter1[0].cop;
@@ -967,8 +967,6 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                                 wetter[wetter1[0].x1].heizstabbedarf =
                                                                 0.4/e3dc.speichergroesse*25;
                                                                 waermebedarf = (waermebedarf - 0.25); // 0.25 = 1kW
-                                                                wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
-                                                                wetter1[0].cop = 1;
 
                                                             }
                                                             else
@@ -1012,13 +1010,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                 // WP Leistung erreicht, jetzt gehts mit der BWWP weiter
                                                 if (wetter[wetter1[0].x1].wwwpbedarf==0)
                                                 {
-                                                    if (wetter[wetter1[0].x1].hourly+wetter[wetter1[0].x1].wpbedarf+0.5/e3dc.speichergroesse*25
-                                                        >wetter[wetter1[0].x1].solar)
-                                                        wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/4;
-                                                    else
-                                                        
-                                                        wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop/4;
+                                                    wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
                                                     wetter1[0].cop = 4;
+                                                    wetter1[0].waermepreis = wetter1[0].waermepreis/wetter1[0].cop;
                                                 }
                                             }
                                             
