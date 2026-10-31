@@ -694,7 +694,10 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                     if (wetter[x1].hourly+e3dc.WPmin/e3dc.speichergroesse*25<wetter[x1].solar)
                                     {
 // bei Direktvermarktung ist der wärmepreis der Börsenpreis + Marktprämie
-                                        wet.waermepreis = e3dc.WPPricePV/wet.cop; // solarpreis = 10ct
+                                        if (w[x1].pp<e3dc.WPPricePV*10)
+                                            wet.waermepreis = w[x1].pp/10/wet.cop; // solarpreis = 10ct
+                                        else
+                                            wet.waermepreis = e3dc.WPPricePV/wet.cop; // solarpreis = 10ct
                                         if (e3dc.DV)
                                         {
 //  Bei Solarüberschuss werden e3dc.WPPricePV oder Börsenpreis wenn niedriger angenommen
