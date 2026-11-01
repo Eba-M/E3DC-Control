@@ -3404,12 +3404,12 @@ int LoadDataProcess() {
                          ||
                          (
                           (
-                           (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.1<wolf[wppw].wert&&wolf[wppw].t > 0)
+                           (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.05<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
-                            (wetter[0].waerme*1.2<wolf[wphl].wert&&(wolf[wphl].t > 0))
-                          ||
-                               (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0)
-                                &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.05<wolf[wppw].wert&&wolf[wppw].t > 0)
+                            (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0))
+                          ||      // Sollwerte                          Ist-Wert
+                               (wetter[0].waerme*1.01<wolf[wphl].wert&&(wolf[wphl].t > 0)
+                                &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.0<=wolf[wppw].wert&&wolf[wppw].t > 0)
                           )
                          &&
                          ((PVon < e3dc_config.WPPVoff)
