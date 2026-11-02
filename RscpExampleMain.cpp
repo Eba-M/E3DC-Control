@@ -3406,10 +3406,10 @@ int LoadDataProcess() {
                           (
                            (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.05<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
-                            (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0))
+                            (wetter[0].waerme*1.1<wolf[wphl].wert&&(wolf[wphl].t > 0))
                           ||      // Sollwerte                          Ist-Wert
-                               (wetter[0].waerme*1.01<wolf[wphl].wert&&(wolf[wphl].t > 0)
-                                &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.0<=wolf[wppw].wert&&wolf[wppw].t > 0)
+                               (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0)
+                                &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.0<wolf[wppw].wert&&wolf[wppw].t > 0)
                           )
                          &&
                          ((PVon < e3dc_config.WPPVoff)
@@ -5558,7 +5558,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
         memcpy(WBchar6,"\x00\x06\x00\x00\x00\x00",e3dc_config.wbminladestrom);
 //        WBchar6[1]=WBchar[2]; // es wird nicht mehr die zurückgemeldete Stromstärke verwendet
 
-        if ((WBchar[2]==e3dc_config.wbmaxladestrom)||(WBchar[2]==30))
+        if (((WBchar[2]==e3dc_config.wbmaxladestrom)||(WBchar[2]==30))&&not bWBSonne)
             bWBmaxLadestrom = true; else
             bWBmaxLadestrom = false;
             bWBLademodusSave = bWBSonne;    //Sonne = true
@@ -5936,8 +5936,8 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                         
                         if (bWBZeitsteuerung)
                         {
-                            if (bWBStopped)
-                                //                            if (not bWBCharge||bWBStopped)
+//                            if (bWBStopped)
+                            if (bWBConnect&&(not bWBCharge||bWBStopped))
                             {
                                 WBchar6[4] = 1;
                             }
@@ -5999,7 +5999,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                             ((bWBStart||bWBCharge)&&(not bWBOn && not bWBStopped))
                             )
                         {    // Ausschalten
-                            {bWBmaxLadestrom=bWBmaxLadestromSave;  //vorherigen Zustand wiederherstellen
+                            {bWBmaxLadestrom=false;  //vorherigen Zustand wiederherstellen
                                 bWBLademodus = true;
                                 //                    if (bWBLademodus)         // Sonnenmodus fest einstellen
                                 WBchar6[0] = 1;            // Sonnenmodus
