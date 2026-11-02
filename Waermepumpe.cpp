@@ -859,9 +859,9 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                             }
                                                             else
                                                             {
-                                                                wetter1[0].waermepreis = e3dc.WPPriceESS/10*cop/wetter1[0].cop;
+                                                                wetter1[0].waermepreis = e3dc.WPPriceESS/10/wetter1[0].cop;
                                                                 if (e3dc.WPPriceESS*10>w[wetter1[0].x1].pp)
-                                                                    wetter1[0].waermepreis = w[wetter1[0].x1].pp*cop/wetter1[0].cop;
+                                                                    wetter1[0].waermepreis = w[wetter1[0].x1].pp*.1/wetter1[0].cop;
                                                                 wetter1[0].status = 1;
                                                             }
                                                         }
