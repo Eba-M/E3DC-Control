@@ -3404,11 +3404,11 @@ int LoadDataProcess() {
                          ||
                          (
                           (
-                           (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.05<wolf[wppw].wert&&wolf[wppw].t > 0)
+                           (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.04<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
                             (wetter[0].waerme*1.1<wolf[wphl].wert&&(wolf[wphl].t > 0))
                           ||      // Sollwerte                          Ist-Wert
-                               (wetter[0].waerme*1.05<wolf[wphl].wert&&(wolf[wphl].t > 0)
+                               (wetter[0].waerme*1.02<wolf[wphl].wert&&(wolf[wphl].t > 0)
                                 &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.0<wolf[wppw].wert&&wolf[wppw].t > 0)
                           )
                          &&
@@ -5994,9 +5994,9 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                 bWBZeitsteuerung = true;
                             };
                         // Wenn die Wallbox wieder von alleine neu startet obwohl gestoppt, wieder stoppen
-                        if (not bWBZeitsteuerung&& bWBConnect
+                        if (not bWBZeitsteuerung&& bWBConnect&&WBchar6[1] == e3dc_config.wbmaxladestrom
                             &&
-                            ((bWBStart||bWBCharge)&&(not bWBOn && not bWBStopped))
+                            ((bWBStart||bWBCharge)&& not bWBStopped)
                             )
                         {    // Ausschalten
                             {bWBmaxLadestrom=false;  //vorherigen Zustand wiederherstellen
