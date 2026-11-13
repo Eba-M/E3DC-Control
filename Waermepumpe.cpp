@@ -1024,12 +1024,13 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                             wetter1[0].status = 0;
                                                         }
                                                     }
-                                                    else
+/*                                                    else
                                                     if (wet.status==1)
                                                     {
                                                             wetter1[0].waermepreis = (w[wetter1[0].x1].pp*.1*(100+e3dc.AWMWSt)/100+e3dc.AWNebenkosten)/wet.cop;
                                                             wetter1[0].status = 0;
                                                     }
+*/
                                                     wetter1[0].waermepreis = wetter1[0].waermepreis*wetter1[0].cop;
                                                     wetter1[0].cop = 4;
                                                     wetter1[0].waermepreis = wetter1[0].waermepreis/wetter1[0].cop;
