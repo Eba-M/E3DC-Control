@@ -6006,6 +6006,7 @@ int WBProcess(SRscpFrameBuffer * frameBuffer) {
                                 //                    if (not(bWBmaxLadestrom)){
                                 WBchar6[1] = e3dc_config.wbmaxladestrom-1;       // fest auf Automatik einstellen
                                 //                    } else WBchar6[1] = 32;
+                                bWBmaxLadestrom = false;
                                 bWBZeitsteuerung = false; // Ausschalten, weil z.B. abgesteckt
                                 // Laden wird bei Umschaltung auf Sonnen nicht mehr gleich gestoppt
                                 if (((bWBCharge) && not bWBStopped) || fPower_WB>100)
@@ -6782,10 +6783,11 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
 // Bei negativen Wärmebilanz oder wenn Pellets an, wird die Bilanz zurückgesetzt
                         if (waermebedarf/96*w.size()-float(iHeatStat[1]/3600000.0)<0
                             ||
-                            (temp[17]==1&&temp[19]==4)
+                            (temp[17]>=1&&temp[19]==4)
                             )
                             iHeatStat[1]=0;
-/*                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.15)
+
+                        if (-float(iHeatStat[1]/3600000.0)>waermebedarf*.15)
                             iHeatStat[1]=waermebedarf*-15*36000;  // wärmebedarf korrektur auf 15%
                         if   //Soll wärmekapazität Pufferspeicher erreicht
                         (
@@ -6796,7 +6798,7 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             temp[14]>temp[10]+30
                          )
                             iHeatStat[1]=0;
-*/
+
                     }
                 }
                 printf("%c[K\n", 27 );
