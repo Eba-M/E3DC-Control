@@ -823,7 +823,8 @@ void mewp(std::vector<watt_s> &w,std::vector<watt_s> &e,std::vector<wetter_s>&we
                                                     {
                                                         // WP wird aus dem Speicher bedient
                                                         if (wet.status == 1
-                                                            &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar)
+//                                                            &&wetter[wetter1[0].x1].hourly+wpbedarf>wetter[wetter1[0].x1].solar
+                                                            )
                                                         {
                                                             float vsoc;
                                                             if (flowsoc[j1]>0&&ssoc[wet.x1]>0)
