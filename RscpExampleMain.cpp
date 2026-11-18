@@ -3406,7 +3406,8 @@ int LoadDataProcess() {
                           (
                            (wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.04<wolf[wppw].wert&&wolf[wppw].t > 0)
                           ||
-                            (wetter[0].waerme*1.1<wolf[wphl].wert&&(wolf[wphl].t > 0))
+// Heizleistung IST zu hoch
+                            (wetter[0].waerme*1.5<wolf[wphl].wert&&(wolf[wphl].t > 0))
                           ||      // Sollwerte                          Ist-Wert
                                (wetter[0].waerme*1.02<wolf[wphl].wert&&(wolf[wphl].t > 0)
                                 &&wetter[0].wpbedarf*e3dc_config.speichergroesse/100*4*1.0<wolf[wppw].wert&&wolf[wppw].t > 0)
@@ -3524,10 +3525,13 @@ int LoadDataProcess() {
                              ||
                              (temp[1]>0&&temp[6]>0&&wolf[wpvl].wert>0&&wolf[wpvl].wert*10<temp[10]-5+e3dc_config.WPOffset*10)
                              ||
+// Heizleistung IST kleioner 90% vom SOLL
+                             (wetter[0].waerme*0.9>wolf[wphl].wert)
+                             ||
 
                              ((wetter[0].wpbedarf*e3dc_config.speichergroesse*4/100>wolf[wppw].wert
                              &&
-                             wetter[0].waerme>wolf[wphl].wert)
+                             wetter[0].waerme*0.95>wolf[wphl].wert)
 //                             &&(waermebedarf>float(iHeatStat[1]/3600000.0))
                              ||
 //                             (PVon>e3dc_config.WPPVon&&waermebedarf*-1>float(iHeatStat[1]/3600000.0))
