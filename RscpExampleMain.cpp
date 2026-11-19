@@ -3288,7 +3288,9 @@ int LoadDataProcess() {
  Die Pufferspeichertemperaturen dürfen die Soll Temperaturen der FBH max. um 3°, der HZK um 6° nicht übersteigen.
  Die Ist-Temp der FBH darf die Soll Temp nicht über 1,5° überschreiten.
  */
-                    if ((wetter.size()>0)&&wetter[0].wpbedarf==0&&ALV>0)
+                    if ((wetter.size()>0)&&(wetter[0].wpbedarf==0&&ALV>0)
+                        ||
+                        (wetter[0].wpbedarf>0&&ALV==0))
                         ALV = shelly(e3dc_config.shelly0V10Vmin);
                     if ((wetter.size()>0)&&wetter[0].heizstabbedarf>0
                         &&
