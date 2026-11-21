@@ -6799,6 +6799,8 @@ int handleResponseValue(RscpProtocol *protocol, SRscpValue *response)
                             temp[14]>400     // Pufferspeicher unter 40°
                          &&
                             temp[14]>temp[10]+30
+                         &&
+                            iHeatStat[1]<0
                          )
                             iHeatStat[1]=0;
 
